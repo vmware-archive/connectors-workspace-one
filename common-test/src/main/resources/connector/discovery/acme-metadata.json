@@ -1,0 +1,10 @@
+{
+  "fields": {
+    "issue_id": {
+      "regex": "([A-Z]{1,10}-\\d+)"
+    },
+    "something": {
+      "env": "GET_VAR"
+    }
+  }
+}

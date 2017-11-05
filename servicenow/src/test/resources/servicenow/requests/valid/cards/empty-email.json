@@ -1,0 +1,11 @@
+{
+  "connector_id": "servicenow",
+  "tokens": {
+    "ticket_id": [
+      "REQ0010002",
+      "REQ0010003",
+      "REQ0010004"
+    ],
+    "email": []
+  }
+}

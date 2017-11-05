@@ -1,0 +1,31 @@
+{
+  "id": "628a6d06-1925-404b-b241-ff21b273c4ab",
+  "action_key": "ADD_MONKEY_ACTION",
+  "label": "Add a Monkey",
+  "type": "PUT",
+  "url": {
+    "href": "/bucket/3213412"
+  },
+  "request": {
+    "flings_poo": "true"
+  },
+  "user_input": [
+    {
+      "id": "monkey_name",
+      "label": "Monkey Name",
+      "min_length": 3,
+      "max_length": 20,
+      "format": "email"
+    },
+    {
+      "id": "color",
+      "label": "Color"
+    },
+    {
+      "id": "species",
+      "label": "Species",
+      "min_length": 5
+    }
+
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Title of the Card",
+  "type": "BOYBAND",
+  "description": "The ultimate boy-band hero card",
+  "content": [
+    {
+      "inspiration": "DaVinci's Notebook"
+    }
+  ]
+}

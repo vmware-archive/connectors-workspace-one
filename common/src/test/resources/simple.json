@@ -1,0 +1,38 @@
+{
+  "id": "628a6d06-1925-404b-b241-ff21b273c4ab",
+  "name": "Salesforce",
+  "creation_date":"2017-03-03T08:58:17.656Z",
+  "expiration_date":"2017-05-03T08:58:17.656Z",
+  "template": {
+    "href": "/connectors/salesforce/templates/generic.hbs"
+  },
+  "header": {
+    "title": "Add a contact in Salesforce?"
+  },
+  "body": {
+    "description": "The sender's address, john.doe@abc.com, might be related to your Salesforce account named 'Georce Michael'. Would you like to add the sender as a contact?"
+  },
+  "actions": [{
+    "id": "628a6d06-1925-404b-b241-ff21b273c4ab",
+    "label": "Add contact",
+    "url": {
+      "href": "/connectors/salesforce/accounts/001Q0000012gRPoIAM/contacts"
+    },
+    "type": "POST",
+    "action_key": "ADD_CONTACT",
+    "request": {
+      "contact_email": "john.doe@abc.com"
+    },
+    "user_input": [
+      {
+        "id": "first_name",
+        "label": "First name"
+      },
+      {
+        "id": "last_name",
+        "label": "Last name",
+        "min_length": 1
+      }
+    ]
+  }]
+}

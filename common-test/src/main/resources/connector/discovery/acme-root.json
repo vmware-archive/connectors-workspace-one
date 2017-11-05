@@ -1,0 +1,10 @@
+{
+  "_links": {
+    "metadata": {
+      "href": "http://acme/connector/discovery/metadata"
+    },
+    "cards": {
+      "href": "http://acme/connector/cards/requests"
+    }
+  }
+}

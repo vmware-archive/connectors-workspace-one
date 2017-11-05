@@ -1,0 +1,13 @@
+server:
+  compression:
+     enabled: true
+     mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  server-header: salesforce-connector
+
+sf:
+   searchAccountsPath: services/data/v20.0/query
+   addContactPath: services/data/v20.0/sobjects/Contact
+   opportunityContactLinkPath: services/data/v20.0/sobjects/OpportunityContactRole
+   opportunityTaskLinkPath: services/data/v20.0/sobjects/Task
+   attachmentTasklinkPath: services/data/v20.0/sobjects/Attachment
+

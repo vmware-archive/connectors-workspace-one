@@ -1,0 +1,86 @@
+user_email=prabhuk@vmware.com&contact_email=travis@uber.com&opportunity_ids=0067F000002EnO9QAK&attachment_name=one.txt&email_conversations={
+  "name": "Socialcast",
+  "id": "socialcast",
+  "version": 1,
+  "data": {
+    "messages": [
+      {
+        "sender": {
+          "name": "Amy Cooper",
+          "email": "abc@vmware.com"
+        },
+        "recipients": [
+          {
+            "name": "Dan Faust",
+            "email": "def@vmware.com"
+          },
+          {
+            "name": "Georgia Ingersoll",
+            "email": "ghi@vmware.com"
+          },
+          {
+            "name": "Anja Donlan",
+            "email": "abcd@klm.com"
+          }
+        ],
+        "date": "2016-11-25T12:34:56-05:00",
+        "text": "This is message 1 from Amy Cooper.\n\nThis is more text from Amy.",
+        "subject": "Thread Subject"
+      },
+      {
+        "sender": {
+          "name": "Dan Faust",
+          "email": "def@vmware.com"
+        },
+        "recipients": [
+          {
+            "name": "Georgia Ingersoll",
+            "email": "ghi@vmware.com"
+          },
+          {
+            "name": "Anja Donlan",
+            "email": "abcd@klm.com"
+          },
+          {
+            "name": "Amy Cooper",
+            "email": "abc@vmware.com"
+          }
+        ],
+        "date": "2016-11-25T13:57:09-05:00",
+        "text": "This is message 2 from Dan Faust.\n\n    More text from Dan.",
+        "subject": "Re: Thread Subject"
+      },
+      {
+        "sender": {
+          "name": "Anja Donlan",
+          "email": "abcd@klm.com"
+        },
+        "recipients": [
+          {
+            "name": "Dan Faust",
+            "email": "def@vmware.com"
+          },
+          {
+            "name": "Georgia Ingersoll",
+            "email": "ghi@vmware.com"
+          },
+          {
+            "name": "Anja Donlan",
+            "email": "abcd@klm.com"
+          },
+          {
+            "name": "Amy Cooper",
+            "email": "abc@vmware.com"
+          },
+          {
+            "name": "John Law",
+            "email": "jkl@vmware.com"
+          }
+        ],
+        "date": "2016-11-25T14:25:36-05:00",
+        "text": "This is message 3 from Anja Donlan.\n\nIt quotes message 1:\n>This is message 1 from Amy Cooper.\n> \n> This is more text from Amy   ",
+        "subject": "Re: Re: Thread Subject"
+      }
+    ]
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "cards": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Jira",
+      "creation_date":"1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/jira/templates/generic.hbs"
+      },
+      "header": {
+        "title": "Add a comment to APF-27?"
+      },
+      "body": {
+        "description": "Add a comment to Jira issue: Add unit/integration tests",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Project",
+            "description": "App Platform"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Summary",
+            "description": "Add unit\/integration tests"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Status",
+            "description": "Active"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Assignee",
+            "description": "Rob Worsnop"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Reporter",
+            "description": "Rob Worsnop"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Components",
+            "description": "Hero Card Server"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Labels",
+            "description": ""
+          },
+          {
+            "type": "GENERAL",
+            "title": "Description",
+            "description": "Figure out best way to test Spring Boot microservices.\r\n\r\nHopefully we can avoid overly granular white-box tests and test APIs."
+          },
+          {
+            "type": "COMMENT",
+            "title": "Comments",
+            "content": [
+              {
+                "text": "This is another comment"
+              },
+              {
+                "text": "This is a comment"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Comment",
+          "completed_label": "Commented",
+          "url": {
+            "href": "https://hero/connectors/jira/api/v1/issues/249650/comment"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "body",
+              "label": "Comment",
+              "format": "textarea"
+            }
+          ]
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Open",
+          "url": {
+            "href": "https://jira.acme.com/browse/APF-27"
+          },
+          "type": "GET",
+          "action_key": "OPEN_IN",
+          "request": {},
+          "user_input": []
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Watch",
+          "completed_label": "Watching",
+          "url": {
+            "href": "https://hero/connectors/jira/api/v1/issues/249650/watchers"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {},
+          "user_input": []
+        }
+      ]
+    }
+  ]
+}

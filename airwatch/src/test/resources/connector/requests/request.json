@@ -1,0 +1,7 @@
+{
+  "tokens": {
+    "udid": ["ABCD"],
+    "platform": ["android"],
+    "app_name": ["Boxer", "Concur"]
+  }
+}

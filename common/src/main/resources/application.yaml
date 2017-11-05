@@ -1,0 +1,10 @@
+spring:
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+server:
+  compression:
+     enabled: true
+     mime-types: application/json,application/hal+json,text/x-handlebars-template
+     min-response-size: 512

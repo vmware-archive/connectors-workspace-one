@@ -1,0 +1,8 @@
+{
+  "connector_id": "servicenow",
+  "tokens": {
+    "email": [
+      "jbard@vmware.com"
+    ]
+  }
+}
