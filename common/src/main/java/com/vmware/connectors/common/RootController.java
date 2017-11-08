@@ -5,6 +5,8 @@
 
 package com.vmware.connectors.common;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.ResourceSupport;
@@ -30,12 +32,19 @@ public class RootController {
     public ResponseEntity<ResourceSupport> getRoot(HttpServletRequest servletRequest) {
         HttpRequest request = new ServletServerHttpRequest(servletRequest);
         ResourceSupport resource = new ResourceSupport();
+
         String metadata = UriComponentsBuilder.fromHttpRequest(request).path("/discovery/metadata.hal").build().toUriString();
         resource.add(new Link(metadata, "metadata"));
+
         String cards = UriComponentsBuilder.fromHttpRequest(request).path("/cards/requests").build().toUriString();
         resource.add(new Link(cards, "cards"));
-        String image = UriComponentsBuilder.fromHttpRequest(request).path("/images/connector.png").build().toUriString();
-        resource.add(new Link(image, "image"));
+
+        Resource imageResource = new ClassPathResource("/static/images/connector.png");
+        if (imageResource.exists()) {
+            String image = UriComponentsBuilder.fromHttpRequest(request).path("/images/connector.png").build().toUriString();
+            resource.add(new Link(image, "image"));
+        }
+
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(1, HOURS))
