@@ -8,9 +8,9 @@ also for generating connector regex.
 
 Content of a managed-apps file looks like below. (sample-managed-apps.yml):
 android:
-    vmware boxer: com.boxer.email
+    boxer: com.boxer.email
     concur: com.concur.breeze
-    hijack suite:com.hijack.android
+    suite:com.hijack.android
 ios:
     vmware boxer: com.air-watch.boxer
     concur: com.concur.concurmobile
