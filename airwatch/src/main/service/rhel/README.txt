@@ -12,7 +12,7 @@ android:
     concur: com.concur.breeze
     suite:com.hijack.android
 ios:
-    vmware boxer: com.air-watch.boxer
+    boxer: com.air-watch.boxer
     concur: com.concur.concurmobile
 
 
