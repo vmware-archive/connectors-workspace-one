@@ -1,0 +1,25 @@
+{
+  "self": "https://jira-euc.eng.vmware.com/jira/rest/api/2/user?username=harshas",
+  "key": "sharsha",
+  "name": "harshas",
+  "emailAddress": "harshas@vmware.com",
+  "avatarUrls": {
+    "48x48": "https://jira-euc.eng.vmware.com/jira/secure/useravatar?avatarId=10122",
+    "24x24": "https://jira-euc.eng.vmware.com/jira/secure/useravatar?size=small&avatarId=10122",
+    "16x16": "https://jira-euc.eng.vmware.com/jira/secure/useravatar?size=xsmall&avatarId=10122",
+    "32x32": "https://jira-euc.eng.vmware.com/jira/secure/useravatar?size=medium&avatarId=10122"
+  },
+  "displayName": "Shree Harsha",
+  "active": true,
+  "timeZone": "America/New_York",
+  "locale": "en_US",
+  "groups": {
+    "size": 61,
+    "items": []
+  },
+  "applicationRoles": {
+    "size": 1,
+    "items": []
+  },
+  "expand": "groups,applicationRoles"
+}

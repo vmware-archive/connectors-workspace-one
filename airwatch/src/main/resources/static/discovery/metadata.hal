@@ -1,0 +1,15 @@
+{
+  "authorization_header": "x-airwatch-authorization",
+  "backend_base_url_header": "x-airwatch-base-url",
+  "fields": {
+    "udid": {
+      "env": "ENROLLMENT_DEVICE_UDID"
+    },
+    "platform": {
+      "env": "DEVICE_SYSTEM_NAME"
+    },
+    "app_name": {
+      "regex": "(CONNECTOR_REGEX)"
+    }
+  }
+}

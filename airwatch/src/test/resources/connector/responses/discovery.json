@@ -1,0 +1,10 @@
+{
+  "_links": {
+    "metadata": {
+      "href": "https://my-connector/discovery/metadata.hal"
+    },
+    "cards": {
+      "href": "https://my-connector/cards/requests"
+    }
+  }
+}

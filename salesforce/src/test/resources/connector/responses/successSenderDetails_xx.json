@@ -1,0 +1,74 @@
+{
+  "cards": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Salesforce",
+      "template": {
+        "href": "https://hero/connectors/salesforce/templates/generic.hbs"
+      },
+      "header": {
+        "title": "Absender anzeigen"
+      },
+      "body": {
+        "description": "Absenderdetails aus Ihrem Salesforce-Konto",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Abcd",
+            "description": "Travis Kalanick"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Konto",
+            "description": "Uber Inc"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Telefonnummer",
+            "description": "(707) 070-7070"
+          },
+          {
+            "type": "GENERAL",
+            "title": "oportunidad",
+            "description": "Hero selling opportunity"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Papel",
+            "description": "Evaluator"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Probabilidad",
+            "description": "50.0%"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Cantidad",
+            "description": "$10.0"
+          },
+          {
+            "type": "GENERAL",
+            "title": "oportunidad",
+            "description": "MEM selling opp"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Papel",
+            "description": "Decision Maker"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Probabilidad",
+            "description": "60.0%"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Cantidad",
+            "description": "$100.0"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "totalSize": 2,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v20.0/sobjects/Opportunity/0064100000CgHW1AAN"
+      },
+      "Id": "0064100000CgHW1AAN",
+      "Name": "Hero selling opportunity"
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v20.0/sobjects/Opportunity/0064100000BU5dOAAT"
+      },
+      "Id": "0064100000BU5dOAAT",
+      "Name": "MEM selling opp"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+<h1>{{header}}</h1>
+<div>{{body}}</div>
+{{#actions}}
+<form id="{{../name}}{{@index}}" method="{{type}}" action="{{url.href}}">
+    {{#each request}}
+    <p><input type="hidden" id ="{{@key}}" value="{{this}}"/>
+    {{/each}}
+    {{#each userInput}}
+    <p><input type="text" id="{{this}}"/></p>
+    {{/each}}
+    <a href="#" onClick="submit()"><div class="button" text="{{label}}">{{label}}</div></a>
+</form>
+{{/actions}}

@@ -1,0 +1,13 @@
+{
+  "_links": {
+    "metadata": {
+      "href": "http://localhost/discovery/metadata"
+    },
+    "cards": {
+      "href": "http://localhost/cards/requests"
+    },
+    "image": {
+      "href": "http://localhost/images/connector.png"
+    }
+  }
+}

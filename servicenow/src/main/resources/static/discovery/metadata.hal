@@ -1,0 +1,8 @@
+{
+  "authorization_header": "x-servicenow-authorization",
+  "backend_base_url_header": "x-servicenow-base-url",
+  "fields": {
+    "ticket_id": {"regex": "(REQ[0-9]{7})"},
+    "email": {"env": "USER_EMAIL"}
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "totalSize": 1,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v20.0/sobjects/Opportunity/0064100000BU5bCAAT"
+      },
+      "Id": "0064100000BU5bCAAT",
+      "Name": "MDM selling opportunity"
+    }
+  ]
+}

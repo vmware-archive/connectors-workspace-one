@@ -1,0 +1,25 @@
+{
+  "stepwise_response_codes": {
+    "Posting message a47b6a3e": "201",
+    "Posting message a138c7b9": "201",
+    "Posting message 332731a3": "201",
+    "User query": "200",
+    "Group creation": "201",
+    "Adding users": "201"
+  },
+  "users_found": {
+    "abc@vmware.com": "1964707",
+    "ghi@vmware.com": "1968158"
+  },
+  "users_not_found": [
+    "def@vmware.com",
+    "jkl@vmware.com",
+    "abcd@klm.com"
+  ],
+  "group_uri": "https:\/\/roswell.socialcast.com\/groups\/174422-monkeypuzzle",
+  "messages_posted": {
+    "a47b6a3e": "https:\/\/roswell.socialcast.com\/messages\/33106873",
+    "a138c7b9": "https:\/\/roswell.socialcast.com\/messages\/33106873",
+    "332731a3": "https:\/\/roswell.socialcast.com\/messages\/33106873"
+  }
+}

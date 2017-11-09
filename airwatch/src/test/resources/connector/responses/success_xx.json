@@ -1,0 +1,31 @@
+{
+  "cards": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "AirWatch",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/airwatch/templates/generic.hbs"
+      },
+      "header": {
+        "title": "Boxer"
+      },
+      "body": {
+        "description": "Uttama kriyegagi nivu ee app annu sthapisabahudu."
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Eega Sthapisu",
+          "url": {
+            "href": "awjade://notify?action=INSTALL_APP&appId=com.android.boxer"
+          },
+          "type": "GET",
+          "action_key": "INSTALL_APP",
+          "request": {},
+          "user_input": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "description": "A lump of coal",
+  "fields": [
+    {
+      "type": "ANTHRACITE",
+      "title": "Assay results",
+      "description": "Vitreous fracture"
+    }
+  ]
+}

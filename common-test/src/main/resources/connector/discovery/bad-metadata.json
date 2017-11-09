@@ -1,0 +1,9 @@
+{
+  "authorization_header": "x-bad-authorization",
+  "backend_base_url_header": "x-bad-base-url",
+  "fields": {
+    "issue_id": {
+      "regex": "unescaped slash in regex: \d"
+    }
+  }
+}
