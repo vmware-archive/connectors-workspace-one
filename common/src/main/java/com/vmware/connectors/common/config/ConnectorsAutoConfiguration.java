@@ -43,6 +43,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.AsyncRestOperations;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
@@ -68,6 +69,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Configuration
 @Import({ExceptionHandlers.class, RootController.class})
 public class ConnectorsAutoConfiguration {
+
+    // https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-security.html
+    private static final String VIDM_PUB_KEY_URL = "${security.oauth2.resource.jwt.key-uri}";
+
     @Bean
     public SingleReturnValueHandler singleReturnValueHandler() {
         return new SingleReturnValueHandler();
@@ -127,6 +132,21 @@ public class ConnectorsAutoConfiguration {
         };
     }
 
+    /**
+     * Since Spring beans are eagerly loaded by default, this will check that
+     * the vIdmPubKeyUrl was configured at startup (allowing users to see their
+     * mistake in the logs and systemd status instead of having a running
+     * service that doesn't actually work).
+     *
+     * Note: I don't expect anyone to actually inject this String.
+     */
+    @Bean
+    public String vIdmPubKeyUrl(@Value(VIDM_PUB_KEY_URL) String vIdmPubKeyUrl) {
+        if (StringUtils.isEmpty(vIdmPubKeyUrl)) {
+            throw new IllegalArgumentException(VIDM_PUB_KEY_URL + " must be configured");
+        }
+        return vIdmPubKeyUrl;
+    }
 
     @Bean
     public WebMvcConfigurer webMvcConfigurer(@Value("${static.cacheControl.maxAge:1}") long maxAge,
@@ -165,7 +185,7 @@ public class ConnectorsAutoConfiguration {
 
             @Override
             @SuppressWarnings("PMD.SignatureDeclareThrowsException")
-                public void configure(HttpSecurity http) throws Exception {
+            public void configure(HttpSecurity http) throws Exception {
                 http.anonymous()
                         .and()
                         .authorizeRequests()

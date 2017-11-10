@@ -16,6 +16,10 @@
         <version>1.5.8.RELEASE</version>
     </parent>
 
+    <properties>
+        <connector.name>overrideme</connector.name>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -196,9 +200,137 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>rpm-maven-plugin</artifactId>
+                    <version>2.1.5</version>
+                    <executions>
+                        <execution>
+                            <id>attached-rpm</id>
+                            <goals>
+                                <goal>attached-rpm</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <group>TODO</group>
+                        <provides>
+                            <provide>${connector.name}-connector</provide>
+                        </provides>
+                        <requires>
+                            <require>jre >= 1.8</require>
+                            <require>systemd >= 219</require>
+                            <require>systemd-units >= 219</require>
+                        </requires>
+                        <mappings>
+                            <!-- Create a systemd service file to be enabled in the post-install script -->
+                            <mapping>
+                                <directoryIncluded>false</directoryIncluded>
+                                <directory>/usr/lib/systemd/system/</directory>
+                                <filemode>660</filemode>
+                                <username>roswell</username>
+                                <groupname>roswell</groupname>
+                                <sources>
+                                    <source>
+                                        <location>src/main/service/rhel/files/systemd/${connector.name}-connector.service</location>
+                                    </source>
+                                </sources>
+                            </mapping>
+                            <!-- Create the dir to hold jar and default config (with execute privilege or else spring might not find the conf files) -->
+                            <mapping>
+                                <directory>/opt/vmware/connectors/${connector.name}/</directory>
+                                <filemode>770</filemode>
+                                <username>roswell</username>
+                                <groupname>roswell</groupname>
+                            </mapping>
+                            <!-- Include the actual jar to run -->
+                            <mapping>
+                                <directory>/opt/vmware/connectors/${connector.name}/</directory>
+                                <filemode>660</filemode>
+                                <username>roswell</username>
+                                <groupname>roswell</groupname>
+                                <artifact />
+                            </mapping>
+                            <!-- Give ops sensible default config files -->
+                            <mapping>
+                                <directory>/opt/vmware/connectors/${connector.name}/</directory>
+                                <filemode>660</filemode>
+                                <username>roswell</username>
+                                <groupname>roswell</groupname>
+                                <sources>
+                                    <source>
+                                        <location>src/main/service/rhel/files/default-conf/</location>
+                                    </source>
+                                </sources>
+                            </mapping>
+                            <!-- Include our README.md with instructions and notes -->
+                            <mapping>
+                                <directory>/opt/vmware/connectors/${connector.name}/</directory>
+                                <filemode>660</filemode>
+                                <username>roswell</username>
+                                <groupname>roswell</groupname>
+                                <sources>
+                                    <source>
+                                        <location>README.md</location>
+                                    </source>
+                                </sources>
+                            </mapping>
+                            <!-- Make an empty config dir for ops to put their overrides (with execute privilege or else spring might have problems) -->
+                            <mapping>
+                                <directory>/etc/opt/vmware/connectors/${connector.name}/</directory>
+                                <filemode>770</filemode>
+                                <username>roswell</username>
+                                <groupname>roswell</groupname>
+                            </mapping>
+                            <!-- Make an empty dir for the logs (with execute privilege for easy ls'ing of files) -->
+                            <mapping>
+                                <directory>/var/log/vmware/connectors/${connector.name}/</directory>
+                                <filemode>770</filemode>
+                                <username>roswell</username>
+                                <groupname>roswell</groupname>
+                            </mapping>
+                        </mappings>
+                        <preinstallScriptlet>
+                            <script>
+                                # https://unix.stackexchange.com/questions/59228/recommended-procedure-to-create-a-user-group-during-rpm-install
+                                # https://superuser.com/questions/168461/managing-service-accounts-in-an-rpm-spec
+                                getent group roswell >/dev/null 2>&amp;1 || groupadd -r roswell
+                                getent passwd roswell >/dev/null 2>&amp;1 || useradd -r -s /bin/false roswell -g roswell
+                            </script>
+                        </preinstallScriptlet>
+                        <postinstallScriptlet>
+                            <script>
+                                systemctl daemon-reload
+
+                                # Don't necessarily start the service because: https://fedoraproject.org/wiki/Packaging:Systemd
+
+                                systemctl enable ${connector.name}-connector
+
+                                # If this is an upgrade, then restart the service with the new code
+                                if [ "$1" -gt 1 ]
+                                then
+                                systemctl restart ${connector.name}-connector
+                                fi
+                            </script>
+                        </postinstallScriptlet>
+                        <preremoveScriptlet>
+                            <script>
+                                # https://superuser.com/questions/513159/how-to-remove-systemd-services
+                                # https://stackoverflow.com/questions/7398834/rpm-upgrade-uninstalls-the-rpm
+                                # https://docs-old.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch09s04s05.html
+
+                                # If this is being removed instead of updated, stop and disable the service
+                                if [ "$1" = 0 ]
+                                then
+                                systemctl stop ${connector.name}-connector
+                                systemctl disable ${connector.name}-connector
+                                fi
+
+                                systemctl daemon-reload
+
+                                systemctl reset-failed
+                            </script>
+                        </preremoveScriptlet>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
