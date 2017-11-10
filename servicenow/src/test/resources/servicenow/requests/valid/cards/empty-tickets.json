@@ -1,5 +1,4 @@
 {
-  "connector_id": "servicenow",
   "tokens": {
     "ticket_id": [],
     "email": [
