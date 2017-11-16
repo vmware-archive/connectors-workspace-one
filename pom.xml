@@ -210,22 +210,6 @@
 
     </build>
 
-    <repositories>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>central</id>
-            <name>libs-release</name>
-            <url>https://artifactory.air-watch.com/artifactory/libs-release</url>
-        </repository>
-        <repository>
-            <snapshots />
-            <id>snapshots</id>
-            <name>libs-snapshot</name>
-            <url>https://artifactory.air-watch.com/artifactory/libs-snapshot</url>
-        </repository>
-    </repositories>
     <reporting>
         <plugins>
             <plugin>
