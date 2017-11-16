@@ -26,6 +26,7 @@ import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.ExpectedCount.times;
@@ -47,6 +48,9 @@ public class AirWatchControllerTests extends ControllerTestsBase {
 
     @Value("classpath:airwatch/responses/awAppNotInstalled.json")
     private Resource awAppNotInstalled;
+
+    @Value("classpath:airwatch/responses/awUserForbidden.json")
+    private Resource awUserForbidden;
 
     @Autowired
     private AsyncRestTemplate rest;
@@ -102,7 +106,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
                 .header("x-routing-prefix", "https://hero/connectors/airwatch/")
                 .content(fromFile("/connector/requests/request.json")))
                 .andExpect(status().isBadRequest())
-                .andExpect(status().reason(containsString("Missing request header 'x-airwatch-authorization'")));
+                .andExpect(status().reason(containsString("Missing request header 'x-airwatch-base-url'")));
     }
 
     @Test
@@ -119,19 +123,17 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     }
 
     /*
-    Unauthorized for backend, AirWatch.
+    User might try to check someone else's app status.
      */
     @Test
-    public void testRequestCardsNotAuthorized() throws Exception {
+    public void testRequestCardsForbidden() throws Exception {
         mockAirWatch.expect(times(1), requestTo(any(String.class)))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer bogus"))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + accessToken()))
                 .andExpect(method(GET))
-                .andRespond(withUnauthorizedRequest());
-        perform(requestCards("bogus", "request.json"))
+                .andRespond(withStatus(FORBIDDEN).body(awUserForbidden));
+        perform(requestCards("request.json"))
                 .andExpect(status().isBadRequest())
-                .andExpect(header().string("X-Backend-Status", "401"))
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("/connector/responses/invalid_connector_token.json")));
+                .andExpect(content().json(fromFile("connector/responses/forbiddenUdid.json")));
         mockAirWatch.verify();
     }
 
@@ -139,7 +141,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     public void testRequestCardsOneServerError() throws Exception {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.poison.pill")
                 .andRespond(withServerError());
-        perform(requestCards("abc", "oneServerError.json"))
+        perform(requestCards("oneServerError.json"))
                 .andExpect(status().is5xxServerError())
                 .andExpect(header().string("X-Backend-Status", "500"));
         mockAirWatch.verify();
@@ -149,13 +151,13 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     public void testRequestCardsInvalidUdid() throws Exception {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=INVALID&BundleId=com.android.boxer")
                 .andRespond(withStatus(NOT_FOUND).body(fromFile("airwatch/responses/udidNotFound.json")));
-        perform(requestCards("abc", "invalidUdid.json"))
+        perform(requestCards("invalidUdid.json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(fromFile("connector/responses/invalidUdid.json")));
     }
 
     private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("abc", requestFile);
+        MockHttpServletRequestBuilder builder = requestCards(requestFile);
         if (acceptLanguage != null) {
             builder = builder.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
@@ -167,11 +169,10 @@ public class AirWatchControllerTests extends ControllerTestsBase {
                         fromFile("connector/responses/" + responseFile)).buildForCards()));
     }
 
-    private MockHttpServletRequestBuilder requestCards(String authToken, String requestfile) throws Exception {
+    private MockHttpServletRequestBuilder requestCards(String requestfile) throws Exception {
         return post("/cards/requests").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header("x-airwatch-authorization", "Bearer " + authToken)
                 .header("x-airwatch-base-url", "https://air-watch.acme.com")
                 .header("x-routing-prefix", "https://hero/connectors/airwatch")
                 .content(fromFile("/connector/requests/" + requestfile));
@@ -180,6 +181,6 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     private ResponseActions expectAWRequest(String uri) {
         return mockAirWatch.expect(requestTo("https://air-watch.acme.com" + uri))
                 .andExpect(method(GET))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"));
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + accessToken()));
     }
 }
