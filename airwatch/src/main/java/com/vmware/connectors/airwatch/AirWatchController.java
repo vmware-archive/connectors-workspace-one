@@ -55,7 +55,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 public class AirWatchController {
     private final static Logger logger = LoggerFactory.getLogger(AirWatchController.class);
-    private static final String AIRWATCH_AUTH_HEADER = "x-airwatch-authorization";
+    private static final String AIRWATCH_AUTH_HEADER = "Authorization";
     private static final String AIRWATCH_BASE_URL_HEADER = "x-airwatch-base-url";
     private final static String ROUTING_PREFIX = "x-routing-prefix";
     private final static String AW_USER_NOT_ASSOCIATED_WITH_UDID = "1001";

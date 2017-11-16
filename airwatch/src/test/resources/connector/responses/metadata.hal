@@ -1,5 +1,4 @@
 {
-  "authorization_header": "x-airwatch-authorization",
   "backend_base_url_header": "x-airwatch-base-url",
   "fields": {
     "udid": {
