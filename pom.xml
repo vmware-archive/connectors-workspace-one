@@ -212,7 +212,8 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <group>TODO</group>
+                        <license>BSD-2</license>
+                        <group>VMware AirWatch</group>
                         <provides>
                             <provide>${connector.name}-connector</provide>
                         </provides>
@@ -271,6 +272,18 @@
                                 <sources>
                                     <source>
                                         <location>README.md</location>
+                                    </source>
+                                </sources>
+                            </mapping>
+                            <!-- Include our license file -->
+                            <mapping>
+                                <directory>/opt/vmware/connectors/${connector.name}/</directory>
+                                <filemode>660</filemode>
+                                <username>roswell</username>
+                                <groupname>roswell</groupname>
+                                <sources>
+                                    <source>
+                                        <location>../LICENSE.txt</location>
                                     </source>
                                 </sources>
                             </mapping>
