@@ -1,0 +1,12 @@
+[Unit]
+Description=Socialcast Connector Service
+After=network.target
+
+[Service]
+Type=simple
+User=roswell
+ExecStart=/usr/bin/java -jar /opt/vmware/connectors/socialcast/socialcast-connector.jar --spring.config.location=file:/opt/vmware/connectors/socialcast/application.properties,file:/etc/opt/vmware/connectors/socialcast/application.properties
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
