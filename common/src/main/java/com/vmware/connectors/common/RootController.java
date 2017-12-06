@@ -5,6 +5,8 @@
 
 package com.vmware.connectors.common;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.hateoas.Link;
@@ -28,6 +30,13 @@ import static java.util.concurrent.TimeUnit.HOURS;
 @RestController
 public class RootController {
 
+    private final boolean hasTestAuth;
+
+    @Autowired
+    public RootController(@Value("${connector.hasTestAuth:false}") boolean hasTestAuth) {
+        this.hasTestAuth = hasTestAuth;
+    }
+
     @GetMapping(path = "/", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<ResourceSupport> getRoot(HttpServletRequest servletRequest) {
         HttpRequest request = new ServletServerHttpRequest(servletRequest);
@@ -43,6 +52,11 @@ public class RootController {
         if (imageResource.exists()) {
             String image = UriComponentsBuilder.fromHttpRequest(request).path("/images/connector.png").build().toUriString();
             resource.add(new Link(image, "image"));
+        }
+
+        if (hasTestAuth) {
+            String testAuth = UriComponentsBuilder.fromHttpRequest(request).path("/test-auth").build().toUriString();
+            resource.add(new Link(testAuth, "test_auth"));
         }
 
 
