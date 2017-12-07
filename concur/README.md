@@ -89,3 +89,25 @@ sudo rpm -e concur-connector
 
 Updating will not touch your overriding application.properties in /etc.  It is probably a good idea to take a glance at /opt/vmware/connectors/concur/application.properties after updating to verify that there aren't any new things in the config that you should override.  If there are any new settings you wish to config, make sure you do so in the application.properties in /etc so that future updates/uninstalls don't throw away your config.
 
+## Exercise the Concur API
+
+### Approve the concur expense request
+
+```shell
+curl -X POST \
+  'http://localhost:8100/connectors/46cf06a0-d5cf-485a-be5c-8470952ac4ac/api/expense/approve/79D89435DAE94F53BF60?reason=Approve' \
+  -H 'content-type: application/x-www-form-urlencoded' \
+  -H 'x-concur-authorization: asdfasdf' \
+  -H 'x-concur-base-url: http://172.17.0.1:8850/concur'
+```
+
+### Reject the concur expense request
+
+```shell
+curl -X POST \
+  'http://localhost:8100/connectors/46cf06a0-d5cf-485a-be5c-8470952ac4ac/api/expense/approve/79D89435DAE94F53BF60?reason=Reject' \
+  -H 'content-type: application/x-www-form-urlencoded' \
+  -H 'x-concur-authorization: asdfasdf' \
+  -H 'x-concur-base-url: http://172.17.0.1:8850/concur'
+```
+
