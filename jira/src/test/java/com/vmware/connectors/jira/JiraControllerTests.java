@@ -94,6 +94,26 @@ public class JiraControllerTests extends ControllerTestsBase {
         mockJira.verify();
     }
 
+    @Test
+    public void testAuthSuccess() throws Exception {
+        expect("XYZ-999").andRespond(withStatus(NOT_FOUND));
+        perform(get("/test-auth").with(token(accessToken()))
+                .header("x-jira-authorization", "Bearer abc")
+                .header("x-jira-base-url", "https://jira.acme.com"))
+                .andExpect(status().isOk());
+        mockJira.verify();
+    }
+
+    @Test
+    public void testAuthFail() throws Exception {
+        expect("XYZ-999").andRespond(withUnauthorizedRequest());
+        perform(get("/test-auth").with(token(accessToken()))
+                .header("x-jira-authorization", "Bearer abc")
+                .header("x-jira-base-url", "https://jira.acme.com"))
+                .andExpect(status().isBadRequest());
+        mockJira.verify();
+    }
+
     /*
     Give more priority to x-auth header if more than one request-headers are missing.
      */

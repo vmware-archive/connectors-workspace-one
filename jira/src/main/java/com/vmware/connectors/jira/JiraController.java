@@ -13,6 +13,7 @@ import com.vmware.connectors.common.payloads.response.CardActionInputField;
 import com.vmware.connectors.common.payloads.response.CardBody;
 import com.vmware.connectors.common.payloads.response.CardBodyField;
 import com.vmware.connectors.common.payloads.response.Cards;
+import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,14 +43,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.vmware.connectors.common.utils.Async.toSingle;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.*;
-import static org.springframework.http.ResponseEntity.status;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * Created by Rob Worsnop on 10/17/16.
@@ -76,15 +76,12 @@ public class JiraController {
             @Valid @RequestBody CardRequest cardRequest) {
 
         Set<String> issueIds = cardRequest.getTokens("issue_id");
-        if (isEmpty(issueIds)) {
+        if (CollectionUtils.isEmpty(issueIds)) {
             logger.debug("Empty jira issues for Jira server: {}", baseUrl);
             return Single.just(ResponseEntity.ok(new Cards()));
         }
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTHORIZATION, jiraAuth);
-
         return Observable.from(issueIds)
-                .flatMap(issueId -> getCardForIssue(headers, baseUrl, issueId, routingPrefix))
+                .flatMap(issueId -> getCardForIssue(jiraAuth, baseUrl, issueId, routingPrefix))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .map(ResponseEntity::ok)
                 .toSingle();
@@ -103,8 +100,8 @@ public class JiraController {
                 "{baseUrl}/rest/api/2/issue/{issueKey}/comment", HttpMethod.POST,
                 new HttpEntity<>(Collections.singletonMap("body", body), headers), String.class,
                 baseUrl, issueKey);
-        return toSingle(future)
-                .map(entity -> status(entity.getStatusCode()).build());
+        return Async.toSingle(future)
+                .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
     }
 
     @PostMapping(path = "/api/v1/issues/{issueKey}/watchers")
@@ -121,9 +118,17 @@ public class JiraController {
                 "{baseUrl}/rest/api/2/myself", GET,
                 new HttpEntity<>(headers), JsonDocument.class, baseUrl);
 
-        return toSingle(selfFuture)
+        return Async.toSingle(selfFuture)
                 .flatMap(entity -> addUserToWatcher(entity.getBody(), headers, baseUrl, issueKey))
-                .map(entity -> status(entity.getStatusCode()).build());
+                .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
+    }
+
+    @GetMapping(path = "/test-auth")
+    public Single<ResponseEntity<Void>> testAuth(@RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
+                                                 @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl) {
+        return getIssue(jiraAuth, baseUrl, "XYZ-999")
+                .map(JiraController::stripBody)
+                .onErrorResumeNext(JiraController::map404to200);
     }
 
     private Single<ResponseEntity<Void>> addUserToWatcher(JsonDocument jiraUserDetails, HttpHeaders headers,
@@ -133,21 +138,27 @@ public class JiraController {
                 "{baseUrl}/rest/api/2/issue/{issueKey}/watchers", HttpMethod.POST,
                 new HttpEntity<>(String.format("\"%s\"", user), headers), String.class,
                 baseUrl, issueKey);
-        return toSingle(addWatcherFuture)
-                .map(entity -> status(entity.getStatusCode()).build());
+        return Async.toSingle(addWatcherFuture)
+                .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
 
     }
 
-    private Observable<Card> getCardForIssue(HttpHeaders headers, String baseUrl, String issueId, String routingPrefix) {
-        logger.debug("Getting info for Jira id: {} with Jira server: {}", issueId, baseUrl);
-        ListenableFuture<ResponseEntity<JsonDocument>> future = rest.exchange(
-                "{baseUrl}/rest/api/2/issue/{issueId}", GET, new HttpEntity<String>(headers), JsonDocument.class,
-                baseUrl, issueId);
-        return toSingle(future).toObservable()
+    private Observable<Card> getCardForIssue(String jiraAuth, String baseUrl, String issueId, String routingPrefix) {
+        return getIssue(jiraAuth, baseUrl, issueId).toObservable()
                 // if an issue is not found, we'll just not bother creating a card
                 .onErrorResumeNext(JiraController::skip404)
                 .map(entity -> transformIssueResponse(entity, baseUrl, issueId, routingPrefix));
 
+    }
+
+    private Single<ResponseEntity<JsonDocument>> getIssue(String jiraAuth, String baseUrl, String issueId) {
+        logger.debug("Getting info for Jira id: {} with Jira server: {}", issueId, baseUrl);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(AUTHORIZATION, jiraAuth);
+        ListenableFuture<ResponseEntity<JsonDocument>> future = rest.exchange(
+                "{baseUrl}/rest/api/2/issue/{issueId}", GET, new HttpEntity<String>(headers), JsonDocument.class,
+                baseUrl, issueId);
+        return Async.toSingle(future);
     }
 
     private static Observable<ResponseEntity<JsonDocument>> skip404(Throwable throwable) {
@@ -158,6 +169,21 @@ public class JiraController {
         } else {
             // If the problem is not 404, let the problem bubble up
             return Observable.error(throwable);
+        }
+    }
+
+    private static ResponseEntity<Void> stripBody(ResponseEntity<JsonDocument> entity) {
+        return ResponseEntity.status(entity.getStatusCode()).build();
+    }
+
+    private static Single<ResponseEntity<Void>> map404to200(Throwable throwable) {
+        if (throwable instanceof HttpClientErrorException
+                && HttpClientErrorException.class.cast(throwable).getStatusCode() == NOT_FOUND) {
+            // It's OK to request non-existent Jira issues; we just won't create a card.
+            return Single.just(ResponseEntity.ok().build());
+        } else {
+            // If the problem is not 404, let the problem bubble up
+            return Single.error(throwable);
         }
     }
 
