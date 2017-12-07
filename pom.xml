@@ -106,6 +106,7 @@
         <module>salesforce</module>
         <module>socialcast</module>
         <module>servicenow</module>
+        <module>concur</module>
     </modules>
 
     <build>

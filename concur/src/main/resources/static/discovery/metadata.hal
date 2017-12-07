@@ -1,0 +1,9 @@
+{
+  "authorization_header": "x-concur-authorization",
+  "backend_base_url_header": "x-concur-base-url",
+  "fields": {
+    "expense_report_id": {
+      "regex": "(Report\\s*Id\\s*:\\s*[A-Za-z0-9]{20,})"
+    }
+  }
+}

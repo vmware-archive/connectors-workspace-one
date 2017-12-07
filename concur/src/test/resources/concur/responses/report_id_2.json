@@ -1,0 +1,191 @@
+{
+  "AmountDueCompanyCard": 0,
+  "AmountDueEmployee": 0,
+  "ApprovalStatusCode": "Senior Manager",
+  "ApprovalStatusName": "string",
+  "ApproverLoginID": "anshuls",
+  "ApproverName": "Anshul Sharma",
+  "Country": "INDIA",
+  "CountrySubdivision": "string",
+  "CreateDate": "2017-11-28T04:14:05.918Z",
+  "CurrencyCode": "INR",
+  "Custom1": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom10": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom11": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom12": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom13": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom14": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom15": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom16": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom17": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom18": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom19": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom2": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom20": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom3": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom4": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom5": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom6": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom7": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom8": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "Custom9": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "EverSentBack": true,
+  "HasException": true,
+  "ID": "F49BD54084CE4C09BD65",
+  "LastComment": "string",
+  "LastModifiedDate": "2017-11-28T04:14:05.918Z",
+  "LedgerName": "Hotel expenses",
+  "Name": "string",
+  "OrgUnit1": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "OrgUnit2": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "OrgUnit3": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "OrgUnit4": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "OrgUnit5": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "OrgUnit6": {
+    "Code": "string",
+    "ListItemID": "string",
+    "Type": "string",
+    "Value": "string"
+  },
+  "OwnerLoginID": "ssathiamoort",
+  "OwnerName": "Sudharsan Sathiamoorthy",
+  "PaidDate": "2017-11-28T04:14:05.918Z",
+  "PaymentStatusCode": "INR",
+  "PaymentStatusName": "string",
+  "PersonalAmount": 0,
+  "PolicyID": "string",
+  "ProcessingPaymentDate": "2017-11-28T04:14:05.918Z",
+  "ReceiptsReceived": true,
+  "SubmitDate": "2017-11-28T04:14:05.918Z",
+  "Total": 0,
+  "TotalApprovedAmount": 5600,
+  "TotalClaimedAmount": 1900,
+  "URI": "string",
+  "UserDefinedDate": "2017-11-28T04:14:05.918Z",
+  "WorkflowActionUrl": "string"
+}
