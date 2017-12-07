@@ -24,6 +24,7 @@ import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.AsyncRestOperations;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.util.HtmlUtils;
 import rx.Observable;
 import rx.Single;
 
@@ -136,7 +137,7 @@ public class ConcurController {
                                             final String concurAction) throws IOException {
         String concurRequestTemplate = IOUtils.toString(this.concurrRequestTemplate.getInputStream(), StandardCharsets.UTF_8);
         concurRequestTemplate = concurRequestTemplate.replace(ACTION_PLACEHOLDER, concurAction);
-        concurRequestTemplate = concurRequestTemplate.replace(COMMENT_PLACEHOLDER, StringUtils.isNotBlank(reason) ? reason : DEFAULT_REASON);
+        concurRequestTemplate = concurRequestTemplate.replace(COMMENT_PLACEHOLDER, StringUtils.isNotBlank(reason) ? HtmlUtils.htmlEscape(reason) : DEFAULT_REASON);
         return concurRequestTemplate;
     }
 
@@ -251,7 +252,7 @@ public class ConcurController {
         // Did not find any concur API to open the concur page with report directly. Only baseUrl is added.
         return new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getMessage("concur.open"))
-                .setActionKey(CardActionKey.DIRECT)
+                .setActionKey(CardActionKey.OPEN_IN)
                 .setType(HttpMethod.GET)
                 .setUrl(baseUrl);
     }

@@ -70,7 +70,7 @@
             "href": "https://concursolutions.com"
           },
           "type": "GET",
-          "action_key": "DIRECT",
+          "action_key": "OPEN_IN",
           "request": {
           },
           "user_input": [
@@ -149,7 +149,7 @@
             "href": "https://concursolutions.com"
           },
           "type": "GET",
-          "action_key": "DIRECT",
+          "action_key": "OPEN_IN",
           "request": {
           },
           "user_input": [
