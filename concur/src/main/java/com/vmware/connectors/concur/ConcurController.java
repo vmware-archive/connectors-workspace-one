@@ -111,10 +111,10 @@ public class ConcurController {
     }
 
     private Single<ResponseEntity<Void>> makeConcurRequest(final String baseUrl,
-                                                                     final String reason,
-                                                                     final String workflowstepId,
-                                                                     final String authHeader,
-                                                                     final String concurAction) throws IOException, ExecutionException, InterruptedException {
+                                                           final String reason,
+                                                           final String workflowstepId,
+                                                           final String authHeader,
+                                                           final String concurAction) throws IOException, ExecutionException, InterruptedException {
         final HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION, authHeader);
         headers.add(CONTENT_TYPE, APPLICATION_XML_VALUE);

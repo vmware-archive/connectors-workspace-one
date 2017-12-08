@@ -182,7 +182,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
 
     @Test
     public void testConcurRegex() throws Exception {
-        final String concurRegex = ".*Report\\s*Id\\s*:\\s*([A-Za-z0-9]{20,})";
+        final String concurRegex = "Report\\s*Id\\s*:\\s*([A-Za-z0-9]{20,})";
         final Pattern pattern = Pattern.compile(concurRegex);
 
         final List<String> expectedList = Arrays.asList(
@@ -196,7 +196,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         final List<String> result = new ArrayList<>();
         for (final String input: regexInput.split("\\n")) {
             final Matcher matcher = pattern.matcher(input);
-            if (matcher.matches()) {
+            while (matcher.find()) {
                 result.add(matcher.group(1));
             }
         }
