@@ -1,5 +1,6 @@
 package com.vmware.connectors.concur;
 
+import com.vmware.connectors.common.JsonDocument;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.Before;
@@ -9,12 +10,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.test.web.client.RequestMatcher;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.client.AsyncRestTemplate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
@@ -25,6 +38,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class ConcurControllerTests extends ControllerTestsBase {
@@ -117,6 +131,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         this.mockConcur.expect(requestTo("https://concursolutions.com/api/expense/expensereport/v1.1/report/" + expenseReportId + "/workflowaction"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer concur-token"))
+                .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_XML))
                 .andRespond(withSuccess(expectedResponse, APPLICATION_XML));
 
         perform(post(uri + expenseReportId)
@@ -131,6 +146,31 @@ public class ConcurControllerTests extends ControllerTestsBase {
     }
 
     @Test
+    public void testEscapeHtmlTest() throws Exception {
+        this.mockConcur.expect(requestTo("https://concursolutions.com/api/expense/expensereport/v1.1/report/" + REPORT_ID_2 + "/workflowaction"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer concur-token"))
+                .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_XML))
+                // Html characters are escaped.
+                .andExpect(MockRestRequestMatchers.content().xml("<WorkflowAction xmlns=\"http://www.concursolutions.com/api/expense/expensereport/2011/03\">\n" +
+                        "    <Action>Send Back to Employee</Action>\n" +
+                        "    <Comment>Approval &lt;/comment&gt; &lt;html&gt; &lt;/html&gt; Done</Comment>\n" +
+                        "</WorkflowAction>\n"))
+                .andRespond(withSuccess(approved, APPLICATION_XML));
+
+        perform(post("/api/expense/reject/" + REPORT_ID_2)
+                .with(token(accessToken()))
+                .contentType(APPLICATION_FORM_URLENCODED_VALUE)
+                .header("x-concur-authorization", "Bearer concur-token")
+                .header("x-concur-base-url", "https://concursolutions.com")
+                // Reason with html character embedded in it.
+                .param(ConcurConstants.RequestParam.REASON, "Approval </comment> <html> </html> Done"))
+                .andExpect(status().isOk());
+
+        this.mockConcur.verify();
+    }
+
+    @Test
     public void testApproveExpenseReportWithUnauthorized() throws Exception {
         testUnauthorizedRequest("/api/expense/approve/");
     }
@@ -138,6 +178,29 @@ public class ConcurControllerTests extends ControllerTestsBase {
     @Test
     public void testRejectExpenseReportWithUnauthorized() throws Exception {
         testUnauthorizedRequest("/api/expense/reject/");
+    }
+
+    @Test
+    public void testConcurRegex() throws Exception {
+        final String concurRegex = ".*(Report\\s*Id\\s*:\\s*([A-Za-z0-9]{20,}))";
+        final Pattern pattern = Pattern.compile(concurRegex);
+
+        final List<String> expectedList = Arrays.asList(
+                "523EEB33D8E548C1B90C",
+                "623EEB33D8E548C1B902",
+                "126EEB33D8E548C1B902",
+                "356EEB33D8E548C1B902",
+                "923EFB33D8E548C1B902");
+
+        final String regexInput = fromFile("concur/regex-input.txt");
+        final List<String> result = new ArrayList<>();
+        for (final String input: regexInput.split("\\n")) {
+            final Matcher matcher = pattern.matcher(input);
+            if (matcher.matches()) {
+                result.add(matcher.group(2));
+            }
+        }
+        assertThat(expectedList, equalTo(result));
     }
 
     private void testUnauthorizedRequest(final String uri) throws Exception {

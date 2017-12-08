@@ -1,0 +1,23 @@
+Concur regex test
+
+Report Id :523EEB33D8E548C1B90C
+
+Report Id :  623EEB33D8E548C1B902
+
+ReportId :126EEB33D8E548C1B902
+
+ReportId:356EEB33D8E548C1B902
+
+RequestId:356EEB33D8E548C1B902
+
+Report Id :  623EEB33D8E54
+
+This is a valid concur expense Report Id :  923EFB33D8E548C1B902
+
+This is an invalid concur expense Report Id :  923EFB33D8E54
+
+
+
+
+
+
