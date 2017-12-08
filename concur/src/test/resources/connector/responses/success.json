@@ -46,7 +46,11 @@
           "request": {
           },
           "user_input": [
-
+            {
+              "id": "reason",
+              "label": "Reason for approval",
+              "min_length": 1
+            }
           ]
         },
         {
@@ -60,7 +64,11 @@
           "request": {
           },
           "user_input": [
-
+            {
+              "id": "reason",
+              "label": "Reason for rejection",
+              "min_length": 1
+            }
           ]
         },
         {
@@ -125,7 +133,11 @@
           "request": {
           },
           "user_input": [
-
+            {
+              "id": "reason",
+              "label": "Reason for approval",
+              "min_length": 1
+            }
           ]
         },
         {
@@ -139,7 +151,11 @@
           "request": {
           },
           "user_input": [
-
+            {
+              "id": "reason",
+              "label": "Reason for rejection",
+              "min_length": 1
+            }
           ]
         },
         {

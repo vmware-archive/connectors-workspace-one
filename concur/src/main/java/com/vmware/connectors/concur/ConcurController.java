@@ -39,6 +39,7 @@ import static com.vmware.connectors.concur.ConcurConstants.ConcurActions.*;
 import static com.vmware.connectors.concur.ConcurConstants.Fields.EXPENSE_REPORT_ID;
 import static com.vmware.connectors.concur.ConcurConstants.Fields.GENERAL_CARD_TYPE;
 import static com.vmware.connectors.concur.ConcurConstants.Header.*;
+import static com.vmware.connectors.concur.ConcurConstants.RequestParam.REASON;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.*;
@@ -89,7 +90,7 @@ public class ConcurController {
     public Single<ResponseEntity<Void>> approveRequest(
             @RequestHeader(name = AUTHORIZATION_HEADER) final String authHeader,
             @RequestHeader(name = BACKEND_BASE_URL_HEADER) final String baseUrl,
-            @RequestParam(name = ConcurConstants.RequestParam.REASON) final String reason,
+            @RequestParam(name = REASON) final String reason,
             @PathVariable(name = ConcurConstants.PathVariable.EXPENSE_REPORT_ID) final String workflowstepId) throws IOException, ExecutionException, InterruptedException {
         logger.info("Approving the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
 
@@ -102,7 +103,7 @@ public class ConcurController {
     public Single<ResponseEntity<Void>> rejectRequest(
             @RequestHeader(name = AUTHORIZATION_HEADER) final String authHeader,
             @RequestHeader(name = BACKEND_BASE_URL_HEADER) final String baseUrl,
-            @RequestParam(name = ConcurConstants.RequestParam.REASON) final String reason,
+            @RequestParam(name = REASON) final String reason,
             @PathVariable(name = ConcurConstants.PathVariable.EXPENSE_REPORT_ID) final String workflowstepId) throws IOException, ExecutionException, InterruptedException {
         logger.info("Rejecting the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
 
@@ -234,7 +235,14 @@ public class ConcurController {
                 .setLabel(this.cardTextAccessor.getMessage("concur.approve"))
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
-                .setUrl(routingPrefix + approveUrl);
+                .setUrl(routingPrefix + approveUrl)
+                .addUserInputField(
+                        new CardActionInputField.Builder()
+                                .setId(REASON)
+                                .setLabel(cardTextAccessor.getMessage("concur.approve.reason.label"))
+                                .setMinLength(1)
+                                .build()
+                );
     }
 
     private CardAction.Builder getRejectActionBuilder(final String expenseReportId, final String routingPrefix) {
@@ -245,7 +253,14 @@ public class ConcurController {
                 .setLabel(this.cardTextAccessor.getMessage("concur.reject"))
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
-                .setUrl(routingPrefix + rejectUrl);
+                .setUrl(routingPrefix + rejectUrl)
+                .addUserInputField(
+                        new CardActionInputField.Builder()
+                                .setId(REASON)
+                                .setLabel(cardTextAccessor.getMessage("concur.reject.reason.label"))
+                                .setMinLength(1)
+                                .build()
+                );
     }
 
     private CardAction.Builder getOpenActionBuilder(final String baseUrl) {
