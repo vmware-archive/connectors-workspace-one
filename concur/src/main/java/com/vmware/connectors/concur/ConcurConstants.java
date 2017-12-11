@@ -64,8 +64,6 @@ public final class ConcurConstants {
         public final static String ACTION_PLACEHOLDER = "${action}";
         public final static String COMMENT_PLACEHOLDER = "${comment}";
 
-        public final static String DEFAULT_REASON = "Approved via Concur Connector";
-
         private ConcurActions() {
         }
     }

@@ -14,7 +14,6 @@ import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.concur.response.ConcurResponse;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -138,7 +137,7 @@ public class ConcurController {
                                             final String concurAction) throws IOException {
         String concurRequestTemplate = IOUtils.toString(this.concurrRequestTemplate.getInputStream(), StandardCharsets.UTF_8);
         concurRequestTemplate = concurRequestTemplate.replace(ACTION_PLACEHOLDER, concurAction);
-        concurRequestTemplate = concurRequestTemplate.replace(COMMENT_PLACEHOLDER, StringUtils.isNotBlank(reason) ? HtmlUtils.htmlEscape(reason) : DEFAULT_REASON);
+        concurRequestTemplate = concurRequestTemplate.replace(COMMENT_PLACEHOLDER, HtmlUtils.htmlEscape(reason));
         return concurRequestTemplate;
     }
 
