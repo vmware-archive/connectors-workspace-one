@@ -1,6 +1,4 @@
-
-
-# connectors-workspace-one
+# Workspace One Connectors
 
 ## Overview
 
@@ -8,17 +6,15 @@
 
 ### Prerequisites
 
-* Prereq 1
-* Prereq 2
-* Prereq 3
+* Java 8
 
-### Build & Run
+### Build
 
-1. Step 1
-2. Step 2
-3. Step 3
+    ./mvnw clean verify
 
 ## Documentation
+
+Coming soon
 
 ## Releases & Major Branches
 
@@ -30,3 +26,5 @@ questions about the CLA process, please refer to our [FAQ](https://cla.vmware.co
 refer to [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
+
+Workspace One Connectors are available under the [BSD 2 license](https://github.com/vmware/connectors-workspace-one/blob/master/LICENSE.txt)
