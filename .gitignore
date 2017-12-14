@@ -1,4 +1,4 @@
-vagrant/.vagrant
+.vagrant
 .flattened-pom.xml
 *.iml
 target/
