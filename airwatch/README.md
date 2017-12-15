@@ -23,17 +23,28 @@ sudo rpm -i airwatch-connector-version.noarch.rpm
 
 ### Initial configuration
 
-After the connector is installed for the first time, you need to configure the vIDM public key url that will be used for validating auth tokens.
+After the connector is installed for the first time, you need to configure two things. 
+1. The vIDM public key url that will be used for validating auth tokens.
+2. Details of managed apps that will be used for mapping app name to app id.
+
 
 ```shell
-# Create an application.properties file with the vIDM public key url configured
+# 1.) Create an application.properties file with the vIDM public key url configured
 #   (alternatively, you can just copy /opt/vmware/connectors/airwatch/application.properties
 #   to /etc/opt/vmware/connectors/airwatch/application.properties and modify it to have the
 #   vIDM public key url configured for this step)
 sudo echo "security.oauth2.resource.jwt.key-uri=https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem" > /etc/opt/vmware/connectors/airwatch/application.properties
 
-# Make sure the config is readable by the roswell user and group
+# 2.) Create a managed-apps.yml file at /opt/vmware/connectors/airwatch/.
+#   (alternatively, you can just copy /opt/vmware/connectors/airwatch/managed-apps.yml
+#   to /etc/opt/vmware/connectors/airwatch/managed-apps.yml and modify it to contain all
+#   all the managed apps details.)
+sudo cp /opt/vmware/connectors/airwatch/managed-apps.yml /etc/opt/vmware/connectors/airwatch/managed-apps.yml
+sudo vim /etc/opt/vmware/connectors/airwatch/managed-apps.yml
+
+# Make sure the configs are readable by the roswell user and group
 sudo chown roswell:roswell /etc/opt/vmware/connectors/airwatch/application.properties
+sudo chown roswell:roswell /etc/opt/vmware/connectors/airwatch/managed-apps.yml
 
 # Now you can start the service
 sudo systemctl start airwatch-connector
@@ -43,6 +54,16 @@ sudo systemctl status airwatch-connector
 
 # You can also confirm there aren't any problems in the logs
 less /var/log/vmware/connectors/airwatch/airwatch-connector.log
+```
+
+### If new managed apps are added in AirWatch
+
+```shell
+# Edit managed-apps.yml file to include all managed apps in AirWatch.
+sudo vim /etc/opt/vmware/connectors/airwatch/managed-apps.yml
+
+# Restart the connector service.
+sudo systemctl restart airwatch-connector
 ```
 
 ### Add User to Group For Convenience

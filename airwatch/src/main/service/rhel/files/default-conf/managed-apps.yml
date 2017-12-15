@@ -1,0 +1,16 @@
+# Details about managed apps. Platform, app name and app id.
+# You must override these details in /etc. By default there are no managed apps.
+android:
+
+ios:
+
+# examples:
+# Suppose if 'vmware boxer' and 'concur' are manged apps for android
+# and if 'vmware boxer', 'concur' and 'linkedin' are managed apps for ios platforms.
+# android:
+#    vmware boxer: com.boxer.email
+#    concur: com.concur.breeze
+# ios:
+#    vmware boxer: com.air-watch.boxer
+#    concur: com.concur.concurmobile
+#    linkedin: com.linkedin.LinkedIn
