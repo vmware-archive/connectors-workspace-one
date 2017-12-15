@@ -1,0 +1,7 @@
+{
+  "fields": {
+    "approval_urls": {
+      "regex": "Certificate Approvals \\( ([^)]+) \\)"
+    }
+  }
+}

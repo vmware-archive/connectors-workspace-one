@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Amazon Certificate Approvals</title>
+    <meta content="authenticity_token" name="csrf-param" />
+    <meta content="test-csrf-token-1" name="csrf-token" />
+</head>
+
+<body>
+
+<div class='content'>
+
+    <img alt="Aws logo"
+         src="/fake.png" />
+
+    <p>
+        Amazon Web Services (AWS) has received a request to issue an SSL certificate for test-subdomain-1.acme.com. You are listed as one of the
+        authorized representatives for this domain name. Your authorization is required prior to issuing this certificate.
+    </p>
+
+    <p>
+        Verify that the domain name, AWS account ID, and certificate identifier below correspond to a request from you or a person authorized to request certificates for this domain name.
+    </p>
+
+    <table>
+        <tbody>
+        <tr>
+            <td class='left-column'>
+                <b>Domain name</b>
+            </td>
+            <td class='right-column'>
+                test-subdomain-1.acme.com
+            </td>
+        </tr>
+        <tr>
+            <td class='left-column'>
+                <b>AWS account number</b>
+            </td>
+            <td class='right-column'>
+                test-aws-account-number-1
+            </td>
+        </tr>
+        <tr>
+            <td class='left-column'>
+                <b>AWS Region</b>
+            </td>
+            <td class='right-column'>
+                test-aws-region-1
+            </td>
+        </tr>
+        <tr>
+            <td class='left-column'>
+                <b>Certificate identifier</b>
+            </td>
+            <td class='right-column'>
+                test-certificate-id-1
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+
+            <td>
+
+                <form accept-charset="UTF-8"
+                      action="/approvals"
+                      method="post">
+
+                    <div style="margin:0;padding:0;display:inline">
+
+                        <input name="utf8"
+                               type="hidden"
+                               value="&#x2713;" />
+
+                        <input name="authenticity_token"
+                               type="hidden"
+                               value="test-csrf-token-1" />
+
+                    </div>
+
+                    <input id="validation_token"
+                           name="validation_token"
+                           type="hidden"
+                           value="test-validation-token-1" />
+
+                    <input id="context"
+                           name="context"
+                           type="hidden"
+                           value="test-context-1" />
+
+                    <div class='approval_text'>
+                        <p>
+                            Review the information presented above and click
+                            <b>I Approve</b>
+                            only if you recognize the request and the account requesting it. By clicking
+                            <b>I Approve</b>,
+                            you authorize Amazon to request a certificate for the above domain name.
+                        </p>
+                    </div>
+
+                    <div class='approval_button'>
+                        <input name="commit"
+                               type="submit"
+                               value="I Approve" />
+                    </div>
+
+                </form>
+
+            </td>
+
+        </tr>
+        </tbody>
+    </table>
+    <br>
+    <p>
+        If you choose not to approve this request, close this page.
+        <br>
+        <br>
+        If you have concerns about the validity of this request, forward the email you received with a brief explanation of your concern to:
+        <a href="mailto:validation-questions@fake-amazon.com">validation-questions@fake-amazon.com</a>
+    </p>
+</div>
+
+</body>
+
+</html>

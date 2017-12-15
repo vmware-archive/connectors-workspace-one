@@ -1,0 +1,12 @@
+server:
+  compression:
+     enabled: true
+     mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  server-header: aws-cert-connector
+
+aws:
+  certificate:
+    connector:
+      approval:
+        host: certificates.amazon.com
+        path: /approvals
