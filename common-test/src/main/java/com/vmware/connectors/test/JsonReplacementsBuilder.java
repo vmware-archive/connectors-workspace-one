@@ -69,16 +69,8 @@ public final class JsonReplacementsBuilder {
     public Matcher<String> buildForCards() {
         return replace("$.cards[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID)
                 .replace("$.cards[?(@.creation_date =~ /" + DATE_PATTERN + "/)].creation_date", DUMMY_DATE_TIME)
+                .replace("$.cards[?(@.expiration_date =~ /" + DATE_PATTERN + "/)].expiration_date", DUMMY_DATE_TIME)
                 .replace("$.cards[*].actions[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID)
-                .build(false);
-    }
-
-    @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-    public Matcher<String> buildForCardsResults() {
-        return replace("$.results[?(@.connector_id =~ /" + UUID_PATTERN + "/)].connector_id", DUMMY_UUID)
-                .replace("$.results[*].cards[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID)
-                .replace("$.results[*].cards[?(@.creation_date =~ /" + DATE_PATTERN + "/)].creation_date", DUMMY_DATE_TIME)
-                .replace("$.results[*].cards[*].actions[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID)
                 .build(false);
     }
 
