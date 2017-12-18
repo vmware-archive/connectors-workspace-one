@@ -11,6 +11,22 @@
 
     <artifactId>connectors-common</artifactId>
 
+    <name>Workspace One Connectors Common Module</name>
+    <description>Common code for developing connectors</description>
+    <url>https://github.com/vmware/connectors-workspace-one</url>
+
+    <licenses>
+        <license>
+            <name>BSD-2</name>
+            <url>https://opensource.org/licenses/BSD-2-Clause</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/vmware/connectors-workspace-one</url>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>io.reactivex</groupId>
@@ -105,6 +121,5 @@
             </plugin>
         </plugins>
     </build>
-
 
 </project>

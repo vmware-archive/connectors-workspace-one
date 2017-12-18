@@ -51,7 +51,7 @@ public class CardActionInputField {
     /**
      * Get the field's ID, which will be used as the key when this field is submitted.
      *
-     * @returnThe field's ID
+     * @return The field's ID
      */
     public String getId() {
         return id;
