@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Amazon Certificate Approvals</title>
+    <meta content="authenticity_token" name="csrf-param" />
+    <meta content="test-csrf-token" name="csrf-token" />
+</head>
+
+<body>
+
+<div class='content'>
+
+    <img alt="Aws logo"
+         src="/fake.png" />
+
+    <h2>Success!</h2>
+
+    <p>
+        You have approved an SSL/TLS certificate for the domain name
+        test-subdomain.acme.com
+    </p>
+
+    <br>
+
+    <table>
+        <tbody>
+        <tr>
+            <td class='left-column'>
+                <b>Domain name</b>
+            </td>
+            <td class='right-column'>
+                test-subdomain.acme.com
+            </td>
+        </tr>
+        <tr>
+            <td class='left-column'>
+                <b>AWS account number</b>
+            </td>
+            <td class='right-column'>
+                test-aws-account-number
+            </td>
+        </tr>
+        <tr>
+            <td class='left-column'>
+                <b>AWS Region</b>
+            </td>
+            <td class='right-column'>
+                test-aws-region
+            </td>
+        </tr>
+        <tr>
+            <td class='left-column'>
+                <b>Arn</b>
+            </td>
+            <td class='right-column'>
+                arn:aws:acm:test-aws-region:testawsaccountnumber:certificate/test-cert-id
+            </td>
+        </tr>
+        <tr></tr>
+        </tbody>
+    </table>
+    <p>
+        Once all the domain names in the certificate request are approved, the authorized AWS account holder can review the certificate via the
+        <a href="https://console.aws.fake-amazon.com/acm/home?region=test-aws-region#/?id=test-cert-id">AWS Management Console</a>,
+        CLI, or API, or provision the certificate for use with integrated services, such as Amazon CloudFront or Elastic Load Balancing. For more information refer to the
+        <a href="http://docs.aws.fake-amazon.com/acm/latest/userguide/">AWS Certificate Manager User Guide</a>.
+    </p>
+</div>
+
+</body>
+</html>

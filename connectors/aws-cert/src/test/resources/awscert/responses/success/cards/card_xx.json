@@ -1,0 +1,181 @@
+{
+  "cards": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "AwsCert",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "expiration_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
+      },
+      "header": {
+        "title": "AWS CERT REQ FOR test-subdomain-1.acme.com",
+        "subtitle": "AWS CERTIFICATE REQUEST"
+      },
+      "body": {
+        "description": "REVIEW THE INFORMATION PRESENTED BELOW AND CLICK I APPROVE ONLY IF YOU RECOGNIZE THE REQUEST AND THE ACCOUNT REQUESTING IT.  BY CLICKING I APPROVE, YOU AUTHORIZE AMAZON TO REQUEST A CERTIFICATE FOR THE ABOVE DOMAIN NAME.",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "DOMAIN NAME",
+            "description": "test-subdomain-1.acme.com"
+          },
+          {
+            "type": "GENERAL",
+            "title": "AWS ACCOUNT NUMBER",
+            "description": "test-aws-account-number-1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "AWS REGION",
+            "description": "test-aws-region-1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "CERTIFICATE IDENTIFIER",
+            "description": "test-certificate-id-1"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "APPROVE",
+          "url": {
+            "href": "https://hero/connectors/aws-cert//api/v1/approve"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {
+            "validation_token": "test-validation-token-1",
+            "utf8": "\u2713",
+            "context": "test-context-1",
+            "commit": "I Approve",
+            "authenticity_token": "test-csrf-token-1",
+            "hero_aws_cert_approval_url": "https://test-aws-region-1.certificates.fake-amazon.com/approvals?code=test-auth-code-1&context=test-context-1"
+          },
+          "user_input": [],
+          "completed_label": "APPROVED"
+        }
+      ]
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "AwsCert",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "expiration_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
+      },
+      "header": {
+        "title": "AWS CERT REQ FOR test-subdomain-2.acme.com",
+        "subtitle": "AWS CERTIFICATE REQUEST"
+      },
+      "body": {
+        "description": "REVIEW THE INFORMATION PRESENTED BELOW AND CLICK I APPROVE ONLY IF YOU RECOGNIZE THE REQUEST AND THE ACCOUNT REQUESTING IT.  BY CLICKING I APPROVE, YOU AUTHORIZE AMAZON TO REQUEST A CERTIFICATE FOR THE ABOVE DOMAIN NAME.",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "DOMAIN NAME",
+            "description": "test-subdomain-2.acme.com"
+          },
+          {
+            "type": "GENERAL",
+            "title": "AWS ACCOUNT NUMBER",
+            "description": "test-aws-account-number-2"
+          },
+          {
+            "type": "GENERAL",
+            "title": "AWS REGION",
+            "description": "test-aws-region-2"
+          },
+          {
+            "type": "GENERAL",
+            "title": "CERTIFICATE IDENTIFIER",
+            "description": "test-certificate-id-2"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "APPROVE",
+          "url": {
+            "href": "https://hero/connectors/aws-cert//api/v1/approve"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {
+            "validation_token": "test-validation-token-2",
+            "utf8": "\u2713",
+            "context": "test-context-2",
+            "commit": "I Approve",
+            "authenticity_token": "test-csrf-token-2",
+            "hero_aws_cert_approval_url": "https://test-aws-region-2.certificates.fake-amazon.com/approvals?code=test-auth-code-2&context=test-context-2"
+          },
+          "user_input": [],
+          "completed_label": "APPROVED"
+        }
+      ]
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "AwsCert",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "expiration_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
+      },
+      "header": {
+        "title": "AWS CERT REQ FOR test-subdomain-3.acme.com",
+        "subtitle": "AWS CERTIFICATE REQUEST"
+      },
+      "body": {
+        "description": "REVIEW THE INFORMATION PRESENTED BELOW AND CLICK I APPROVE ONLY IF YOU RECOGNIZE THE REQUEST AND THE ACCOUNT REQUESTING IT.  BY CLICKING I APPROVE, YOU AUTHORIZE AMAZON TO REQUEST A CERTIFICATE FOR THE ABOVE DOMAIN NAME.",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "DOMAIN NAME",
+            "description": "test-subdomain-3.acme.com"
+          },
+          {
+            "type": "GENERAL",
+            "title": "AWS ACCOUNT NUMBER",
+            "description": "test-aws-account-number-3"
+          },
+          {
+            "type": "GENERAL",
+            "title": "AWS REGION",
+            "description": "test-aws-region-3"
+          },
+          {
+            "type": "GENERAL",
+            "title": "CERTIFICATE IDENTIFIER",
+            "description": "test-certificate-id-3"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "APPROVE",
+          "url": {
+            "href": "https://hero/connectors/aws-cert//api/v1/approve"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {
+            "validation_token": "test-validation-token-3",
+            "utf8": "\u2713",
+            "context": "test-context-3",
+            "commit": "I Approve",
+            "authenticity_token": "test-csrf-token-3",
+            "hero_aws_cert_approval_url": "https://certificates.FAKE-amazon.com/approvals?code=test-auth-code-3&context=test-context-3"
+          },
+          "user_input": [],
+          "completed_label": "APPROVED"
+        }
+      ]
+    }
+  ]
+}
