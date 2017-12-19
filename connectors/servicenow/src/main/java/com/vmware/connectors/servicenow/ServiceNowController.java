@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 @RestController
 public class ServiceNowController {
 
-    private final static Logger logger = LoggerFactory.getLogger(ServiceNowController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceNowController.class);
 
     private static final String AUTH_HEADER = "x-servicenow-authorization";
     private static final String BASE_URL_HEADER = "x-servicenow-base-url";
