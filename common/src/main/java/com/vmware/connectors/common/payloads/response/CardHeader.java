@@ -25,8 +25,8 @@ public class CardHeader {
      * If a header lacks a title or subtitle, it is recommended to supply <code>null</code> for the missing
      * values rather than, e.g., an empty string.
      *
-     * @param title
-     * @param subtitle
+     * @param title The title
+     * @param subtitle The subtitle
      */
     @JsonCreator
     public CardHeader(@JsonProperty("title") String title,

@@ -132,7 +132,7 @@ public class ConnectorsAutoConfiguration {
         };
     }
 
-    /**
+    /*
      * Since Spring beans are eagerly loaded by default, this will check that
      * the vIdmPubKeyUrl was configured at startup (allowing users to see their
      * mistake in the logs and systemd status instead of having a running
