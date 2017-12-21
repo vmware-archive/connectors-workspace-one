@@ -7,7 +7,7 @@ package com.vmware.connectors.airwatch;
 
 import com.vmware.connectors.airwatch.exceptions.UdidException;
 import com.vmware.connectors.airwatch.service.AppConfigService;
-import com.vmware.connectors.common.JsonDocument;
+import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.Card;
 import com.vmware.connectors.common.payloads.response.CardAction;

@@ -7,7 +7,7 @@
 
 package com.vmware.connectors.concur;
 
-import com.vmware.connectors.common.JsonDocument;
+import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.Async;

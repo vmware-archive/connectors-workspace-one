@@ -8,9 +8,6 @@ package com.vmware.connectors.common.payloads.response;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Created by Rob Worsnop on 10/27/16.
- */
 public class Link {
     private final String href;
 

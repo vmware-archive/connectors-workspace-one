@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package com.vmware.connectors.common;
+package com.vmware.connectors.common.web;
 
 import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;

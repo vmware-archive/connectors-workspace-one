@@ -12,9 +12,6 @@ import org.springframework.http.HttpStatus;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
-/**
- * Created by Rob Worsnop on 10/21/16.
- */
 @JsonInclude(NON_NULL)
 public class ConnectorStatus {
     private final String connector;

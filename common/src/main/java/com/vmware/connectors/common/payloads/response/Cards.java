@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Rob Worsnop on 10/21/16.
- * <p>
  * Represents a collection of {@link Card}.
  */
 public class Cards {
@@ -20,9 +18,9 @@ public class Cards {
     private final List<Card> cards = new ArrayList<>();
 
     /**
-     * Get collection of connector cards
+     * Gets collection of connector cards
      *
-     * @return List of Card
+     * @return List of Cards
      */
 
     public List<Card> getCards() {

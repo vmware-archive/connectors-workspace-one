@@ -7,9 +7,6 @@ package com.vmware.connectors.common.utils;
 
 import org.springframework.context.MessageSource;
 
-/**
- * Created by Rob Worsnop on 10/27/16.
- */
 public class CardTextAccessor extends TextAccessorBase {
 
     public CardTextAccessor(MessageSource messageSource) {

@@ -5,13 +5,13 @@
 
 package com.vmware.connectors.common.config;
 
-import com.vmware.connectors.common.RootController;
-import com.vmware.connectors.common.ExceptionHandlers;
+import com.vmware.connectors.common.web.RootController;
+import com.vmware.connectors.common.web.ExceptionHandlers;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.context.ContextInterceptor;
-import com.vmware.connectors.common.JsonDocumentHttpMessageConverter;
-import com.vmware.connectors.common.MdcFilter;
-import com.vmware.connectors.common.utils.SingleReturnValueHandler;
+import com.vmware.connectors.common.json.JsonDocumentHttpMessageConverter;
+import com.vmware.connectors.common.web.MdcFilter;
+import com.vmware.connectors.common.web.SingleReturnValueHandler;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;

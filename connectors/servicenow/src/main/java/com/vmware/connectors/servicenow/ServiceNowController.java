@@ -16,7 +16,7 @@ import com.vmware.connectors.common.payloads.response.CardBodyField;
 import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
 import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.JsonDocument;
+import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.utils.Async;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

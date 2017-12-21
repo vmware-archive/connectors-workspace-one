@@ -5,7 +5,7 @@
 
 package com.vmware.connectors.jira;
 
-import com.vmware.connectors.common.JsonDocument;
+import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.Card;
 import com.vmware.connectors.common.payloads.response.CardAction;

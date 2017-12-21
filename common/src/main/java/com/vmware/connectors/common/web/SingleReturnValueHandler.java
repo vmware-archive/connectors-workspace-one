@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package com.vmware.connectors.common.utils;
+package com.vmware.connectors.common.web;
 
+import com.vmware.connectors.common.web.SingleDeferredResult;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpHeaders;

@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package com.vmware.connectors.common.utils;
+package com.vmware.connectors.common.web;
 
+import com.vmware.connectors.common.web.DeferredResultSubscriber;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.async.DeferredResult;
 import rx.Single;
