@@ -1,0 +1,5 @@
+*.iml
+.idea
+.vagrant
+target/
+.flattened-pom.xml
