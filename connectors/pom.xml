@@ -18,6 +18,7 @@
         <module>airwatch</module>
         <module>aws-cert</module>
         <module>concur</module>
+        <module>github-pr</module>
         <module>jira</module>
         <module>salesforce</module>
         <module>servicenow</module>

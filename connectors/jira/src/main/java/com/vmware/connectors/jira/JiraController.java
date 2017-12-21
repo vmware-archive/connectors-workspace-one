@@ -17,6 +17,7 @@ import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
 import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.web.ObservableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,7 +147,7 @@ public class JiraController {
     private Observable<Card> getCardForIssue(String jiraAuth, String baseUrl, String issueId, String routingPrefix) {
         return getIssue(jiraAuth, baseUrl, issueId).toObservable()
                 // if an issue is not found, we'll just not bother creating a card
-                .onErrorResumeNext(JiraController::skip404)
+                .onErrorResumeNext(ObservableUtil::skip404)
                 .map(entity -> transformIssueResponse(entity, baseUrl, issueId, routingPrefix));
 
     }
@@ -159,17 +160,6 @@ public class JiraController {
                 "{baseUrl}/rest/api/2/issue/{issueId}", GET, new HttpEntity<String>(headers), JsonDocument.class,
                 baseUrl, issueId);
         return Async.toSingle(future);
-    }
-
-    private static Observable<ResponseEntity<JsonDocument>> skip404(Throwable throwable) {
-        if (throwable instanceof HttpClientErrorException
-                && HttpClientErrorException.class.cast(throwable).getStatusCode() == NOT_FOUND) {
-            // It's OK to request non-existent Jira issues; we just won't create a card.
-            return Observable.empty();
-        } else {
-            // If the problem is not 404, let the problem bubble up
-            return Observable.error(throwable);
-        }
     }
 
     private static ResponseEntity<Void> stripBody(ResponseEntity<JsonDocument> entity) {

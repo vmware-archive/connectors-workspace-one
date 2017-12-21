@@ -1,0 +1,7 @@
+{
+  "message": "Validation Failed",
+  "errors": [
+    "Can only approve open pull requests"
+  ],
+  "documentation_url": "https://developer.github.com/v3/pulls/reviews/#create-a-pull-request-review"
+}

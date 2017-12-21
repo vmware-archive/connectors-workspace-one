@@ -1,0 +1,12 @@
+{
+  "user": {
+    "login": "TestUser2"
+  },
+  "state": "APPROVED",
+  "pull_request_url": "https://api.github.com/repos/vmware/test-repo/pulls/99",
+  "_links": {
+    "pull_request": {
+      "href": "https://api.github.com/repos/vmware/test-repo/pulls/99"
+    }
+  }
+}

@@ -12,6 +12,7 @@ import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.web.ObservableUtil;
 import com.vmware.connectors.concur.response.ConcurResponse;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -22,7 +23,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.AsyncRestOperations;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.util.HtmlUtils;
 import rx.Observable;
 import rx.Single;
@@ -156,19 +156,8 @@ public class ConcurController {
 
         return Async.toSingle(result)
                 .toObservable()
-                .onErrorResumeNext(ConcurController::skip404StatusCode)
+                .onErrorResumeNext(ObservableUtil::skip404)
                 .map(entity -> convertResponseIntoCard(entity, baseUrl, id, routingPrefix));
-    }
-
-    private static Observable<ResponseEntity<JsonDocument>> skip404StatusCode(final Throwable throwable) {
-        if (throwable instanceof HttpClientErrorException
-                && HttpClientErrorException.class.cast(throwable).getStatusCode() == HttpStatus.NOT_FOUND) {
-            // We can ignore the error for non-existent expense report ids. We will return an empty card.
-            return Observable.empty();
-        } else {
-            // Propagate the error back to the caller.
-            return Observable.error(throwable);
-        }
     }
 
     private Card convertResponseIntoCard(final ResponseEntity<JsonDocument> entity,

@@ -1,0 +1,22 @@
+{
+  "tokens": {
+    "pull_request_urls": [
+      "https://github.com/vmware/test-repo/pull/1",
+      "https://github.com/vmware/test-repo/pull/1",
+      "https://github.com/vmware/test-repo/pull/1",
+      null,
+      "https://github.com/vmware/test-repo/pull/2",
+      "https://github.com/vmware/test-repo/pull/2",
+      "https://github.com/vmware/test-repo/pull/2",
+      "",
+      "https://github.com/vmware/test-repo/pull/0-not-found",
+      "https://notgithub.com/vmware/test-repo/pull/4",
+      "https://subdomain.github.com/vmware/test-repo/pull/5",
+      "https://github.com/somethingelse/vmware/test-repo/pull/6",
+      "invalid",
+      "https://github.com/vmware/test-repo/pull/3",
+      "https://github.com/vmware/test-repo/pull/3",
+      "https://github.com/vmware/test-repo/pull/3"
+    ]
+  }
+}
