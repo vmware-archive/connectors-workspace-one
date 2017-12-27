@@ -36,7 +36,6 @@ import java.util.concurrent.ExecutionException;
 
 import static com.vmware.connectors.concur.ConcurConstants.ConcurActions.*;
 import static com.vmware.connectors.concur.ConcurConstants.Fields.EXPENSE_REPORT_ID;
-import static com.vmware.connectors.concur.ConcurConstants.Fields.GENERAL_CARD_TYPE;
 import static com.vmware.connectors.concur.ConcurConstants.Header.*;
 import static com.vmware.connectors.concur.ConcurConstants.RequestParam.REASON;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -185,45 +184,49 @@ public class ConcurController {
         final String reportPurpose = response.read("$.LedgerName");
         final Integer reportAmount = response.read("$.TotalClaimedAmount");
 
-        CardBody.Builder cardBodyBuilder = new CardBody.Builder();
-
-        CardBodyField.Builder cardBodyFieldBuilder = new CardBodyField.Builder()
-                .setTitle(this.cardTextAccessor.getMessage("concur.report.to"))
-                .setDescription(reportTo)
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardBodyFieldBuilder.build());
-
-        cardBodyFieldBuilder = new CardBodyField.Builder()
-                .setTitle(this.cardTextAccessor.getMessage("concur.report.from"))
-                .setDescription(reportFrom)
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardBodyFieldBuilder.build());
-
-        cardBodyFieldBuilder = new CardBodyField.Builder()
-                .setTitle(this.cardTextAccessor.getMessage("concur.report.purpose"))
-                .setDescription(reportPurpose)
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardBodyFieldBuilder.build());
-
-        cardBodyFieldBuilder = new CardBodyField.Builder()
-                .setTitle(this.cardTextAccessor.getMessage("concur.report.amount"))
-                .setDescription(String.valueOf(reportAmount))
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardBodyFieldBuilder.build());
+        CardBody.Builder cardBodyBuilder = new CardBody.Builder()
+                .addField(
+                        new CardBodyField.Builder()
+                                .setTitle(this.cardTextAccessor.getMessage("concur.report.to"))
+                                .setDescription(reportTo)
+                                .setType(CardBodyFieldType.GENERAL)
+                                .build()
+                )
+                .addField(
+                        new CardBodyField.Builder()
+                                .setTitle(this.cardTextAccessor.getMessage("concur.report.from"))
+                                .setDescription(reportFrom)
+                                .setType(CardBodyFieldType.GENERAL)
+                                .build()
+                )
+                .addField(
+                        new CardBodyField.Builder()
+                                .setTitle(this.cardTextAccessor.getMessage("concur.report.purpose"))
+                                .setDescription(reportPurpose)
+                                .setType(CardBodyFieldType.GENERAL)
+                                .build()
+                )
+                .addField(
+                        new CardBodyField.Builder()
+                                .setTitle(this.cardTextAccessor.getMessage("concur.report.amount"))
+                                .setDescription(String.valueOf(reportAmount))
+                                .setType(CardBodyFieldType.GENERAL)
+                                .build()
+                );
 
         CardAction.Builder approveActionBuilder = getApproveActionBuilder(expenseReportId, routingPrefix);
         CardAction.Builder rejectActionBuilder = getRejectActionBuilder(expenseReportId, routingPrefix);
         CardAction.Builder openActionBuilder = getOpenActionBuilder(baseUrl);
 
-        final Card.Builder cardBuilder = new Card.Builder()
+        return new Card.Builder()
                 .setName("Concur")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(cardTextAccessor.getMessage("concur.title"), null)
                 .setBody(cardBodyBuilder.build())
                 .addAction(approveActionBuilder.build())
                 .addAction(rejectActionBuilder.build())
-                .addAction(openActionBuilder.build());
-        return cardBuilder.build();
+                .addAction(openActionBuilder.build())
+                .build();
     }
 
     private CardAction.Builder getApproveActionBuilder(final String expenseReportId, final String routingPrefix) {

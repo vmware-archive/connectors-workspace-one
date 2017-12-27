@@ -19,8 +19,6 @@ public final class ConcurConstants {
         // Unique ticket request identifier for retrieving travel information.
         public static final String EXPENSE_REPORT_ID = "expense_report_id";
 
-        public static final String GENERAL_CARD_TYPE = "GENERAL";
-
         private Fields() {
         }
     }

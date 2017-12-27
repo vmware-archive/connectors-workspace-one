@@ -171,36 +171,15 @@ public class AwsCertController {
         logger.trace("parseCardInfoOutOfResponse called: approvalUrl={}", approvalUrl);
 
         String html = pair.getRight().getBody();
-        AwsCertCardInfo info = new AwsCertCardInfo();
 
         Document doc = Jsoup.parse(html);
         Elements elements = doc.body().children();
         Elements rows = elements.select("table > tbody > tr");
 
-        rows.forEach(row -> {
-            String label = row.child(0).text().toLowerCase(Locale.US);
-            String value = row.child(1).text();
-            if (label.contains("domain")) {
-                info.setDomain(value);
-            } else if (label.contains("account")) {
-                info.setAccountId(value);
-            } else if (label.contains("region")) {
-                info.setRegionName(value);
-            } else if (label.contains("certificate")) {
-                info.setCertIdentifier(value);
-            }
-        });
+        AwsCertCardInfo info = collectInfo(rows);
 
-        Map<String, String> formParams = new HashMap<>();
         Elements formElements = elements.select("form");
-        List<FormElement> forms = formElements.forms();
-
-        forms.forEach(
-                form ->
-                    form.formData().forEach(
-                            kvp -> formParams.put(kvp.key(), kvp.value())
-                    )
-        );
+        Map<String, String> formParams = collectFormParams(formElements);
 
         // Supplement the form params with the approvalUrl so the client will tell the approve action who to POST to.
         formParams.put(APPROVAL_URL_PARAM, approvalUrl);
@@ -208,6 +187,60 @@ public class AwsCertController {
         info.setFormParams(formParams);
 
         return info;
+    }
+
+    private AwsCertCardInfo collectInfo(Elements rows) {
+        AwsCertCardInfo info = new AwsCertCardInfo();
+
+        rows.forEach(row -> {
+            String label = row.child(0).text().toLowerCase(Locale.US);
+            String value = row.child(1).text();
+
+            fuzzySetDomainName(info, label, value);
+            fuzzySetAccountId(info, label, value);
+            fuzzySetRegionName(info, label, value);
+            fuzzySetCertIdentifier(info, label, value);
+        });
+
+        return info;
+    }
+
+    private void fuzzySetDomainName(AwsCertCardInfo info, String label, String value) {
+        if (label.contains("domain")) {
+            info.setDomain(value);
+        }
+    }
+
+    private void fuzzySetAccountId(AwsCertCardInfo info, String label, String value) {
+        if (label.contains("account")) {
+            info.setAccountId(value);
+        }
+    }
+
+    private void fuzzySetRegionName(AwsCertCardInfo info, String label, String value) {
+        if (label.contains("region")) {
+            info.setRegionName(value);
+        }
+    }
+
+    private void fuzzySetCertIdentifier(AwsCertCardInfo info, String label, String value) {
+        if (label.contains("certificate")) {
+            info.setCertIdentifier(value);
+        }
+    }
+
+    private Map<String, String> collectFormParams(Elements formElements) {
+        Map<String, String> formParams = new HashMap<>();
+        List<FormElement> forms = formElements.forms();
+
+        forms.forEach(
+                form ->
+                        form.formData().forEach(
+                                kvp -> formParams.put(kvp.key(), kvp.value())
+                        )
+        );
+
+        return formParams;
     }
 
     private Cards appendCard(Cards cards, AwsCertCardInfo info, String routingPrefix) {
