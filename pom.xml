@@ -165,7 +165,15 @@
                         <rulesets>
                             <ruleset>${project.parent.parent.basedir}/pmdrules.xml</ruleset>
                         </rulesets>
-                        <analysisCache>true</analysisCache>
+                        <!--
+                          Using analysisCache introduces state from 1 build to
+                          the next.  I ran into weird processing errors when
+                          switching branches and had to build an extra time.
+                          The time difference between analysisCache on and off
+                          is negligible, so I would rather have consistent
+                          builds that I can trust.
+                          -->
+                        <analysisCache>false</analysisCache>
                         <skipPmdError>false</skipPmdError>
                         <targetJdk>1.8</targetJdk>
                     </configuration>
