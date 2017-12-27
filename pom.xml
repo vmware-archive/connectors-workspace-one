@@ -407,6 +407,22 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.0.0</version>
+                    <configuration>
+                        <excludePackageNames>
+                            com.vmware.connectors.airwatch*,
+                            com.vmware.connectors.aws*,
+                            com.vmware.connectors.concur*,
+                            com.vmware.connectors.jira*,
+                            com.vmware.connectors.salesforce*,
+                            com.vmware.connectors.servicenow*,
+                            com.vmware.connectors.socialcast*,
+                            com.vmware.connectors.common.web,
+                            com.vmware.connectors.common.json,
+                            com.vmware.connectors.common.config,
+                            com.vmware.connectors.common.context,
+                            com.vmware.connectors.common.model
+                        </excludePackageNames>
+                    </configuration>
                     <executions>
                         <execution>
                             <id>attach-javadocs</id>

@@ -17,13 +17,22 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Created by Rob Worsnop on 10/17/16.
+ * Utility for Async operations
+ *
+ * @author Rob Worsnop
  */
 public final class Async {
     private Async() {
         // Do not construct
     }
 
+    /**
+     * Converts a ListenableFuture object to a Single.
+     *
+     * @param future The future to convert
+     * @param <T> The type of object being omitted
+     * @return
+     */
     public static <T> Single<T> toSingle(ListenableFuture<T> future) {
         // Remember the context from the calling thread
         Map<String, Object> callerContext = ContextHolder.getContext();
@@ -57,15 +66,5 @@ public final class Async {
                 }
             }
         }));
-    }
-
-    public static <T> Func1<Throwable, Single<T>> ifStatusCodeException(Function<HttpStatusCodeException, T> func) {
-        return throwable -> {
-            if (throwable instanceof HttpStatusCodeException) {
-                return Single.just(func.apply((HttpStatusCodeException) throwable));
-            } else {
-                return Single.error(throwable);
-            }
-        };
     }
 }

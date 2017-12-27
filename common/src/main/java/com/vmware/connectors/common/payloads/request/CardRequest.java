@@ -16,7 +16,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by Rob Worsnop on 2/6/17.
+ * Payload for card requests
+ *
+ * @author Rob Worsnop
  */
 @AutoProperty
 public class CardRequest {
@@ -29,6 +31,11 @@ public class CardRequest {
         this.tokens = tokens;
     }
 
+    /**
+     * Returns the tokens from the request, given a key
+     * @param key The key to use for lookup
+     * @return the tokens for the key
+     */
     public Set<String> getTokens(String key) {
         return tokens.get(key);
     }
@@ -40,7 +47,7 @@ public class CardRequest {
      *
      * @param key          The key for which to retrieve the value
      * @param defaultValue The default value to be returned if no single value is retrieved from the map
-     * @return The single value for the provided key in the provided map
+     * @return the single value for the provided key in the provided map
      */
     public String getTokenSingleValue(String key, String defaultValue) {
         Set<String> values = tokens.get(key);

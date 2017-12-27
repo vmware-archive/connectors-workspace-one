@@ -10,9 +10,6 @@ import org.springframework.context.MessageSource;
 
 import java.util.Locale;
 
-/**
- * Created by mshetkar on 6/12/2017.
- */
 public class TextAccessorBase {
     protected final MessageSource messageSource;
 
