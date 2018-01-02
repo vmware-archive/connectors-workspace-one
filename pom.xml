@@ -404,6 +404,7 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.0.0</version>
                     <configuration>
+                        <doctitle>Workspace ONE Connectors API</doctitle>
                         <excludePackageNames>
                             com.vmware.connectors.airwatch*,
                             com.vmware.connectors.aws*,
