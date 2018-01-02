@@ -1,0 +1,4 @@
+com.vmware.connectors.common.payloads.request
+com.vmware.connectors.common.payloads.response
+com.vmware.connectors.common.utils
+com.vmware.connectors.test
