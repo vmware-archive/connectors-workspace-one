@@ -74,29 +74,38 @@ public final class JsonReplacementsBuilder {
                 .build(false);
     }
 
-    public Matcher<String> build(boolean strict) {
-        return new BaseMatcher<String>() {
-            @Override
-            public boolean matches(Object item) {
-                try {
-                    JSONCompareResult result = JSONCompare.compareJSON(expected, transform(item.toString()),
-                            strict ? JSONCompareMode.STRICT : JSONCompareMode.LENIENT);
-                    if (result.failed()) {
-                        System.err.println(result.getMessage());
-                        return false;
-                    } else {
-                        return true;
-                    }
-                } catch (JSONException e) {
-                    throw new AssertionError(e);
-                }
-            }
+    private class JsonMatcher extends BaseMatcher<String> {
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText(expected);
+        private final JSONCompareMode compareMode;
+
+        JsonMatcher(JSONCompareMode compareMode) {
+            this.compareMode = compareMode;
+        }
+
+        @Override
+        public boolean matches(Object item) {
+            try {
+                JSONCompareResult result = JSONCompare.compareJSON(expected, transform(item.toString()), compareMode);
+                if (result.failed()) {
+                    System.err.println(result.getMessage());
+                    return false;
+                } else {
+                    return true;
+                }
+            } catch (JSONException e) {
+                throw new AssertionError(e);
             }
-        };
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText(expected);
+        }
+
+    }
+
+    public Matcher<String> build(boolean strict) {
+        return new JsonMatcher(strict ? JSONCompareMode.STRICT : JSONCompareMode.LENIENT);
     }
 
     private String transform(String source) {

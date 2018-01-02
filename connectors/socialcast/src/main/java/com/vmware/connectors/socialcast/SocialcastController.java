@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -190,10 +189,16 @@ public class SocialcastController {
     // who are found to have Socialicast user ID's
     private HttpStatus parseGetUserResponse(ResponseEntity<String> result, SocialcastRequestContext ctx) {
 
-        MessageThread mt = ctx.getMessageThread();
+        setScastId(ctx.getMessageThread().allUsersByEmail(), result);
 
-        Map<String, UserRecord> userRecordMap = mt.allUsersByEmail();
+        addUserFoundStatus(ctx);
 
+        ctx.addResponseCodeForStep("User query", result.getStatusCode().toString());
+
+        return result.getStatusCode();
+    }
+
+    private void setScastId(Map<String, UserRecord> userRecordMap, ResponseEntity<String> result) {
         for (Object queryResult : JsonPath.parse(result.getBody()).read("$.users", List.class)) {
 
             ReadContext userReadContext = JsonPath.parse(queryResult);
@@ -207,9 +212,10 @@ public class SocialcastController {
                 }
             }
         }
+    }
 
-        Set<UserRecord> users = mt.allUsers();
-        for (UserRecord user : users) {
+    private void addUserFoundStatus(SocialcastRequestContext ctx) {
+        for (UserRecord user : ctx.getMessageThread().allUsers()) {
             String id = user.getScastId();
 
             if (id == null) {
@@ -221,12 +227,7 @@ public class SocialcastController {
                 ctx.addUserFound(user.getEmailAddress(), id);
             }
         }
-
-        ctx.addResponseCodeForStep("User query", result.getStatusCode().toString());
-
-        return result.getStatusCode();
     }
-
 
     //////////////////////
     // Step 2: create group
@@ -274,23 +275,9 @@ public class SocialcastController {
 
     private Single<HttpStatus> addUsersToGroup(SocialcastRequestContext ctx) {
         List<Map<String, String>> memberships = new ArrayList<>();
+
         for (UserRecord user : ctx.getMessageThread().allUsers()) {
-            Map<String, String> userMap = new HashMap<>();
-
-            if (StringUtils.isNotBlank(user.getScastId())) {
-                // If we have an ID for a user, they're already on Socialcast, so we just have to add them to the group
-                String role = user.equals(ctx.getMessageThread().getFirstSender()) ? "admin" : "member";
-                userMap.put("user_id", user.getScastId());
-                userMap.put("role", role);
-
-            } else {
-                // If they don't have an ID, we tell Socialcast to invite them
-                userMap.put("email", user.getEmailAddress());
-                userMap.put("invite", "true");
-                userMap.put("role", "member");
-            }
-
-            memberships.add(userMap);
+            memberships.add(getMembership(user, ctx));
         }
 
         Map<String, Object> bodyMap = Collections.singletonMap("group_memberships", memberships);
@@ -303,6 +290,24 @@ public class SocialcastController {
                 .map(entity -> parseUserAdditionResponse(entity, ctx));
     }
 
+    private Map<String, String> getMembership(UserRecord user, SocialcastRequestContext ctx) {
+        Map<String, String> userMap = new HashMap<>();
+
+        if (StringUtils.isNotBlank(user.getScastId())) {
+            // If we have an ID for a user, they're already on Socialcast, so we just have to add them to the group
+            String role = user.equals(ctx.getMessageThread().getFirstSender()) ? "admin" : "member";
+            userMap.put("user_id", user.getScastId());
+            userMap.put("role", role);
+
+        } else {
+            // If they don't have an ID, we tell Socialcast to invite them
+            userMap.put("email", user.getEmailAddress());
+            userMap.put("invite", "true");
+            userMap.put("role", "member");
+        }
+
+        return userMap;
+    }
 
     // Write status report to the request context
     private HttpStatus parseUserAdditionResponse(ResponseEntity<String> entity, SocialcastRequestContext ctx) {

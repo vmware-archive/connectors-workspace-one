@@ -5,7 +5,6 @@
 
 package com.vmware.connectors.common.web;
 
-import com.vmware.connectors.common.web.SingleDeferredResult;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpHeaders;

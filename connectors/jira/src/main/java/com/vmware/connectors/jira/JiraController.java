@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.jira;
 
+import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.Card;
@@ -12,6 +13,7 @@ import com.vmware.connectors.common.payloads.response.CardAction;
 import com.vmware.connectors.common.payloads.response.CardActionInputField;
 import com.vmware.connectors.common.payloads.response.CardBody;
 import com.vmware.connectors.common.payloads.response.CardBodyField;
+import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
 import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
@@ -38,9 +40,7 @@ import rx.Single;
 
 import javax.validation.Valid;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -190,92 +190,61 @@ public class JiraController {
     private Card transformIssueResponse(ResponseEntity<JsonDocument> result, String baseUrl, String issueId, String routingPrefix) {
         JsonDocument jiraResponse = result.getBody();
         String issueKey = jiraResponse.read("$.key");
-        String project = jiraResponse.read("$.fields.project.name");
         String summary = jiraResponse.read("$.fields.summary");
-        String status = jiraResponse.read("$.fields.status.name");
-        String assignee = jiraResponse.read("$.fields.assignee.displayName");
-        String reporter = jiraResponse.read("$.fields.reporter.displayName");
         List<String> components = jiraResponse.read("$.fields.components[*].name");
         List<String> labels = jiraResponse.read("$.fields.labels");
-        String description = jiraResponse.read("$.fields.description");
         List<String> allComments = jiraResponse.read("$.fields.comment.comments[*].body");
         Collections.reverse(allComments);
-        Map<String, String> lastComment = new HashMap<>();
-        Map<String, String> secondToLastComment = new HashMap<>();
-
-        final String GENERAL_CARD_TYPE = "GENERAL";
-        final String COMMENT_CARD_TYPE = "COMMENT";
 
         CardAction.Builder commentActionBuilder = getCommentActionBuilder(jiraResponse, routingPrefix);
         CardAction.Builder watchActionBuilder = getWatchActionBuilder(jiraResponse, routingPrefix);
         CardAction.Builder openInActionBuilder = getOpenInActionBuilder(baseUrl, issueId);
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
-                .setDescription(cardTextAccessor.getBody(summary));
+                .setDescription(cardTextAccessor.getBody(summary))
+                .addField(buildGeneralBodyField("project", jiraResponse.read("$.fields.project.name")))
+                .addField(buildGeneralBodyField("summary", summary))
+                .addField(buildGeneralBodyField("status", jiraResponse.read("$.fields.status.name")))
+                .addField(buildGeneralBodyField("assignee", jiraResponse.read("$.fields.assignee.displayName")))
+                .addField(buildGeneralBodyField("reporter", jiraResponse.read("$.fields.reporter.displayName")))
+                .addField(buildGeneralBodyField("components", String.join(",", components)))
+                .addField(buildGeneralBodyField("labels", String.join(",", labels)))
+                .addField(buildGeneralBodyField("description", jiraResponse.read("$.fields.description")));
 
-        CardBodyField.Builder cardFieldBuilder = new CardBodyField.Builder()
-                .setTitle(cardTextAccessor.getMessage("project"))
-                .setDescription(project)
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardFieldBuilder.build());
+        addCommentsField(cardBodyBuilder, allComments);
 
-        cardFieldBuilder.setTitle(cardTextAccessor.getMessage("summary"))
-                .setDescription(summary)
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardFieldBuilder.build());
-
-        cardFieldBuilder.setTitle(cardTextAccessor.getMessage("status"))
-                .setDescription(status)
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardFieldBuilder.build());
-
-        cardFieldBuilder.setTitle(cardTextAccessor.getMessage("assignee"))
-                .setDescription(assignee)
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardFieldBuilder.build());
-
-        cardFieldBuilder.setTitle(cardTextAccessor.getMessage("reporter"))
-                .setDescription(reporter)
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardFieldBuilder.build());
-
-        cardFieldBuilder.setTitle(cardTextAccessor.getMessage("components"))
-                .setDescription(String.join(",", components))
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardFieldBuilder.build());
-
-        cardFieldBuilder.setTitle(cardTextAccessor.getMessage("labels"))
-                .setDescription(String.join(",", labels))
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardFieldBuilder.build());
-
-        cardFieldBuilder.setTitle(cardTextAccessor.getMessage("description"))
-                .setDescription(description)
-                .setType(GENERAL_CARD_TYPE);
-        cardBodyBuilder.addField(cardFieldBuilder.build());
-
-        if (!allComments.isEmpty()) {
-            cardFieldBuilder.setTitle(cardTextAccessor.getMessage("comments"))
-                    .setType(COMMENT_CARD_TYPE);
-
-            lastComment.put("text", allComments.get(0));
-            cardFieldBuilder.addContent(lastComment);
-            if (allComments.size() > 1) {
-                secondToLastComment.put("text", allComments.get(1));
-                cardFieldBuilder.addContent(secondToLastComment);
-            }
-            cardBodyBuilder.addField(cardFieldBuilder.build());
-        }
-
-        Card.Builder cardBuilder = new Card.Builder()
+        return new Card.Builder()
                 .setName("Jira")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(cardTextAccessor.getHeader(issueKey), null)
                 .setBody(cardBodyBuilder.build())
                 .addAction(commentActionBuilder.build())
                 .addAction(openInActionBuilder.build())
-                .addAction(watchActionBuilder.build());
-        return cardBuilder.build();
+                .addAction(watchActionBuilder.build())
+                .build();
+    }
+
+    private CardBodyField buildGeneralBodyField(String titleMessageKey, String content) {
+        return new CardBodyField.Builder()
+                .setTitle(cardTextAccessor.getMessage(titleMessageKey))
+                .setDescription(content)
+                .setType(CardBodyFieldType.GENERAL)
+                .build();
+    }
+
+    private void addCommentsField(CardBody.Builder cardBodyBuilder, List<String> allComments) {
+        CardBodyField.Builder cardFieldBuilder = new CardBodyField.Builder();
+
+        if (!allComments.isEmpty()) {
+            cardFieldBuilder.setTitle(cardTextAccessor.getMessage("comments"))
+                    .setType(CardBodyFieldType.COMMENT);
+
+            cardFieldBuilder.addContent(ImmutableMap.of("text", allComments.get(0)));
+            if (allComments.size() > 1) {
+                cardFieldBuilder.addContent(ImmutableMap.of("text", allComments.get(1)));
+            }
+            cardBodyBuilder.addField(cardFieldBuilder.build());
+        }
     }
 
     private CardAction.Builder getCommentActionBuilder(JsonDocument jiraResponse, String routingPrefix) {

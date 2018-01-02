@@ -16,6 +16,7 @@ import com.vmware.connectors.common.payloads.response.CardAction;
 import com.vmware.connectors.common.payloads.response.CardActionInputField;
 import com.vmware.connectors.common.payloads.response.CardBody;
 import com.vmware.connectors.common.payloads.response.CardBodyField;
+import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
 import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.json.JsonDocument;
@@ -63,6 +64,7 @@ import static org.springframework.http.MediaType.*;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 @RestController
+@SuppressWarnings("PMD.NcssCount")
 public class SalesforceController {
     private final static Logger logger = LoggerFactory.getLogger(SalesforceController.class);
     private final static String SALESFORCE_AUTH_HEADER = "x-salesforce-authorization";
@@ -431,7 +433,6 @@ public class SalesforceController {
     // Create card for showing information about the email sender, related opportunities.
     private Cards createUserDetailsCard(JsonDocument contactDetails, JsonDocument opportunityDetails, String routingPrefix) {
         Cards cards = new Cards();
-        final String GENERAL_CARD_FIELD_TYPE = "GENERAL";
         String contactName = contactDetails.read("$.records[0].Name");
         String contactPhNo = contactDetails.read("$.records[0].MobilePhone");
         String contactAccountName = contactDetails.read("$.records[0].Account.Name");
@@ -442,19 +443,19 @@ public class SalesforceController {
         CardBodyField.Builder cardFieldBuilder = new CardBodyField.Builder()
                 .setTitle(cardTextAccessor.getMessage("senderinfo.name"))
                 .setDescription(contactName)
-                .setType(GENERAL_CARD_FIELD_TYPE);
+                .setType(CardBodyFieldType.GENERAL);
         cardBodyBuilder.addField(cardFieldBuilder.build());
 
         cardFieldBuilder
                 .setTitle(cardTextAccessor.getMessage("senderinfo.account"))
                 .setDescription(contactAccountName)
-                .setType(GENERAL_CARD_FIELD_TYPE);
+                .setType(CardBodyFieldType.GENERAL);
         cardBodyBuilder.addField(cardFieldBuilder.build());
 
         cardFieldBuilder
                 .setTitle(cardTextAccessor.getMessage("senderinfo.phone"))
                 .setDescription(contactPhNo)
-                .setType(GENERAL_CARD_FIELD_TYPE);
+                .setType(CardBodyFieldType.GENERAL);
         cardBodyBuilder.addField(cardFieldBuilder.build());
 
         // Fill in the opportunity details.
@@ -469,23 +470,23 @@ public class SalesforceController {
             cardFieldBuilder
                     .setTitle(cardTextAccessor.getMessage("senderinfo.opportunity.title"))
                     .setDescription(oppName)
-                    .setType(GENERAL_CARD_FIELD_TYPE);
+                    .setType(CardBodyFieldType.GENERAL);
             cardBodyBuilder.addField(cardFieldBuilder.build());
             cardFieldBuilder
                     .setTitle(cardTextAccessor.getMessage("senderinfo.opportunity.role"))
                     .setDescription(oppRole)
-                    .setType(GENERAL_CARD_FIELD_TYPE);
+                    .setType(CardBodyFieldType.GENERAL);
             cardBodyBuilder.addField(cardFieldBuilder.build());
             cardFieldBuilder
                     .setTitle(cardTextAccessor.getMessage("senderinfo.opportunity.probability"))
                     .setDescription(oppProbability)
-                    .setType(GENERAL_CARD_FIELD_TYPE);
+                    .setType(CardBodyFieldType.GENERAL);
             cardBodyBuilder.addField(cardFieldBuilder.build());
             if (StringUtils.isNotBlank(oppAmount)) {
                 cardFieldBuilder
                         .setTitle(cardTextAccessor.getMessage("senderinfo.opportunity.amount"))
                         .setDescription(oppAmount)
-                        .setType(GENERAL_CARD_FIELD_TYPE);
+                        .setType(CardBodyFieldType.GENERAL);
                 cardBodyBuilder.addField(cardFieldBuilder.build());
             }
         }
@@ -611,7 +612,6 @@ public class SalesforceController {
     }
 
     // This class is a Memento encapsulating the things we need to know about a Salesforce account.
-    // Instances of this class are immutable.
     @AutoProperty
     private static class SFAccount {
         private final String id;

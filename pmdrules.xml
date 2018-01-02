@@ -15,11 +15,22 @@
         <exclude name="TooManyFields"/>
     </rule>
     <rule ref="rulesets/java/design.xml">
+        <exclude name="DataClass"/>
         <exclude name="GodClass"/>
         <exclude name="AccessorClassGeneration"/>
         <exclude name="AccessorMethodGeneration"/>
         <exclude name="UseVarargs"/>
     </rule>
+
+    <!-- customize NcssCount to have a more reasonable method size -->
+    <rule ref="category/java/design.xml/NcssCount">
+        <properties>
+            <property name="methodReportLevel">
+                <value>16</value>
+            </property>
+        </properties>
+    </rule>
+
     <rule ref="rulesets/java/empty.xml"/>
     <rule ref="rulesets/java/finalizers.xml"/>
     <rule ref="rulesets/java/imports.xml">
@@ -35,7 +46,6 @@
     <rule ref="rulesets/java/strings.xml">
         <exclude name="UseIndexOfChar"/>
     </rule>
-    <rule ref="rulesets/java/typeresolution.xml"/>
     <rule ref="rulesets/java/unnecessary.xml"/>
     <rule ref="rulesets/java/unusedcode.xml"/>
 </ruleset>
