@@ -9,10 +9,13 @@ import com.vmware.connectors.common.context.ContextHolder;
 import org.slf4j.MDC;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
+import org.springframework.web.client.HttpStatusCodeException;
 import rx.Single;
 import rx.SingleSubscriber;
+import rx.functions.Func1;
 
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Utility for Async operations
@@ -84,4 +87,15 @@ public final class Async {
         return Single.create(subscriber ->
                 future.addCallback(new ContextCopyingListenableFutureCallback<>(callerContext, mdcMap, subscriber)));
     }
+
+    public static <T> Func1<Throwable, Single<T>> ifStatusCodeException(Function<HttpStatusCodeException, T> func) {
+        return throwable -> {
+            if (throwable instanceof HttpStatusCodeException) {
+                return Single.just(func.apply((HttpStatusCodeException) throwable));
+            } else {
+                return Single.error(throwable);
+            }
+        };
+    }
+
 }

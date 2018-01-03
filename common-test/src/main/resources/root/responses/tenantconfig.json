@@ -1,8 +1,0 @@
-{
-  "_links": {
-    "tenants": {
-      "href": "http://tenantconfig/tenants{?page,size,authHost}",
-      "templated": true
-    }
-  }
-}
