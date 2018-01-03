@@ -78,38 +78,10 @@ public class AwsCertControllerTests extends ControllerTestsBase {
 
     @Test
     public void testRegex() throws Exception {
-        mockMvc.perform(
-                get("/discovery/metadata.hal")
-                        .with(token(accessToken()))
-                        .accept(APPLICATION_JSON)
-        ).andExpect(mvcResult -> {
-            String json = mvcResult.getResponse().getContentAsString();
-            Map<String, Object> results = mapper.readValue(json, Map.class);
-            Map<String, Object> fields = (Map<String, Object>) results.get("fields");
-            Map<String, Object> approveUrls = (Map<String, Object>) fields.get("approval_urls");
-            String regex = (String) approveUrls.get("regex");
-            verifyRegex(regex);
-        });
-    }
-
-    private void verifyRegex(String regex) throws Exception {
         List<String> expected = ImmutableList.of(
                 "https://test-aws-region.certificates.fake-amazon.com/approvals?code=test-auth-code&context=test-context"
         );
-
-        String inputData = fromFile("awscert/fake/certificate-request-email.txt");
-
-        Pattern p = Pattern.compile(regex);
-
-        List<String> results = new ArrayList<>();
-        for (String line : inputData.split("\\n")) {
-            Matcher m = p.matcher(line);
-            while (m.find()) {
-                results.add(m.group(1));
-            }
-        }
-
-        assertThat(results, equalTo(expected));
+        testRegex("approval_urls", fromFile("awscert/fake/certificate-request-email.txt"), expected);
     }
 
     private MockHttpServletRequestBuilder setupPostRequest(

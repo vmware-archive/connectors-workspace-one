@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.hamcrest.CoreMatchers.anything;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,6 +60,9 @@ public class ControllerTestsBase {
 
     @Autowired
     protected MockMvc mvc;
+
+    @Autowired
+    protected ObjectMapper mapper;
 
     private String accessToken;
 
@@ -114,4 +127,34 @@ public class ControllerTestsBase {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().json(fromFile("/static/discovery/metadata.hal")));
     }
+
+    protected void testRegex(String tokenProperty, String emailInput, List<String> expected) throws Exception {
+        mvc.perform(
+                get("/discovery/metadata.hal")
+                        .with(token(accessToken()))
+                        .accept(APPLICATION_JSON)
+        ).andExpect(mvcResult -> {
+            String json = mvcResult.getResponse().getContentAsString();
+            Map<String, Object> results = mapper.readValue(json, Map.class);
+            Map<String, Object> fields = (Map<String, Object>) results.get("fields");
+            Map<String, Object> tokenDefinition = (Map<String, Object>) fields.get(tokenProperty);
+            String regex = (String) tokenDefinition.get("regex");
+            verifyRegex(regex, emailInput, expected);
+        });
+    }
+
+    private void verifyRegex(String regex, String emailInput, List<String> expected) throws Exception {
+        Pattern p = Pattern.compile(regex);
+
+        List<String> results = new ArrayList<>();
+        for (String line : emailInput.split("\\n")) {
+            Matcher m = p.matcher(line);
+            while (m.find()) {
+                results.add(m.group(1));
+            }
+        }
+
+        assertThat(results, equalTo(expected));
+    }
+
 }

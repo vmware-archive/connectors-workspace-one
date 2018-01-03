@@ -1,0 +1,366 @@
+{
+  "cards": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "GithubPr",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/github-pr/templates/generic.hbs"
+      },
+      "header": {
+        "title": "GITHUB PR - vmware/test-repo/1",
+        "subtitle": "GITHUB PULL REQUEST #1 FOR vmware/test-repo"
+      },
+      "body": {
+        "description": "Small merged PR example body",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "REPOSITORY",
+            "description": "vmware/test-repo"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REQUESTED BY",
+            "description": "TestUser1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "TITLE",
+            "description": "Small merged PR example title"
+          },
+          {
+            "type": "GENERAL",
+            "title": "STATE",
+            "description": "closed"
+          },
+          {
+            "type": "GENERAL",
+            "title": "MERGED",
+            "description": "true"
+          },
+          {
+            "type": "GENERAL",
+            "title": "MERGEABLE",
+            "description": "null"
+          },
+          {
+            "type": "GENERAL",
+            "title": "CREATED ON",
+            "description": "2017-12-20T23:00:00Z"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF COMMENTS",
+            "description": "3"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF REVIEW COMMENTS",
+            "description": "3"
+          },
+          {
+            "type": "GENERAL",
+            "title": "MERGED ON",
+            "description": "2017-12-20T23:30:30Z by TestUser2"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF COMMITS",
+            "description": "1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "CHANGES",
+            "description": "+ 7 / - 0"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF FILES CHANGED",
+            "description": "2"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "COMMENT",
+          "url": {
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/1/comment"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "message",
+              "label": "COMMENT",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "COMMENTED"
+        }
+      ]
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "GithubPr",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/github-pr/templates/generic.hbs"
+      },
+      "header": {
+        "title": "GITHUB PR - vmware/test-repo/2",
+        "subtitle": "GITHUB PULL REQUEST #2 FOR vmware/test-repo"
+      },
+      "body": {
+        "description": "Small unmerged PR example body",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "REPOSITORY",
+            "description": "vmware/test-repo"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REQUESTED BY",
+            "description": "TestUser1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "TITLE",
+            "description": "Small unmerged PR example title"
+          },
+          {
+            "type": "GENERAL",
+            "title": "STATE",
+            "description": "open"
+          },
+          {
+            "type": "GENERAL",
+            "title": "MERGED",
+            "description": "false"
+          },
+          {
+            "type": "GENERAL",
+            "title": "MERGEABLE",
+            "description": "true"
+          },
+          {
+            "type": "GENERAL",
+            "title": "CREATED ON",
+            "description": "2017-12-20T23:00:00Z"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF COMMENTS",
+            "description": "0"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF REVIEW COMMENTS",
+            "description": "0"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF COMMITS",
+            "description": "2"
+          },
+          {
+            "type": "GENERAL",
+            "title": "CHANGES",
+            "description": "+ 9 / - 1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF FILES CHANGED",
+            "description": "2"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "REJECT",
+          "url": {
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/2/close"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "REASON"
+            }
+          ],
+          "completed_label": "REJECTED"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "MERGE",
+          "url": {
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/2/merge"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {
+            "sha": "cf1586350f0e6730fc3d1b3b386f824c2051b32d"
+          },
+          "user_input": [],
+          "completed_label": "MERGED"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "APPROVE",
+          "url": {
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/2/approve"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {},
+          "user_input": [],
+          "completed_label": "APPROVED"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "COMMENT",
+          "url": {
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/2/comment"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "message",
+              "label": "COMMENT",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "COMMENTED"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "REQUEST CHANGES",
+          "url": {
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/2/request-changes"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "request",
+              "label": "REQUEST",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "CHANGES REQUESTED"
+        }
+      ]
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "GithubPr",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/github-pr/templates/generic.hbs"
+      },
+      "header": {
+        "title": "GITHUB PR - vmware/test-repo/3",
+        "subtitle": "GITHUB PULL REQUEST #3 FOR vmware/test-repo"
+      },
+      "body": {
+        "description": "Small closed PR example body",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "REPOSITORY",
+            "description": "vmware/test-repo"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REQUESTED BY",
+            "description": "TestUser1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "TITLE",
+            "description": "Big closed PR example title"
+          },
+          {
+            "type": "GENERAL",
+            "title": "STATE",
+            "description": "closed"
+          },
+          {
+            "type": "GENERAL",
+            "title": "MERGED",
+            "description": "false"
+          },
+          {
+            "type": "GENERAL",
+            "title": "MERGEABLE",
+            "description": "true"
+          },
+          {
+            "type": "GENERAL",
+            "title": "CREATED ON",
+            "description": "2017-12-20T23:00:00Z"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF COMMENTS",
+            "description": "1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF REVIEW COMMENTS",
+            "description": "0"
+          },
+          {
+            "type": "GENERAL",
+            "title": "CLOSED ON",
+            "description": "2017-12-20T23:30:00Z"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF COMMITS",
+            "description": "3"
+          },
+          {
+            "type": "GENERAL",
+            "title": "CHANGES",
+            "description": "+ 89 / - 0"
+          },
+          {
+            "type": "GENERAL",
+            "title": "# OF FILES CHANGED",
+            "description": "7"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "COMMENT",
+          "url": {
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/3/comment"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "message",
+              "label": "COMMENT",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "COMMENTED"
+        }
+      ]
+    }
+  ]
+}

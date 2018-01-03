@@ -1,0 +1,11 @@
+{
+  "state" : "COMMENTED",
+  "body" : "test-close-reason",
+  "pull_request_url" : "https://api.github.com/repos/vmware/test-repo/pulls/99",
+  "_links" : {
+    "pull_request" : {
+      "href" : "https://api.github.com/repos/vmware/test-repo/pulls/99"
+    }
+  },
+  "submitted_at" : "2018-01-02T15:13:17Z"
+}
