@@ -1,3 +1,8 @@
+/*
+ * Copyright © 2018 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 package com.vmware.connectors.github.pr.v3;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
