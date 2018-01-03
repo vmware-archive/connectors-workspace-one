@@ -32,6 +32,22 @@ public class CardRequest {
     }
 
     /**
+     * Returns the metadata tokens extracted by a client.
+     * <p>
+     * For example:
+     * {
+     * "emailAddress" : ["rworsnop@vmware.com", "fred@s1.com"],
+     * "account" : ["123", "abc", "xyz"]
+     * }
+     *
+     * @return the metadata
+     */
+    @JsonProperty("tokens")
+    public Map<String, Set<String>> getTokens() {
+        return tokens;
+    }
+
+    /**
      * Returns the tokens from the request, given a key
      * @param key The key to use for lookup
      * @return the tokens for the key
