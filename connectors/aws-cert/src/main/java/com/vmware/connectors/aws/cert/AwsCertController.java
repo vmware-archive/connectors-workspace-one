@@ -124,12 +124,17 @@ public class AwsCertController {
     }
 
     private boolean validateUrl(String approvalUrl) {
+        boolean isValid;
         try {
             UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(approvalUrl).build();
-            return verifyHost(uriComponents) && verifyPath(uriComponents);
+            isValid = verifyHost(uriComponents) && verifyPath(uriComponents);
         } catch (IllegalArgumentException e) {
-            return false;
+            isValid = false;
         }
+        if (!isValid) {
+            logger.warn("Approval url was not valid: {}", approvalUrl);
+        }
+        return isValid;
     }
 
     private boolean verifyHost(UriComponents uriComponents) {

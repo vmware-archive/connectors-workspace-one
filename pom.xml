@@ -6,7 +6,7 @@
 
     <groupId>com.vmware.card-connectors</groupId>
     <artifactId>connectors-parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
 
@@ -51,12 +51,23 @@
             </dependency>
             <dependency>
                 <groupId>com.vmware.card-connectors</groupId>
-                <artifactId>connectors-common</artifactId>
+                <artifactId>core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.vmware.card-connectors</groupId>
-                <artifactId>connectors-common-test</artifactId>
+                <artifactId>core-test</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>connectors-config</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>connectors-test</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -116,7 +127,6 @@
 
     <modules>
         <module>common</module>
-        <module>common-test</module>
         <module>connectors</module>
     </modules>
 
@@ -409,6 +419,7 @@
                             com.vmware.connectors.airwatch*,
                             com.vmware.connectors.aws*,
                             com.vmware.connectors.concur*,
+                            com.vmware.connectors.github*,
                             com.vmware.connectors.jira*,
                             com.vmware.connectors.salesforce*,
                             com.vmware.connectors.servicenow*,
