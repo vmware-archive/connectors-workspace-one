@@ -12,7 +12,7 @@
     <artifactId>core</artifactId>
 
     <name>Workspace One Common Module</name>
-    <description>Common code for developing connectors</description>
+    <description>Common code for developing mobile flows</description>
     <url>https://github.com/vmware/connectors-workspace-one</url>
 
     <licenses>
