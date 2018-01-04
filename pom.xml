@@ -51,23 +51,23 @@
             </dependency>
             <dependency>
                 <groupId>com.vmware.card-connectors</groupId>
-                <artifactId>common</artifactId>
+                <artifactId>core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.vmware.card-connectors</groupId>
-                <artifactId>common-test</artifactId>
+                <artifactId>core-test</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.vmware.card-connectors</groupId>
-                <artifactId>connectors-common-config</artifactId>
+                <artifactId>connectors-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.vmware.card-connectors</groupId>
-                <artifactId>connectors-common-test</artifactId>
+                <artifactId>connectors-test</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -127,7 +127,6 @@
 
     <modules>
         <module>common</module>
-        <module>common-test</module>
         <module>connectors</module>
     </modules>
 
@@ -174,7 +173,7 @@
                     <version>3.8</version>
                     <configuration>
                         <rulesets>
-                            <ruleset>${project.parent.parent.parent.basedir}/pmdrules.xml</ruleset>
+                            <ruleset>${project.parent.parent.basedir}/pmdrules.xml</ruleset>
                         </rulesets>
                         <!--
                           Using analysisCache introduces state from 1 build to
@@ -326,7 +325,7 @@
                                 <groupname>roswell</groupname>
                                 <sources>
                                     <source>
-                                        <location>../../../LICENSE.txt</location>
+                                        <location>../../LICENSE.txt</location>
                                     </source>
                                 </sources>
                             </mapping>

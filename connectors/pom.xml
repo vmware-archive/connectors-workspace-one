@@ -14,9 +14,14 @@
     </parent>
 
     <modules>
-        <module>common-config</module>
-        <module>common-test</module>
-        <module>samples</module>
+        <module>airwatch</module>
+        <module>aws-cert</module>
+        <module>concur</module>
+        <module>github-pr</module>
+        <module>jira</module>
+        <module>salesforce</module>
+        <module>servicenow</module>
+        <module>socialcast</module>
     </modules>
     
 </project>

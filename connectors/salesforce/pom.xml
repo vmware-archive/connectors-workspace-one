@@ -4,15 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.vmware.card-connectors</groupId>
-        <artifactId>connector-samples</artifactId>
+        <artifactId>connectors</artifactId>
         <version>2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>socialcast-connector</artifactId>
+    <artifactId>salesforce-connector</artifactId>
 
     <properties>
-        <connector.name>socialcast</connector.name>
+        <connector.name>salesforce</connector.name>
     </properties>
 
     <dependencies>
@@ -22,19 +22,19 @@
         </dependency>
         <dependency>
             <groupId>com.vmware.card-connectors</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vmware.card-connectors</groupId>
-            <artifactId>common-test</artifactId>
+            <artifactId>core-test</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vmware.card-connectors</groupId>
-            <artifactId>connectors-common-config</artifactId>
+            <artifactId>connectors-config</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vmware.card-connectors</groupId>
-            <artifactId>connectors-common-test</artifactId>
+            <artifactId>connectors-test</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -47,10 +47,6 @@
         <dependency>
             <groupId>org.pojomatic</groupId>
             <artifactId>pojomatic</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
     </dependencies>
 
