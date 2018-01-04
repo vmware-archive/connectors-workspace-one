@@ -11,7 +11,6 @@ import com.jayway.jsonpath.ReadContext;
 import com.vmware.connectors.common.model.Message;
 import com.vmware.connectors.common.model.MessageThread;
 import com.vmware.connectors.common.model.UserRecord;
-import com.vmware.connectors.common.model.SocialcastRequestContext;
 import com.vmware.connectors.common.utils.Async;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
