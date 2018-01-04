@@ -8,6 +8,7 @@ package com.vmware.connectors.common.web;
 import org.springframework.web.client.HttpClientErrorException;
 import rx.Observable;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 public final class ObservableUtil {
@@ -23,6 +24,17 @@ public final class ObservableUtil {
             return Observable.empty();
         } else {
             // If the problem is not 404, let the problem bubble up
+            return Observable.error(throwable);
+        }
+    }
+
+    public static <R> Observable<R> skip400(Throwable throwable) {
+        if (throwable instanceof HttpClientErrorException
+                && HttpClientErrorException.class.cast(throwable).getStatusCode() == BAD_REQUEST) {
+            // If it's OK to let bad requests be skipped, proceed; we just won't create a card.
+            return Observable.empty();
+        } else {
+            // If the problem is not 400, let the problem bubble up
             return Observable.error(throwable);
         }
     }
