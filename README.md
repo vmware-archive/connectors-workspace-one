@@ -41,7 +41,8 @@ Before the service can be run, some configuration is required. The connectors au
 
 For example, for the Jira connector:
 ```
-echo "security.oauth2.resource.jwt.key-uri=https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem" > /etc/opt/vmware/connectors/jira/application.properties
+echo "security.oauth2.resource.jwt.key-uri=https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem" \
+> /etc/opt/vmware/connectors/jira/application.properties
 ```
 The hostname of the URL will vary depending on your IDM tenant.
 
