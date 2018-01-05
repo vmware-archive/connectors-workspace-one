@@ -29,13 +29,13 @@ Additionally, it is possible to build RPMs, which install the connectors as serv
 Building the RPMs is possible only within an RPM-based system. A [Vagrantfile](https://github.com/vmware/connectors-workspace-one/blob/master/Vagrantfile)   
 is provided for this purpose.   
 
-### Installation
+### Installing
 
-Each connector has its own RPM. For example, `jira-connector-1.0.noarch.rpm`.
+Each connector has its own RPM. For example, `jira-connector-1.0.0.noarch.rpm`.
 
 The first step is to use the RPM to install the connector as a service. For example:
 ```
-yum install jira-connector-1.0.noarch.rpm 
+yum install jira-connector-1.0.0.noarch.rpm 
 ```
 Before the service can be run, some configuration is required. The connectors authenticate requests expecting an access token from VMware IDM. These tokens are JWTs whose signatures must be verified using a public key. This public key is acquired from a URL that is supplied to the connector via a new configuration file. 
 
@@ -64,7 +64,22 @@ sudo systemctl status jira-connector
 Also check the logs if there are problems:
 ```
 less /var/log/vmware/connectors/jira/jira-connector.log
+
 ```
+### Updating
+
+The connector can be updated using yum. For example, to update the Jira connector from 1.0.0 to 1.0.1:
+```
+yum upgrade jira-connector-1.0.1.noarch.rpm
+```
+Updating will not touch your overriding `application.properties` in `/etc`. It is probably a good idea to take a glance at `/opt/vmware/connectors/jira/application.properties` after updating to verify that there aren't any new things in the config that you should override. If there are any new settings you wish to configure, make sure you do so in the `application.properties` in `/etc` so that future updates/uninstalls don't throw away your config.
+
+## Uninstalling
+
+```
+sudo yum remove jira-connector
+```
+
 ## Contributing
 
 The connectors-workspace-one project team welcomes contributions from the community. Before you start working with 
