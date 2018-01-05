@@ -40,20 +40,20 @@ public class ExceptionHandlers {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
-    public Map<String, Map<String, String>> handleValidationException(MethodArgumentNotValidException e) {
-        Map<String, String> errorMap = e.getBindingResult().getFieldErrors().stream()
+    public Map<String, Map<String, String>> handleValidationException(MethodArgumentNotValidException exception) {
+        Map<String, String> errorMap = exception.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
         return Collections.singletonMap("errors", errorMap);
     }
 
     @ExceptionHandler
     @ResponseBody
-    public ResponseEntity<Object> handleStatusCodeException(HttpStatusCodeException e) {
+    public ResponseEntity<Object> handleStatusCodeException(HttpStatusCodeException exception) {
         // Map the status to a 500 unlesss it's a 401. If that's the case
         // then we know the client has passed in an invalid X-xxx-Authorization header and it's a 400.
-        logger.error("Backend returned {} {} \n {}", e.getStatusCode(), e.getStatusCode().getReasonPhrase(), e.getResponseBodyAsString());
-        String backendStatus = Integer.toString(e.getRawStatusCode());
-        if (e.getStatusCode() == UNAUTHORIZED) {
+        logger.error("Backend returned {} {} \n {}", exception.getStatusCode(), exception.getStatusCode().getReasonPhrase(), exception.getResponseBodyAsString());
+        String backendStatus = Integer.toString(exception.getRawStatusCode());
+        if (exception.getStatusCode() == UNAUTHORIZED) {
             Map<String, String> body = Collections.singletonMap("error", "invalid_connector_token");
             return ResponseEntity.status(BAD_REQUEST)
                     .header(BACKEND_STATUS, backendStatus)
@@ -62,10 +62,10 @@ public class ExceptionHandlers {
         } else {
             BodyBuilder builder = ResponseEntity.status(INTERNAL_SERVER_ERROR)
                     .header(BACKEND_STATUS, backendStatus);
-            if (e.getResponseHeaders().getContentType() != null) {
-                builder.contentType(e.getResponseHeaders().getContentType());
+            if (exception.getResponseHeaders().getContentType() != null) {
+                builder.contentType(exception.getResponseHeaders().getContentType());
             }
-            return builder.body(e.getResponseBodyAsString());
+            return builder.body(exception.getResponseBodyAsString());
         }
     }
 }

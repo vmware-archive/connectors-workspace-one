@@ -97,7 +97,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     @Test
     public void testAuthSuccess() throws Exception {
         expect("XYZ-999").andRespond(withStatus(NOT_FOUND));
-        perform(get("/test-auth").with(token(accessToken()))
+        perform(get("/test-auth").with(token(getAccessToken()))
                 .header("x-jira-authorization", "Bearer abc")
                 .header("x-jira-base-url", "https://jira.acme.com"))
                 .andExpect(status().isOk());
@@ -107,7 +107,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     @Test
     public void testAuthFail() throws Exception {
         expect("XYZ-999").andRespond(withUnauthorizedRequest());
-        perform(get("/test-auth").with(token(accessToken()))
+        perform(get("/test-auth").with(token(getAccessToken()))
                 .header("x-jira-authorization", "Bearer abc")
                 .header("x-jira-base-url", "https://jira.acme.com"))
                 .andExpect(status().isBadRequest());
@@ -119,7 +119,7 @@ public class JiraControllerTests extends ControllerTestsBase {
      */
     @Test
     public void testMissingRequestHeaders() throws Exception {
-        perform(post("/cards/requests").with(token(accessToken()))
+        perform(post("/cards/requests").with(token(getAccessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/jira/")
@@ -180,7 +180,7 @@ public class JiraControllerTests extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.content().string("{\"body\":\"Hello\"}"))
                 .andRespond(withStatus(CREATED));
 
-        perform(post("/api/v1/issues/1234/comment").with(token(accessToken()))
+        perform(post("/api/v1/issues/1234/comment").with(token(getAccessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header("x-jira-authorization", "Bearer abc")
                 .header("x-jira-base-url", "https://jira.acme.com")
@@ -203,7 +203,7 @@ public class JiraControllerTests extends ControllerTestsBase {
 
     @Test
     public void testAddCommentWithMissingConnectorAuthorization() throws Exception {
-        perform(post("/api/v1/issues/1234/comment").with(token(accessToken()))
+        perform(post("/api/v1/issues/1234/comment").with(token(getAccessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header("x-jira-base-url", "https://jira.acme.com")
                 .content("body=Hello"))
@@ -219,7 +219,7 @@ public class JiraControllerTests extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.content().string("{\"body\":\"Hello\"}"))
                 .andRespond(withStatus(UNAUTHORIZED));
 
-        perform(post("/api/v1/issues/1234/comment").with(token(accessToken()))
+        perform(post("/api/v1/issues/1234/comment").with(token(getAccessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header("x-jira-authorization", "Bearer bogus")
                 .header("x-jira-base-url", "https://jira.acme.com")
@@ -241,7 +241,7 @@ public class JiraControllerTests extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.content().string("\"harshas\""))
                 .andRespond(withStatus(NO_CONTENT));
 
-        perform(post("/api/v1/issues/1234/watchers").with(token(accessToken()))
+        perform(post("/api/v1/issues/1234/watchers").with(token(getAccessToken()))
                 .header("x-jira-authorization", "Bearer abc")
                 .header("x-jira-base-url", "https://jira.acme.com"))
                 .andExpect(status().isNoContent());
@@ -260,7 +260,7 @@ public class JiraControllerTests extends ControllerTestsBase {
 
     @Test
     public void testAddWatcherWithMissingConnectorAuthorization() throws Exception {
-        perform(post("/api/v1/issues/1234/watchers").with(token(accessToken()))
+        perform(post("/api/v1/issues/1234/watchers").with(token(getAccessToken()))
                 .header("x-jira-base-url", "https://jira.acme.com"))
                 .andExpect(status().isBadRequest());
         mockJira.verify();
@@ -273,7 +273,7 @@ public class JiraControllerTests extends ControllerTestsBase {
                 .andExpect(method(GET))
                 .andRespond(withStatus(UNAUTHORIZED));
 
-        perform(post("/api/v1/issues/1234/watchers").with(token(accessToken()))
+        perform(post("/api/v1/issues/1234/watchers").with(token(getAccessToken()))
                 .header("x-jira-authorization", "Bearer bogus")
                 .header("x-jira-base-url", "https://jira.acme.com"))
                 .andExpect(status().isBadRequest())
@@ -319,7 +319,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     private MockHttpServletRequestBuilder requestCards(String authToken, String requestfile) throws Exception {
-        return post("/cards/requests").with(token(accessToken()))
+        return post("/cards/requests").with(token(getAccessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-jira-authorization", "Bearer " + authToken)

@@ -115,9 +115,9 @@ public class AirWatchController {
     @ExceptionHandler(UdidException.class)
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
-    public Map<String, String> handleException(RuntimeException e) {
-        logger.debug(e.getMessage());
-        return Collections.singletonMap("error", e.getMessage());
+    public Map<String, String> handleException(RuntimeException exception) {
+        logger.debug(exception.getMessage());
+        return Collections.singletonMap("error", exception.getMessage());
     }
 
     private Observable<Card> getCardForApp(HttpHeaders headers, String baseUrl, String udid,

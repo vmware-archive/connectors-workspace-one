@@ -72,7 +72,7 @@ public class ControllerTestsBase {
 
     }
 
-    protected String accessToken() {
+    protected String getAccessToken() {
         return accessToken;
     }
 
@@ -95,9 +95,8 @@ public class ControllerTestsBase {
             return mvc.perform(asyncDispatch(resultActions
                     .andExpect(MockMvcResultMatchers.request().asyncResult(anything()))
                     .andReturn()));
-        } else {
-            return resultActions;
         }
+        return resultActions;
     }
 
     protected static RequestPostProcessor token(String accessToken) {
@@ -131,7 +130,7 @@ public class ControllerTestsBase {
     protected void testRegex(String tokenProperty, String emailInput, List<String> expected) throws Exception {
         mvc.perform(
                 get("/discovery/metadata.hal")
-                        .with(token(accessToken()))
+                        .with(token(getAccessToken()))
                         .accept(APPLICATION_JSON)
         ).andExpect(mvcResult -> {
             String json = mvcResult.getResponse().getContentAsString();
@@ -144,13 +143,13 @@ public class ControllerTestsBase {
     }
 
     private void verifyRegex(String regex, String emailInput, List<String> expected) throws Exception {
-        Pattern p = Pattern.compile(regex);
+        Pattern pattern = Pattern.compile(regex);
 
         List<String> results = new ArrayList<>();
         for (String line : emailInput.split("\\n")) {
-            Matcher m = p.matcher(line);
-            while (m.find()) {
-                results.add(m.group(1));
+            Matcher matcher = pattern.matcher(line);
+            while (matcher.find()) {
+                results.add(matcher.group(1));
             }
         }
 

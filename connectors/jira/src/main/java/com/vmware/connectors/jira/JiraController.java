@@ -124,7 +124,8 @@ public class JiraController {
                 .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
     }
 
-    @GetMapping(path = "/test-auth")
+    @GetMapping("/test-auth")
+    @SuppressWarnings("PMD.JUnit4TestShouldUseTestAnnotation") // PMD assumes the method as Junit Test if the API url has 'test'.
     public Single<ResponseEntity<Void>> testAuth(@RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
                                                  @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl) {
         return getIssue(jiraAuth, baseUrl, "XYZ-999")
@@ -230,7 +231,8 @@ public class JiraController {
                     .setType(CardBodyFieldType.COMMENT);
 
             cardFieldBuilder.addContent(ImmutableMap.of("text", allComments.get(0)));
-            if (allComments.size() > 1) {
+            int commentsSize = 1;
+            if (allComments.size() > commentsSize) {
                 cardFieldBuilder.addContent(ImmutableMap.of("text", allComments.get(1)));
             }
             cardBodyBuilder.addField(cardFieldBuilder.build());

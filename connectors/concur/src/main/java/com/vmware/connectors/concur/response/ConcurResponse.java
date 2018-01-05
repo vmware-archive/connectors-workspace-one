@@ -17,7 +17,10 @@ import java.io.Serializable;
 @XmlRootElement(name = "ActionStatus", namespace = "http://www.concursolutions.com/api/expense/expensereport/2011/03")
 @XmlAccessorType(XmlAccessType.FIELD)
 @AutoProperty
+@SuppressWarnings("PMD.UnnecessaryConstructor")
 public class ConcurResponse implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @XmlElement(name = "Message")
     private String message;

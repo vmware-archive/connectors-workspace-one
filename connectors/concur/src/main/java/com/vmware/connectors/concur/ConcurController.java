@@ -139,6 +139,7 @@ public class ConcurController {
     }
 
 
+    @SuppressWarnings("PMD.ShortVariable")
     private Observable<Card> getCardsForExpenseReport(final HttpHeaders headers,
                                                       final String id,
                                                       final String baseUrl,

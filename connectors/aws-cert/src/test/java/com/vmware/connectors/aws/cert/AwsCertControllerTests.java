@@ -22,14 +22,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.AsyncRestTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
@@ -100,7 +94,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     ) throws Exception {
 
         MockHttpServletRequestBuilder builder = post(path)
-                .with(token(accessToken()))
+                .with(token(getAccessToken()))
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/aws-cert/")

@@ -134,7 +134,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
 
     @Test
     public void testMissingRequestHeaders() throws Exception {
-        perform(post("/cards/requests").with(token(accessToken()))
+        perform(post("/cards/requests").with(token(getAccessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/salesforce/")
@@ -354,7 +354,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     private MockHttpServletRequestBuilder requestCards(String authToken, String filePath) throws Exception {
-        return post("/cards/requests").with(token(accessToken()))
+        return post("/cards/requests").with(token(getAccessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-salesforce-authorization", "Bearer " + authToken)
@@ -364,7 +364,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     private MockHttpServletRequestBuilder requestAddContact(String authToken, String accountId, String filePath) throws Exception {
-        return post(String.format("/accounts/%s/contacts", accountId)).with(token(accessToken()))
+        return post(String.format("/accounts/%s/contacts", accountId)).with(token(getAccessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .accept(APPLICATION_JSON)
                 .header("x-salesforce-authorization", "Bearer " + authToken)
@@ -372,7 +372,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     private MockHttpServletRequestBuilder requestAddConversationAsAttcahment(String authToken, String filePath) throws Exception {
-        return post("/conversations").with(token(accessToken()))
+        return post("/conversations").with(token(getAccessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .accept(APPLICATION_JSON)
                 .header("x-salesforce-authorization", "Bearer " + authToken)

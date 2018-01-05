@@ -115,7 +115,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     ) throws Exception {
 
         MockHttpServletRequestBuilder builder = post(path)
-                .with(token(accessToken()))
+                .with(token(getAccessToken()))
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
                 .header("x-github-pr-base-url", "https://api.github.com")

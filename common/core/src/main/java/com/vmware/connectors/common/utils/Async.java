@@ -33,6 +33,7 @@ public final class Async {
         private final Map<String, String> mdcMap;
         private final SingleSubscriber<T> subscriber;
 
+        // Default access modifier.
         ContextCopyingListenableFutureCallback(
                 Map<String, Object> callerContext,
                 Map<String, String> mdcMap,
@@ -44,8 +45,8 @@ public final class Async {
         }
 
         @Override
-        public void onFailure(Throwable ex) {
-            subscriber.onError(ex);
+        public void onFailure(Throwable throwable) {
+            subscriber.onError(throwable);
         }
 
         @Override

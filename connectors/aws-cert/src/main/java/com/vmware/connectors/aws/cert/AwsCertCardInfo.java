@@ -19,35 +19,35 @@ class AwsCertCardInfo {
     private String certIdentifier;
     private Map<String, String> formParams;
 
-    String getDomain() {
+    public String getDomain() {
         return domain;
     }
 
-    void setDomain(String domain) {
+    public void setDomain(String domain) {
         this.domain = domain;
     }
 
-    String getAccountId() {
+    public String getAccountId() {
         return accountId;
     }
 
-    void setAccountId(String accountId) {
+    public void setAccountId(String accountId) {
         this.accountId = accountId;
     }
 
-    String getRegionName() {
+    public String getRegionName() {
         return regionName;
     }
 
-    void setRegionName(String regionName) {
+    public void setRegionName(String regionName) {
         this.regionName = regionName;
     }
 
-    String getCertIdentifier() {
+    public String getCertIdentifier() {
         return certIdentifier;
     }
 
-    void setCertIdentifier(String certIdentifier) {
+    public void setCertIdentifier(String certIdentifier) {
         this.certIdentifier = certIdentifier;
     }
 

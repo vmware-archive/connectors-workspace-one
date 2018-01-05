@@ -100,7 +100,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
 
     @Test
     public void testMissingRequestHeaders() throws Exception {
-        perform(post("/cards/requests").with(token(accessToken()))
+        perform(post("/cards/requests").with(token(getAccessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/airwatch/")
@@ -128,7 +128,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     @Test
     public void testRequestCardsForbidden() throws Exception {
         mockAirWatch.expect(times(1), requestTo(any(String.class)))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + accessToken()))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + getAccessToken()))
                 .andExpect(method(GET))
                 .andRespond(withStatus(FORBIDDEN).body(awUserForbidden));
         perform(requestCards("request.json"))
@@ -170,7 +170,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     }
 
     private MockHttpServletRequestBuilder requestCards(String requestfile) throws Exception {
-        return post("/cards/requests").with(token(accessToken()))
+        return post("/cards/requests").with(token(getAccessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-airwatch-base-url", "https://air-watch.acme.com")
@@ -181,6 +181,6 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     private ResponseActions expectAWRequest(String uri) {
         return mockAirWatch.expect(requestTo("https://air-watch.acme.com" + uri))
                 .andExpect(method(GET))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + accessToken()));
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + getAccessToken()));
     }
 }

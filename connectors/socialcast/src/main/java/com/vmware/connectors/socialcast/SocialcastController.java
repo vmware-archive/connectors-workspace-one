@@ -16,11 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,11 +28,7 @@ import rx.Observable;
 import rx.Single;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -98,6 +90,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  * </pre>
  */
 @RestController
+@SuppressWarnings("PMD.UseConcurrentHashMap")
 public class SocialcastController {
 
     // The name of the incoming request header carrying our Socialcast authorization token
@@ -164,23 +157,23 @@ public class SocialcastController {
     //////////////////////
 
     // Check if an email maps to a registered user
-    private Single<HttpStatus> getExistingUserIds(SocialcastRequestContext ctx) {
+    private Single<HttpStatus> getExistingUserIds(SocialcastRequestContext requestContext) {
 
-        MessageThread mt = ctx.getMessageThread();
+        MessageThread messageThread = requestContext.getMessageThread();
 
         // It's not documented in the Socialcast API docs, but one query can search for multiple
         // email addresses if they are concatenated with " or "
-        String queryString = mt.allUsers().stream()
+        String queryString = messageThread.allUsers().stream()
                 .map(UserRecord::getEmailAddress)
                 .collect(Collectors.joining(" or "));
 
-        queryString = ctx.getScBaseUrl() + "/api/users/search.json?q=" + queryString;
+        queryString = requestContext.getScBaseUrl() + "/api/users/search.json?q=" + queryString;
 
         ListenableFuture<ResponseEntity<String>> future =
-                rest.exchange(queryString, HttpMethod.GET, new HttpEntity(ctx.getHeaders()), String.class);
+                rest.exchange(queryString, HttpMethod.GET, new HttpEntity(requestContext.getHeaders()), String.class);
 
         return Async.toSingle(future)
-                .map(result -> parseGetUserResponse(result, ctx));
+                .map(result -> parseGetUserResponse(result, requestContext));
     }
 
 
@@ -202,12 +195,12 @@ public class SocialcastController {
 
             ReadContext userReadContext = JsonPath.parse(queryResult);
             String addr = userReadContext.read("$.contact_info.email");
-            String id = userReadContext.read("$.id", String.class);
+            String castId = userReadContext.read("$.id", String.class);
 
-            if (StringUtils.isNotBlank(id)) {
+            if (StringUtils.isNotBlank(castId)) {
                 UserRecord rec = userRecordMap.get(addr);
                 if (rec != null) {
-                    rec.setScastId(id);
+                    rec.setScastId(castId);
                 }
             }
         }
@@ -215,15 +208,15 @@ public class SocialcastController {
 
     private void addUserFoundStatus(SocialcastRequestContext ctx) {
         for (UserRecord user : ctx.getMessageThread().allUsers()) {
-            String id = user.getScastId();
+            final String scastId = user.getScastId();
 
-            if (id == null) {
+            if (scastId == null) {
                 logger.debug("Found no Socialcast ID for email <<{}>>", user.getEmailAddress());
                 ctx.addUserNotFound(user.getEmailAddress());
 
             } else {
-                logger.debug("Found Socialcast ID <<{}>> for email <<{}>>", id, user.getEmailAddress());
-                ctx.addUserFound(user.getEmailAddress(), id);
+                logger.debug("Found Socialcast ID <<{}>> for email <<{}>>", scastId, user.getEmailAddress());
+                ctx.addUserFound(user.getEmailAddress(), scastId);
             }
         }
     }
@@ -235,12 +228,12 @@ public class SocialcastController {
 
     private Single<HttpStatus> createGroup(SocialcastRequestContext ctx) {
 
-        Map<String, String> groupMap = new HashMap<>();
+        final Map<String, String> groupMap = new HashMap<>();
         groupMap.put("name", formatter.makeGroupName(ctx.getMessageThread()));
         groupMap.put("description", formatter.makeGroupDescription(ctx.getMessageThread()));
-        Map<String, Map<String, String>> bodyMap = Collections.singletonMap("group", groupMap);
 
-        ListenableFuture<ResponseEntity<String>> future =
+        final Map<String, Map<String, String>> bodyMap = Collections.singletonMap("group", groupMap);
+        final ListenableFuture<ResponseEntity<String>> future =
                 rest.exchange(ctx.getScBaseUrl() + "/api/groups.json",
                         HttpMethod.POST, new HttpEntity<>(bodyMap, ctx.getHeaders()), String.class);
 
@@ -289,12 +282,12 @@ public class SocialcastController {
                 .map(entity -> parseUserAdditionResponse(entity, ctx));
     }
 
-    private Map<String, String> getMembership(UserRecord user, SocialcastRequestContext ctx) {
-        Map<String, String> userMap = new HashMap<>();
+    private Map<String, String> getMembership(final UserRecord user, final SocialcastRequestContext requestContext) {
+        final Map<String, String> userMap = new HashMap<>();
 
         if (StringUtils.isNotBlank(user.getScastId())) {
             // If we have an ID for a user, they're already on Socialcast, so we just have to add them to the group
-            String role = user.equals(ctx.getMessageThread().getFirstSender()) ? "admin" : "member";
+            final String role = user.equals(requestContext.getMessageThread().getFirstSender()) ? "admin" : "member";
             userMap.put("user_id", user.getScastId());
             userMap.put("role", role);
 
@@ -341,13 +334,14 @@ public class SocialcastController {
     }
 
     // Post a single message
-    private Observable<HttpStatus> postMessage(Message message, SocialcastRequestContext ctx) {
-        Map<String, String> msgMap = new HashMap<>();
+    private Observable<HttpStatus> postMessage(final Message message, final SocialcastRequestContext ctx) {
+        final Map<String, String> msgMap = new HashMap<>();
         msgMap.put("user", message.getSender().getScastId());
         msgMap.put("group_id", ctx.getGroupId());
         msgMap.put("body", formatter.formatMessageForDisplay(message));
+
         // TODO: add attachment here
-        Map<String, Object> bodyMap = Collections.singletonMap("message", msgMap);
+        final Map<String, Object> bodyMap = Collections.singletonMap("message", msgMap);
 
         return Single.defer(() -> Async.toSingle(
                 rest.exchange(ctx.getScBaseUrl() + "/api/messages.json", HttpMethod.POST,

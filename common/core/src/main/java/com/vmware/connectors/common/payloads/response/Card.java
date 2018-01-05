@@ -25,6 +25,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
  * to create and populate a Card instance.
  */
 @JsonInclude(NON_NULL)
+@SuppressWarnings("PMD.ShortVariable")
 public class Card {
     @JsonProperty("id")
     private UUID id;
@@ -164,11 +165,11 @@ public class Card {
         /**
          * Set the id of the Card under construction.
          *
-         * @param id the Card's ID
+         * @param uuid the Card's ID
          * @return this Builder instance, for method chaining
          */
-        public Builder setId(UUID id) {
-            card.id = id;
+        public Builder setId(UUID uuid) {
+            card.id = uuid;
             return this;
         }
 

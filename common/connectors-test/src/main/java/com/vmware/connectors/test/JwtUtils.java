@@ -29,7 +29,7 @@ import static java.time.temporal.ChronoUnit.HOURS;
  * Created by Rob Worsnop on 11/30/16.
  */
 @TestComponent
-public class JwtUtils {
+public final class JwtUtils {
 
     @Value("classpath:jwt-signer.der")
     private Resource signer;
@@ -66,11 +66,11 @@ public class JwtUtils {
     }
 
     private PrivateKey getSigner() throws IOException, GeneralSecurityException {
-        try (InputStream is = signer.getInputStream()) {
+        try (InputStream inputStream = signer.getInputStream()) {
             PKCS8EncodedKeySpec spec =
-                    new PKCS8EncodedKeySpec(IOUtils.toByteArray(is));
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            return kf.generatePrivate(spec);
+                    new PKCS8EncodedKeySpec(IOUtils.toByteArray(inputStream));
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            return keyFactory.generatePrivate(spec);
         }
     }
 }

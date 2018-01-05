@@ -30,7 +30,7 @@ public class SocialcastRequestContext {
     private final String scBaseUrl;
     @JsonProperty("headers")
     private final HttpHeaders headers;
-    private MessageThread mt;
+    private MessageThread messageThread;
     @JsonProperty("group_id")
     private String groupId;
 
@@ -50,11 +50,11 @@ public class SocialcastRequestContext {
     }
 
     public MessageThread getMessageThread() {
-        return mt;
+        return messageThread;
     }
 
-    public void setMessageThread(MessageThread mt) {
-        this.mt = mt;
+    public void setMessageThread(MessageThread messageThread) {
+        this.messageThread = messageThread;
     }
 
     public String getGroupId() {
@@ -89,7 +89,7 @@ public class SocialcastRequestContext {
         return JSON_WRITER.writeValueAsString(resultsData);
     }
 
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "PMD.UseConcurrentHashMap"})
     private static class Progress {
         @JsonProperty("stepwise_response_codes")
         private final Map<String, String> stepwiseResponseCodes = new HashMap<>();

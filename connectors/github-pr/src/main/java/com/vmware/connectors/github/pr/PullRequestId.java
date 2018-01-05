@@ -44,8 +44,8 @@ public class PullRequestId {
     }
 
     @Override
-    public boolean equals(Object o) {
-        return Pojomatic.equals(this, o);
+    public boolean equals(Object obj) {
+        return Pojomatic.equals(this, obj);
     }
 
     @Override
