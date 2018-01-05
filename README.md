@@ -60,7 +60,7 @@ systemctl start jira-connector
 ```
 Check the status after about 10-20 seconds to make sure the service is good:
 ```
-sudo systemctl status jira-connector
+systemctl status jira-connector
 ```
 Also check the logs if there are problems:
 ```
@@ -78,7 +78,7 @@ Updating will not touch your overriding `application.properties` in `/etc`. It i
 ## Uninstalling
 
 ```
-sudo yum remove jira-connector
+yum remove jira-connector
 ```
 
 ## Contributing
