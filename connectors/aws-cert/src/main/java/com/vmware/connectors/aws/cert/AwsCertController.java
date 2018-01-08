@@ -9,6 +9,7 @@ import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.web.ObservableUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -131,10 +132,10 @@ public class AwsCertController {
     private Observable<Pair<String, ResponseEntity<String>>> getAllCardsInfo(Set<String> approvalUrls) {
         return Observable
                 .from(approvalUrls)
-                .flatMapSingle(this::callForCardInfo);
+                .flatMap(this::callForCardInfo);
     }
 
-    private Single<Pair<String, ResponseEntity<String>>> callForCardInfo(String approvalUrl) {
+    private Observable<Pair<String, ResponseEntity<String>>> callForCardInfo(String approvalUrl) {
         logger.trace("callForCardInfo called: approvalUrl={}", approvalUrl);
 
         ListenableFuture<ResponseEntity<String>> response = rest.exchange(
@@ -148,6 +149,10 @@ public class AwsCertController {
         );
 
         return Async.toSingle(response)
+                .toObservable()
+                // Don't let a bad AWS token skip the rest
+                .onErrorResumeNext(ObservableUtil::skip400) // Expired requests will return 400 bad request
+                .onErrorResumeNext(ObservableUtil::skip404) // Non-existent contexts will return 404 not found
                 .map(responseEntity -> Pair.of(approvalUrl, responseEntity));
     }
 

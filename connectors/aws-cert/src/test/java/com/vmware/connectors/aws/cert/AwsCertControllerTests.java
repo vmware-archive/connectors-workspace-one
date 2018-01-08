@@ -5,7 +5,6 @@
 
 package com.vmware.connectors.aws.cert;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.util.LinkedMultiValueMap;
@@ -27,6 +25,7 @@ import java.util.List;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.TEXT_HTML;
@@ -40,12 +39,6 @@ public class AwsCertControllerTests extends ControllerTestsBase {
 
     @Autowired
     private AsyncRestTemplate rest;
-
-    @Autowired
-    private ObjectMapper mapper;
-
-    @Autowired
-    private MockMvc mockMvc;
 
     private MockRestServiceServer mockAws;
 
@@ -137,6 +130,62 @@ public class AwsCertControllerTests extends ControllerTestsBase {
                         content().string(
                                 JsonReplacementsBuilder
                                         .from(fromFile("/awscert/responses/success/cards/card.json"))
+                                        .buildForCards()
+                        )
+                );
+
+        mockAws.verify();
+    }
+
+    @Test
+    public void testRequestCards404DoesNotError() throws Exception {
+        mockAws.expect(requestTo("https://test-aws-region-1.certificates.fake-amazon.com/approvals?code=test-auth-code-1&context=test-context-1"))
+                .andExpect(method(GET))
+                .andRespond(withStatus(NOT_FOUND));
+
+        mockAws.expect(requestTo("https://test-aws-region-2.certificates.fake-amazon.com/approvals?code=test-auth-code-2&context=test-context-2"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("awscert/fake/approval-page-2.html"), TEXT_HTML));
+
+        mockAws.expect(requestTo("https://certificates.FAKE-amazon.com/approvals?code=test-auth-code-3&context=test-context-3"))
+                .andExpect(method(GET))
+                .andRespond(withStatus(NOT_FOUND));
+
+        requestCards("valid/cards/card.json")
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(
+                        content().string(
+                                JsonReplacementsBuilder
+                                        .from(fromFile("/awscert/responses/success/cards/single-card.json"))
+                                        .buildForCards()
+                        )
+                );
+
+        mockAws.verify();
+    }
+
+    @Test
+    public void testRequestCards400DoesNotError() throws Exception {
+        mockAws.expect(requestTo("https://test-aws-region-1.certificates.fake-amazon.com/approvals?code=test-auth-code-1&context=test-context-1"))
+                .andExpect(method(GET))
+                .andRespond(withBadRequest());
+
+        mockAws.expect(requestTo("https://test-aws-region-2.certificates.fake-amazon.com/approvals?code=test-auth-code-2&context=test-context-2"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("awscert/fake/approval-page-2.html"), TEXT_HTML));
+
+        mockAws.expect(requestTo("https://certificates.FAKE-amazon.com/approvals?code=test-auth-code-3&context=test-context-3"))
+                .andExpect(method(GET))
+                .andRespond(withBadRequest());
+
+        requestCards("valid/cards/card.json")
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(
+                        content().string(
+                                JsonReplacementsBuilder
+                                        .from(fromFile("/awscert/responses/success/cards/single-card.json"))
                                         .buildForCards()
                         )
                 );
