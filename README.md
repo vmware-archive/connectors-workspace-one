@@ -11,6 +11,7 @@ The connectors are written in Java and use the [Spring Framework](https://spring
 For a detailed, language-neutral, specification for how to develop connectors, please see the 
 [Card Connectors Guide](https://github.com/vmwaresamples/card-connectors-guide).
 
+This repository also includes common libraries. Please see their [README](https://github.com/vmware/connectors-workspace-one/blob/master/common/README.md) for more details.
 
 ### Prerequisites
 
