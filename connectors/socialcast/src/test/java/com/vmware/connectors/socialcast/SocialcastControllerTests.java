@@ -101,7 +101,7 @@ public class SocialcastControllerTests extends ControllerTestsBase {
 
     @Test
     public void testMissingRequestHeaders() throws Exception {
-        perform(post("/conversations").with(token(getAccessToken()))
+        perform(post("/conversations").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/socialcast/")
@@ -256,7 +256,7 @@ public class SocialcastControllerTests extends ControllerTestsBase {
     private void performTestWithRequestBody(String requestBodyFile, ResultMatcher... expectations) throws Exception {
         String requestBodyJson = fromFile(requestBodyFile);
 
-        MockHttpServletRequestBuilder builder = post("/conversations").with(token(getAccessToken()))
+        MockHttpServletRequestBuilder builder = post("/conversations").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
                 .header("x-socialcast-authorization", AUTHORIZATION_HEADER)
                 .header("x-socialcast-base-url", URL_BASE)

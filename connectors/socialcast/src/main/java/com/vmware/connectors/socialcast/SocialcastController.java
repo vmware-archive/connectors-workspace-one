@@ -90,7 +90,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  * </pre>
  */
 @RestController
-@SuppressWarnings("PMD.UseConcurrentHashMap")
 public class SocialcastController {
 
     // The name of the incoming request header carrying our Socialcast authorization token

@@ -34,7 +34,6 @@ import rx.Single;
 import javax.validation.Valid;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @RestController
@@ -220,7 +219,7 @@ public class AwsCertController {
     }
 
     private Map<String, String> collectFormParams(Elements formElements) {
-        Map<String, String> formParams = new ConcurrentHashMap<>();
+        Map<String, String> formParams = new HashMap<>();
         List<FormElement> forms = formElements.forms();
 
         forms.forEach(

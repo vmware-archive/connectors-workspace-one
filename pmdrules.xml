@@ -41,7 +41,6 @@
     <rule ref="category/java/documentation.xml">
         <exclude name="CommentRequired"/>
         <exclude name="CommentSize"/>
-
     </rule>
 
     <rule ref="category/java/errorprone.xml">
@@ -51,6 +50,7 @@
 
     <rule ref="category/java/multithreading.xml">
         <exclude name="DoNotUseThreads"/>
+        <exclude name="UseConcurrentHashMap"/>
     </rule>
 
     <rule ref="category/java/performance.xml">
@@ -59,11 +59,14 @@
         <exclude name="UseIndexOfChar"/>
     </rule>
 
-    <!-- customize NcssCount to have a more reasonable method size -->
+    <!-- Customize NcssCount to have a more reasonable method and class size -->
     <rule ref="category/java/design.xml/NcssCount">
         <properties>
             <property name="methodReportLevel">
-                <value>16</value>
+                <value>70</value>
+            </property>
+            <property name="classReportLevel">
+                <value>300</value>
             </property>
         </properties>
     </rule>

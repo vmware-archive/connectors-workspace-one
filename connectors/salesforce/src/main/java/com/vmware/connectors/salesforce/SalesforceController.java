@@ -35,7 +35,6 @@ import rx.Single;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -45,7 +44,7 @@ import static org.springframework.http.MediaType.*;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 @RestController
-@SuppressWarnings({"PMD.ShortVariable", "PMD.NcssCount"})
+@SuppressWarnings("PMD.ShortVariable")
 public class SalesforceController {
     private final static Logger logger = LoggerFactory.getLogger(SalesforceController.class);
     private final static String SALESFORCE_AUTH_HEADER = "x-salesforce-authorization";
@@ -191,7 +190,7 @@ public class SalesforceController {
         headers.set(AUTHORIZATION, sfAuth);
         headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
 
-        final Map<String, String> bodyMap = new ConcurrentHashMap<>();
+        final Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("AccountId", accountId);
         bodyMap.put("Email", contactEmail);
         bodyMap.put("LastName", lastName);
@@ -274,7 +273,7 @@ public class SalesforceController {
         headers.set(AUTHORIZATION, sfAuth);
         headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
 
-        final Map<String, String> bodyMap = new ConcurrentHashMap<>();
+        final Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("WhatId", opportunityId);
         bodyMap.put("Subject", CONVERSATION_TYPE);
         bodyMap.put("WhoId", contactId);
@@ -301,7 +300,7 @@ public class SalesforceController {
         headers.set(AUTHORIZATION, sfAuth);
         headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
 
-        final Map<String, String> bodyMap = new ConcurrentHashMap<>();
+        final Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("Body", Base64Utils.encodeToString(conversations));
         bodyMap.put("ParentId", parentId);
         bodyMap.put("Name", attachmentName);
@@ -338,7 +337,7 @@ public class SalesforceController {
                                                                     final HttpHeaders headers,
                                                                     final String oppId,
                                                                     final String contactId) {
-        final Map<String, String> bodyMap = new ConcurrentHashMap<>();
+        final Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("OpportunityId", oppId);
         bodyMap.put("ContactId", contactId);
 

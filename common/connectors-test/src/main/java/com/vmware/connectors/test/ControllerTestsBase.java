@@ -64,16 +64,14 @@ public class ControllerTestsBase {
     @Autowired
     protected ObjectMapper mapper;
 
-    private String accessToken;
+    private String auth;
 
     protected void setup() throws Exception {
-
-        accessToken = jwt.createAccessToken();
-
+        auth = jwt.createAccessToken();
     }
 
-    protected String getAccessToken() {
-        return accessToken;
+    protected String accessToken() {
+        return auth;
     }
 
     protected void testProtectedResource(HttpMethod method, String uri) throws Exception {
@@ -130,7 +128,7 @@ public class ControllerTestsBase {
     protected void testRegex(String tokenProperty, String emailInput, List<String> expected) throws Exception {
         mvc.perform(
                 get("/discovery/metadata.hal")
-                        .with(token(getAccessToken()))
+                        .with(token(accessToken()))
                         .accept(APPLICATION_JSON)
         ).andExpect(mvcResult -> {
             String json = mvcResult.getResponse().getContentAsString();
@@ -155,5 +153,4 @@ public class ControllerTestsBase {
 
         assertThat(results, equalTo(expected));
     }
-
 }

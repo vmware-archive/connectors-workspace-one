@@ -82,7 +82,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     ) throws Exception {
 
         MockHttpServletRequestBuilder builder = post(path)
-                .with(token(getAccessToken()))
+                .with(token(accessToken()))
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
                 .header("x-servicenow-base-url", "https://snow.acme.com")

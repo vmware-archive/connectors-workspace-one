@@ -87,7 +87,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     ) throws Exception {
 
         MockHttpServletRequestBuilder builder = post(path)
-                .with(token(getAccessToken()))
+                .with(token(accessToken()))
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/aws-cert/")

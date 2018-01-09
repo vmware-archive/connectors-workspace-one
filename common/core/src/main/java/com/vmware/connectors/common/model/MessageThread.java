@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageThread {
     private final static ObjectReader reader = new ObjectMapper().reader();
@@ -30,7 +29,7 @@ public class MessageThread {
 
     @JsonIgnore
     public Map<String, UserRecord> allUsersByEmail() {
-        final Map<String, UserRecord> emailMap = new ConcurrentHashMap<>();
+        final Map<String, UserRecord> emailMap = new HashMap<>();
         for (Message m : messages) {
             UserRecord sender = m.getSender();
             emailMap.put(sender.getEmailAddress(), sender);

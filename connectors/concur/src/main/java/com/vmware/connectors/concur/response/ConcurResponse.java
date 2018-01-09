@@ -8,8 +8,10 @@ package com.vmware.connectors.concur.response;
 import org.pojomatic.Pojomatic;
 import org.pojomatic.annotations.AutoProperty;
 
-import javax.xml.bind.annotation.*;
-import java.io.Serializable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Concur action response to indicate whether approve or reject action was successful or not.
@@ -18,9 +20,7 @@ import java.io.Serializable;
 @XmlAccessorType(XmlAccessType.FIELD)
 @AutoProperty
 @SuppressWarnings("PMD.UnnecessaryConstructor")
-public class ConcurResponse implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class ConcurResponse {
 
     @XmlElement(name = "Message")
     private String message;

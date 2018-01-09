@@ -89,7 +89,7 @@ public class SocialcastRequestContext {
         return JSON_WRITER.writeValueAsString(resultsData);
     }
 
-    @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "PMD.UseConcurrentHashMap"})
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private static class Progress {
         @JsonProperty("stepwise_response_codes")
         private final Map<String, String> stepwiseResponseCodes = new HashMap<>();

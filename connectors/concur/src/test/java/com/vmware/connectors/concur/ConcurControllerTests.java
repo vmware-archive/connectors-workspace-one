@@ -135,7 +135,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
                 .andRespond(withSuccess(expectedResponse, APPLICATION_XML));
 
         perform(post(uri + expenseReportId)
-                .with(token(getAccessToken()))
+                .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
                 .header("x-concur-authorization", "Bearer concur-token")
                 .header("x-concur-base-url", "https://concursolutions.com")
@@ -159,7 +159,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
                 .andRespond(withSuccess(approved, APPLICATION_XML));
 
         perform(post("/api/expense/reject/" + REPORT_ID_2)
-                .with(token(getAccessToken()))
+                .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
                 .header("x-concur-authorization", "Bearer concur-token")
                 .header("x-concur-base-url", "https://concursolutions.com")
@@ -210,7 +210,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
 
         perform(post(uri + REPORT_ID_1)
-                .with(token(getAccessToken()))
+                .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
                 .header("x-concur-authorization", "Bearer concur-token")
                 .header("x-concur-base-url", "https://concursolutions.com")
@@ -252,7 +252,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     }
 
     private MockHttpServletRequestBuilder requestCards(final String authToken, final String requestFile) throws Exception {
-        return post("/cards/requests").with(token(getAccessToken()))
+        return post("/cards/requests").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-concur-authorization", "Bearer " + authToken)
