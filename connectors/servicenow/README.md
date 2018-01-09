@@ -1,6 +1,6 @@
 # ServiceNow Connector
 
-The ServiceNow connector presents cards inviting the user to approve or reject open requests. It does this based on request numbers passed as tokens in the card request.
+The ServiceNow connector presents cards inviting the user to approve or reject open requests. It does this based on request numbers passed as tokens and the user's email address in the card request.
 
 Approving a request and rejecting a request are actions supported by this connector.
 
