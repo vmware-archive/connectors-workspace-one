@@ -53,7 +53,7 @@ chown roswell:roswell /etc/opt/vmware/connectors/jira/application.properties
 ```
 The connector being a Spring Boot application, many other configuration options are available&mdash;for example, `server.port`. Please see the Spring Boot documentation for more details.
 
-There might also be connector-specifc configuration required. Please see the README files within the [individual connectors](https://github.com/vmware/connectors-workspace-one/tree/master/connectors) for further details.
+There might also be connector-specific configuration required. Please see the README files within the [individual connectors](https://github.com/vmware/connectors-workspace-one/tree/master/connectors) for further details.
 
 Once the connector is configured, it can be started. For example:
 ```
