@@ -1,92 +1,10 @@
 # Salesforce Connector
 
-**Note:** Before running the Salesforce connector, make sure the discovery server and the OAuth server are running.
+The Salesforce connector presents cards either inviting the user to add a contact to an account or showing the user existing contact details. It does this based on the user's email address and email addresses found in an email; these are passed as tokens in the card request.
 
-## Building
+Addind a contact to an account and adding an email conversation as an attachment are actions supported by this connector.
 
-```shell
-# From the top level directory
-./mvnw clean install -am -pl :salesforce-connector -Pmake-rpm
-```
-
-## Installing
-
-### With yum
-
-```shell
-sudo yum install salesforce-connector-version.noarch.rpm
-```
-
-### With rpm
-
-```shell
-sudo rpm -i salesforce-connector-version.noarch.rpm
-```
-
-### Initial configuration
-
-After the connector is installed for the first time, you need to configure the vIDM public key url that will be used for validating auth tokens.
-
-```shell
-# Create an application.properties file with the vIDM public key url configured
-#   (alternatively, you can just copy /opt/vmware/connectors/salesforce/application.properties
-#   to /etc/opt/vmware/connectors/salesforce/application.properties and modify it to have the
-#   vIDM public key url configured for this step)
-sudo echo "security.oauth2.resource.jwt.key-uri=https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem" > /etc/opt/vmware/connectors/salesforce/application.properties
-
-# Make sure the config is readable by the roswell user and group
-sudo chown roswell:roswell /etc/opt/vmware/connectors/salesforce/application.properties
-
-# Now you can start the service
-sudo systemctl start salesforce-connector
-
-# Check the status after about 10-20 seconds to make sure the service is good
-sudo systemctl status salesforce-connector
-
-# You can also confirm there aren't any problems in the logs
-less /var/log/vmware/connectors/salesforce/salesforce-connector.log
-```
-
-### Add User to Group For Convenience
-
-It is probably convenient for you to add your user to the roswell group so it is easier to view/modify config files (without the need to sudo).
-
-```shell
-sudo usermod -aG roswell vagrant
-```
-
-
-## Updating
-
-### With yum
-
-```shell
-sudo yum upgrade salesforce-connector-version.noarch.rpm
-```
-
-### With rpm
-
-```shell
-sudo rpm -U salesforce-connector-version.noarch.rpm
-```
-
-Updating will not touch your overriding application.properties in /etc.  It is probably a good idea to take a glance at /opt/vmware/connectors/salesforce/application.properties after updating to verify that there aren't any new things in the config that you should override.  If there are any new settings you wish to config, make sure you do so in the application.properties in /etc so that future updates/uninstalls don't throw away your config.
-
-
-## Uninstalling
-
-### With yum
-
-```shell
-sudo yum remove salesforce-connector
-```
-
-### With rpm
-
-```shell
-sudo rpm -e salesforce-connector
-```
-
+For generic details on how to build, install, and configure connectors, please see the [README](https://github.com/vmware/connectors-workspace-one/blob/master/README.md) at the root of this repository.
 
 ## Prerequisite to using Salesforce Rest API
 
@@ -170,53 +88,6 @@ curl https://sf.sandbox.host/services/data/v20.0/sobjects/Account/ \
      -H "Content-Type: application/json" \
      -d '{"Name":"<your account name>"}'
 ```
-
-### Search for matching Accounts
-
-```shell
-curl -i -X GET \
-     -H "X-Salesforce-Authorization:Bearer 00D41000000FLSG!AREAQLQPHCrGz_y_hUbyYYHsnQSFvR1QfxqElFmO7qWZVrGTIEHcJODeWethQlmJKZAr3rVo3IybvwYro3R8yftm7Rc68Iq1" \
-     -H "Content-Type:application/json" \
-     -H "Authorization:Bearer eyJraWQiOiJ3b3U3dWhkYjZmYyIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJqZG9lIiwiZXhwIjoxNDc2MDI3MjI1fQ.R7j-oEUWp4qDI4c1ZNulvAKQqyEkADdi2cqiG67HZboYPU1vnBTLUEMKuLoSge5eQhIMTC4xvGlqdEdImhN2AgHSmfeZzsaoC7ZUhF0usBEWGHnEYnk9kIoipd338yMiiopg1COqGNh1xfodCsNxMwnZOc8NbM5xiJB0oTxe2bAMWd22nVQN_YM2bUZimwJCYRzzvL7UWFphKN1awmj0bMiLEUFtwbo7DPOvFkkB7Y5kmg9OkG4OfHpn-ePs6OPDcRdEujBM96shS_H39UK9dM0st7VIcmzrgpvdbvTTdMrszNlpTnObjqOKu_jr-yxaV96Z9S2VJtmhMhC-hod1nw" \
-     'http://localhost:8061/api/v1/accounts?accountSearchTxt=ACME'
-```
-
-#### Sample Response
-
-```json
-[
-  {
-    "name": "ACME LLC",
-    "addContactLink": "/api/v1/contacts?accountId=00141000004KMUhAAO"
-  },
-  {
-    "name": "ACME INC",
-    "addContactLink": "/api/v1/contacts?accountId=99252000005JLVxBBO"
-  }
-]
-```
-
-### Add Contact to selected Account
-
-```shell
-curl -i -X POST \
-     -H "X-Salesforce-Authorization:Bearer 00D41000000FLSG!AREAQLQPHCrGz_y_hUbyYYHsnQSFvR1QfxqElFmO7qWZVrGTIEHcJODeWethQlmJKZAr3rVo3IybvwYro3R8yftm7Rc68Iq1" \
-     -H "Content-Type:application/json" \
-     -H "Authorization:Bearer eyJraWQiOiJ3b3U3dWhkYjZmYyIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJqZG9lIiwiZXhwIjoxNDc2MDI3MjI1fQ.R7j-oEUWp4qDI4c1ZNulvAKQqyEkADdi2cqiG67HZboYPU1vnBTLUEMKuLoSge5eQhIMTC4xvGlqdEdImhN2AgHSmfeZzsaoC7ZUhF0usBEWGHnEYnk9kIoipd338yMiiopg1COqGNh1xfodCsNxMwnZOc8NbM5xiJB0oTxe2bAMWd22nVQN_YM2bUZimwJCYRzzvL7UWFphKN1awmj0bMiLEUFtwbo7DPOvFkkB7Y5kmg9OkG4OfHpn-ePs6OPDcRdEujBM96shS_H39UK9dM0st7VIcmzrgpvdbvTTdMrszNlpTnObjqOKu_jr-yxaV96Z9S2VJtmhMhC-hod1nw" \
-     -d '{"FirstName": "David", "LastName": "Shaw"}' \
-     'http://localhost:8061/api/v1/contacts?accountId=00141000004KMUhAAO'
-```
-
-### Get metadata for salesforce entities (e.g. account, contact)
-
-```shell
-curl -i -X GET \
-     -H 'X-Salesforce-Authorization:Bearer 00D41000000FLSG!AREAQH7ZNr_kQ7XY5UwQhUw11Ml7CxF0a726MsqfiKH4FZOqIpXC2o7YI3wt5_FT_n89nGLSKiFGruzbnmMqfYA61KhSY.Oc' \
-     -H "Authorization:Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NzUyMTYyMzYsInVzZXJfbmFtZSI6Impkb2UiLCJqdGkiOiI3YmQ0MjUyNi1kNWQ5LTQ0N2EtOTZiMC0zNjBiZDJiZGUyNDMiLCJjbGllbnRfaWQiOiJyb3N3ZWxsIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl19.bR3u5CcJRi0JtuiNKfCOInzZGIM5mg-w1xMQFBQh3ajxVxbwBqhWXb5WzxX1YzbNGUoBIK5Xy0U5-2MjyB-yy1jRrhSFVX7xpPmWC0eqVGTagp_k7LLSS03Q03AvfvbqVn1tClvk-OH4NNkvcuMQWpUT85j2mnMvLPeUikqekDD6l0HfD9cfmaZ7sMYlXM3F7FQvPwQ1a53yUXEZJX6q3OS2N0m5rHnldtFjj7spbrAEGMy92VsWKIqK3s6KE-Obkuk_zw-08ABnOqkSjHQJXLVMopX2YU6H75jpLUzX_llUPYd8tXIZG7ttgbsehvLRu-x3aTbLI8uPSVI0gYF0SQ" \
-     -H "Content-Type:application/json" \
-     'http://localhost:8061/api/v1/metadata/entity/account'
-```
-
 ### References
 
 * [Force.com REST API Developer Guide Quick Start](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/quickstart.htm)
