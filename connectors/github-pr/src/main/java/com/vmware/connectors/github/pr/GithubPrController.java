@@ -59,9 +59,12 @@ public class GithubPrController {
     private static final String BASE_URL_HEADER = "x-github-pr-base-url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
 
+    private static final String OPEN_STATE = "open";
+
     private static final String CLOSE_REASON_PARAM_KEY = "reason";
     private static final String COMMENT_PARAM_KEY = "message";
     private static final String REQUEST_PARAM_KEY = "request";
+    private static final String SHA_PARAM_KEY = "sha";
 
     private static final int URI_SEGMENT_SIZE = 4;
 
@@ -219,7 +222,7 @@ public class GithubPrController {
 
         PullRequestId pullRequestId = info.getLeft();
         PullRequest pullRequest = info.getRight();
-        boolean isOpen = "open".equalsIgnoreCase(pullRequest.getState());
+        boolean isOpen = OPEN_STATE.equalsIgnoreCase(pullRequest.getState());
 
         Card.Builder card = new Card.Builder()
                 .setName("GithubPr") // TODO - remove this in APF-536
@@ -370,7 +373,7 @@ public class GithubPrController {
                             .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("merge"))
                             .setActionKey(CardActionKey.DIRECT)
                             .setUrl(getActionUrl(routingPrefix, pullRequestId, "merge"))
-                            .addRequestParam("sha", pullRequest.getHead().getSha())
+                            .addRequestParam(SHA_PARAM_KEY, pullRequest.getHead().getSha())
                             .setType(HttpMethod.POST)
                             .build()
             );
@@ -511,7 +514,7 @@ public class GithubPrController {
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             PullRequestId pullRequestId,
-            @RequestParam("sha") String sha
+            @RequestParam(SHA_PARAM_KEY) String sha
     ) {
         logger.trace(
                 "merge called: baseUrl={}, pull request id={}",

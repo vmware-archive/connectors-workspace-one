@@ -1,0 +1,18 @@
+{
+  "iid": 99,
+  "title": "Approvals API",
+  "description": "test-description",
+  "state": "opened",
+  "created_at": "2016-06-08T00:19Z",
+  "updated_at": "2016-06-09T21:32Z",
+  "merge_status": "can_be_merged",
+  "approvals_required": 2,
+  "approvals_left": 1,
+  "approved_by": [
+    {
+      "user": {
+        "username": "TestUser2"
+      }
+    }
+  ]
+}

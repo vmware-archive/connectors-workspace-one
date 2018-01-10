@@ -54,7 +54,6 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     @Test
     public void testProtectedResource() throws Exception {
         testProtectedResource(POST, "/cards/requests");
-        testProtectedResource(GET, "/success?code=test-code");
         testProtectedResource(POST, "/api/v1/tickets/1234/approve");
         testProtectedResource(POST, "/api/v1/tickets/1234/reject");
     }

@@ -69,12 +69,11 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     @Test
     public void testProtectedResource() throws Exception {
         testProtectedResource(POST, "/cards/requests");
-        testProtectedResource(GET, "/success?code=test-code");
-        testProtectedResource(POST, "/api/v1/pull-requests/1234/close");
-        testProtectedResource(POST, "/api/v1/pull-requests/1234/merge");
-        testProtectedResource(POST, "/api/v1/pull-requests/1234/approve");
-        testProtectedResource(POST, "/api/v1/pull-requests/1234/comment");
-        testProtectedResource(POST, "/api/v1/pull-requests/1234/request-changes");
+        testProtectedResource(POST, "/api/v1/test-owner/test-repo/1234/close");
+        testProtectedResource(POST, "/api/v1/test-owner/test-repo/1234/merge");
+        testProtectedResource(POST, "/api/v1/test-owner/test-repo/1234/approve");
+        testProtectedResource(POST, "/api/v1/test-owner/test-repo/1234/comment");
+        testProtectedResource(POST, "/api/v1/test-owner/test-repo/1234/request-changes");
     }
 
     @Test

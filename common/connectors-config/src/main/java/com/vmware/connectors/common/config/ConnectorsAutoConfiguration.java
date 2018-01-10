@@ -140,9 +140,9 @@ public class ConnectorsAutoConfiguration {
      */
     @Bean
     public String vIdmPubKey(@Value("${security.oauth2.resource.jwt.key-uri:}") String vIdmPubKeyUrl,
-                                @Value("${security.oauth2.resource.jwt.key-value:}") String vIdmPubKeyValue) {
+                             @Value("${security.oauth2.resource.jwt.key-value:}") String vIdmPubKeyValue) {
         if (!BooleanUtils.xor(new boolean[]{StringUtils.isEmpty(vIdmPubKeyUrl), StringUtils.isEmpty(vIdmPubKeyValue)})) {
-            throw new IllegalArgumentException("One of security.oauth2.resource.jwt.key-uri/value must be configured");
+            throw new IllegalArgumentException("Exactly one of security.oauth2.resource.jwt.key-uri/value must be configured");
         }
         return vIdmPubKeyUrl;
     }

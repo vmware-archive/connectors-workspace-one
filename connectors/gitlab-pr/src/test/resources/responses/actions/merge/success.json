@@ -1,0 +1,17 @@
+{
+  "iid": 99,
+  "state" : "merged",
+  "author" : {
+    "username" : "TestUser1"
+  },
+  "title" : "test-title",
+  "merge_status" : "can_be_merged",
+  "user_notes_count" : 0,
+  "updated_at" : "2018-01-16T14:32:03Z",
+  "web_url" : "https://gitlab.com/vmware/test-repo/merge_requests/99",
+  "merge_commit_sha" : "4941b3bc353f4211987af4b697b537ca4e1609f4",
+  "description" : "test-description",
+  "changes_count" : "1",
+  "sha" : "bee05cac11952c37f1dca1a216c1f399cfc6042f",
+  "created_at" : "2018-01-16T14:31:09Z"
+}
