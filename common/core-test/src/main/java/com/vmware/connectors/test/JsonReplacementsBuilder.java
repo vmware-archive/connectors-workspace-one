@@ -17,6 +17,8 @@ import org.json.JSONException;
 import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.JSONCompareResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,8 @@ import java.util.List;
 import static com.vmware.connectors.utils.IgnoredFieldsReplacer.*;
 
 public final class JsonReplacementsBuilder {
+
+    private static final Logger logger = LoggerFactory.getLogger(JsonReplacementsBuilder.class);
 
     private final static Configuration configuration = Configuration.builder()
             .jsonProvider(new JacksonJsonNodeJsonProvider())
@@ -67,7 +71,7 @@ public final class JsonReplacementsBuilder {
 
         private final JSONCompareMode compareMode;
 
-        JsonMatcher(JSONCompareMode compareMode) {
+        public JsonMatcher(JSONCompareMode compareMode) {
             this.compareMode = compareMode;
         }
 
@@ -76,11 +80,10 @@ public final class JsonReplacementsBuilder {
             try {
                 JSONCompareResult result = JSONCompare.compareJSON(expected, transform(item.toString()), compareMode);
                 if (result.failed()) {
-                    System.err.println(result.getMessage());
+                    logger.error(result.getMessage());
                     return false;
-                } else {
-                    return true;
                 }
+                return true;
             } catch (JSONException e) {
                 throw new AssertionError(e);
             }

@@ -8,8 +8,10 @@ package com.vmware.connectors.concur.response;
 import org.pojomatic.Pojomatic;
 import org.pojomatic.annotations.AutoProperty;
 
-import javax.xml.bind.annotation.*;
-import java.io.Serializable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Concur action response to indicate whether approve or reject action was successful or not.
@@ -17,7 +19,8 @@ import java.io.Serializable;
 @XmlRootElement(name = "ActionStatus", namespace = "http://www.concursolutions.com/api/expense/expensereport/2011/03")
 @XmlAccessorType(XmlAccessType.FIELD)
 @AutoProperty
-public class ConcurResponse implements Serializable {
+@SuppressWarnings("PMD.UnnecessaryConstructor")
+public class ConcurResponse {
 
     @XmlElement(name = "Message")
     private String message;

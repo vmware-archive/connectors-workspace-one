@@ -28,6 +28,12 @@ public class SocialcastMessageFormatter {
 
     private static final Logger logger = LoggerFactory.getLogger(SocialcastMessageFormatter.class);
 
+    private static final int GROUP_NAME_LENGTH = 140;
+
+    private static final int TITLE_LENGTH = 110;
+
+    private static final int GROUP_DESCRIPTION_LENGTH =140;
+
     private final CardTextAccessor cardTextAccessor;
 
     public SocialcastMessageFormatter(CardTextAccessor cta) {
@@ -61,7 +67,7 @@ public class SocialcastMessageFormatter {
 
         // First try the optimistic case, that the whole title will be < 140 chars; if so, return it and we're done.
         String untruncatedGroupName = cardTextAccessor.getHeader(firstThreadSubject, HEADER_DATE_FMT.format(utcNow));
-        if (untruncatedGroupName.length() <= 140) {
+        if (untruncatedGroupName.length() <= GROUP_NAME_LENGTH) {
             return untruncatedGroupName;
         }
 
@@ -69,8 +75,8 @@ public class SocialcastMessageFormatter {
         // lose the timestamp at the end (assuming there is one). Can we ellipsize the subject down to a reasonable
         // length (arbitrarily, 30 chars) and still get under 140 for the whole title?
         int titleLengthWithoutSubject = untruncatedGroupName.length() - firstThreadSubject.length();
-        if (titleLengthWithoutSubject < 110) {
-            String truncatedSubject = StringUtils.abbreviate(firstThreadSubject, 140 - titleLengthWithoutSubject);
+        if (titleLengthWithoutSubject < TITLE_LENGTH) {
+            String truncatedSubject = StringUtils.abbreviate(firstThreadSubject, GROUP_NAME_LENGTH - titleLengthWithoutSubject);
             return cardTextAccessor.getHeader(truncatedSubject, HEADER_DATE_FMT.format(utcNow));
         }
 
@@ -112,14 +118,14 @@ public class SocialcastMessageFormatter {
 
         // First try the optimistic case, that the whole description will be < 140 chars; if so, return it and we're done.
         String untruncatedGroupDesc = cardTextAccessor.getBody(firstSenderName, threadStartDate);
-        if (untruncatedGroupDesc.length() <= 140) {
+        if (untruncatedGroupDesc.length() <= GROUP_DESCRIPTION_LENGTH) {
             return untruncatedGroupDesc;
 
         } else {
             // If it's over 140 characters, just ellipsize it and log a warning
             logger.warn("The template for Socialcast group descriptions, \"{}\", is too long. Please reduce it to about 90 characters in length.",
                     cardTextAccessor.getBody("{0}", "{1}"));
-            return StringUtils.abbreviate(untruncatedGroupDesc, 140);
+            return StringUtils.abbreviate(untruncatedGroupDesc, GROUP_DESCRIPTION_LENGTH);
         }
     }
 
@@ -147,6 +153,4 @@ public class SocialcastMessageFormatter {
                 + '\n'
                 + msg.getText();
     }
-
-
 }

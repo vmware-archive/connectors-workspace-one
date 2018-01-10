@@ -64,16 +64,14 @@ public class ControllerTestsBase {
     @Autowired
     protected ObjectMapper mapper;
 
-    private String accessToken;
+    private String auth;
 
     protected void setup() throws Exception {
-
-        accessToken = jwt.createAccessToken();
-
+        auth = jwt.createAccessToken();
     }
 
     protected String accessToken() {
-        return accessToken;
+        return auth;
     }
 
     protected void testProtectedResource(HttpMethod method, String uri) throws Exception {
@@ -95,9 +93,8 @@ public class ControllerTestsBase {
             return mvc.perform(asyncDispatch(resultActions
                     .andExpect(MockMvcResultMatchers.request().asyncResult(anything()))
                     .andReturn()));
-        } else {
-            return resultActions;
         }
+        return resultActions;
     }
 
     protected static RequestPostProcessor token(String accessToken) {
@@ -144,17 +141,16 @@ public class ControllerTestsBase {
     }
 
     private void verifyRegex(String regex, String emailInput, List<String> expected) throws Exception {
-        Pattern p = Pattern.compile(regex);
+        Pattern pattern = Pattern.compile(regex);
 
         List<String> results = new ArrayList<>();
         for (String line : emailInput.split("\\n")) {
-            Matcher m = p.matcher(line);
-            while (m.find()) {
-                results.add(m.group(1));
+            Matcher matcher = pattern.matcher(line);
+            while (matcher.find()) {
+                results.add(matcher.group(1));
             }
         }
 
         assertThat(results, equalTo(expected));
     }
-
 }

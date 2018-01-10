@@ -10,6 +10,7 @@ import org.pojomatic.Pojomatic;
 import org.pojomatic.annotations.AutoProperty;
 
 @AutoProperty
+@SuppressWarnings("PMD.AvoidFieldNameMatchingTypeName")
 public class HRef {
 
     @JsonProperty("href")

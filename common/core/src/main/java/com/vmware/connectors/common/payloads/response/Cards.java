@@ -13,6 +13,7 @@ import java.util.List;
 /**
  * Represents a collection of {@link Card}.
  */
+@SuppressWarnings("PMD.AvoidFieldNameMatchingTypeName")
 public class Cards {
     @JsonProperty("cards")
     private final List<Card> cards = new ArrayList<>();
@@ -22,7 +23,6 @@ public class Cards {
      *
      * @return List of Cards
      */
-
     public List<Card> getCards() {
         return cards;
     }

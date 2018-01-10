@@ -37,8 +37,8 @@ class DeferredResultSubscriber<T> extends Subscriber<T> implements Runnable {
     }
 
     @Override
-    public void onError(Throwable e) {
-        deferredResult.setErrorResult(e);
+    public void onError(Throwable throwable) {
+        deferredResult.setErrorResult(throwable);
     }
 
     @Override

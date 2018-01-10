@@ -7,45 +7,67 @@
         This ruleset checks my code for bad stuff
     </description>
 
-    <rule ref="rulesets/java/basic.xml"/>
-    <rule ref="rulesets/java/braces.xml"/>
-    <rule ref="rulesets/java/clone.xml"/>
-    <rule ref="rulesets/java/codesize.xml">
-        <exclude name="TooManyMethods"/>
-        <exclude name="TooManyFields"/>
-    </rule>
-    <rule ref="rulesets/java/design.xml">
-        <exclude name="DataClass"/>
-        <exclude name="GodClass"/>
-        <exclude name="AccessorClassGeneration"/>
+    <rule ref="category/java/bestpractices.xml">
         <exclude name="AccessorMethodGeneration"/>
+        <exclude name="AccessorClassGeneration"/>
         <exclude name="UseVarargs"/>
     </rule>
 
-    <!-- customize NcssCount to have a more reasonable method size -->
+    <rule ref="category/java/codestyle.xml">
+        <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="MethodArgumentCouldBeFinal"/>
+        <exclude name="TooManyStaticImports"/>
+        <exclude name="VariableNamingConventions"/>
+        <exclude name="CallSuperInConstructor"/>
+        <exclude name="OnlyOneReturn"/>
+        <exclude name="LongVariable"/>
+        <exclude name="AtLeastOneConstructor"/>
+        <exclude name="ShortClassName"/>
+        <exclude name="CommentDefaultAccessModifier"/>
+        <exclude name="DefaultPackage"/>
+    </rule>
+
+    <rule ref="category/java/design.xml">
+        <exclude name="DataClass"/>
+        <exclude name="LawOfDemeter"/>
+        <exclude name="DataClass"/>
+        <exclude name="GodClass"/>
+        <exclude name="ExcessiveImports"/>
+        <exclude name="TooManyMethods"/>
+        <exclude name="TooManyFields"/>
+        <exclude name="UseObjectForClearerAPI"/>
+    </rule>
+
+    <rule ref="category/java/documentation.xml">
+        <exclude name="CommentRequired"/>
+        <exclude name="CommentSize"/>
+    </rule>
+
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="BeanMembersShouldSerialize"/>
+        <exclude name="DataflowAnomalyAnalysis"/>
+    </rule>
+
+    <rule ref="category/java/multithreading.xml">
+        <exclude name="DoNotUseThreads"/>
+        <exclude name="UseConcurrentHashMap"/>
+    </rule>
+
+    <rule ref="category/java/performance.xml">
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>
+        <exclude name="UseStringBufferForStringAppends"/>
+        <exclude name="UseIndexOfChar"/>
+    </rule>
+
+    <!-- Customize NcssCount to have a more reasonable method and class size -->
     <rule ref="category/java/design.xml/NcssCount">
         <properties>
             <property name="methodReportLevel">
-                <value>16</value>
+                <value>70</value>
+            </property>
+            <property name="classReportLevel">
+                <value>300</value>
             </property>
         </properties>
     </rule>
-
-    <rule ref="rulesets/java/empty.xml"/>
-    <rule ref="rulesets/java/finalizers.xml"/>
-    <rule ref="rulesets/java/imports.xml">
-        <exclude name="TooManyStaticImports"/>
-    </rule>
-    <rule ref="rulesets/java/optimizations.xml">
-        <exclude name="LocalVariableCouldBeFinal"/>
-        <exclude name="MethodArgumentCouldBeFinal"/>
-        <exclude name="AvoidInstantiatingObjectsInLoops"/>
-        <exclude name="UseStringBufferForStringAppends"/>
-    </rule>
-    <rule ref="rulesets/java/strictexception.xml"/>
-    <rule ref="rulesets/java/strings.xml">
-        <exclude name="UseIndexOfChar"/>
-    </rule>
-    <rule ref="rulesets/java/unnecessary.xml"/>
-    <rule ref="rulesets/java/unusedcode.xml"/>
 </ruleset>

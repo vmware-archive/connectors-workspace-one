@@ -14,12 +14,16 @@ import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 
 public class JsonSchemaValidator {
+
+    private static final Logger logger = LoggerFactory.getLogger(JsonSchemaValidator.class);
 
     private static final String CONNECTOR_CARD_RESPONSE_SCHEMA_DOC = "/schemata/herocard-connector-response-schema.json";
 
@@ -28,7 +32,6 @@ public class JsonSchemaValidator {
     private static final JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
 
     private final JsonSchema schema;
-
 
     public static JsonSchemaValidator getConnectorCardResponseSchemaValidator() throws IOException, ProcessingException {
         return new JsonSchemaValidator(new ClassPathResource(CONNECTOR_CARD_RESPONSE_SCHEMA_DOC));
@@ -40,8 +43,8 @@ public class JsonSchemaValidator {
             public boolean matches(Object item) {
                 try {
                     return getConnectorCardResponseSchemaValidator().validate(mapper.readTree(item.toString()));
-                } catch (ProcessingException | IOException e) {
-                    e.printStackTrace();
+                } catch (ProcessingException | IOException exception) {
+                    logger.error("Exception ", exception);
                     return false;
                 }
             }
@@ -67,10 +70,8 @@ public class JsonSchemaValidator {
         ProcessingReport report = schema.validate(docNode);
         boolean valid = report.isSuccess();
         if (!valid) {
-            System.err.println(report);
+            logger.error("Processing report: {}", report);
         }
         return valid;
     }
-
-
 }

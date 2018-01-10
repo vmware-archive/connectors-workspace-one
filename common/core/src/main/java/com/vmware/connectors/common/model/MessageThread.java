@@ -14,12 +14,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MessageThread {
     private final static ObjectReader reader = new ObjectMapper().reader();
@@ -34,7 +29,7 @@ public class MessageThread {
 
     @JsonIgnore
     public Map<String, UserRecord> allUsersByEmail() {
-        Map<String, UserRecord> emailMap = new HashMap<>();
+        final Map<String, UserRecord> emailMap = new HashMap<>();
         for (Message m : messages) {
             UserRecord sender = m.getSender();
             emailMap.put(sender.getEmailAddress(), sender);
@@ -77,14 +72,14 @@ public class MessageThread {
     }
 
     public String toString() {
-        StringBuilder sb = new StringBuilder(64);
-        sb.append("MessageThread: contains ")
+        StringBuilder stringBuilder = new StringBuilder(64);
+        stringBuilder.append("MessageThread: contains ")
                 .append(messages.size())
                 .append(" messages");
         for (Message msg : messages) {
-            sb.append("\n\t").append(msg);
+            stringBuilder.append("\n\t").append(msg);
         }
-        return sb.toString();
+        return stringBuilder.toString();
     }
 
     public static MessageThread parse(String json) throws IOException {

@@ -7,20 +7,14 @@ package com.vmware.connectors.salesforce;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.model.Message;
 import com.vmware.connectors.common.model.MessageThread;
 import com.vmware.connectors.common.model.UserRecord;
 import com.vmware.connectors.common.payloads.request.CardRequest;
-import com.vmware.connectors.common.payloads.response.Card;
-import com.vmware.connectors.common.payloads.response.CardAction;
-import com.vmware.connectors.common.payloads.response.CardActionInputField;
-import com.vmware.connectors.common.payloads.response.CardBody;
-import com.vmware.connectors.common.payloads.response.CardBodyField;
-import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
-import com.vmware.connectors.common.payloads.response.Cards;
-import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.json.JsonDocument;
+import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.Async;
+import com.vmware.connectors.common.utils.CardTextAccessor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.pojomatic.Pojomatic;
@@ -29,19 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.AsyncRestOperations;
 import org.springframework.web.util.UriComponentsBuilder;
 import rx.Observable;
@@ -49,12 +34,7 @@ import rx.Single;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -64,7 +44,7 @@ import static org.springframework.http.MediaType.*;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 @RestController
-@SuppressWarnings("PMD.NcssCount")
+@SuppressWarnings("PMD.ShortVariable")
 public class SalesforceController {
     private final static Logger logger = LoggerFactory.getLogger(SalesforceController.class);
     private final static String SALESFORCE_AUTH_HEADER = "x-salesforce-authorization";
@@ -210,7 +190,7 @@ public class SalesforceController {
         headers.set(AUTHORIZATION, sfAuth);
         headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
 
-        Map<String, String> bodyMap = new HashMap<>();
+        final Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("AccountId", accountId);
         bodyMap.put("Email", contactEmail);
         bodyMap.put("LastName", lastName);
@@ -286,12 +266,14 @@ public class SalesforceController {
             String attachmentName,
             String sfAuth,
             String sfBaseUrl) {
-        HttpHeaders headers = new HttpHeaders();
+        final HttpHeaders headers = new HttpHeaders();
         headers.set(AUTHORIZATION, sfAuth);
-        UriComponentsBuilder uriComponentsBuilder = fromHttpUrl(sfBaseUrl).path(sfOpportunityTaskLinkPath);
+
+        final UriComponentsBuilder uriComponentsBuilder = fromHttpUrl(sfBaseUrl).path(sfOpportunityTaskLinkPath);
         headers.set(AUTHORIZATION, sfAuth);
         headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
-        Map<String, String> bodyMap = new HashMap<>();
+
+        final Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("WhatId", opportunityId);
         bodyMap.put("Subject", CONVERSATION_TYPE);
         bodyMap.put("WhoId", contactId);
@@ -311,17 +293,21 @@ public class SalesforceController {
             String attachmentName,
             String sfBaseUrl,
             String sfAuth) {
-        HttpHeaders headers = new HttpHeaders();
-        String parentId = entity.getBody().read("$.id");
+
+        final String parentId = entity.getBody().read("$.id");
+
+        final HttpHeaders headers = new HttpHeaders();
         headers.set(AUTHORIZATION, sfAuth);
         headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
-        Map<String, String> bodyMap = new HashMap<>();
+
+        final Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("Body", Base64Utils.encodeToString(conversations));
         bodyMap.put("ParentId", parentId);
         bodyMap.put("Name", attachmentName);
         bodyMap.put("ContentType", TEXT_PLAIN_VALUE);
-        UriComponentsBuilder uriComponentsBuilder = fromHttpUrl(sfBaseUrl).path(sfAttachmentTasklinkPath);
-        ListenableFuture<ResponseEntity<JsonDocument>> future = rest.exchange(
+
+        final UriComponentsBuilder uriComponentsBuilder = fromHttpUrl(sfBaseUrl).path(sfAttachmentTasklinkPath);
+        final ListenableFuture<ResponseEntity<JsonDocument>> future = rest.exchange(
                 uriComponentsBuilder.build().toUri(), HttpMethod.POST,
                 new HttpEntity<>(bodyMap, headers), JsonDocument.class);
         return Async.toSingle(future).map(attachmentEntity ->
@@ -347,12 +333,16 @@ public class SalesforceController {
         }
     }
 
-    private Single<Pair<ResponseEntity<Void>, String>> oppToContact(String sfBaseUrl, HttpHeaders headers, String oppId, String contactId) {
-        Map<String, String> bodyMap = new HashMap<>();
+    private Single<Pair<ResponseEntity<Void>, String>> oppToContact(final String sfBaseUrl,
+                                                                    final HttpHeaders headers,
+                                                                    final String oppId,
+                                                                    final String contactId) {
+        final Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("OpportunityId", oppId);
         bodyMap.put("ContactId", contactId);
-        UriComponentsBuilder uriComponentsBuilder = fromHttpUrl(sfBaseUrl).path(sfOpportunityContactLinkPath);
-        ListenableFuture<ResponseEntity<String>> oppLinkFuture = rest.exchange(
+
+        final UriComponentsBuilder uriComponentsBuilder = fromHttpUrl(sfBaseUrl).path(sfOpportunityContactLinkPath);
+        final ListenableFuture<ResponseEntity<String>> oppLinkFuture = rest.exchange(
                 uriComponentsBuilder.build().toUri(), HttpMethod.POST, new HttpEntity<>(bodyMap, headers), String.class);
         return Async.toSingle(oppLinkFuture)
                 .map(entity -> Pair.of(ResponseEntity.status(entity.getStatusCode()).build(), oppId));
@@ -558,10 +548,10 @@ public class SalesforceController {
     private String formatMessages(String conversations) throws IOException {
         MessageThread messageThread = MessageThread.parse(conversations);
         List<Message> messageList = messageThread.getMessages();
-        StringBuilder sb = messageList.stream().map(this::formatSingleMessage)
+        StringBuilder messageBuilder = messageList.stream().map(this::formatSingleMessage)
                 .collect(StringBuilder::new, (container, element) ->
                         container.append(element).append(NEW_LINE), StringBuilder::append);
-        return sb.toString();
+        return messageBuilder.toString();
     }
 
     private String formatSingleMessage(Message message) {
@@ -640,8 +630,8 @@ public class SalesforceController {
         }
 
         @Override
-        public boolean equals(Object o) {
-            return Pojomatic.equals(this, o);
+        public boolean equals(Object obj) {
+            return Pojomatic.equals(this, obj);
         }
 
         @Override
