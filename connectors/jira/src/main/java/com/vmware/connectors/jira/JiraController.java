@@ -60,7 +60,7 @@ public class JiraController {
     private final static String JIRA_BASE_URL_HEADER = "x-jira-base-url";
     private final static String ROUTING_PREFIX = "x-routing-prefix";
 
-    private static final int COMMENTS_SIZE = 1;
+    private static final int COMMENTS_SIZE = 2;
 
     private final AsyncRestOperations rest;
     private final CardTextAccessor cardTextAccessor;
@@ -232,10 +232,9 @@ public class JiraController {
             cardFieldBuilder.setTitle(cardTextAccessor.getMessage("comments"))
                     .setType(CardBodyFieldType.COMMENT);
 
-            cardFieldBuilder.addContent(ImmutableMap.of("text", allComments.get(0)));
-            if (allComments.size() > COMMENTS_SIZE) {
-                cardFieldBuilder.addContent(ImmutableMap.of("text", allComments.get(1)));
-            }
+            allComments.stream()
+                    .limit(COMMENTS_SIZE)
+                    .forEach(comment -> cardFieldBuilder.addContent(ImmutableMap.of("text", comment)));
             cardBodyBuilder.addField(cardFieldBuilder.build());
         }
     }
