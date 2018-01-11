@@ -56,10 +56,9 @@ Vagrant.configure("2") do |config|
 
      # Customize the amount of memory on the VM:
      vb.memory = "8192"
-   end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
+  end
+
+  config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
 
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
@@ -67,5 +66,9 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     yum update -y
     yum install -y git rpm-build vim nmap-ncat java-1.8.0-openjdk-devel
+    curl -fsSL get.docker.com -o get-docker.sh
+    sh get-docker.sh
+    usermod -aG docker vagrant
+    service docker start
   SHELL
 end

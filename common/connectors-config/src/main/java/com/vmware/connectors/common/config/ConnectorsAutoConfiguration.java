@@ -13,6 +13,8 @@ import com.vmware.connectors.common.json.JsonDocumentHttpMessageConverter;
 import com.vmware.connectors.common.web.MdcFilter;
 import com.vmware.connectors.common.web.SingleReturnValueHandler;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
@@ -43,7 +45,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.AsyncRestOperations;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
@@ -69,9 +70,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Configuration
 @Import({ExceptionHandlers.class, ConnectorRootController.class})
 public class ConnectorsAutoConfiguration {
-
-    // https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-security.html
-    private static final String VIDM_PUB_KEY_URL = "${security.oauth2.resource.jwt.key-uri}";
 
     @Bean
     public SingleReturnValueHandler singleReturnValueHandler() {
@@ -133,17 +131,18 @@ public class ConnectorsAutoConfiguration {
     }
 
     /*
-     * Since Spring beans are eagerly loaded by default, this will check that
-     * the vIdmPubKeyUrl was configured at startup (allowing users to see their
+     * Since Spring beans are eagerly loaded by default, this will check that either
+     * the vIdmPubKeyUrl or vIdmPubKeyValue was configured at startup (allowing users to see their
      * mistake in the logs and systemd status instead of having a running
      * service that doesn't actually work).
      *
      * Note: I don't expect anyone to actually inject this String.
      */
     @Bean
-    public String vIdmPubKeyUrl(@Value(VIDM_PUB_KEY_URL) String vIdmPubKeyUrl) {
-        if (StringUtils.isEmpty(vIdmPubKeyUrl)) {
-            throw new IllegalArgumentException(VIDM_PUB_KEY_URL + " must be configured");
+    public String vIdmPubKey(@Value("${security.oauth2.resource.jwt.key-uri:}") String vIdmPubKeyUrl,
+                                @Value("${security.oauth2.resource.jwt.key-value:}") String vIdmPubKeyValue) {
+        if (!BooleanUtils.xor(new boolean[]{StringUtils.isEmpty(vIdmPubKeyUrl), StringUtils.isEmpty(vIdmPubKeyValue)})) {
+            throw new IllegalArgumentException("One of security.oauth2.resource.jwt.key-uri/value must be configured");
         }
         return vIdmPubKeyUrl;
     }

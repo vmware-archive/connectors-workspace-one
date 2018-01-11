@@ -451,6 +451,71 @@
                         <autoReleaseAfterClose>true</autoReleaseAfterClose>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>0.23.0</version>
+                    <configuration>
+                        <images>
+                            <image>
+                                <name>connector</name>
+                                <build>
+                                    <from>centos/systemd:latest</from>
+                                    <assembly>
+                                        <inline>
+                                            <id>rpm</id>
+                                            <fileSets>
+                                                <fileSet>
+                                                    <includes>
+                                                        <include>target/**/*.rpm</include>
+                                                    </includes>
+                                                </fileSet>
+                                            </fileSets>
+                                        </inline>
+                                    </assembly>
+                                    <runCmds>
+                                        <run>yum -y install /maven/target/rpm/${connector.name}-connector/RPMS/noarch/*.rpm</run>
+                                        <run>
+                                            <![CDATA[
+                                                echo "security.oauth2.resource.jwt.key-value=foo" \
+                                                > /etc/opt/vmware/connectors/${connector.name}/application.properties
+                                                ]]>
+                                        </run>
+                                    </runCmds>
+                                    <cmd>
+                                        <shell>/usr/sbin/init</shell>
+                                    </cmd>
+                                </build>
+                                <run>
+                                    <privileged>true</privileged>
+                                    <ports>connector.port:8080</ports>
+                                    <wait>
+                                        <!-- Build will fail if not healthy within 60 seconds -->
+                                        <time>60000</time>
+                                        <http>
+                                            <url>http://localhost:${connector.port}/health</url>
+                                            <method>GET</method>
+                                            <status>200</status>
+                                        </http>
+                                    </wait>
+                                </run>
+                            </image>
+                        </images>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>build</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>build</goal>
+                                <goal>start</goal>
+                                <goal>stop</goal>
+                                <goal>remove</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
             </plugins>
         </pluginManagement>
 
