@@ -19,6 +19,7 @@ import java.util.*;
 public class MessageThread {
     private final static ObjectReader reader = new ObjectMapper().reader();
     private final static JsonPointer dataPointer = JsonPointer.compile("/data");
+
     @JsonProperty("messages")
     private final List<Message> messages = new ArrayList<>();
 
@@ -30,10 +31,10 @@ public class MessageThread {
     @JsonIgnore
     public Map<String, UserRecord> allUsersByEmail() {
         final Map<String, UserRecord> emailMap = new HashMap<>();
-        for (Message m : messages) {
-            UserRecord sender = m.getSender();
+        for (Message message : messages) {
+            UserRecord sender = message.getSender();
             emailMap.put(sender.getEmailAddress(), sender);
-            for (UserRecord recipient : m.getRecipients()) {
+            for (UserRecord recipient : message.getRecipients()) {
                 emailMap.put(recipient.getEmailAddress(), recipient);
             }
         }
