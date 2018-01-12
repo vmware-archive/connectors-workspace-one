@@ -25,7 +25,8 @@
         ],
         "date": "2016-11-25T12:34:56-05:00",
         "text": "This is message 1 from Amy Cooper.\n\nThis is more text from Amy.",
-        "subject": "Thread Subject"
+        "subject": "Thread Subject",
+        "encoding": "UTF-8"
       },
       {
         "sender": {

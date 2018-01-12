@@ -18,16 +18,24 @@ public class Message {
 
     @JsonProperty("id")
     private String id;
+
     @JsonProperty("sender")
     private UserRecord sender;
+
     @JsonProperty("recipients")
     private List<UserRecord> recipients;
+
     @JsonProperty("subject")
     private String subject;
+
     @JsonProperty("text")
     private String text;
+
     @JsonProperty("date")
     private ZonedDateTime sentDate;
+
+    @JsonProperty("encoding")
+    private String encoding;
 
     public String getId() {
         if (StringUtils.isNotBlank(id)) {
@@ -42,7 +50,7 @@ public class Message {
     }
 
     public UserRecord getSender() {
-        return sender;
+        return this.sender;
     }
 
     public void setSender(UserRecord sender) {
@@ -50,7 +58,7 @@ public class Message {
     }
 
     public List<UserRecord> getRecipients() {
-        return recipients;
+        return this.recipients;
     }
 
     public void setRecipients(List<UserRecord> recipients) {
@@ -58,7 +66,7 @@ public class Message {
     }
 
     public String getSubject() {
-        return subject;
+        return this.subject;
     }
 
     public void setSubject(String subject) {
@@ -66,7 +74,7 @@ public class Message {
     }
 
     public String getText() {
-        return text;
+        return this.text;
     }
 
     public void setText(String text) {
@@ -74,7 +82,7 @@ public class Message {
     }
 
     public ZonedDateTime getSentDate() {
-        return sentDate;
+        return this.sentDate;
     }
 
     public void setSentDate(ZonedDateTime sentDate) {
@@ -85,8 +93,21 @@ public class Message {
         this.sentDate = ZonedDateTime.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(dateString));
     }
 
+    public String getEncoding() {
+        return this.encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
     public String toString() {
-        return String.format("Message %s: subj <<%s>>, sender <<%s>>, body length %d chars", id, subject, sender, (text == null) ? 0 : text.length());
+        return String.format("Message %s: subj <<%s>>, sender <<%s>>, body length %d chars, encoding: %s",
+                this.id,
+                this.subject,
+                this.sender,
+                StringUtils.isBlank(this.text) ? 0 : this.text.length(),
+                this.encoding);
     }
 
     // The intent of this method is to generate a more-or-less unique value corresponding to the content of this email

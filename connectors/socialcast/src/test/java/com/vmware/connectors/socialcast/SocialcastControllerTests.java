@@ -218,6 +218,7 @@ public class SocialcastControllerTests extends ControllerTestsBase {
         assertThat(mt.getFirstSubject(), is("Thread Subject"));
         assertThat(mt.getMessages(), hasSize(3));
         assertThat(mt.getMessages().get(2).getSender().getFirstName(), is("Anja"));
+        assertThat(mt.getMessages().get(0).getEncoding(), equalTo("UTF-8"));
     }
 
     @Test

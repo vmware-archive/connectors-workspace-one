@@ -18,7 +18,8 @@
         "date":       {"type": "string",
                        "format": "date-time"},
         "text":       {"type": "string"},
-        "subject":    {"type": "string"}
+        "subject":    {"type": "string"},
+        "encoding":   {"type": "string"}
       },
       "additionalProperties": false
     },
