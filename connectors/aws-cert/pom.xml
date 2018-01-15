@@ -99,6 +99,17 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>check-rpm</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
 </project>
