@@ -13,7 +13,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.zip.CRC32;
 
-@SuppressWarnings("PMD.ShortVariable")
 public class Message {
 
     @JsonProperty("id")
