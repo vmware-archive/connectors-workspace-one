@@ -93,7 +93,7 @@ public class GithubPrController {
     ) {
         logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, request);
 
-        List<PullRequestId> pullRequestUrls = request.getTokens("pull_request_urls")
+        List<PullRequestId> pullRequestIds = request.getTokens("pull_request_urls")
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet()) // squash duplicates
@@ -106,14 +106,14 @@ public class GithubPrController {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        if (CollectionUtils.isEmpty(pullRequestUrls)) {
+        if (CollectionUtils.isEmpty(pullRequestIds)) {
             return Single.just(ResponseEntity.ok(new Cards()));
         }
 
         HttpHeaders headers = makeHeaders(auth);
         HttpEntity<HttpHeaders> httpHeaders = new HttpEntity<>(headers);
 
-        return fetchAllPullRequests(baseUrl, httpHeaders, pullRequestUrls)
+        return fetchAllPullRequests(baseUrl, httpHeaders, pullRequestIds)
                 .map(pair -> makeCard(routingPrefix, pair))
                 .reduce(
                         new Cards(),

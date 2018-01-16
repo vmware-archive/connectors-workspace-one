@@ -100,7 +100,7 @@ public class GitlabPrController {
     ) {
         logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, request);
 
-        List<MergeRequestId> mergeRequestUrls = request.getTokens("merge_request_urls")
+        List<MergeRequestId> mergeRequestIds = request.getTokens("merge_request_urls")
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet()) // squash duplicates
@@ -113,14 +113,14 @@ public class GitlabPrController {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        if (CollectionUtils.isEmpty(mergeRequestUrls)) {
+        if (CollectionUtils.isEmpty(mergeRequestIds)) {
             return Single.just(ResponseEntity.ok(new Cards()));
         }
 
         HttpHeaders headers = makeHeaders(auth);
         HttpEntity<HttpHeaders> httpHeaders = new HttpEntity<>(headers);
 
-        return fetchAllMergeRequests(baseUrl, httpHeaders, mergeRequestUrls)
+        return fetchAllMergeRequests(baseUrl, httpHeaders, mergeRequestIds)
                 .map(pair -> makeCard(routingPrefix, pair))
                 .reduce(
                         new Cards(),
