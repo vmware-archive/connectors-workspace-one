@@ -1,0 +1,22 @@
+{
+  "tokens": {
+    "merge_request_urls": [
+      "https://gitlab.com/vmware/test-repo/merge_requests/1",
+      "https://gitlab.com/vmware/test-repo/merge_requests/1",
+      "https://gitlab.com/vmware/test-repo/merge_requests/1",
+      null,
+      "https://gitlab.com/vmware/test-repo/merge_requests/2",
+      "https://gitlab.com/vmware/test-repo/merge_requests/2",
+      "https://gitlab.com/vmware/test-repo/merge_requests/2",
+      "",
+      "https://gitlab.com/vmware/test-repo/merge_requests/0-not-found",
+      "https://notgitlab.com/vmware/test-repo/merge_requests/4",
+      "https://subdomain.gitlab.com/vmware/test-repo/merge_requests/5",
+      "https://gitlab.com/somethingelse/vmware/test-repo/merge_requests/6",
+      "invalid",
+      "https://gitlab.com/vmware/test-repo/merge_requests/3",
+      "https://gitlab.com/vmware/test-repo/merge_requests/3",
+      "https://gitlab.com/vmware/test-repo/merge_requests/3"
+    ]
+  }
+}

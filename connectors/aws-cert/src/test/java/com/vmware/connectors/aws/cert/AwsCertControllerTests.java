@@ -54,7 +54,6 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     @Test
     public void testProtectedResource() throws Exception {
         testProtectedResource(POST, "/cards/requests");
-        testProtectedResource(GET, "/success?code=test-auth-code");
         testProtectedResource(POST, "/api/v1/approve");
     }
 
