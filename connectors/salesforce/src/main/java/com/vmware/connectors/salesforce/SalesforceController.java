@@ -44,7 +44,6 @@ import static org.springframework.http.MediaType.*;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 @RestController
-@SuppressWarnings("PMD.ShortVariable")
 public class SalesforceController {
     private final static Logger logger = LoggerFactory.getLogger(SalesforceController.class);
     private final static String SALESFORCE_AUTH_HEADER = "x-salesforce-authorization";

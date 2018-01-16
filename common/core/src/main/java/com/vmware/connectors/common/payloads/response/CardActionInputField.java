@@ -19,7 +19,6 @@ import java.util.Map;
  * Instances of this class are unmodifiable once created. The CardActionInputField class cannot be directly constructed;
  * use the CardActionInputField.Builder class to create and populate a CardActionInputField instance.
  */
-@SuppressWarnings("PMD.ShortVariable")
 public class CardActionInputField {
 
     @JsonProperty("id")

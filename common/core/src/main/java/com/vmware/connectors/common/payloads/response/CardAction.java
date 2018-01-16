@@ -27,7 +27,6 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
  * Created by Rob Worsnop on 9/13/16.
  */
 @JsonInclude(NON_NULL)
-@SuppressWarnings("PMD.ShortVariable")
 public class CardAction {
 
     @JsonProperty("id")

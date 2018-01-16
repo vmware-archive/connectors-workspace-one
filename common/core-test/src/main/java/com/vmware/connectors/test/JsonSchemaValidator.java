@@ -43,8 +43,8 @@ public class JsonSchemaValidator {
             public boolean matches(Object item) {
                 try {
                     return getConnectorCardResponseSchemaValidator().validate(mapper.readTree(item.toString()));
-                } catch (ProcessingException | IOException exception) {
-                    logger.error("Exception ", exception);
+                } catch (ProcessingException | IOException e) {
+                    logger.error("Exception ", e);
                     return false;
                 }
             }
