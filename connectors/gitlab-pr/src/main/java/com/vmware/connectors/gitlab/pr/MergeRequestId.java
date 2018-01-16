@@ -9,8 +9,7 @@ import org.pojomatic.Pojomatic;
 import org.pojomatic.annotations.AutoProperty;
 
 /**
- * All Pull Requests and related objects (reviews and comments) have this
- * information as part of their identity.
+ * All Merge Requests and Notes have this information as part of their identity.
  */
 @AutoProperty
 public class MergeRequestId {

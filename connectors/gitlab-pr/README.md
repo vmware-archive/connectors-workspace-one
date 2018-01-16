@@ -1,4 +1,4 @@
-# GitlabbPr Connector
+# GitlabPr Connector
 
 The GitlabPr connector presents cards inviting the user to comment on, approve, reject, and merge Gitlab merge requests. It does this based on the merge request URLs passed as tokens in the card request.
 
