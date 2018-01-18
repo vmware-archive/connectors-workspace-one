@@ -205,11 +205,7 @@ public class SalesforceController {
         return retrieveContactInfos(auth, baseUrl, user, sender)
                 .map(HttpEntity::getBody)
                 .flatMap(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, headers, user, senderDomain))
-                .map(cards -> {
-                    Cards c = new Cards();
-                    c.getCards().addAll(cards);
-                    return c;
-                })
+                .map(this::toCards)
                 .map(ResponseEntity::ok);
     }
 
@@ -542,6 +538,12 @@ public class SalesforceController {
             }
             actionBuilder.addUserInputField(inputFieldBuilder.build());
         }
+    }
+
+    private Cards toCards(List<Card> cards) {
+        Cards c = new Cards();
+        c.getCards().addAll(cards);
+        return c;
     }
 
     ///////////////////////////////////////////////////////////////////
