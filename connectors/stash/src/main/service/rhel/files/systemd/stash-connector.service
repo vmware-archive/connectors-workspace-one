@@ -1,0 +1,12 @@
+[Unit]
+Description=Stash Connector Service
+After=network.target
+
+[Service]
+Type=simple
+User=roswell
+ExecStart=/usr/bin/java -jar /opt/vmware/connectors/stash/stash-connector.jar --spring.config.location=file:/opt/vmware/connectors/stash/application.properties,file:/etc/opt/vmware/connectors/stash/application.properties
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

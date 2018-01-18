@@ -1,0 +1,9 @@
+{
+  "authorization_header": "x-stash-authorization",
+  "backend_base_url_header": "x-stash-base-url",
+  "fields": {
+    "pr_email_subject": {
+      "regex": "(([a-zA-Z0-9]+)\/([a-zA-Z0-9-]+) - Pull request #([0-9]+): [a-zA-Z0-9- .\\()]*)"
+    }
+  }
+}
