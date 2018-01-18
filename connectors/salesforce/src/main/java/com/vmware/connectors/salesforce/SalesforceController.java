@@ -320,7 +320,6 @@ public class SalesforceController {
             JsonDocument opportunityDetails
     ) {
         // Fill in the opportunity details.
-        // Opportunity amount is an optional field in salesforce.
         int totalOpportunities = opportunityDetails.read("$.totalSize");
 
         for (int oppIndex = 0; oppIndex < totalOpportunities; oppIndex++) {
@@ -340,6 +339,7 @@ public class SalesforceController {
 
             String oppAmount = opportunityDetails.read(oppJsonPathPrefix + "Opportunity.Amount");
 
+            // Opportunity amount is an optional field in salesforce.
             if (StringUtils.isNotBlank(oppAmount)) {
                 cardBodyBuilder.addField(buildGeneralBodyField("senderinfo.opportunity.amount", oppAmount));
             }
