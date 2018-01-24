@@ -1,0 +1,157 @@
+{
+  "id": 246,
+  "version": 8,
+  "title": "APF-27-Test commit for stash connector.",
+  "description": "Please do not merge this branch.",
+  "state": "MERGED",
+  "open": false,
+  "closed": true,
+  "createdDate": 1515991865671,
+  "updatedDate": 1516180824413,
+  "closedDate": 1516180824413,
+  "fromRef": {
+    "id": "refs/heads/feature/APF-27-test-branch-for-stash-connector",
+    "displayId": "feature/APF-27-test-branch-for-stash-connector",
+    "latestCommit": "e434176122db8c448b7e518de425b76a86ce38cd",
+    "repository": {
+      "slug": "app-platform-server",
+      "id": 1747,
+      "name": "app-platform-server",
+      "scmId": "git",
+      "state": "AVAILABLE",
+      "statusMessage": "Available",
+      "forkable": true,
+      "project": {
+        "key": "UFO",
+        "id": 1688,
+        "name": "Roswell - Microservices Platform",
+        "public": false,
+        "type": "NORMAL",
+        "links": {
+          "self": [
+            {
+              "href": "https://stash.air-watch.com/projects/UFO"
+            }
+          ]
+        }
+      },
+      "public": false,
+      "links": {
+        "clone": [
+          {
+            "href": "https://ssathiamoort@stash.air-watch.com/scm/ufo/app-platform-server.git",
+            "name": "http"
+          },
+          {
+            "href": "ssh://git@stash.air-watch.com:7999/ufo/app-platform-server.git",
+            "name": "ssh"
+          }
+        ],
+        "self": [
+          {
+            "href": "https://stash.air-watch.com/projects/UFO/repos/app-platform-server/browse"
+          }
+        ]
+      }
+    }
+  },
+  "toRef": {
+    "id": "refs/heads/feature/APF-27-Test-branch-for-stash-connector",
+    "displayId": "feature/APF-27-Test-branch-for-stash-connector",
+    "latestCommit": "4d2b18df033e5b482bc9d3b7480d07d0cce166b2",
+    "repository": {
+      "slug": "app-platform-server",
+      "id": 1747,
+      "name": "app-platform-server",
+      "scmId": "git",
+      "state": "AVAILABLE",
+      "statusMessage": "Available",
+      "forkable": true,
+      "project": {
+        "key": "UFO",
+        "id": 1688,
+        "name": "Roswell - Microservices Platform",
+        "public": false,
+        "type": "NORMAL",
+        "links": {
+          "self": [
+            {
+              "href": "https://stash.air-watch.com/projects/UFO"
+            }
+          ]
+        }
+      },
+      "public": false,
+      "links": {
+        "clone": [
+          {
+            "href": "https://ssathiamoort@stash.air-watch.com/scm/ufo/app-platform-server.git",
+            "name": "http"
+          },
+          {
+            "href": "ssh://git@stash.air-watch.com:7999/ufo/app-platform-server.git",
+            "name": "ssh"
+          }
+        ],
+        "self": [
+          {
+            "href": "https://stash.air-watch.com/projects/UFO/repos/app-platform-server/browse"
+          }
+        ]
+      }
+    }
+  },
+  "locked": false,
+  "author": {
+    "user": {
+      "name": "ssathiamoort",
+      "emailAddress": "ssathiamoort@vmware.com",
+      "id": 59145,
+      "displayName": "Sudharsan Sathiamoorthy",
+      "active": true,
+      "slug": "ssathiamoort",
+      "type": "NORMAL",
+      "links": {
+        "self": [
+          {
+            "href": "https://stash.air-watch.com/users/ssathiamoort"
+          }
+        ]
+      }
+    },
+    "role": "AUTHOR",
+    "approved": false,
+    "status": "UNAPPROVED"
+  },
+  "reviewers": [
+    {
+      "user": {
+        "name": "harshas",
+        "emailAddress": "harshas@vmware.com",
+        "id": 3936,
+        "displayName": "Shree Harsha",
+        "active": true,
+        "slug": "harshas",
+        "type": "NORMAL",
+        "links": {
+          "self": [
+            {
+              "href": "https://stash.air-watch.com/users/harshas"
+            }
+          ]
+        }
+      },
+      "role": "REVIEWER",
+      "approved": true,
+      "status": "APPROVED"
+    }
+  ],
+  "participants": [],
+  "links": {
+    "self": [
+      {
+        "href": "https://stash.air-watch.com/projects/UFO/repos/app-platform-server/pull-requests/246"
+      }
+    ]
+  }
+}
