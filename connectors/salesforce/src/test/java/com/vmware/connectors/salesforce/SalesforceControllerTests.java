@@ -169,8 +169,6 @@ public class SalesforceControllerTests extends ControllerTestsBase {
                 .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
         expectSalesforceRequest(getContactOpportunitySoql(requestFile))
                 .andRespond(withSuccess(sfResponseWithoutAmount, APPLICATION_JSON));
-        expectSalesforceRequest(getAccountRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseAccounts, APPLICATION_JSON));
 
         perform(requestCards("abc", requestFile))
                 .andExpect(status().isOk())
@@ -189,8 +187,6 @@ public class SalesforceControllerTests extends ControllerTestsBase {
                 .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
         expectSalesforceRequest(getContactOpportunitySoql(requestFile))
                 .andRespond(withSuccess(sfResponseContactOpportunities, APPLICATION_JSON));
-        expectSalesforceRequest(getAccountRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseAccounts, APPLICATION_JSON));
 
         perform(requestCards("abc", requestFile))
                 .andExpect(status().isOk())
@@ -218,8 +214,6 @@ public class SalesforceControllerTests extends ControllerTestsBase {
                 .andRespond(withSuccess(sfResponseLeoDCaprioOpportunities, APPLICATION_JSON));
         expectSalesforceRequest(getAccountOpportunitySoql("001Q0000012glcuIAA"))
                 .andRespond(withSuccess(sfResponseWordHowardOpportunities, APPLICATION_JSON));
-        expectSalesforceRequest(getContactOpportunitySoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactOpportunities, APPLICATION_JSON));
 
 
         perform(requestCards("abc", requestFile))
@@ -238,8 +232,6 @@ public class SalesforceControllerTests extends ControllerTestsBase {
                 .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
         expectSalesforceRequest(getContactOpportunitySoql(requestFile))
                 .andRespond(withSuccess(sfResponseContactOpportunities, APPLICATION_JSON));
-        expectSalesforceRequest(getAccountRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseAccounts, APPLICATION_JSON));
         perform(requestCards("abc", requestFile).header(ACCEPT_LANGUAGE, "xx"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
@@ -264,8 +256,6 @@ public class SalesforceControllerTests extends ControllerTestsBase {
                 .andRespond(withSuccess(sfResponseLeoDCaprioOpportunities, APPLICATION_JSON));
          expectSalesforceRequest(getAccountOpportunitySoql("001Q0000012glcuIAA"))
                 .andRespond(withSuccess(sfResponseWordHowardOpportunities, APPLICATION_JSON));
-        expectSalesforceRequest(getContactOpportunitySoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactOpportunities, APPLICATION_JSON));
 
 
         perform(requestCards("abc", requestFile).header(ACCEPT_LANGUAGE, "xx"))

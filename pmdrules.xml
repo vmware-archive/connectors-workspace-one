@@ -60,14 +60,11 @@
         <exclude name="UseIndexOfChar"/>
     </rule>
 
-    <!-- Customize NcssCount to have a more reasonable method and class size -->
+    <!-- Customize NcssCount to have a more reasonable method size -->
     <rule ref="category/java/design.xml/NcssCount">
         <properties>
             <property name="methodReportLevel">
-                <value>70</value>
-            </property>
-            <property name="classReportLevel">
-                <value>300</value>
+                <value>16</value>
             </property>
         </properties>
     </rule>
