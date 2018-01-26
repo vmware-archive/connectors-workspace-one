@@ -70,6 +70,12 @@ public class StashControllerTest extends ControllerTestsBase {
     @Value("classpath:stash/responses/merged.json")
     private Resource merged;
 
+    @Value("classpath:stash/responses/activities_pr_236.json")
+    private Resource pr236Activities;
+
+    @Value("classpath:stash/responses/activities_pr_246.json")
+    private Resource pr246Activities;
+
     @Before
     public void setup() throws Exception {
         super.setup();
@@ -155,8 +161,14 @@ public class StashControllerTest extends ControllerTestsBase {
 
     @Test
     public void testCardRequests() throws Exception {
-        expect(PULL_REQUEST_ID_1).andRespond(withSuccess(pr236, APPLICATION_JSON));
-        expect(PULL_REQUEST_ID_2).andRespond(withSuccess(pr246, APPLICATION_JSON));
+        final String pr236Url = "https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1;
+        final String pr246Url = "https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_2;
+
+        expect(pr236Url).andRespond(withSuccess(pr236, APPLICATION_JSON));
+        expect(pr246Url).andRespond(withSuccess(pr246, APPLICATION_JSON));
+
+        expect(pr236Url + "/activities").andRespond(withSuccess(pr236Activities, APPLICATION_JSON));
+        expect(pr246Url + "/activities").andRespond(withSuccess(pr246Activities, APPLICATION_JSON));
 
         testCardRequests("request.json", "success.json");
 
@@ -214,7 +226,7 @@ public class StashControllerTest extends ControllerTestsBase {
     private void testStashPRAction(final String url,
                                    final Resource resource,
                                    final StashAction stashAction) throws Exception {
-        expect(PULL_REQUEST_ID_1).andRespond(withSuccess(pr236, APPLICATION_JSON));
+        expect("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1).andRespond(withSuccess(pr236, APPLICATION_JSON));
 
         this.mockStash.expect(requestTo("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/" + stashAction.getAction() + "?version=10"))
                 .andExpect(method(POST))
@@ -227,7 +239,7 @@ public class StashControllerTest extends ControllerTestsBase {
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
                 .header("x-stash-authorization", "Basic " + STASH_AUTH_TOKEN)
                 .header("x-stash-base-url", "https://stash.air-watch.com")
-                .header("x-routing-prefix", "https://hero/connectors/stash/"))
+                .header("x-routing-prefix", "https://hero/connectors/stash"))
                 .andExpect(status().isOk());
 
     }
@@ -258,12 +270,12 @@ public class StashControllerTest extends ControllerTestsBase {
                 .accept(APPLICATION_JSON)
                 .header("x-stash-authorization", "Basic " + authToken)
                 .header("x-stash-base-url", "https://stash.air-watch.com")
-                .header("x-routing-prefix", "https://hero/connectors/stash/")
+                .header("x-routing-prefix", "https://hero/connectors/stash")
                 .content(fromFile("/stash/requests/" + requestFile));
     }
 
-    private ResponseActions expect(final String pullRequestId) {
-        return this.mockStash.expect(requestTo("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + pullRequestId))
+    private ResponseActions expect(final String url) {
+        return this.mockStash.expect(requestTo(url))
                 .andExpect(method(GET))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic stash-token"));
     }

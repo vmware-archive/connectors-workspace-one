@@ -4,91 +4,6 @@
       "id": "00000000-0000-0000-0000-000000000000",
       "creation_date": "1970-01-01T00:00:00Z",
       "header": {
-        "title": "Stash PR - APF-27-Test commit for stash connector./Sudharsan Sathiamoorthy",
-        "subtitle": "Description: Please do not merge this branch."
-      },
-      "body": {
-        "description": "Please do not merge this branch.",
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "Repository: ",
-            "description": "app-platform-server"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Author: ",
-            "description": "Sudharsan Sathiamoorthy"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Title: ",
-            "description": "APF-27-Test commit for stash connector."
-          },
-          {
-            "type": "GENERAL",
-            "title": "State:",
-            "description": "OPEN"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Open:",
-            "description": "false"
-          }
-        ]
-      },
-      "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Comment",
-          "url": {
-            "href": "https://hero/connectors/stash//api/v1/UFO/app-platform-server/246/comments"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {},
-          "user_input": [
-            {
-              "id": "Comment",
-              "label": "Comment",
-              "min_length": 1
-            }
-          ],
-          "completed_label": "Comment"
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Approve",
-          "type": "POST",
-          "action_key": "https://hero/connectors/stash//api/v1/UFO/app-platform-server/246/approve",
-          "request": {},
-          "user_input": [],
-          "completed_label": "Approve"
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Decline",
-          "type": "POST",
-          "action_key": "https://hero/connectors/stash//api/v1/UFO/app-platform-server/246/decline",
-          "request": {},
-          "user_input": [],
-          "completed_label": "Decline"
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Merge",
-          "type": "POST",
-          "action_key": "https://hero/connectors/stash//api/v1/UFO/app-platform-server/246/merge",
-          "request": {},
-          "user_input": [],
-          "completed_label": "Merge"
-        }
-      ]
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "header": {
         "title": "Stash PR - Feature/APF-651 add image and test auth test/Sudharsan Sathiamoorthy",
         "subtitle": "Description: * APF-651-Added integration test for getImage and getAuthKey\r\n* APF-651-Added integration test for test auth for connectors"
       },
@@ -119,6 +34,18 @@
             "type": "GENERAL",
             "title": "Open:",
             "description": "false"
+          },
+          {
+            "type": "COMMENT",
+            "title": "Comment",
+            "content": [
+              {
+                "text": "Test commit for pr 236."
+              },
+              {
+                "text": "Test commit 1."
+              }
+            ]
           }
         ]
       },
@@ -127,7 +54,7 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Comment",
           "url": {
-            "href": "https://hero/connectors/stash//api/v1/UFO/app-platform-server/236/comments"
+            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/236/comments"
           },
           "type": "POST",
           "action_key": "USER_INPUT",
@@ -140,6 +67,103 @@
             }
           ],
           "completed_label": "Comment"
+        }
+      ]
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Stash PR - APF-27-Test commit for stash connector./Sudharsan Sathiamoorthy",
+        "subtitle": "Description: Please do not merge this branch."
+      },
+      "body": {
+        "description": "Please do not merge this branch.",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Repository: ",
+            "description": "app-platform-server"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Author: ",
+            "description": "Sudharsan Sathiamoorthy"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Title: ",
+            "description": "APF-27-Test commit for stash connector."
+          },
+          {
+            "type": "GENERAL",
+            "title": "State:",
+            "description": "OPEN"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Open:",
+            "description": "false"
+          },
+          {
+            "type": "COMMENT",
+            "title": "Comment",
+            "content": [
+              {
+                "text": "Test commit for pr 246."
+              },
+              {
+                "text": "Test commit 1."
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Comment",
+          "url": {
+            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/comments"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "Comment",
+              "label": "Comment",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Comment"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Approve",
+          "type": "POST",
+          "action_key": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/approve",
+          "request": {},
+          "user_input": [],
+          "completed_label": "Approve"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Decline",
+          "type": "POST",
+          "action_key": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/decline",
+          "request": {},
+          "user_input": [],
+          "completed_label": "Decline"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Merge",
+          "type": "POST",
+          "action_key": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/merge",
+          "request": {},
+          "user_input": [],
+          "completed_label": "Merge"
         }
       ]
     }

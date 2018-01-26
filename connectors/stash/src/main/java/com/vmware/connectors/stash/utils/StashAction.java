@@ -7,6 +7,9 @@ package com.vmware.connectors.stash.utils;
 
 public enum StashAction {
 
+    // Retrieve all the comments from stash pull request.
+    ACTIVITES("activities"),
+
     // Approve a stash pull request.
     APPROVE("approve"),
 

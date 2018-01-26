@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.stash;
 
+import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
@@ -29,10 +30,13 @@ import rx.Single;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.vmware.connectors.stash.utils.StashConstants.ATLASSIAN_TOKEN;
 import static com.vmware.connectors.stash.utils.StashConstants.COMMENT_PARAM_KEY;
@@ -55,6 +59,8 @@ public class StashController {
     private static final String OPEN = "OPEN";
 
     private static final String STASH_PREFIX = "stash.";
+
+    private static final int COMMENTS_SIZE = 2;
 
     @Resource
     private AsyncRestOperations rest;
@@ -172,6 +178,34 @@ public class StashController {
         return Async.toSingle(response);
     }
 
+    private List<String> getComments(final String baseUrl,
+                                     final HttpHeaders headers,
+                                     final StashPullRequest pullRequest) {
+        final String url = String.format(StashConstants.STASH_ACTIVITIES_URL_FORMAT,
+                baseUrl,
+                pullRequest.getProjectKey(),
+                pullRequest.getRepositorySlug(),
+                pullRequest.getPullRequestId());
+
+        final ListenableFuture<ResponseEntity<JsonDocument>> response = this.rest.exchange(
+                url,
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                JsonDocument.class);
+
+        final JsonDocument[] jsonDocuments = new JsonDocument[1];
+        Async.toSingle(response)
+                .subscribe(entity -> {
+                    jsonDocuments[0] = entity.getBody();
+                });
+        Assert.isTrue(Objects.nonNull(jsonDocuments[0]), "JsonDocument should not be null.");
+
+        final List<String> comments = jsonDocuments[0].read("$.values[*].comment.text");
+        return comments.stream()
+                .limit(COMMENTS_SIZE)
+                .collect(Collectors.toList());
+    }
+
     private Single<ResponseEntity<String>> performStashAction(final String baseUrl,
                                                               final String authHeader,
                                                               final StashPullRequest pullRequest,
@@ -232,11 +266,12 @@ public class StashController {
         logger.debug("Requesting pull request info from stash base url: {} and pull request info: {}", baseUrl, pullRequest);
 
         final ListenableFuture<ResponseEntity<JsonDocument>> stashResponse = getPullRequestInfo(headers, pullRequest, baseUrl);
+        final List<String> comments = getComments(baseUrl, headers, pullRequest);
 
         return Async.toSingle(stashResponse)
                 .toObservable()
                 .onErrorResumeNext(ObservableUtil::skip404)
-                .map(entity -> convertResponseIntoCard(entity, pullRequest, routingPrefix));
+                .map(entity -> convertResponseIntoCard(entity, pullRequest, routingPrefix, comments));
     }
 
     private ListenableFuture<ResponseEntity<JsonDocument>> getPullRequestInfo(final HttpHeaders headers,
@@ -257,7 +292,8 @@ public class StashController {
 
     private Card convertResponseIntoCard(final ResponseEntity<JsonDocument> entity,
                                          final StashPullRequest pullRequest,
-                                         final String routingPrefix) {
+                                         final String routingPrefix,
+                                         final List<String> comments) {
         final JsonDocument stashResponse = entity.getBody();
 
         final String author = stashResponse.read("$.author.user.displayName");
@@ -273,7 +309,7 @@ public class StashController {
                         this.cardTextAccessor.getMessage(
                                 "stash.card.subtitle",
                                 description))
-                .setBody(makeCardBody(stashResponse));
+                .setBody(makeCardBody(stashResponse, comments));
 
         addCommentAction(card, routingPrefix, pullRequest);
 
@@ -348,7 +384,7 @@ public class StashController {
                 stashAction.getAction());
     }
 
-    private CardBody makeCardBody(final JsonDocument stashResponse) {
+    private CardBody makeCardBody(final JsonDocument stashResponse, final List<String> comments) {
         final CardBody.Builder cardBody = new CardBody.Builder();
         cardBody.setDescription(stashResponse.read("$.description"));
 
@@ -358,7 +394,21 @@ public class StashController {
         cardBody.addField(makeCardBodyField("stash.state", stashResponse.read("$.state")));
         cardBody.addField(makeCardBodyField("stash.open", Boolean.toString(stashResponse.read("$.open"))));
 
+        if (!CollectionUtils.isEmpty(comments)) {
+            cardBody.addField(addCommentField(comments));
+        }
         return cardBody.build();
+    }
+
+    private CardBodyField addCommentField(final List<String> comments) {
+        final CardBodyField.Builder cardBodyFieldBuilder = new CardBodyField.Builder();
+        cardBodyFieldBuilder.setTitle(this.cardTextAccessor.getMessage("stash.comments"));
+        cardBodyFieldBuilder.setType(CardBodyFieldType.COMMENT);
+
+        comments.forEach(comment -> {
+            cardBodyFieldBuilder.addContent(ImmutableMap.of("text", comment));
+        });
+        return cardBodyFieldBuilder.build();
     }
 
     private CardBodyField makeCardBodyField(final String messageKeyPrefix, final String descriptionArgs) {

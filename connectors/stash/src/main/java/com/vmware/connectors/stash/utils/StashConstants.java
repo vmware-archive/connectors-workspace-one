@@ -9,6 +9,8 @@ public final class StashConstants {
 
     public static final String STASH_PR_URL_FORMAT = "%s/rest/api/1.0/projects/%s/repos/%s/pull-requests/%s";
 
+    public static final String STASH_ACTIVITIES_URL_FORMAT = "%s/rest/api/1.0/projects/%s/repos/%s/pull-requests/%s/activities";
+
     public static final String STASH_PR_COMMENT_URL_FORMAT = STASH_PR_URL_FORMAT + "/comments";
 
     public static final String STASH_PR_ACTION_FORMAT = STASH_PR_URL_FORMAT + "/%s?version=%s";
