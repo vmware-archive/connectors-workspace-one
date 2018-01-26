@@ -33,7 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -61,6 +60,8 @@ public class StashController {
     private static final String STASH_PREFIX = "stash.";
 
     private static final int COMMENTS_SIZE = 2;
+
+    private static final String STASH_COMMENTS = "stash.comments";
 
     @Resource
     private AsyncRestOperations rest;
@@ -357,14 +358,14 @@ public class StashController {
                                   final StashPullRequest pullRequest) {
         card.addAction(
                 new CardAction.Builder()
-                    .setLabel(this.cardTextAccessor.getActionLabel("stash.comments"))
-                    .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("stash.comments"))
+                    .setLabel(this.cardTextAccessor.getActionLabel(STASH_COMMENTS))
+                    .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel(STASH_COMMENTS))
                     .setActionKey(CardActionKey.USER_INPUT)
                     .setUrl(buildActionUrl(routingPrefix, pullRequest, StashAction.COMMENTS))
                     .addUserInputField(
                             new CardActionInputField.Builder()
                                 .setId("Comment")
-                                .setLabel(this.cardTextAccessor.getMessage("stash.comments"))
+                                .setLabel(this.cardTextAccessor.getMessage(STASH_COMMENTS))
                                 .setMinLength(1)
                                 .build()
                     )
@@ -402,7 +403,7 @@ public class StashController {
 
     private CardBodyField addCommentField(final List<String> comments) {
         final CardBodyField.Builder cardBodyFieldBuilder = new CardBodyField.Builder();
-        cardBodyFieldBuilder.setTitle(this.cardTextAccessor.getMessage("stash.comments"));
+        cardBodyFieldBuilder.setTitle(this.cardTextAccessor.getMessage(STASH_COMMENTS));
         cardBodyFieldBuilder.setType(CardBodyFieldType.COMMENT);
 
         comments.forEach(comment -> {
