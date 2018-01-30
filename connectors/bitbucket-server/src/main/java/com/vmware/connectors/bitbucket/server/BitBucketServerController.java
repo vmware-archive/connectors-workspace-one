@@ -16,6 +16,7 @@ import com.vmware.connectors.common.web.ObservableUtil;
 import com.vmware.connectors.bitbucket.server.utils.BitBucketServerAction;
 import com.vmware.connectors.bitbucket.server.utils.BitBucketServerComment;
 import com.vmware.connectors.bitbucket.server.utils.BitBucketServerPullRequest;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -170,7 +171,7 @@ public class BitBucketServerController {
         return Async.toSingle(response);
     }
 
-    private List<String> getComments(final String baseUrl,
+    private Single<List<String>> getComments(final String baseUrl,
                                      final HttpHeaders headers,
                                      final BitBucketServerPullRequest pullRequest) {
         final String url = String.format(BitBucketServerConstants.BITBUCKET_ACTIVITIES_URL_FORMAT,
@@ -185,17 +186,11 @@ public class BitBucketServerController {
                 new HttpEntity<>(headers),
                 JsonDocument.class);
 
-        final JsonDocument[] jsonDocuments = new JsonDocument[1];
-        Async.toSingle(response)
-                .subscribe(entity -> {
-                    jsonDocuments[0] = entity.getBody();
-                });
-        Assert.isTrue(Objects.nonNull(jsonDocuments[0]), "JsonDocument should not be null.");
+        return Async.toSingle(response)
+                .map(ResponseEntity::getBody)
+                .map(jsonDocument -> jsonDocument.<List<String>>read("$.values[*].comment.text"))
+                .map(comments -> comments.stream().limit(COMMENTS_SIZE).collect(Collectors.toList()));
 
-        final List<String> comments = jsonDocuments[0].read("$.values[*].comment.text");
-        return comments.stream()
-                .limit(COMMENTS_SIZE)
-                .collect(Collectors.toList());
     }
 
     private Single<ResponseEntity<String>> performBitBucketServerAction(final String baseUrl,
@@ -257,13 +252,12 @@ public class BitBucketServerController {
                                                           final String routingPrefix) {
         logger.debug("Requesting pull request info from bitbucket server base url: {} and pull request info: {}", baseUrl, pullRequest);
 
-        final ListenableFuture<ResponseEntity<JsonDocument>> bitBucketServerResponse = getPullRequestInfo(headers, pullRequest, baseUrl);
-        final List<String> comments = getComments(baseUrl, headers, pullRequest);
+        final Single<ResponseEntity<JsonDocument>> bitBucketServerResponse = Async.toSingle(getPullRequestInfo(headers, pullRequest, baseUrl));
+        final Single<List<String>> comments = getComments(baseUrl, headers, pullRequest);
 
-        return Async.toSingle(bitBucketServerResponse)
-                .toObservable()
+        return Observable.zip(bitBucketServerResponse.toObservable(), comments.toObservable(), Pair::of)
                 .onErrorResumeNext(ObservableUtil::skip404)
-                .map(entity -> convertResponseIntoCard(entity, pullRequest, routingPrefix, comments));
+                .map(pair -> convertResponseIntoCard(pair.getLeft(), pullRequest, routingPrefix, pair.getRight()));
     }
 
     private ListenableFuture<ResponseEntity<JsonDocument>> getPullRequestInfo(final HttpHeaders headers,
