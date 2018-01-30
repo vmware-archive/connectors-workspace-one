@@ -23,7 +23,7 @@
         <module>salesforce</module>
         <module>servicenow</module>
         <module>socialcast</module>
-        <module>stash</module>
+        <module>bitbucket-server</module>
     </modules>
     
 </project>
