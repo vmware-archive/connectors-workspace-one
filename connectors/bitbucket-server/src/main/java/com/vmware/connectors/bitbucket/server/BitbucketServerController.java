@@ -180,9 +180,8 @@ public class BitbucketServerController {
     }
 
     @GetMapping("/test-auth")
-    @SuppressWarnings("PMD.JUnit4TestShouldUseTestAnnotation") // PMD assumes the method as Junit Test if the API url has 'test'.
-    public Single<ResponseEntity<Void>> testAuth(@RequestHeader(AUTH_HEADER) final String authHeader,
-                                                 @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
+    public Single<ResponseEntity<Void>> verifyAuth(@RequestHeader(AUTH_HEADER) final String authHeader,
+                                                   @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
         final HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION, authHeader);
 
@@ -204,7 +203,7 @@ public class BitbucketServerController {
     private static Single<ResponseEntity<Void>> map404To200(final Throwable throwable) {
         if (throwable instanceof HttpClientErrorException &&
                 HttpClientErrorException.class.cast(throwable).getStatusCode() == HttpStatus.NOT_FOUND) {
-            // If Bitbucket server is down, then we return 200 back to the client.
+            // If Bitbucket server base url is incorrect, then we return 200 back to the client.
             return Single.just(ResponseEntity.ok().build());
         }
         return Single.error(throwable);

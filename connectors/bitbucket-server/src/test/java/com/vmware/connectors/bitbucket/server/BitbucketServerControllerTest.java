@@ -110,46 +110,13 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
     public void testRegex() throws Exception {
         final List<String> expectedList = ImmutableList.of(
                 // Project Name/ Repository Plug/ Pull request id.
-                "UFO/app-platform-server/244",
-                "UFO/app-platform-server/245",
-                "UFO/app-platform-server/241",
-                "UFO/app-platform-server/239",
-                "UFO/card-connectors/9");
+                "UFO/app-platform-server - Pull request #244: ",
+                "UFO/app-platform-server - Pull request #245: ",
+                "UFO/app-platform-server - Pull request #241: ",
+                "UFO/app-platform-server - Pull request #239: ",
+                "UFO/card-connectors - Pull request #9: ");
 
-        mvc.perform(
-                get("/discovery/metadata.hal")
-                        .with(token(accessToken()))
-                        .accept(MediaType.APPLICATION_JSON)
-        ).andExpect(mvcResult -> {
-            final String json = mvcResult.getResponse().getContentAsString();
-            final Map<String, Object> results = mapper.readValue(json, Map.class);
-            final Map<String, Object> fields = (Map<String, Object>) results.get("fields");
-            final Map<String, Object> prEmailSubject = (Map<String, Object>) fields.get("pr_email_subject");
-            final String regex = (String) prEmailSubject.get("regex");
-
-            verifyRegEx(regex, fromFile("/regex/pr-email-subject.txt"), expectedList);
-        });
-    }
-
-    private void verifyRegEx(final String regex,
-                             final String emailSubjectLists,
-                             final List<String> expectedList) {
-
-        final Pattern pattern = Pattern.compile(regex);
-        final List<String> resultList = new ArrayList<>();
-
-        for (String emailSubject : emailSubjectLists.split("\\n")) {
-            final Matcher matcher = pattern.matcher(emailSubject);
-            while (matcher.find()) {
-                final String projectKey = matcher.group(2);
-                final String repositorySlug = matcher.group(3);
-                final String pullRequestId = matcher.group(4);
-
-                final String result = projectKey + "/" + repositorySlug + "/" + pullRequestId;
-                resultList.add(result);
-            }
-        }
-        assertThat(resultList, equalTo(expectedList));
+        testRegex("pr_email_subject", fromFile("/regex/pr-email-subject.txt"), expectedList);
     }
 
     @Test

@@ -127,9 +127,8 @@ public class JiraController {
     }
 
     @GetMapping("/test-auth")
-    @SuppressWarnings("PMD.JUnit4TestShouldUseTestAnnotation") // PMD assumes the method as Junit Test if the API url has 'test'.
-    public Single<ResponseEntity<Void>> testAuth(@RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
-                                                 @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl) {
+    public Single<ResponseEntity<Void>> verifyAuth(@RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
+                                                   @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl) {
         return getIssue(jiraAuth, baseUrl, "XYZ-999")
                 .map(JiraController::stripBody)
                 .onErrorResumeNext(JiraController::map404to200);

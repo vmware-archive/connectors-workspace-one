@@ -32,7 +32,7 @@ public enum BitbucketServerAction {
      */
     MERGE("merge");
 
-    private String action;
+    private final String action;
 
     BitbucketServerAction(final String action) {
         this.action = action;
