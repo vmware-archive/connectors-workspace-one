@@ -99,6 +99,11 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     }
 
     @Test
+    public void testInstallAction() throws Exception {
+        // ToDo:
+    }
+
+    @Test
     public void testMissingRequestHeaders() throws Exception {
         perform(post("/cards/requests").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
@@ -139,6 +144,8 @@ public class AirWatchControllerTests extends ControllerTestsBase {
 
     @Test
     public void testRequestCardsOneServerError() throws Exception {
+        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.android.boxer")
+                .andRespond(withSuccess(awAppNotInstalled, APPLICATION_JSON));
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.poison.pill")
                 .andRespond(withServerError());
         perform(requestCards("oneServerError.json"))

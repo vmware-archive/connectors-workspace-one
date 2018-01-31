@@ -5,22 +5,30 @@
 
 package com.vmware.connectors.airwatch.service;
 
-import org.springframework.core.env.Environment;
-
-import java.util.Locale;
+import com.vmware.connectors.airwatch.config.AppConfigurations;
+import com.vmware.connectors.airwatch.config.ManagedApp;
+import com.vmware.connectors.airwatch.config.AppConfiguration;
 
 /**
  * Created by harshas on 9/19/17.
  */
 public class AppConfigService {
 
-    private final Environment environment;
+    private final AppConfigurations appConfigurations;
 
-    public AppConfigService(Environment environment) {
-        this.environment = environment;
+    public AppConfigService(AppConfigurations appConfigurations) {
+        this.appConfigurations = appConfigurations;
     }
 
-    public String getAppId(String platform, String appName) {
-        return this.environment.getProperty((platform + "." + appName).toLowerCase(Locale.ENGLISH));
+    public ManagedApp findManagedApp(String keyword, String platform) {
+        for (AppConfiguration appConfiguration : appConfigurations.getApps()) {
+            ManagedApp app = appConfiguration.getApp(platform);
+            // If keyword matches to app name or its keywords.
+            if (app.getName().equalsIgnoreCase(keyword) ||
+                    appConfiguration.getKeywords().stream().anyMatch(keyword::equalsIgnoreCase)) {
+                return app;
+            }
+        }
+        return null;
     }
 }
