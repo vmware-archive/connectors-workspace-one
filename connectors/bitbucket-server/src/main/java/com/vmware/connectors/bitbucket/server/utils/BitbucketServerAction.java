@@ -5,7 +5,7 @@
 
 package com.vmware.connectors.bitbucket.server.utils;
 
-public enum BitBucketServerAction {
+public enum BitbucketServerAction {
 
     /**
      * Retrieve all the comments from bitbucket server pull request.
@@ -34,7 +34,7 @@ public enum BitBucketServerAction {
 
     private String action;
 
-    BitBucketServerAction(final String action) {
+    BitbucketServerAction(final String action) {
         this.action = action;
     }
 

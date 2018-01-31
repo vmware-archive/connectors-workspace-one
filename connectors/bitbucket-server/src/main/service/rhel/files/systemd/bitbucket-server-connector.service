@@ -1,5 +1,5 @@
 [Unit]
-Description=BitBucket server Connector Service
+Description=Bitbucket server Connector Service
 After=network.target
 
 [Service]

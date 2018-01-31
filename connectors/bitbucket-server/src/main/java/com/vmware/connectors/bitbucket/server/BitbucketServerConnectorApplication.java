@@ -18,8 +18,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @EnableScheduling
 @Configuration
 @SuppressWarnings("PMD.UseUtilityClass")
-public class BitBucketServerConnectorApplication {
+public class BitbucketServerConnectorApplication {
     public static void main(final String[] args) {
-        SpringApplication.run(BitBucketServerConnectorApplication.class, args);
+        SpringApplication.run(BitbucketServerConnectorApplication.class, args);
     }
 }

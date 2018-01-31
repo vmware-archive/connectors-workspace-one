@@ -12,7 +12,7 @@ import org.pojomatic.annotations.AutoProperty;
  * Fields related to stash/bitbucket server pull request.
  */
 @AutoProperty
-public class BitBucketServerPullRequest {
+public class BitbucketServerPullRequest {
 
     // Name of the stash project.
     private String projectKey;
@@ -23,11 +23,11 @@ public class BitBucketServerPullRequest {
     // Stash pull request identifier.
     private String pullRequestId;
 
-    public BitBucketServerPullRequest() {
+    public BitbucketServerPullRequest() {
         // Empty constructor.
     }
 
-    public BitBucketServerPullRequest(final String projectKey,
+    public BitbucketServerPullRequest(final String projectKey,
                                       final String repositorySlug,
                                       final String pullRequestId) {
         this.projectKey = projectKey;

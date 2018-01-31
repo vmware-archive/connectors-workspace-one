@@ -7,16 +7,16 @@ package com.vmware.connectors.bitbucket.server.utils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public final class BitBucketServerComment {
+public final class BitbucketServerComment {
 
     @JsonProperty("text")
     private String text;
 
-    public BitBucketServerComment() {
+    public BitbucketServerComment() {
         // Empty constructor.
     }
 
-    public BitBucketServerComment(final String text) {
+    public BitbucketServerComment(final String text) {
         this.text = text;
     }
 

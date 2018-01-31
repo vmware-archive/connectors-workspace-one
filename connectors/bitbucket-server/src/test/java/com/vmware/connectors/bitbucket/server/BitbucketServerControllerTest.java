@@ -6,14 +6,16 @@
 package com.vmware.connectors.bitbucket.server;
 
 import com.google.common.collect.ImmutableList;
-import com.vmware.connectors.bitbucket.server.utils.BitBucketServerAction;
+import com.vmware.connectors.bitbucket.server.utils.BitbucketServerAction;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
+import org.apache.http.auth.AUTH;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.ResponseActions;
@@ -28,7 +30,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.vmware.connectors.bitbucket.server.utils.BitBucketServerConstants.*;
+import static com.vmware.connectors.bitbucket.server.utils.BitbucketServerConstants.*;
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -38,12 +40,13 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class BitBucketServerControllerTest extends ControllerTestsBase {
+public class BitbucketServerControllerTest extends ControllerTestsBase {
 
     private static final String BITBUCKET_SERVER_AUTH_TOKEN = "bitbucket-token";
 
@@ -54,7 +57,7 @@ public class BitBucketServerControllerTest extends ControllerTestsBase {
     @Autowired
     private AsyncRestTemplate rest;
 
-    private MockRestServiceServer mockBitBucketServer;
+    private MockRestServiceServer mockBitbucketServer;
 
     @Value("classpath:bitbucket/responses/pr_236.json")
     private Resource pr236;
@@ -84,7 +87,7 @@ public class BitBucketServerControllerTest extends ControllerTestsBase {
     public void setup() throws Exception {
         super.setup();
 
-        mockBitBucketServer = MockRestServiceServer.bindTo(rest)
+        mockBitbucketServer = MockRestServiceServer.bindTo(rest)
                 .ignoreExpectOrder(true)
                 .build();
     }
@@ -176,7 +179,7 @@ public class BitBucketServerControllerTest extends ControllerTestsBase {
 
         testCardRequests("request.json", "success.json");
 
-        this.mockBitBucketServer.verify();
+        this.mockBitbucketServer.verify();
     }
 
     @Test
@@ -193,26 +196,26 @@ public class BitBucketServerControllerTest extends ControllerTestsBase {
     public void approve() throws Exception {
         final String url = "/api/v1/UFO/app-platform-server/236/approve";
 
-        testBitBucketServerPRAction(url, approve, BitBucketServerAction.APPROVE);
+        testBitbucketServerPRAction(url, approve, BitbucketServerAction.APPROVE);
     }
 
     @Test
     public void decline() throws Exception {
         final String url = "/api/v1/UFO/app-platform-server/236/decline";
 
-        testBitBucketServerPRAction(url, declined, BitBucketServerAction.DECLINE);
+        testBitbucketServerPRAction(url, declined, BitbucketServerAction.DECLINE);
     }
 
     @Test
     public void merge() throws Exception {
         final String url = "/api/v1/UFO/app-platform-server/236/merge";
 
-        testBitBucketServerPRAction(url, merged, BitBucketServerAction.MERGE);
+        testBitbucketServerPRAction(url, merged, BitbucketServerAction.MERGE);
     }
 
     @Test
     public void comment() throws Exception {
-        this.mockBitBucketServer.expect(requestTo("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/comments"))
+        this.mockBitbucketServer.expect(requestTo("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/comments"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
                 .andExpect(MockRestRequestMatchers.header(CONTENT_TYPE, APPLICATION_JSON_VALUE))
@@ -225,14 +228,34 @@ public class BitBucketServerControllerTest extends ControllerTestsBase {
                 .header(BASE_URL_HEADER, "https://stash.air-watch.com")
                 .param(COMMENT_PARAM_KEY, "Pull request comment")
                 ).andExpect(status().isOk());
+
+        this.mockBitbucketServer.verify();
     }
 
-    private void testBitBucketServerPRAction(final String url,
+    @Test
+    public void testAuthSuccess() throws Exception {
+        expect("https://stash.air-watch.com").andRespond(withStatus(HttpStatus.NOT_FOUND));
+        perform(get("/test-auth").with(token(accessToken()))
+                .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
+                .header(BASE_URL_HEADER, "https://stash.air-watch.com"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testAuthFail() throws Exception {
+        expect("https://stash.air-watch.com").andRespond(withStatus(HttpStatus.UNAUTHORIZED));
+        perform(get("/test-auth").with(token(accessToken()))
+                .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
+                .header(BASE_URL_HEADER, "https://stash.air-watch.com"))
+                .andExpect(status().isBadRequest());
+    }
+
+    private void testBitbucketServerPRAction(final String url,
                                              final Resource resource,
-                                             final BitBucketServerAction stashAction) throws Exception {
+                                             final BitbucketServerAction stashAction) throws Exception {
         expect("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1).andRespond(withSuccess(pr236, APPLICATION_JSON));
 
-        this.mockBitBucketServer.expect(requestTo("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/" + stashAction.getAction() + "?version=10"))
+        this.mockBitbucketServer.expect(requestTo("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/" + stashAction.getAction() + "?version=10"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
                 .andExpect(MockRestRequestMatchers.header(ATLASSIAN_TOKEN, "no-check"))
@@ -243,9 +266,10 @@ public class BitBucketServerControllerTest extends ControllerTestsBase {
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, "https://stash.air-watch.com")
-                .header(ROUTING_PREFIX, "https://hero/connectors/stash"))
+                .header(ROUTING_PREFIX, "https://hero/connectors/stash/"))
                 .andExpect(status().isOk());
 
+        this.mockBitbucketServer.verify();
     }
 
     private void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
@@ -274,12 +298,12 @@ public class BitBucketServerControllerTest extends ControllerTestsBase {
                 .accept(APPLICATION_JSON)
                 .header(AUTH_HEADER, "Basic " + authToken)
                 .header(BASE_URL_HEADER, "https://stash.air-watch.com")
-                .header(ROUTING_PREFIX, "https://hero/connectors/stash")
+                .header(ROUTING_PREFIX, "https://hero/connectors/stash/")
                 .content(fromFile("/bitbucket/requests/" + requestFile));
     }
 
     private ResponseActions expect(final String url) {
-        return this.mockBitBucketServer.expect(requestTo(url))
+        return this.mockBitbucketServer.expect(requestTo(url))
                 .andExpect(method(GET))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic bitbucket-token"));
     }
