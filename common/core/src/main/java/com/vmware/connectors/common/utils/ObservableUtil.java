@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package com.vmware.connectors.common.web;
+package com.vmware.connectors.common.utils;
 
 import org.springframework.web.client.HttpClientErrorException;
 import rx.Observable;

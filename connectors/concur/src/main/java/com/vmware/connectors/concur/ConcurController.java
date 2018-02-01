@@ -10,7 +10,7 @@ import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.web.ObservableUtil;
+import com.vmware.connectors.common.utils.ObservableUtil;
 import com.vmware.connectors.concur.response.ConcurResponse;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
