@@ -3,7 +3,7 @@
   "backend_base_url_header": "x-bitbucket-server-base-url",
   "fields": {
     "pr_email_subject": {
-      "regex": "(([a-zA-Z0-9]+)\/([a-zA-Z0-9-]+) - Pull request #([0-9]+):[ ])"
+      "regex": "((?:[a-zA-Z0-9]+)\/(?:[a-zA-Z0-9-]+) - Pull request #(?:[0-9]+):[ ])"
     }
   }
 }
