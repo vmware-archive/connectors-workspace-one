@@ -14,13 +14,11 @@ public class GbConnection {
 
     private final URI baseUri;
 
-    private String eucToken;
+    private final String eucToken;
 
-    private String csrfToken;
+    private final String csrfToken;
 
     public GbConnection(URI baseUri, String eucToken, String csrfToken) {
-        System.out.println("eucToken : " + eucToken);
-        System.out.println("csrfToken: " + csrfToken);
         this.baseUri = baseUri;
         this.eucToken = eucToken;
         this.csrfToken = csrfToken;

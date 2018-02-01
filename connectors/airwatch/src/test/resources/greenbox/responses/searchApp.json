@@ -26,7 +26,7 @@
         "mdmManagedAutoDeployed": true,
         "installMessage": "You will receive a push notification to continue with installation.",
         "installStatus": "PROCESSING",
-        "name": "Concur - Travel and Expense",
+        "name": "Concur",
         "type": "NATIVE",
         "size": 0,
         "_links": {
@@ -34,10 +34,10 @@
             "href": "https://HeroCardAdmin1.ssdevrd.com/Catalog/publicblob/f74ef1ee-5f03-4833-9c9e-3e45219c6026/BlobHandler.pblob"
           },
           "install": {
-            "href": "https://herocard.vmwareidentity.com:443/catalog-portal/services/api/activate/MDM-134-Native-Public"
+            "href": "https://herocard.vmwareidentity.com/catalog-portal/services/api/activate/MDM-134-Native-Public"
           },
           "appDetails": {
-            "href": "https://herocard.vmwareidentity.com:443/catalog-portal/services/api/apps/MDM-134-Native-Public"
+            "href": "https://herocard.vmwareidentity.com/catalog-portal/services/api/apps/MDM-134-Native-Public"
           }
         }
       }
@@ -47,7 +47,7 @@
   "allEntitlementsLoaded": true,
   "_links": {
     "self": {
-      "href": "https://herocard.vmwareidentity.com:443/catalog-portal/services/api/entitlements?q=Concur - Travel and Expense&category="
+      "href": "https://herocard.vmwareidentity.com/catalog-portal/services/api/entitlements?q=Concur&category="
     }
   }
 }

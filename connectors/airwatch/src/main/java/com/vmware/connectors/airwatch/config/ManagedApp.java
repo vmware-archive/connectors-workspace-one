@@ -5,12 +5,15 @@
 
 package com.vmware.connectors.airwatch.config;
 
+import java.util.Objects;
+
 /**
  * Created by harshas on 01/31/18.
  */
 public class ManagedApp {
 
     private String name;
+
     private String id;
 
     public String getName() {
@@ -30,12 +33,18 @@ public class ManagedApp {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null || getClass() != obj.getClass())
-            return false;
+    public int hashCode() {
+        return Objects.hash(name, id);
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
         ManagedApp otherManagedApp = (ManagedApp) obj;
         return id.equals(otherManagedApp.getId());
     }

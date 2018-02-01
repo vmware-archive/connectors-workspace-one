@@ -9,12 +9,16 @@ import java.util.List;
 
 /**
  * Created by harshas on 01/31/18.
+ * Supported platforms are 'ios' and 'android'.
  */
 public class AppConfiguration {
 
     private String app;
+
     private ManagedApp android;
+
     private ManagedApp ios;
+
     private List<String> keywords;
 
     public String getApplication() {
@@ -50,9 +54,9 @@ public class AppConfiguration {
     }
 
     public ManagedApp getApp(String platform) {
-        if (platform.equals("android")) {
+        if ("android".equals(platform)) {
             return android;
-        } else if (platform.equals("ios")) {
+        } else if ("ios".equals(platform)) {
             return ios;
         }
         return null;

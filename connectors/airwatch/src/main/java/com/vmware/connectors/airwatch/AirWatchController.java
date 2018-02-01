@@ -14,31 +14,48 @@ import com.vmware.connectors.airwatch.greenbox.GbConnection;
 import com.vmware.connectors.airwatch.service.AppConfigService;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
-import com.vmware.connectors.common.payloads.response.*;
-import com.vmware.connectors.common.utils.Async;
+import com.vmware.connectors.common.payloads.response.Card;
+import com.vmware.connectors.common.payloads.response.CardAction;
+import com.vmware.connectors.common.payloads.response.CardBody;
+import com.vmware.connectors.common.payloads.response.Cards;
+import com.vmware.connectors.common.payloads.response.CardActionKey;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import net.minidev.json.JSONArray;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.AsyncRestOperations;
 import org.springframework.web.client.HttpClientErrorException;
 import rx.Observable;
 import rx.Single;
 
-import javax.print.DocFlavor;
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.vmware.connectors.common.utils.Async.toSingle;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.COOKIE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -210,7 +227,7 @@ public class AirWatchController {
     private Single<String> getEucToken(URI baseUri, String udid, String platform, String hzn) {
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Cookie", "HZN=" + hzn);
+        headers.set(COOKIE, "HZN=" + hzn);
 
         String deviceType = platform.replaceAll("(?i)ios", "Apple");
 
@@ -219,7 +236,7 @@ public class AirWatchController {
                 HttpMethod.POST, new HttpEntity<String>(headers), JsonDocument.class,
                 baseUri, udid, deviceType);
 
-        return Async.toSingle(future)
+        return toSingle(future)
                 .map(entity -> entity.getBody().read("$.eucToken"));
     }
 
@@ -238,21 +255,23 @@ public class AirWatchController {
          * Use search API to find GbApp by name.
          * Make sure response has only one entry.
          */
+        int RIGHT_APP_COUNT = 1;
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Cookie", "USER_CATALOG_CONTEXT=" + gbSession.getEucToken());
+        headers.set(COOKIE, "USER_CATALOG_CONTEXT=" + gbSession.getEucToken());
 
         ListenableFuture<ResponseEntity<JsonDocument>> future = rest.exchange(
                 "{baseUrl}/catalog-portal/services/api/entitlements?q={appName}",
                 HttpMethod.GET, new HttpEntity<String>(headers),
                 JsonDocument.class, gbSession.getBaseUrl(), appName);
 
-        return Async.toSingle(future)
+        return toSingle(future)
                 .map(entity -> {
                     JsonDocument document = entity.getBody();
                     JSONArray jsonArray = document.read("$._embedded.entitlements");
-                    System.out.println("Search apps count : " + jsonArray.size());
-                    if (jsonArray.size() != 1)
+                    logger.debug("Found {} app(s) while searching greenbox entitlements.", jsonArray.size());
+                    if (jsonArray.size() != RIGHT_APP_COUNT) {
                         throw new GbAppMapException("Unable to map " + appName + " to a single GreenBox app");
+                    }
                     return new GbApp(
                             document.read("$._embedded.entitlements[0].name"),
                             document.read("$._embedded.entitlements[0]._links.install.href"));
@@ -264,18 +283,18 @@ public class AirWatchController {
          * It triggers the native mdm app install.
          */
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Cookie", "USER_CATALOG_CONTEXT=" + gbSession.getEucToken()
+        headers.set(COOKIE, "USER_CATALOG_CONTEXT=" + gbSession.getEucToken()
                 + "; EUC_XSRF_TOKEN=" + gbSession.getCsrfToken());
         headers.set("X-XSRF-TOKEN", gbSession.getCsrfToken());
         ListenableFuture<ResponseEntity<JsonDocument>> future = rest.exchange(
                 gbApp.getInstallLink(), HttpMethod.POST, new HttpEntity<String>(headers),
                 JsonDocument.class);
 
-        return Async.toSingle(future)
+        return toSingle(future)
                 .map(entity -> {
                     String jobStatus = entity.getBody().read("$.status");
                     if ("PROCESSING".equals(jobStatus)) {
-                        System.out.println("Install action submitted successfully");
+                        logger.debug("Install action submitted successfully.");
                     }
                     return entity.getStatusCode();
                 })
@@ -287,11 +306,11 @@ public class AirWatchController {
          * Authenticated request to {GreenBox-Base-Url}/catalog-portal/ provides CSRF token.
          */
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Cookie", "USER_CATALOG_CONTEXT=" + eucToken);
+        headers.set(COOKIE, "USER_CATALOG_CONTEXT=" + eucToken);
         ListenableFuture<ResponseEntity<String>> future = rest.exchange(
                 "{baseUrl}/catalog-portal/", HttpMethod.OPTIONS, new HttpEntity<String>(headers),
                 String.class, baseUri);
-        return Async.toSingle(future)
+        return toSingle(future)
                 .map(entity -> entity.getHeaders().getFirst("Set-Cookie"))
                 .map(cookie -> cookie.split(";")[0].split("EUC_XSRF_TOKEN=")[1]);
     }
