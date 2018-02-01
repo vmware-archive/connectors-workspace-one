@@ -134,8 +134,7 @@ public class AirWatchController {
 
         ManagedApp app = appConfig.findManagedApp(appName, platform);
         if (app == null) {
-            String errMsg = "Can't install " + appName + ". It is not a managed app.";
-            throw new ManagedAppNotFound(errMsg);
+            throw new ManagedAppNotFound("Can't install " + appName + ". It is not a managed app.");
         }
 
         String hznToken = awAuth.split("(?i)Bearer ")[1];
@@ -225,6 +224,8 @@ public class AirWatchController {
     }
 
     private Single<String> getEucToken(URI baseUri, String udid, String platform, String hzn) {
+        logger.trace("getEucToken called: GreenBox base url={}, udid={}, platform={}",
+                gbBaseUri.toString(), udid, platform);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(COOKIE, "HZN=" + hzn);
@@ -241,11 +242,13 @@ public class AirWatchController {
     }
 
     private Single<GbConnection> getGbConnection(URI gbBaseUri, String eucToken) {
+        logger.trace("getGbConnection called: GreenBox base url={}", gbBaseUri.toString());
         return getCsrfToken(gbBaseUri, eucToken)
                 .map(csrfToken -> new GbConnection(gbBaseUri, eucToken, csrfToken));
     }
 
     private Single<ResponseEntity<HttpStatus>> installApp(String gbAppName, GbConnection gbSession) {
+        logger.trace("installApp called: GreenBox app name={} Base url={}", gbAppName, gbSession.getBaseUrl());
         return findGbApp(gbAppName, gbSession)
                 .flatMap(gbApp -> installApp(gbApp, gbSession));
     }
@@ -255,6 +258,7 @@ public class AirWatchController {
          * Use search API to find GbApp by name.
          * Make sure response has only one entry.
          */
+        logger.trace("findGbApp called: app name={} GreenBox={}", appName, gbSession.getBaseUrl());
         int RIGHT_APP_COUNT = 1;
         HttpHeaders headers = new HttpHeaders();
         headers.set(COOKIE, "USER_CATALOG_CONTEXT=" + gbSession.getEucToken());
@@ -268,7 +272,7 @@ public class AirWatchController {
                 .map(entity -> {
                     JsonDocument document = entity.getBody();
                     JSONArray jsonArray = document.read("$._embedded.entitlements");
-                    logger.debug("Found {} app(s) while searching greenbox entitlements.", jsonArray.size());
+                    logger.debug("Found {} app(s) while searching GreenBox entitlements.", jsonArray.size());
                     if (jsonArray.size() != RIGHT_APP_COUNT) {
                         throw new GbAppMapException("Unable to map " + appName + " to a single GreenBox app");
                     }
@@ -282,6 +286,7 @@ public class AirWatchController {
         /*
          * It triggers the native mdm app install.
          */
+        logger.trace("installApp called: app name={} link={}", gbApp.getName(), gbApp.getInstallLink());
         HttpHeaders headers = new HttpHeaders();
         headers.set(COOKIE, "USER_CATALOG_CONTEXT=" + gbSession.getEucToken()
                 + "; EUC_XSRF_TOKEN=" + gbSession.getCsrfToken());
@@ -294,7 +299,7 @@ public class AirWatchController {
                 .map(entity -> {
                     String jobStatus = entity.getBody().read("$.status");
                     if ("PROCESSING".equals(jobStatus)) {
-                        logger.debug("Install action submitted successfully.");
+                        logger.debug("Install action submitted successfully with link {}.", gbApp.getInstallLink());
                     }
                     return entity.getStatusCode();
                 })
@@ -305,6 +310,7 @@ public class AirWatchController {
         /*
          * Authenticated request to {GreenBox-Base-Url}/catalog-portal/ provides CSRF token.
          */
+        logger.trace("getCsrfToken called: baseUri={}", baseUri.toString());
         HttpHeaders headers = new HttpHeaders();
         headers.set(COOKIE, "USER_CATALOG_CONTEXT=" + eucToken);
         ListenableFuture<ResponseEntity<String>> future = rest.exchange(
