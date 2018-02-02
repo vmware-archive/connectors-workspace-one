@@ -367,7 +367,7 @@ public class BitbucketServerController {
                         .setUrl(buildActionUrl(routingPrefix, pullRequest, BitbucketServerAction.COMMENTS))
                         .addUserInputField(
                                 new CardActionInputField.Builder()
-                                        .setId("Comment")
+                                        .setId(COMMENT_PARAM_KEY)
                                         .setLabel(this.cardTextAccessor.getMessage(BITBUCKET_SERVER_COMMENTS))
                                         .setMinLength(1)
                                         .build()
