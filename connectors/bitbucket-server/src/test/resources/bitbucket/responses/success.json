@@ -61,7 +61,7 @@
           "request": {},
           "user_input": [
             {
-              "id": "Comment",
+              "id": "comment",
               "label": "Comment",
               "min_length": 1
             }
@@ -131,7 +131,7 @@
           "request": {},
           "user_input": [
             {
-              "id": "Comment",
+              "id": "comment",
               "label": "Comment",
               "min_length": 1
             }
