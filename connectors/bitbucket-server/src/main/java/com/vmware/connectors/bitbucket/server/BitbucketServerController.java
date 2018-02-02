@@ -14,7 +14,7 @@ import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.web.ObservableUtil;
+import com.vmware.connectors.common.utils.SingleUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +84,7 @@ public class BitbucketServerController {
         headers.set(AUTHORIZATION, authHeader);
 
         return Observable.from(pullRequests)
-                .flatMap(pullRequest -> getCardsForBitbucketServerPR(headers, pullRequest, baseUrl, routingPrefix))
+                .flatMapSingle(pullRequest -> getCardForBitbucketServerPR(headers, pullRequest, baseUrl, routingPrefix))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .map(ResponseEntity::ok)
                 .toSingle();
@@ -266,17 +266,17 @@ public class BitbucketServerController {
 
     }
 
-    private Observable<Card> getCardsForBitbucketServerPR(final HttpHeaders headers,
-                                                          final BitbucketServerPullRequest pullRequest,
-                                                          final String baseUrl,
-                                                          final String routingPrefix) {
+    private Single<Card> getCardForBitbucketServerPR(final HttpHeaders headers,
+                                                     final BitbucketServerPullRequest pullRequest,
+                                                     final String baseUrl,
+                                                     final String routingPrefix) {
         logger.debug("Requesting pull request info from bitbucket server base url: {} and pull request info: {}", baseUrl, pullRequest);
 
         final Single<ResponseEntity<JsonDocument>> bitBucketServerResponse = getPullRequestInfo(headers, pullRequest, baseUrl);
         final Single<List<String>> comments = getComments(baseUrl, headers, pullRequest);
 
-        return Observable.zip(bitBucketServerResponse.toObservable(), comments.toObservable(), Pair::of)
-                .onErrorResumeNext(ObservableUtil::skip404)
+        return Single.zip(bitBucketServerResponse, comments, Pair::of)
+                .onErrorResumeNext(SingleUtil::skip404)
                 .map(pair -> convertResponseIntoCard(pair.getLeft(), pullRequest, routingPrefix, pair.getRight()));
     }
 

@@ -17,7 +17,7 @@ import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
 import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.web.ObservableUtil;
+import com.vmware.connectors.common.utils.ObservableUtil;
 import com.vmware.connectors.github.pr.v3.PullRequest;
 import com.vmware.connectors.github.pr.v3.Review;
 import org.apache.commons.lang3.tuple.Pair;
