@@ -9,14 +9,12 @@ import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.bitbucket.server.utils.BitbucketServerAction;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
-import org.apache.http.auth.AUTH;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
@@ -24,16 +22,10 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.web.client.AsyncRestTemplate;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.vmware.connectors.bitbucket.server.utils.BitbucketServerConstants.*;
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
@@ -137,12 +129,15 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
     public void testCardRequests() throws Exception {
         final String pr236Url = "https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1;
         final String pr246Url = "https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_2;
+        final String notFoundUrl = "https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/NOT-FOUND/pull-requests/999";
 
         expect(pr236Url).andRespond(withSuccess(pr236, APPLICATION_JSON));
         expect(pr246Url).andRespond(withSuccess(pr246, APPLICATION_JSON));
+        expect(notFoundUrl).andRespond(withStatus(HttpStatus.NOT_FOUND));
 
         expect(pr236Url + "/activities").andRespond(withSuccess(pr236Activities, APPLICATION_JSON));
         expect(pr246Url + "/activities").andRespond(withSuccess(pr246Activities, APPLICATION_JSON));
+        expect(notFoundUrl + "/activities").andRespond(withStatus(HttpStatus.NOT_FOUND));
 
         testCardRequests("request.json", "success.json");
 

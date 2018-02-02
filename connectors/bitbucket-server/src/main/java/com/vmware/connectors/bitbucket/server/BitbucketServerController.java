@@ -14,7 +14,7 @@ import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.SingleUtil;
+import com.vmware.connectors.common.utils.ObservableUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +84,7 @@ public class BitbucketServerController {
         headers.set(AUTHORIZATION, authHeader);
 
         return Observable.from(pullRequests)
-                .flatMapSingle(pullRequest -> getCardForBitbucketServerPR(headers, pullRequest, baseUrl, routingPrefix))
+                .flatMap(pullRequest -> getCardForBitbucketServerPR(headers, pullRequest, baseUrl, routingPrefix))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .map(ResponseEntity::ok)
                 .toSingle();
@@ -266,7 +266,7 @@ public class BitbucketServerController {
 
     }
 
-    private Single<Card> getCardForBitbucketServerPR(final HttpHeaders headers,
+    private Observable<Card> getCardForBitbucketServerPR(final HttpHeaders headers,
                                                      final BitbucketServerPullRequest pullRequest,
                                                      final String baseUrl,
                                                      final String routingPrefix) {
@@ -275,8 +275,8 @@ public class BitbucketServerController {
         final Single<ResponseEntity<JsonDocument>> bitBucketServerResponse = getPullRequestInfo(headers, pullRequest, baseUrl);
         final Single<List<String>> comments = getComments(baseUrl, headers, pullRequest);
 
-        return Single.zip(bitBucketServerResponse, comments, Pair::of)
-                .onErrorResumeNext(SingleUtil::skip404)
+        return Observable.zip(bitBucketServerResponse.toObservable(), comments.toObservable(), Pair::of)
+                .onErrorResumeNext(ObservableUtil::skip404)
                 .map(pair -> convertResponseIntoCard(pair.getLeft(), pullRequest, routingPrefix, pair.getRight()));
     }
 
@@ -410,9 +410,7 @@ public class BitbucketServerController {
         cardBodyFieldBuilder.setTitle(this.cardTextAccessor.getMessage(BITBUCKET_SERVER_COMMENTS));
         cardBodyFieldBuilder.setType(CardBodyFieldType.COMMENT);
 
-        comments.forEach(comment -> {
-            cardBodyFieldBuilder.addContent(ImmutableMap.of("text", comment));
-        });
+        comments.forEach(comment -> cardBodyFieldBuilder.addContent(ImmutableMap.of("text", comment)));
         return cardBodyFieldBuilder.build();
     }
 

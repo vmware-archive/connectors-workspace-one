@@ -1,5 +1,9 @@
 {
   "tokens": {
-    "pr_email_subject": ["UFO/app-platform-server - Pull request #236: APF-679: Use connectors common code", "UFO/app-platform-server - Pull request #246: Feature/APF-640 airwatch connector managed apps yml"]
+    "pr_email_subject": [
+      "UFO/app-platform-server - Pull request #236: APF-679: Use connectors common code",
+      "UFO/NOT-FOUND - Pull request #999: APF-999: Will get a 404",
+      "UFO/app-platform-server - Pull request #246: Feature/APF-640 airwatch connector managed apps yml"
+    ]
   }
 }
