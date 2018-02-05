@@ -7,7 +7,7 @@
     "platform": {
       "env": "DEVICE_SYSTEM_NAME"
     },
-    "app_name": {
+    "app_keywords": {
       "regex": "((?i)boxer|concur|poison)"
     }
   }

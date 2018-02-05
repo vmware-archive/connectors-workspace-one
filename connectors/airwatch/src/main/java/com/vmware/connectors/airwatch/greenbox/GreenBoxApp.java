@@ -1,20 +1,24 @@
 /*
- * Copyright © 2017 VMware, Inc. All Rights Reserved.
+ * Copyright © 2018 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
 package com.vmware.connectors.airwatch.greenbox;
 
+import org.pojomatic.Pojomatic;
+import org.pojomatic.annotations.AutoProperty;
+
 /**
  * Created by harshas on 01/31/18.
  */
-public class GbApp {
+@AutoProperty
+public class GreenBoxApp {
 
     private String name;
 
     private String installLink;
 
-    public GbApp(String name, String installLink) {
+    public GreenBoxApp(String name, String installLink) {
         this.name = name;
         this.installLink = installLink;
     }
@@ -33,5 +37,20 @@ public class GbApp {
 
     public String getInstallLink() {
         return installLink;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return Pojomatic.equals(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return Pojomatic.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+        return Pojomatic.toString(this);
     }
 }

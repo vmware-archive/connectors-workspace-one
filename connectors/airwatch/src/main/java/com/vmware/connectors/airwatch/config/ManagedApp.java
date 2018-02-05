@@ -1,15 +1,17 @@
 /*
- * Copyright © 2017 VMware, Inc. All Rights Reserved.
+ * Copyright © 2018 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
 package com.vmware.connectors.airwatch.config;
 
-import java.util.Objects;
+import org.pojomatic.Pojomatic;
+import org.pojomatic.annotations.AutoProperty;
 
 /**
  * Created by harshas on 01/31/18.
  */
+@AutoProperty
 public class ManagedApp {
 
     private String name;
@@ -33,19 +35,17 @@ public class ManagedApp {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(name, id);
+    public boolean equals(Object obj) {
+        return Pojomatic.equals(this, obj);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        ManagedApp otherManagedApp = (ManagedApp) obj;
-        return id.equals(otherManagedApp.getId());
+    public int hashCode() {
+        return Pojomatic.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+        return Pojomatic.toString(this);
     }
 }

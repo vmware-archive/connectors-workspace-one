@@ -23,7 +23,7 @@ public class AppConfigService {
     public ManagedApp findManagedApp(String keyword, String platform) {
         for (AppConfiguration appConfiguration : appConfigurations.getApps()) {
             ManagedApp app = appConfiguration.getApp(platform);
-            // If keyword matches to app name or its keywords.
+            // If the keyword matches to the app's name or its configured keywords.
             if (app.getName().equalsIgnoreCase(keyword) ||
                     appConfiguration.getKeywords().stream().anyMatch(keyword::equalsIgnoreCase)) {
                 return app;

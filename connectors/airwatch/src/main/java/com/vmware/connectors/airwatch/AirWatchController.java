@@ -9,8 +9,8 @@ import com.vmware.connectors.airwatch.config.ManagedApp;
 import com.vmware.connectors.airwatch.exceptions.GbAppMapException;
 import com.vmware.connectors.airwatch.exceptions.ManagedAppNotFound;
 import com.vmware.connectors.airwatch.exceptions.UdidException;
-import com.vmware.connectors.airwatch.greenbox.GbApp;
-import com.vmware.connectors.airwatch.greenbox.GbConnection;
+import com.vmware.connectors.airwatch.greenbox.GreenBoxApp;
+import com.vmware.connectors.airwatch.greenbox.GreenBoxConnection;
 import com.vmware.connectors.airwatch.service.AppConfigService;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
@@ -65,12 +65,18 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  */
 @RestController
 public class AirWatchController {
-    private final static Logger logger = LoggerFactory.getLogger(AirWatchController.class);
+    private static final Logger logger = LoggerFactory.getLogger(AirWatchController.class);
+
     private static final String AIRWATCH_AUTH_HEADER = "Authorization";
     private static final String AIRWATCH_BASE_URL_HEADER = "x-airwatch-base-url";
-    private final static String ROUTING_PREFIX = "x-routing-prefix";
-    private final static String AW_USER_NOT_ASSOCIATED_WITH_UDID = "1001";
-    private final static String AW_UDID_NOT_RESOLVED = "1002";
+    private static final String ROUTING_PREFIX = "x-routing-prefix";
+
+    private static final String AW_USER_NOT_ASSOCIATED_WITH_UDID = "1001";
+    private static final String AW_UDID_NOT_RESOLVED = "1002";
+
+    private static final String APP_NAME_KEY = "app_name";
+    private static final String UDID_KEY = "udid";
+    private static final String PLATFORM_KEY = "platform";
 
     private final AsyncRestOperations rest;
 
@@ -99,16 +105,17 @@ public class AirWatchController {
         return ResponseEntity.ok(connectorMetadata);
     }
 
-    @PostMapping(path = "/cards/requests", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/cards/requests",
+            produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public Single<ResponseEntity<Cards>> getCards(
             @RequestHeader(name = AIRWATCH_AUTH_HEADER) String awAuth,
             @RequestHeader(name = AIRWATCH_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(name = ROUTING_PREFIX) String routingPrefix,
             @Valid @RequestBody CardRequest cardRequest) {
 
-        String udid = cardRequest.getTokenSingleValue("udid");
-        String clientPlatform = cardRequest.getTokenSingleValue("platform");
-        Set<String> appKeywords = cardRequest.getTokens("app_name");
+        String udid = cardRequest.getTokenSingleValue(UDID_KEY);
+        String clientPlatform = cardRequest.getTokenSingleValue(PLATFORM_KEY);
+        Set<String> appKeywords = cardRequest.getTokens("app_keywords");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(AUTHORIZATION, awAuth);
@@ -119,7 +126,8 @@ public class AirWatchController {
                 .collect(Collectors.toSet());
 
         return Observable.from(apps)
-                .flatMap(app -> getCardForApp(headers, baseUrl, udid, app, routingPrefix, clientPlatform))
+                .flatMap(app -> getCardForApp(headers, baseUrl, udid,
+                        app, routingPrefix, clientPlatform))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .map(ResponseEntity::ok)
                 .toSingle();
@@ -128,9 +136,9 @@ public class AirWatchController {
     @PostMapping(value = "/mdm/app/install", consumes = APPLICATION_FORM_URLENCODED_VALUE)
     public Single<ResponseEntity<HttpStatus>> installApp(
             @RequestHeader(name = AIRWATCH_AUTH_HEADER) String awAuth,
-            @RequestParam("app_name") String appName,
-            @RequestParam("udid") String udid,
-            @RequestParam("platform") String platform) {
+            @RequestParam(APP_NAME_KEY) String appName,
+            @RequestParam(UDID_KEY) String udid,
+            @RequestParam(PLATFORM_KEY) String platform) {
 
         ManagedApp app = appConfig.findManagedApp(appName, platform);
         if (app == null) {
@@ -140,7 +148,7 @@ public class AirWatchController {
         String hznToken = awAuth.split("(?i)Bearer ")[1];
         return getEucToken(gbBaseUri, udid, platform, hznToken)
                 .flatMap(eucToken -> getGbConnection(gbBaseUri, eucToken))
-                .flatMap(gbConnection -> installApp(appName, gbConnection));
+                .flatMap(greenBoxConnection -> installGbAppByName(appName, greenBoxConnection));
     }
 
     @ExceptionHandler({UdidException.class, ManagedAppNotFound.class, GbAppMapException.class})
@@ -216,9 +224,9 @@ public class AirWatchController {
         actionBuilder.setLabel(cardTextAccessor.getActionLabel("installApp"))
                 .setActionKey(CardActionKey.DIRECT)
                 .setUrl(routingPrefix + "/mdm/app/install")
-                .addRequestParam("app_name", appName)
-                .addRequestParam("udid", udid)
-                .addRequestParam("platform", platform)
+                .addRequestParam(APP_NAME_KEY, appName)
+                .addRequestParam(UDID_KEY, udid)
+                .addRequestParam(PLATFORM_KEY, platform)
                 .setType(HttpMethod.POST);
         return actionBuilder;
     }
@@ -241,22 +249,25 @@ public class AirWatchController {
                 .map(entity -> entity.getBody().read("$.eucToken"));
     }
 
-    private Single<GbConnection> getGbConnection(URI gbBaseUri, String eucToken) {
+    private Single<GreenBoxConnection> getGbConnection(URI gbBaseUri, String eucToken) {
         logger.trace("getGbConnection called: GreenBox base url={}", gbBaseUri.toString());
         return getCsrfToken(gbBaseUri, eucToken)
-                .map(csrfToken -> new GbConnection(gbBaseUri, eucToken, csrfToken));
+                .map(csrfToken -> new GreenBoxConnection(gbBaseUri, eucToken, csrfToken));
     }
 
-    private Single<ResponseEntity<HttpStatus>> installApp(String gbAppName, GbConnection gbSession) {
-        logger.trace("installApp called: GreenBox app name={} Base url={}", gbAppName, gbSession.getBaseUrl());
+    private Single<ResponseEntity<HttpStatus>> installGbAppByName(
+            String gbAppName, GreenBoxConnection gbSession) {
+        logger.trace("installApp called: GreenBox app name={} Base url={}",
+                gbAppName, gbSession.getBaseUrl());
         return findGbApp(gbAppName, gbSession)
-                .flatMap(gbApp -> installApp(gbApp, gbSession));
+                .flatMap(gbApp -> installGbApp(gbApp, gbSession));
     }
 
-    private Single<GbApp> findGbApp(String appName, GbConnection gbSession) {
+    private Single<GreenBoxApp> findGbApp(String appName, GreenBoxConnection gbSession) {
         /*
-         * Use search API to find GbApp by name.
+         * Use search API to find GreenBox app by name.
          * Make sure response has only one entry.
+         * If by chance it finds more than one app which one should be selected to install ?
          */
         logger.trace("findGbApp called: app name={} GreenBox={}", appName, gbSession.getBaseUrl());
         int RIGHT_APP_COUNT = 1;
@@ -272,21 +283,24 @@ public class AirWatchController {
                 .map(entity -> {
                     JsonDocument document = entity.getBody();
                     JSONArray jsonArray = document.read("$._embedded.entitlements");
-                    logger.debug("Found {} app(s) while searching GreenBox entitlements.", jsonArray.size());
+                    logger.debug("Found {} app(s) while searching GreenBox entitlements.",
+                            jsonArray.size());
                     if (jsonArray.size() != RIGHT_APP_COUNT) {
-                        throw new GbAppMapException("Unable to map " + appName + " to a single GreenBox app");
+                        throw new GbAppMapException(
+                                "Unable to map " + appName + " to a single GreenBox app");
                     }
-                    return new GbApp(
+                    return new GreenBoxApp(
                             document.read("$._embedded.entitlements[0].name"),
                             document.read("$._embedded.entitlements[0]._links.install.href"));
                 });
     }
 
-    private Single<ResponseEntity<HttpStatus>> installApp(GbApp gbApp, GbConnection gbSession) {
+    private Single<ResponseEntity<HttpStatus>> installGbApp(GreenBoxApp gbApp, GreenBoxConnection gbSession) {
         /*
          * It triggers the native mdm app install.
          */
-        logger.trace("installApp called: app name={} link={}", gbApp.getName(), gbApp.getInstallLink());
+        logger.trace("installApp called: app name={} link={}",
+                gbApp.getName(), gbApp.getInstallLink());
         HttpHeaders headers = new HttpHeaders();
         headers.set(COOKIE, "USER_CATALOG_CONTEXT=" + gbSession.getEucToken()
                 + "; EUC_XSRF_TOKEN=" + gbSession.getCsrfToken());
@@ -299,7 +313,8 @@ public class AirWatchController {
                 .map(entity -> {
                     String jobStatus = entity.getBody().read("$.status");
                     if ("PROCESSING".equals(jobStatus)) {
-                        logger.debug("Install action submitted successfully with link {}.", gbApp.getInstallLink());
+                        logger.debug("Install action submitted successfully with link {}.",
+                                gbApp.getInstallLink());
                     }
                     return entity.getStatusCode();
                 })

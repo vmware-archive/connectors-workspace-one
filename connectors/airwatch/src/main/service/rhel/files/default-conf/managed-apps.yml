@@ -12,7 +12,7 @@ airwatch:
 #
 #airwatch:
 #  apps:
-#    - application: Coupa
+#    - app: Coupa
 #      android:
 #        name: Coupa Mobile
 #        id: com.coupa.android.coupamobile
@@ -25,7 +25,7 @@ airwatch:
 #        - travel
 #        - reimburse
 #
-#    - application: LinkedIn
+#    - app: LinkedIn
 #      android:
 #        name: LinkedIn
 #        id: com.linkedin.android

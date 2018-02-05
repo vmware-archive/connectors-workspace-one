@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017 VMware, Inc. All Rights Reserved.
+ * Copyright © 2018 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
@@ -10,7 +10,7 @@ import java.net.URI;
 /**
  * Created by harshas on 01/31/18.
  */
-public class GbConnection {
+public class GreenBoxConnection {
 
     private final URI baseUri;
 
@@ -18,7 +18,7 @@ public class GbConnection {
 
     private final String csrfToken;
 
-    public GbConnection(URI baseUri, String eucToken, String csrfToken) {
+    public GreenBoxConnection(URI baseUri, String eucToken, String csrfToken) {
         this.baseUri = baseUri;
         this.eucToken = eucToken;
         this.csrfToken = csrfToken;
