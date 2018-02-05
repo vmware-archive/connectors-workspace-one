@@ -209,7 +209,7 @@ public class AirWatchController {
 
         cardBuilder
                 .setName("AirWatch")
-                .setTemplate(routingPrefix + "/templates/generic.hbs")
+                .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(cardTextAccessor.getHeader(appName), null)
                 .setBody(cardBodyBuilder.build())
                 .addAction(appInstallActionBuilder.build());
@@ -223,7 +223,7 @@ public class AirWatchController {
         CardAction.Builder actionBuilder = new CardAction.Builder();
         actionBuilder.setLabel(cardTextAccessor.getActionLabel("installApp"))
                 .setActionKey(CardActionKey.DIRECT)
-                .setUrl(routingPrefix + "/mdm/app/install")
+                .setUrl(routingPrefix + "mdm/app/install")
                 .addRequestParam(APP_NAME_KEY, appName)
                 .addRequestParam(UDID_KEY, udid)
                 .addRequestParam(PLATFORM_KEY, platform)

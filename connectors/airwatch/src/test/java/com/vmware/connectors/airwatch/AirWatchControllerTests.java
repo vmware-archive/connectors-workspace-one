@@ -219,7 +219,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-airwatch-base-url", AIRWATCH_BASE_URL)
-                .header("x-routing-prefix", "https://hero/connectors/airwatch")
+                .header("x-routing-prefix", "https://hero/connectors/airwatch/")
                 .content(fromFile("/connector/requests/" + requestfile));
     }
 

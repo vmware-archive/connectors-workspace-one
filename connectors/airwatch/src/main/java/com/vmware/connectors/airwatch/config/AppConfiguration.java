@@ -54,9 +54,9 @@ public class AppConfiguration {
     }
 
     public ManagedApp getApp(String platform) {
-        if ("android".equals(platform)) {
+        if ("android".equalsIgnoreCase(platform)) {
             return android;
-        } else if ("ios".equals(platform)) {
+        } else if ("ios".equalsIgnoreCase(platform)) {
             return ios;
         }
         return null;
