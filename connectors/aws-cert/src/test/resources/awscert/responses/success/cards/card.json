@@ -42,7 +42,7 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Approve",
           "url": {
-            "href": "https://hero/connectors/aws-cert//api/v1/approve"
+            "href": "https://hero/connectors/aws-cert/api/v1/approve"
           },
           "type": "POST",
           "action_key": "DIRECT",
@@ -101,7 +101,7 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Approve",
           "url": {
-            "href": "https://hero/connectors/aws-cert//api/v1/approve"
+            "href": "https://hero/connectors/aws-cert/api/v1/approve"
           },
           "type": "POST",
           "action_key": "DIRECT",
@@ -160,7 +160,7 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Approve",
           "url": {
-            "href": "https://hero/connectors/aws-cert//api/v1/approve"
+            "href": "https://hero/connectors/aws-cert/api/v1/approve"
           },
           "type": "POST",
           "action_key": "DIRECT",
