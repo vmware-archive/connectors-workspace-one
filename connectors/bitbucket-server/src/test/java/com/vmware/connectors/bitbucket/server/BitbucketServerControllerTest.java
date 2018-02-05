@@ -5,8 +5,6 @@
 
 package com.vmware.connectors.bitbucket.server;
 
-import com.google.common.collect.ImmutableList;
-import com.vmware.connectors.bitbucket.server.utils.BitbucketServerAction;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
@@ -22,13 +20,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.vmware.connectors.bitbucket.server.utils.BitbucketServerConstants.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.*;
@@ -41,6 +41,12 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BitbucketServerControllerTest extends ControllerTestsBase {
+
+    private static final String AUTH_HEADER = "X-Connector-Authorization";
+    private static final String BASE_URL_HEADER = "X-Connector-Base-Url";
+    private static final String ROUTING_PREFIX = "x-routing-prefix";
+    private static final String ATLASSIAN_TOKEN = "X-Atlassian-Token";
+    private static final String COMMENT_PARAM_KEY = "comment";
 
     private static final String BITBUCKET_SERVER_AUTH_TOKEN = "bitbucket-token";
 
@@ -60,35 +66,53 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
     @Value("classpath:bitbucket/responses/comments.json")
     private Resource comments;
 
+    @Value("classpath:bitbucket/responses/personal-repo.json")
+    private Resource testRepoPr1;
+
+    @Value("classpath:bitbucket/responses/personal-repo-approved.json")
+    private Resource testRepoPr1Approved;
+
+    @Value("classpath:bitbucket/responses/personal-repo-comments.json")
+    private Resource testRepoPr1Comments;
+
     @ParameterizedTest
     @ValueSource(strings = {
             "/cards/requests",
-            "/api/v1/UFO/app-platform-server/249/approve",
-            "/api/v1/UFO/app-platform-server/249/comments"})
+            "/api/v1/app-platform-server/249/approve",
+            "/api/v1/app-platform-server/249/comments"
+    })
     void testProtectedResources(String uri) throws Exception {
         testProtectedResource(POST, uri);
     }
 
     @Test
-    void testDiscovery() throws Exception {
+    void discovery() throws Exception {
         testConnectorDiscovery();
     }
 
     @Test
-    void testRegex() throws Exception {
-        final List<String> expectedList = ImmutableList.of(
+    void regex() throws Exception {
+        List<String> expectedProjectsRepos = List.of(
                 // Project Name/ Repository Plug/ Pull request id.
                 "UFO/app-platform-server - Pull request #244: ",
                 "UFO/app-platform-server - Pull request #245: ",
                 "UFO/app-platform-server - Pull request #241: ",
                 "UFO/app-platform-server - Pull request #239: ",
+                "JBARD/test-repo - Pull request #1: ", // false positive, but will taken care up by the skip404
                 "UFO/card-connectors - Pull request #9: ");
 
-        testRegex("pr_email_subject", fromFile("/regex/pr-email-subject.txt"), expectedList);
+        testRegex("projects_pr_email_subject", fromFile("/regex/pr-email-subject.txt"), expectedProjectsRepos);
+
+        List<String> expectedUsersRepos = List.of(
+                // Project Name/ Repository Plug/ Pull request id.
+                "JBARD/test-repo - Pull request #1: "
+        );
+
+        testRegex("users_pr_email_subject", fromFile("/regex/pr-email-subject.txt"), expectedUsersRepos);
     }
 
     @Test
-    void getImage()  {
+    void image()  {
         webClient.get()
                 .uri("/images/connector.png")
                 .exchange()
@@ -96,42 +120,46 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .expectHeader().contentLength(11901)
                 .expectHeader().contentType(IMAGE_PNG_VALUE)
                 .expectBody().consumeWith(body -> assertThat(body.getResponseBody(),
-                            equalTo(bytesFromFile("/static/images/connector.png"))));
+                equalTo(bytesFromFile("/static/images/connector.png"))));
     }
 
     @Test
-    void testCardRequestWithEmptyIssue() throws Exception {
+    void cardsEmptyIssue() throws Exception {
         testCardRequests("emptyIssue.json", "emptyIssue.json", null);
     }
 
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            StringUtils.EMPTY + ", success.json",
-            "xx, success_xx.json"})
-    void testRequestCardsSuccess(String lang, String resFile) throws Exception {
+            ", success.json",
+            "xx, success_xx.json"
+    })
+    void cardsSuccess(String lang, String resFile) throws Exception {
         buildRequestForCards();
 
         testCardRequests("request.json", resFile, lang);
     }
 
     private void buildRequestForCards() {
-        final String pr236Url = "/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1;
-        final String pr246Url = "/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_2;
-        final String notFoundUrl = "/rest/api/1.0/projects/UFO/repos/NOT-FOUND/pull-requests/999";
+        String pr236Url = "/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1;
+        String pr246Url = "/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_2;
+        String notFoundUrl = "/rest/api/1.0/projects/UFO/repos/NOT-FOUND/pull-requests/999";
+        String personalRepoPrUrl = "/rest/api/1.0/users/JBARD/repos/test-repo/pull-requests/1";
 
         expect(pr236Url).andRespond(withSuccess(pr236, APPLICATION_JSON));
         expect(pr246Url).andRespond(withSuccess(pr246, APPLICATION_JSON));
         expect(notFoundUrl).andRespond(withStatus(HttpStatus.NOT_FOUND));
+        expect(personalRepoPrUrl).andRespond(withSuccess(testRepoPr1, APPLICATION_JSON));
     }
 
     @ParameterizedTest(name = "{index} ==> ''{0}''")
     @DisplayName("Missing parameter cases")
     @CsvSource({
             "emptyRequest.json, emptyRequest.json",
-            "emptyToken.json, emptyToken.json"})
-    void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
-        requestCard(BITBUCKET_SERVER_AUTH_TOKEN, requestFile)
+            "emptyToken.json, emptyToken.json"
+    })
+    void cardsMissingParameter(String requestFile, String responseFile) throws Exception {
+        requestCard(requestFile)
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
@@ -139,24 +167,73 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testBitbucketServerPRApproveAction() {
-        expect("/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1).andRespond(withSuccess(pr236, APPLICATION_JSON));
+    void approve() {
+        expect("/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1)
+                .andRespond(withSuccess(pr236, APPLICATION_JSON));
 
-        mockBackend.expect(requestTo("/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/" + BitbucketServerAction.APPROVE.getAction() + "?version=10"))
+        mockBackend.expect(requestTo("/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/approve?version=10"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
                 .andExpect(MockRestRequestMatchers.header(ATLASSIAN_TOKEN, "no-check"))
                 .andRespond(withSuccess(approve, APPLICATION_JSON));
 
         webClient.post()
-                .uri("/api/v1/UFO/app-platform-server/236/approve")
+                .uri("/api/v1/app-platform-server/236/approve")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
                 .header(ROUTING_PREFIX, "https://hero/connectors/stash/")
+                .body(BodyInserters.fromFormData("project", "UFO"))
                 .exchange()
                 .expectStatus().isOk();
+    }
+
+    @Test
+    void approvePersonalRepo() {
+        expect("/rest/api/1.0/users/JBARD/repos/test-repo/pull-requests/1")
+                .andRespond(withSuccess(testRepoPr1, APPLICATION_JSON));
+
+        mockBackend.expect(requestTo("/rest/api/1.0/users/JBARD/repos/test-repo/pull-requests/1/approve?version=3"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
+                .andExpect(MockRestRequestMatchers.header(ATLASSIAN_TOKEN, "no-check"))
+                .andRespond(withSuccess(testRepoPr1Approved, APPLICATION_JSON));
+
+        webClient.post()
+                .uri("/api/v1/test-repo/1/approve")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
+                .header(BASE_URL_HEADER, mockBackend.url(""))
+                .header(ROUTING_PREFIX, "https://hero/connectors/stash/")
+                .body(BodyInserters.fromFormData("user", "JBARD"))
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    void approvePersonalRepoUnallowed() {
+        expect("/rest/api/1.0/users/JBARD/repos/test-repo/pull-requests/1")
+                .andRespond(withSuccess(testRepoPr1, APPLICATION_JSON));
+
+        mockBackend.expect(requestTo("/rest/api/1.0/users/JBARD/repos/test-repo/pull-requests/1/approve?version=3"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
+                .andExpect(MockRestRequestMatchers.header(ATLASSIAN_TOKEN, "no-check"))
+                .andRespond(withBadRequest().contentType(APPLICATION_JSON).body(testRepoPr1Approved));
+
+        webClient.post()
+                .uri("/api/v1/test-repo/1/approve")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
+                .header(BASE_URL_HEADER, mockBackend.url(""))
+                .header(ROUTING_PREFIX, "https://hero/connectors/stash/")
+                .body(BodyInserters.fromFormData("user", "JBARD"))
+                .exchange()
+                .expectStatus().is5xxServerError()
+                .expectHeader().valueEquals("X-Backend-Status", "400");
     }
 
     @Test
@@ -167,13 +244,44 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.header(CONTENT_TYPE, APPLICATION_JSON_VALUE))
                 .andRespond(withSuccess(comments, APPLICATION_JSON));
 
+        Map<String, List<String>> payload = Map.of(
+                "project", List.of("UFO"),
+                COMMENT_PARAM_KEY, List.of("Pull request comment")
+        );
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>(payload);
+
         webClient.post()
-                .uri("/api/v1/UFO/app-platform-server/236/comments")
+                .uri("/api/v1/app-platform-server/236/comments")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
-                .body(BodyInserters.fromFormData(COMMENT_PARAM_KEY, "Pull request comment"))
+                .body(BodyInserters.fromFormData(formData))
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    void commentPersonalRepo() {
+        mockBackend.expect(requestTo("/rest/api/1.0/users/JBARD/repos/test-repo/pull-requests/1/comments"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
+                .andExpect(MockRestRequestMatchers.header(CONTENT_TYPE, APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(testRepoPr1Comments, APPLICATION_JSON));
+
+        Map<String, List<String>> payload = Map.of(
+                "user", List.of("JBARD"),
+                COMMENT_PARAM_KEY, List.of("Pull request comment")
+        );
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>(payload);
+
+        webClient.post()
+                .uri("/api/v1/test-repo/1/comments")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
+                .header(BASE_URL_HEADER, mockBackend.url(""))
+                .body(BodyInserters.fromFormData(formData))
                 .exchange()
                 .expectStatus().isOk();
     }
@@ -195,7 +303,7 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testAuthFail() {
+    void testAuthFailure() {
         mockBackend.expect(requestTo("/rest/api/1.0/dashboard/pull-request-suggestions?limit=1"))
                 .andExpect(method(HEAD))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
@@ -211,10 +319,8 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .expectHeader().valueEquals("x-backend-status", "401");
     }
 
-    private void testCardRequests(final String requestFile,
-                                  final String responseFile,
-                                  final String acceptLanguage) throws Exception {
-        final WebTestClient.RequestHeadersSpec spec = requestCard(BITBUCKET_SERVER_AUTH_TOKEN, requestFile);
+    private void testCardRequests(String requestFile, String responseFile, String acceptLanguage) throws Exception {
+        WebTestClient.RequestHeadersSpec spec = requestCard(requestFile);
         if (StringUtils.isNotBlank(acceptLanguage)) {
             spec.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
@@ -227,23 +333,24 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .map(JsonNormalizer::forCards)
                 .block();
         body = body.replaceAll("[a-z0-9]{40,}", "test-hash");
+        System.err.println("\n\n\n" + body + "\n\n\n");
         assertThat(body,  sameJSONAs(fromFile("bitbucket/responses/" + responseFile)).allowingAnyArrayOrdering());
     }
 
-    private WebTestClient.RequestHeadersSpec<?> requestCard(final String authToken, final String requestFile) throws IOException {
-            return webClient.post()
+    private WebTestClient.RequestHeadersSpec<?> requestCard(String requestFile) throws IOException {
+        return webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header(AUTH_HEADER, "Basic " + authToken)
+                .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
                 .header(ROUTING_PREFIX, "https://hero/connectors/stash/")
                 .headers(ControllerTestsBase::headers)
                 .syncBody(fromFile("/bitbucket/requests/" + requestFile));
     }
 
-    private ResponseActions expect(final String url) {
+    private ResponseActions expect(String url) {
         return mockBackend.expect(requestTo(url))
                 .andExpect(method(GET))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic bitbucket-token"));
