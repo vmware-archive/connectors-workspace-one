@@ -52,6 +52,11 @@ public class ServiceNowController {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceNowController.class);
 
+    /**
+     * The JsonPath prefix for the ServiceNow results.
+     */
+    private static final String RESULT_PREFIX = "$.result.";
+
     private static final String AUTH_HEADER = "x-servicenow-authorization";
     private static final String BASE_URL_HEADER = "x-servicenow-base-url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
@@ -131,7 +136,8 @@ public class ServiceNowController {
         return callForUserSysId(baseUrl, email, httpHeaders)
                 .flatMap(userSysId -> callForApprovalRequests(baseUrl, httpHeaders, userSysId))
                 .flatMapObservable(approvalRequests -> callForAllRequestNumbers(baseUrl, httpHeaders, approvalRequests))
-                .filter(info -> requestNumbers.contains(info.getNumber()))
+                .filter(info -> requestNumbers.contains(info.getInfo().getNumber()))
+                .flatMap(approvalRequestWithInfo -> callForAndAggregateRequestedItems(baseUrl, httpHeaders, approvalRequestWithInfo))
                 .reduce(
                         new Cards(),
                         (cards, info) -> appendCard(cards, info, routingPrefix)
@@ -244,7 +250,7 @@ public class ServiceNowController {
         );
     }
 
-    private Observable<ApprovalRequestWithNumber> callForAllRequestNumbers(
+    private Observable<ApprovalRequestWithInfo> callForAllRequestNumbers(
             String baseUrl,
             HttpEntity<HttpHeaders> headers,
             List<ApprovalRequest> approvalRequests
@@ -252,30 +258,31 @@ public class ServiceNowController {
         logger.trace("callForAllRequestNumbers called: baseUrl={}, approvalRequests={}", baseUrl, approvalRequests);
 
         return Observable.from(approvalRequests)
-                .flatMap(approvalRequest -> callForAndAggregateRequestNumber(baseUrl, headers, approvalRequest));
+                .flatMap(approvalRequest -> callForAndAggregateRequestInfo(baseUrl, headers, approvalRequest));
     }
 
-    private Observable<ApprovalRequestWithNumber> callForAndAggregateRequestNumber(
+    private Observable<ApprovalRequestWithInfo> callForAndAggregateRequestInfo(
             String baseUrl,
             HttpEntity<HttpHeaders> headers,
             ApprovalRequest approvalRequest
     ) {
-        logger.trace("callForAndAggregateRequestNumber called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
+        logger.trace("callForAndAggregateRequestInfo called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
 
-        return callForRequestNumber(baseUrl, headers, approvalRequest)
+        return callForRequestInfo(baseUrl, headers, approvalRequest)
                 .toObservable()
-                .map(requestNumber -> new ApprovalRequestWithNumber(approvalRequest, requestNumber));
+                .map(requestNumber -> new ApprovalRequestWithInfo(approvalRequest, requestNumber));
     }
 
-    private Single<String> callForRequestNumber(
+    private Single<Request> callForRequestInfo(
             String baseUrl,
             HttpEntity<HttpHeaders> headers,
             ApprovalRequest approvalRequest
     ) {
-        logger.trace("callForRequestNumber called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
+        logger.trace("callForRequestInfo called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
 
         String fields = joinFields(
                 ScRequest.Fields.SYS_ID,
+                ScRequest.Fields.PRICE,
                 ScRequest.Fields.NUMBER
         );
 
@@ -296,10 +303,79 @@ public class ServiceNowController {
         );
 
         return Async.toSingle(response)
-                .map(reqNumResponse -> reqNumResponse.getBody().read("$.result." + ScRequest.Fields.NUMBER)); // NOPMD: a constant would make this harder to read
+                .map(
+                        reqInfoResponse ->
+                                new Request(
+                                        reqInfoResponse.getBody().read(RESULT_PREFIX + ScRequest.Fields.NUMBER),
+                                        reqInfoResponse.getBody().read(RESULT_PREFIX + ScRequest.Fields.PRICE)
+                                )
+                );
     }
 
-    private Cards appendCard(Cards cards, ApprovalRequestWithNumber info, String routingPrefix) {
+    private Observable<ApprovalRequestWithItems> callForAndAggregateRequestedItems(
+            String baseUrl,
+            HttpEntity<HttpHeaders> headers,
+            ApprovalRequestWithInfo approvalRequest
+    ) {
+        logger.trace("callForAndAggregateRequestedItems called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
+
+        return callForRequestedItems(baseUrl, headers, approvalRequest)
+                .toObservable()
+                .map(items -> new ApprovalRequestWithItems(approvalRequest, items));
+    }
+
+    private Single<List<RequestedItem>> callForRequestedItems(
+            String baseUrl,
+            HttpEntity<HttpHeaders> headers,
+            ApprovalRequestWithInfo approvalRequest
+    ) {
+        logger.trace("callForRequestedItems called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
+
+        String fields = joinFields(
+                ScRequestedItem.Fields.SYS_ID,
+                ScRequestedItem.Fields.PRICE,
+                ScRequestedItem.Fields.REQUEST,
+                ScRequestedItem.Fields.SHORT_DESCRIPTION,
+                ScRequestedItem.Fields.QUANTITY
+        );
+
+        ListenableFuture<ResponseEntity<JsonDocument>> response = rest.exchange(
+                UriComponentsBuilder.fromHttpUrl(baseUrl + "/api/now/table/{scTableName}")
+                        .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
+                        .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
+                        .queryParam(ScRequestedItem.Fields.REQUEST.toString(), approvalRequest.getApprovalSysId())
+                        .buildAndExpand(
+                                ImmutableMap.of(
+                                        "scTableName", ScRequestedItem.TABLE_NAME
+                                )
+                        )
+                        .encode()
+                        .toUri(),
+                HttpMethod.GET,
+                headers,
+                JsonDocument.class
+        );
+
+        return Async.toSingle(response)
+                .map(itemsResponse -> itemsResponse.getBody().<List<Map<String, Object>>>read("$.result[*]"))
+                .map(results -> results.stream().map(this::convertJsonDocToRequestedItem).collect(Collectors.toList()));
+    }
+
+    private RequestedItem convertJsonDocToRequestedItem(
+            Map<String, Object> result
+    ) {
+        logger.trace("convertJsonDocToApprovalReq called: result={}", result);
+
+        return new RequestedItem(
+                (String) result.get(ScRequestedItem.Fields.SYS_ID.toString()),
+                ((Map<String, String>) result.get(ScRequestedItem.Fields.REQUEST.toString())).get("value"),
+                (String) result.get(ScRequestedItem.Fields.SHORT_DESCRIPTION.toString()),
+                (String) result.get(ScRequestedItem.Fields.PRICE.toString()),
+                (String) result.get(ScRequestedItem.Fields.QUANTITY.toString())
+        );
+    }
+
+    private Cards appendCard(Cards cards, ApprovalRequestWithItems info, String routingPrefix) {
         logger.trace("appendCard called: cards={}, info={}, routingPrefix={}", cards, info, routingPrefix);
 
         cards.getCards().add(
@@ -314,46 +390,15 @@ public class ServiceNowController {
 
     private Card makeCard(
             String routingPrefix,
-            ApprovalRequestWithNumber info
+            ApprovalRequestWithItems info
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 
         return new Card.Builder()
                 .setName("ServiceNow") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getHeader(info.getNumber()), cardTextAccessor.getMessage("subtitle"))
-                .setBody(
-                        new CardBody.Builder()
-                                .setDescription(
-                                        cardTextAccessor.getBody(
-                                                info.getNumber(),
-                                                info.getCreatedBy(),
-                                                info.getDueDate()
-                                        )
-                                )
-                                .addField(
-                                        new CardBodyField.Builder()
-                                                .setTitle(cardTextAccessor.getMessage("requestNumber.title"))
-                                                .setType(CardBodyFieldType.GENERAL)
-                                                .setDescription(cardTextAccessor.getMessage("requestNumber.description", info.getNumber()))
-                                                .build()
-                                )
-                                .addField(
-                                        new CardBodyField.Builder()
-                                                .setTitle(cardTextAccessor.getMessage("createdBy.title"))
-                                                .setType(CardBodyFieldType.GENERAL)
-                                                .setDescription(cardTextAccessor.getMessage("createdBy.description", info.getCreatedBy()))
-                                                .build()
-                                )
-                                .addField(
-                                        new CardBodyField.Builder()
-                                                .setTitle(cardTextAccessor.getMessage("dueDate.title"))
-                                                .setType(CardBodyFieldType.GENERAL)
-                                                .setDescription(cardTextAccessor.getMessage("dueDate.description", info.getDueDate()))
-                                                .build()
-                                )
-                                .build()
-                )
+                .setHeader(cardTextAccessor.getHeader(info.getInfo().getNumber()), null)
+                .setBody(makeBody(info))
                 .addAction(
                         new CardAction.Builder()
                                 .setLabel(cardTextAccessor.getActionLabel("approve"))
@@ -379,6 +424,52 @@ public class ServiceNowController {
                                 )
                                 .build()
                 )
+                .build();
+    }
+
+    private CardBody makeBody(
+            ApprovalRequestWithItems info
+    ) {
+        CardBody.Builder body = new CardBody.Builder()
+                .addField(
+                        new CardBodyField.Builder()
+                                .setTitle(cardTextAccessor.getMessage("totalPrice.title"))
+                                .setType(CardBodyFieldType.GENERAL)
+                                .setDescription(cardTextAccessor.getMessage("totalPrice.description", info.getInfo().getTotalPrice()))
+                                .build()
+                )
+                .addField(
+                        new CardBodyField.Builder()
+                                .setTitle(cardTextAccessor.getMessage("createdBy.title"))
+                                .setType(CardBodyFieldType.GENERAL)
+                                .setDescription(cardTextAccessor.getMessage("createdBy.description", info.getCreatedBy()))
+                                .build()
+                )
+                .addField(
+                        new CardBodyField.Builder()
+                                .setTitle(cardTextAccessor.getMessage("dueDate.title"))
+                                .setType(CardBodyFieldType.GENERAL)
+                                .setDescription(cardTextAccessor.getMessage("dueDate.description", info.getDueDate()))
+                                .build()
+                );
+
+
+        CardBodyField.Builder itemsBuilder = new CardBodyField.Builder()
+                .setTitle(cardTextAccessor.getMessage("items.title"))
+                .setType(CardBodyFieldType.COMMENT);
+
+        for (RequestedItem item : info.getItems()) {
+            String lineItem = cardTextAccessor.getMessage(
+                    "items.line",
+                    item.getShortDescription(),
+                    item.getQuantity(),
+                    item.getPrice()
+            );
+            itemsBuilder.addContent(ImmutableMap.of("text", lineItem));
+        }
+
+        return body
+                .addField(itemsBuilder.build())
                 .build();
     }
 
@@ -445,9 +536,9 @@ public class ServiceNowController {
         return Async.toSingle(response)
                 .map(ResponseEntity::getBody)
                 .map(data -> ImmutableMap.of(
-                        "approval_sys_id", data.read("$.result." + SysApprovalApprover.Fields.SYS_ID), // NOPMD: a constant would make this harder to read
-                        "approval_state", data.read("$.result." + SysApprovalApprover.Fields.STATE), // NOPMD:: a constant would make this harder to read
-                        "approval_comments", data.read("$.result." + SysApprovalApprover.Fields.COMMENTS) // NOPMD:: a constant would make this harder to read
+                        "approval_sys_id", data.read(RESULT_PREFIX + SysApprovalApprover.Fields.SYS_ID),
+                        "approval_state", data.read(RESULT_PREFIX + SysApprovalApprover.Fields.STATE),
+                        "approval_comments", data.read(RESULT_PREFIX + SysApprovalApprover.Fields.COMMENTS)
                 ))
                 .map(ResponseEntity::ok);
     }

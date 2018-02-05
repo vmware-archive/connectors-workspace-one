@@ -8,9 +8,9 @@ package com.vmware.connectors.servicenow;
 /**
  * A class to hold API information (fields, states, etc.) for ServiceNow's sysapproval_approver table.
  */
-public final class SysApprovalApprover {
+final class SysApprovalApprover {
 
-    public enum Fields {
+    enum Fields {
 
         /**
          * The system id for an item in the sysapproval_approver table.
@@ -82,7 +82,7 @@ public final class SysApprovalApprover {
 
     }
 
-    public enum States {
+    enum States {
 
         /**
          * The approval request has been submitted, but not approved or rejected yet.
@@ -115,7 +115,7 @@ public final class SysApprovalApprover {
     /**
      * The name of the table for approval requests in ServiceNow.
      */
-    public static final String TABLE_NAME = "sysapproval_approver";
+    static final String TABLE_NAME = "sysapproval_approver";
 
     private SysApprovalApprover() {
         // empty: utility class

@@ -8,9 +8,9 @@ package com.vmware.connectors.servicenow;
 /**
  * A class to hold API information (fields, states, etc.) for ServiceNow's sys_user table.
  */
-public final class SysUser {
+final class SysUser {
 
-    public enum Fields {
+    enum Fields {
 
         /**
          * The system id for an item in the sys_user table.
@@ -49,7 +49,7 @@ public final class SysUser {
     /**
      * The name of the user table in ServiceNow.
      */
-    public static final String TABLE_NAME = "sys_user";
+    static final String TABLE_NAME = "sys_user";
 
     private SysUser() {
         // empty: utility class

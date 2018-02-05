@@ -186,20 +186,30 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/approval-requests.json"), APPLICATION_JSON));
 
-        mockServiceNow.expect(requestTo("https://snow.acme.com/api/now/table/sc_request/test-sc-request-id-1?sysparm_fields=sys_id,number"))
+        mockServiceNow.expect(requestTo("https://snow.acme.com/api/now/table/sc_request/test-sc-request-id-1?sysparm_fields=sys_id,price,number"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/request-1.json"), APPLICATION_JSON));
 
-        mockServiceNow.expect(requestTo("https://snow.acme.com/api/now/table/sc_request/test-sc-request-id-2?sysparm_fields=sys_id,number"))
+        mockServiceNow.expect(requestTo("https://snow.acme.com/api/now/table/sc_request/test-sc-request-id-2?sysparm_fields=sys_id,price,number"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/request-2.json"), APPLICATION_JSON));
 
-        mockServiceNow.expect(requestTo("https://snow.acme.com/api/now/table/sc_request/test-sc-request-id-3?sysparm_fields=sys_id,number"))
+        mockServiceNow.expect(requestTo("https://snow.acme.com/api/now/table/sc_request/test-sc-request-id-3?sysparm_fields=sys_id,price,number"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/request-3.json"), APPLICATION_JSON));
+
+        mockServiceNow.expect(requestTo("https://snow.acme.com/api/now/table/sc_req_item?sysparm_fields=sys_id,price,request,short_description,quantity&sysparm_limit=10000&request=test-sc-request-id-2"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("/servicenow/fake/requested-items-2.json"), APPLICATION_JSON));
+
+        mockServiceNow.expect(requestTo("https://snow.acme.com/api/now/table/sc_req_item?sysparm_fields=sys_id,price,request,short_description,quantity&sysparm_limit=10000&request=test-sc-request-id-3"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("/servicenow/fake/requested-items-3.json"), APPLICATION_JSON));
     }
 
     @Test
