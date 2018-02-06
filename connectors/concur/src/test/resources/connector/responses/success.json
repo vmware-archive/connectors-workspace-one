@@ -14,27 +14,38 @@
         "fields": [
           {
             "type": "GENERAL",
-            "title": "Report To",
-            "description": "Anshul Sharma"
+            "title": "Approval status",
+            "description": "Submitted & Pending Approval"
           },
           {
             "type": "GENERAL",
             "title": "Report From",
-            "description": "Sudharsan Sathiamoorthy"
+            "description": "Ajmera, Rahul"
           },
           {
             "type": "GENERAL",
             "title": "Report Purpose",
-            "description": "Starbucks"
+            "description": "Concur"
           },
           {
             "type": "GENERAL",
             "title": "Report Amount",
-            "description": "1500"
+            "description": "10000.00000000"
           }
         ]
       },
       "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Open",
+          "url": {
+            "href": "https://implementation.concursolutions.com"
+          },
+          "type": "GET",
+          "action_key": "OPEN_IN",
+          "request": {},
+          "user_input": []
+        },
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Approve",
@@ -43,15 +54,15 @@
           },
           "type": "POST",
           "action_key": "USER_INPUT",
-          "request": {
-          },
+          "request": {},
           "user_input": [
             {
               "id": "reason",
               "label": "Reason for approval",
               "min_length": 1
             }
-          ]
+          ],
+          "completed_label": "Approved"
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -61,29 +72,15 @@
           },
           "type": "POST",
           "action_key": "USER_INPUT",
-          "request": {
-          },
+          "request": {},
           "user_input": [
             {
               "id": "reason",
               "label": "Reason for rejection",
               "min_length": 1
             }
-          ]
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Open",
-          "url": {
-            "href": "https://concursolutions.com"
-          },
-          "type": "GET",
-          "action_key": "OPEN_IN",
-          "request": {
-          },
-          "user_input": [
-
-          ]
+          ],
+          "completed_label": "Rejected"
         }
       ]
     },
@@ -101,76 +98,37 @@
         "fields": [
           {
             "type": "GENERAL",
-            "title": "Report To",
-            "description": "Anshul Sharma"
+            "title": "Approval status",
+            "description": "Approved"
           },
           {
             "type": "GENERAL",
             "title": "Report From",
-            "description": "Sudharsan Sathiamoorthy"
+            "description": "Ajmera, Rahul"
           },
           {
             "type": "GENERAL",
             "title": "Report Purpose",
-            "description": "Hotel expenses"
+            "description": "Concur"
           },
           {
             "type": "GENERAL",
             "title": "Report Amount",
-            "description": "1900"
+            "description": "10000.00000000"
           }
         ]
       },
       "actions": [
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Approve",
-          "url": {
-            "href": "https://hero/connectors/concur/api/expense/approve/F49BD54084CE4C09BD65"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {
-          },
-          "user_input": [
-            {
-              "id": "reason",
-              "label": "Reason for approval",
-              "min_length": 1
-            }
-          ]
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Reject",
-          "url": {
-            "href": "https://hero/connectors/concur/api/expense/reject/F49BD54084CE4C09BD65"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {
-          },
-          "user_input": [
-            {
-              "id": "reason",
-              "label": "Reason for rejection",
-              "min_length": 1
-            }
-          ]
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
           "label": "Open",
           "url": {
-            "href": "https://concursolutions.com"
+            "href": "https://implementation.concursolutions.com"
           },
           "type": "GET",
           "action_key": "OPEN_IN",
-          "request": {
-          },
-          "user_input": [
-
-          ]
+          "request": {},
+          "user_input": []
         }
       ]
     }

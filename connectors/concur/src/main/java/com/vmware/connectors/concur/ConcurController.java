@@ -11,12 +11,14 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.ObservableUtil;
-import com.vmware.connectors.concur.response.ConcurResponse;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.*;
@@ -32,12 +34,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import static com.vmware.connectors.concur.ConcurConstants.ConcurActions.*;
+import static com.vmware.connectors.concur.ConcurConstants.ConcurRequestActions.*;
+import static com.vmware.connectors.concur.ConcurConstants.ConcurResponseActions.SUBMITTED_AND_PENDING_APPROVAL;
 import static com.vmware.connectors.concur.ConcurConstants.Fields.EXPENSE_REPORT_ID;
 import static com.vmware.connectors.concur.ConcurConstants.Header.*;
 import static com.vmware.connectors.concur.ConcurConstants.RequestParam.REASON;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.http.ResponseEntity.status;
 
@@ -66,12 +68,13 @@ public class ConcurController {
 
         final Set<String> expenseReportIds = cardRequest.getTokens(EXPENSE_REPORT_ID);
         if (CollectionUtils.isEmpty(expenseReportIds)) {
-            logger.debug("Expense report ids are empty for the base URL: {} ", baseUrl);
+            logger.info("Expense report ids are empty for the base URL: {} ", baseUrl);
             return Single.just(ResponseEntity.ok(new Cards()));
         }
 
         final HttpHeaders headers = new HttpHeaders();
         headers.set(AUTHORIZATION, authHeader);
+        headers.set(ACCEPT, APPLICATION_JSON_VALUE);
 
         return Observable.from(expenseReportIds)
                 .flatMap(expenseReportId -> getCardsForExpenseReport(headers, expenseReportId, baseUrl, routingPrefix))
@@ -83,51 +86,54 @@ public class ConcurController {
     @PostMapping(path = "/api/expense/approve/{expenseReportId}",
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    public Single<ResponseEntity<Void>> approveRequest(
+    public Single<ResponseEntity<String>> approveRequest(
             @RequestHeader(name = AUTHORIZATION_HEADER) final String authHeader,
             @RequestHeader(name = BACKEND_BASE_URL_HEADER) final String baseUrl,
             @RequestParam(name = REASON) final String reason,
             @PathVariable(name = ConcurConstants.PathVariable.EXPENSE_REPORT_ID) final String workflowstepId) throws IOException, ExecutionException, InterruptedException {
         logger.info("Approving the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
 
-        return makeConcurRequest(baseUrl, reason, workflowstepId, authHeader, APPROVE);
+        return makeConcurActionRequest(baseUrl, reason, workflowstepId, authHeader, APPROVE);
     }
 
     @PostMapping(path = "/api/expense/reject/{expenseReportId}",
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE)
-    public Single<ResponseEntity<Void>> rejectRequest(
+    public Single<ResponseEntity<String>> rejectRequest(
             @RequestHeader(name = AUTHORIZATION_HEADER) final String authHeader,
             @RequestHeader(name = BACKEND_BASE_URL_HEADER) final String baseUrl,
             @RequestParam(name = REASON) final String reason,
             @PathVariable(name = ConcurConstants.PathVariable.EXPENSE_REPORT_ID) final String workflowstepId) throws IOException, ExecutionException, InterruptedException {
         logger.info("Rejecting the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
 
-        return makeConcurRequest(baseUrl, reason, workflowstepId, authHeader, REJECT);
+        return makeConcurActionRequest(baseUrl, reason, workflowstepId, authHeader, REJECT);
     }
 
-    private Single<ResponseEntity<Void>> makeConcurRequest(final String baseUrl,
-                                                           final String reason,
-                                                           final String workflowstepId,
-                                                           final String authHeader,
-                                                           final String concurAction) throws IOException, ExecutionException, InterruptedException {
+    private Single<ResponseEntity<String>> makeConcurActionRequest(final String baseUrl,
+                                                                 final String reason,
+                                                                 final String reportID,
+                                                                 final String authHeader,
+                                                                 final String concurAction) throws IOException, ExecutionException, InterruptedException {
         final HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION, authHeader);
         headers.add(CONTENT_TYPE, APPLICATION_XML_VALUE);
+        headers.add(ACCEPT, APPLICATION_JSON_VALUE);
 
         // Replace the placeholder in concur request template with appropriate action and comment.
         final String concurRequestTemplate = getConcurRequestTemplate(reason, concurAction);
 
-        final ListenableFuture<ResponseEntity<ConcurResponse>> response = rest.exchange("{baseUrl}/api/expense/expensereport/v1.1/report/{workflowstepId}/workflowaction",
-                HttpMethod.POST,
-                new HttpEntity<>(concurRequestTemplate, headers),
-                ConcurResponse.class,
-                baseUrl,
-                workflowstepId);
+        return getWorkFlowActionUrl(headers, reportID, baseUrl)
+                .flatMap(workflowActionUrl -> {
+                    final ListenableFuture<ResponseEntity<String>> response = rest.exchange(workflowActionUrl,
+                            HttpMethod.POST,
+                            new HttpEntity<>(concurRequestTemplate, headers),
+                            String.class,
+                            baseUrl,
+                            reportID);
 
-        logger.info("Concur response : {} and the response code is : {} ", response.get().getBody(), response.get().getStatusCode());
-        return Async.toSingle(response)
-                .map(entity -> status(entity.getStatusCode()).build());
+                    return Async.toSingle(response)
+                            .map(entity -> status(entity.getStatusCode()).build());
+                });
     }
 
     private String getConcurRequestTemplate(final String reason,
@@ -143,19 +149,33 @@ public class ConcurController {
                                                       final String id,
                                                       final String baseUrl,
                                                       final String routingPrefix) {
-        logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
+        logger.info("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
-        final ListenableFuture<ResponseEntity<JsonDocument>> result = this.rest.exchange("{baseUrl}/expense/reports/{id}",
+        final Single<ResponseEntity<JsonDocument>> result = getReportDetails(headers, id, baseUrl);
+
+        return result
+                .toObservable()
+                .onErrorResumeNext(ObservableUtil::skip404)
+                .map(entity -> convertResponseIntoCard(entity, baseUrl, id, routingPrefix));
+    }
+
+    private Single<ResponseEntity<JsonDocument>> getReportDetails(HttpHeaders headers, String id, String baseUrl) {
+        final ListenableFuture<ResponseEntity<JsonDocument>> result = this.rest.exchange("{baseUrl}/api/expense/expensereport/v2.0/report/{id}",
                 HttpMethod.GET,
                 new HttpEntity<String>(headers),
                 JsonDocument.class,
                 baseUrl,
                 id);
+        return Async.toSingle(result);
+    }
 
-        return Async.toSingle(result)
-                .toObservable()
-                .onErrorResumeNext(ObservableUtil::skip404)
-                .map(entity -> convertResponseIntoCard(entity, baseUrl, id, routingPrefix));
+    private Single<String> getWorkFlowActionUrl(final HttpHeaders headers,
+                                                final String id,
+                                                final String baseUrl) {
+        final Single<ResponseEntity<JsonDocument>> result = getReportDetails(headers, id, baseUrl);
+
+        return result.map(ResponseEntity::getBody)
+                .map(jsonDocument -> jsonDocument.read("$.WorkflowActionURL"));
     }
 
     private Card convertResponseIntoCard(final ResponseEntity<JsonDocument> entity,
@@ -164,18 +184,17 @@ public class ConcurController {
                                          final String routingPrefix) {
 
         final JsonDocument response = entity.getBody();
-        final String reportTo = response.read("$.ApproverName");
-        final String reportFrom = response.read("$.OwnerName");
+        final String approvalStatus = response.read("$.ApprovalStatusName");
+        final String reportFrom = response.read("$.EmployeeName");
 
-        // TODO - Verify the actual reponse from the concur and check whether LedgerName is referring to reportPurpose.
-        final String reportPurpose = response.read("$.LedgerName");
-        final Integer reportAmount = response.read("$.TotalClaimedAmount");
+        final String reportPurpose = response.read("$.ReportName");
+        final String reportAmount = response.read("$.ReportTotal");
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
                 .addField(
                         new CardBodyField.Builder()
-                                .setTitle(this.cardTextAccessor.getMessage("concur.report.to"))
-                                .setDescription(reportTo)
+                                .setTitle(this.cardTextAccessor.getMessage("concur.report.status"))
+                                .setDescription(approvalStatus)
                                 .setType(CardBodyFieldType.GENERAL)
                                 .build()
                 )
@@ -196,24 +215,28 @@ public class ConcurController {
                 .addField(
                         new CardBodyField.Builder()
                                 .setTitle(this.cardTextAccessor.getMessage("concur.report.amount"))
-                                .setDescription(String.valueOf(reportAmount))
+                                .setDescription(reportAmount)
                                 .setType(CardBodyFieldType.GENERAL)
                                 .build()
                 );
 
-        CardAction.Builder approveActionBuilder = getApproveActionBuilder(expenseReportId, routingPrefix);
-        CardAction.Builder rejectActionBuilder = getRejectActionBuilder(expenseReportId, routingPrefix);
-        CardAction.Builder openActionBuilder = getOpenActionBuilder(baseUrl);
-
-        return new Card.Builder()
+        final CardAction.Builder openActionBuilder = getOpenActionBuilder(baseUrl);
+        final Card.Builder cardBuilder = new Card.Builder()
                 .setName("Concur")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(cardTextAccessor.getMessage("concur.title"), null)
                 .setBody(cardBodyBuilder.build())
-                .addAction(approveActionBuilder.build())
-                .addAction(rejectActionBuilder.build())
-                .addAction(openActionBuilder.build())
-                .build();
+                .addAction(openActionBuilder.build());
+
+        // Add approve and reject actions only if the approval status is submitted and pending approval.
+        if (SUBMITTED_AND_PENDING_APPROVAL.equalsIgnoreCase(approvalStatus)) {
+            CardAction.Builder approveActionBuilder = getApproveActionBuilder(expenseReportId, routingPrefix);
+            CardAction.Builder rejectActionBuilder = getRejectActionBuilder(expenseReportId, routingPrefix);
+
+            cardBuilder.addAction(approveActionBuilder.build());
+            cardBuilder.addAction(rejectActionBuilder.build());
+        }
+        return cardBuilder.build();
     }
 
     private CardAction.Builder getApproveActionBuilder(final String expenseReportId, final String routingPrefix) {
@@ -222,6 +245,7 @@ public class ConcurController {
         // Approver has to enter the comment to approve the expense request.
         return new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getMessage("concur.approve"))
+                .setCompletedLabel(this.cardTextAccessor.getMessage("concur.approved"))
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
                 .setUrl(routingPrefix + approveUrl)
@@ -240,6 +264,7 @@ public class ConcurController {
         // Approver has to enter the comment to reject the expense request.
         return new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getMessage("concur.reject"))
+                .setCompletedLabel(this.cardTextAccessor.getMessage("concur.rejected"))
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
                 .setUrl(routingPrefix + rejectUrl)
