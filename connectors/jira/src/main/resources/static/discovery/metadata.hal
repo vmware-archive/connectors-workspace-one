@@ -3,7 +3,7 @@
   "backend_base_url_header": "x-jira-base-url",
   "fields": {
     "issue_id": {
-      "regex": "([A-Z]{1,10}-\\d+)"
+      "regex": "[\\W]([A-Z]{1,10}-\\d+)"
     }
   }
 }

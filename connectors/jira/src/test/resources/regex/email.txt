@@ -1,0 +1,47 @@
+Regex test cases for the simulator:
+
+RITM0010001
+
+INC0010003
+
+REQ0010001
+
+ABC-1
+
+ABCDEFGHIJ-123
+
+ABCDEFGHIJK-456
+
+Abc-2
+
+ABC-3A
+
+Please look into ABC-4
+
+Also look into ABC-5.
+
+xABC-6
+
+ABC-7 should be looked into.
+
+1ABC-8
+
+[ABC-9] should show in the list.
+
+ticket-ABC-10 is also good.
+
+So is ABC-11, so it should be in the cards.
+
+Also, we would not like to see ABC-12X but be able to see ABC-13 and ABC-14, to prove that we can match multiple in 1 line, however, that first is not easy to filter out.
+
+And what if multiple share the same non-ticket char: ABC-15x,ABC-16,ABC-17,ABC-18,ABC-19xABC-20
+
+A random link:
+<a href=3Dhttps://u1767173.ct.sendgrid.net/wf/click?upn=3D-2B4Tz=
+as-2FOKnoIDrRSufFUJWZtgpzM1-2BO5OYjxXkF0t4v5xZGGUmn-2BfQtN00MM-2Frmj92-2FViK=
+d0DzsmQ0kVNZ62p7A1eL6J16s-2FxAMWp7preN4RDFmVhdZGW-2FPBMcDvNyV7Nf7GvkrtCoMosX=
+7bqVPU8g-2Brj5TNeH1XV-2Bmx-2FkSWhfONJg4541nzb5VED9Sdrg8eBDTFHaAS3lQHxJIHBQcO=
+5edDKU9F-2FqxNKfeiYoaLUFrTPqIJj5lvSA-2BLEgHtfkmD9LNqlnIIzcjp4nPyrDMSZ1Wot9lh=
+
+A link to a ticket:
+<a href="https://jira-euc.eng.vmware.com/jira/browse/ABC-21">FOO BAR</a>
