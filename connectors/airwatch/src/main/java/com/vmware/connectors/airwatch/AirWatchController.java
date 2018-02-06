@@ -100,7 +100,7 @@ public class AirWatchController {
         this.gbBaseUri = gbBaseUri;
     }
 
-    @GetMapping(path = "/discovery/metadata.hal")
+    @GetMapping(path = "/discovery/metadata.json")
     public ResponseEntity<String> getmetadata() {
         return ResponseEntity.ok(connectorMetadata);
     }

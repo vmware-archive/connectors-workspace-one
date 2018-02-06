@@ -53,7 +53,7 @@ public class ConnectorRootController {
     }
 
     private void addMetadata(ResourceSupport resource, HttpRequest request) {
-        String metadata = UriComponentsBuilder.fromHttpRequest(request).path("/discovery/metadata.hal").build().toUriString();
+        String metadata = UriComponentsBuilder.fromHttpRequest(request).path("/discovery/metadata.json").build().toUriString();
         resource.add(new Link(metadata, "metadata"));
     }
 
