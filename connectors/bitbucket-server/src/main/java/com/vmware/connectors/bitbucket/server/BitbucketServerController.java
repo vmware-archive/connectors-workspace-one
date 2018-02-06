@@ -23,7 +23,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.AsyncRestOperations;
-import org.springframework.web.client.HttpClientErrorException;
 import rx.Observable;
 import rx.Single;
 
@@ -170,28 +169,15 @@ public class BitbucketServerController {
         final HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION, authHeader);
 
-        final ListenableFuture<ResponseEntity<JsonDocument>> response = this.rest.exchange(
-                baseUrl,
-                HttpMethod.GET,
+        final ListenableFuture<ResponseEntity<Void>> response = this.rest.exchange(
+                "{baseUrl}/rest/api/1.0/dashboard/pull-request-suggestions?limit=1",
+                HttpMethod.HEAD,
                 new HttpEntity<>(headers),
-                JsonDocument.class);
+                Void.class,
+                baseUrl);
 
         return Async.toSingle(response)
-                .map(BitbucketServerController::stripBody)
-                .onErrorResumeNext(BitbucketServerController::map404To200);
-    }
-
-    private static ResponseEntity<Void> stripBody(final ResponseEntity<JsonDocument> entity) {
-        return ResponseEntity.status(entity.getStatusCode()).build();
-    }
-
-    private static Single<ResponseEntity<Void>> map404To200(final Throwable throwable) {
-        if (throwable instanceof HttpClientErrorException &&
-                HttpClientErrorException.class.cast(throwable).getStatusCode() == HttpStatus.NOT_FOUND) {
-            // If Bitbucket server base url is incorrect, then we return 200 back to the client.
-            return Single.just(ResponseEntity.ok().build());
-        }
-        return Single.error(throwable);
+                .map(ignored -> ResponseEntity.noContent().build());
     }
 
     private Single<List<String>> getComments(final String baseUrl,
