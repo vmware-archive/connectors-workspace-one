@@ -2,7 +2,7 @@
 
 The Salesforce connector presents cards either inviting the user to add a contact to an account or showing the user existing contact details. It does this based on the user's email address and email addresses found in an email; these are passed as tokens in the card request.
 
-Addind a contact to an account and adding an email conversation as an attachment are actions supported by this connector.
+Adding a contact to an account and adding an email conversation as an attachment are actions supported by this connector.  Currently, there isn't a card or grid action to expose the email conversation attachment functionality.
 
 For generic details on how to build, install, and configure connectors, please see the [README](https://github.com/vmware/connectors-workspace-one/blob/master/README.md) at the root of this repository.
 
@@ -78,7 +78,7 @@ curl https://login.salesforce.com/services/oauth2/token \
 
 **Note:**
 * The value of the header 'X-Salesforce-Authorization' is the authorization token for accessing salesforce rest API. Please refer to the section above on how to generate the auth token.
-* The value of the header 'Authorization' is the oauth token for accessing Roswell Api Gateway, please refer to the README.md file under the auth-server module on how to generate the oauth token.
+* The value of the header 'Authorization' is the vidm oauth token for accessing Mobile Flows Api Gateway.
 
 ### Create an Account
 
