@@ -8,7 +8,6 @@ package com.vmware.connectors.airwatch;
 import com.vmware.connectors.airwatch.config.AppConfigurations;
 import com.vmware.connectors.airwatch.service.AppConfigService;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,8 +18,7 @@ import org.springframework.core.io.Resource;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
@@ -57,13 +55,9 @@ public class ConnConfiguration {
     @Bean
     public String connectorMetadata() throws IOException {
 
-        final Set<String> appKeywords = new HashSet<>();
-        this.appConfigurations.getApps()
-                .forEach(app -> appKeywords.addAll(app.getKeywords()));
-
-        StringBuilder regexBuilder = new StringBuilder("(?i)");
-        appKeywords.forEach(appKeyword -> regexBuilder.append(appKeyword).append("|"));
-        String connectorRegex = StringUtils.substringBeforeLast(regexBuilder.toString(), "|");
+        final String connectorRegex = "(?i)" + appConfigurations.getApps().stream()
+                .flatMap(appConfiguration -> appConfiguration.getKeywords().stream())
+                .collect(Collectors.joining("|"));
 
         String metaData = IOUtils.toString(metadataHalResource.getInputStream(), Charset.defaultCharset());
         return metaData.replace("CONNECTOR_REGEX", connectorRegex);
