@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.jira;
 
+import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.Before;
@@ -17,6 +18,8 @@ import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.client.AsyncRestTemplate;
+
+import java.util.List;
 
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
@@ -71,6 +74,42 @@ public class JiraControllerTests extends ControllerTestsBase {
     @Test
     public void testDiscovery() throws Exception {
         testConnectorDiscovery();
+    }
+
+    @Test
+    public void testRegex() throws Exception {
+        List<String> expected = ImmutableList.of(
+                "ABC-1",
+                "ABCDEFGHIJ-123",
+//                "ABCDEFGHIJK-456", // Should not match because too many letters
+                "ABC-3", // not ideal, but not worth fixing
+                "ABC-4",
+                "ABC-5",
+//                "ABC-6", // Should not match due to leading "x"
+                "ABC-7",
+//                "ABC-8", // Should not match due to leading "1"
+                "ABC-9",
+                "ABC-10",
+                "ABC-11",
+                "ABC-12", // not ideal, but not worth fixing
+                "ABC-13",
+                "ABC-14",
+                "ABC-15", // not ideal, but not worth fixing
+                "ABC-16",
+                "ABC-17",
+                "ABC-18",
+                "ABC-19", // not ideal, but not worth fixing
+//                "ABC-20", // Should not match due to leading "x"
+//                "D-2", // should not match
+//                "MM-2", // should not match
+//                "ZGW-2", // should not match
+//                "XV-2", // should not match
+//                "F-2", // should not match
+//                "SA-2", // should not match
+                "ABC-21"
+        );
+
+        testRegex("issue_id", fromFile("/regex/email.txt"), expected);
     }
 
     @Test

@@ -145,7 +145,7 @@ public class ControllerTestsBase {
 
         List<String> results = new ArrayList<>();
         for (String line : emailInput.split("\\n")) {
-            Matcher matcher = pattern.matcher(line);
+            Matcher matcher = pattern.matcher("\n" + line);
             while (matcher.find()) {
                 results.add(matcher.group(1));
             }
