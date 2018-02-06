@@ -8,9 +8,9 @@ package com.vmware.connectors.servicenow;
 /**
  * A class to hold API information (fields, states, etc.) for ServiceNow's sc_request table.
  */
-public final class ScRequest {
+final class ScRequest {
 
-    public enum Fields {
+    enum Fields {
 
         /**
          * The system id for an item in the sc_request table.
@@ -18,6 +18,13 @@ public final class ScRequest {
          * Example: 6eed229047801200e0ef563dbb9a71c2
          */
         SYS_ID("sys_id"),
+
+        /**
+         * The total price of the request.
+         *
+         * Example: 3349.95
+         */
+        PRICE("price"),
 
         /**
          * The request number.
@@ -42,7 +49,7 @@ public final class ScRequest {
     /**
      * The name of the request table in ServiceNow.
      */
-    public static final String TABLE_NAME = "sc_request";
+    static final String TABLE_NAME = "sc_request";
 
     private ScRequest() {
         // empty: utility class

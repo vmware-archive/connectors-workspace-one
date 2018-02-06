@@ -9,17 +9,17 @@ import org.pojomatic.Pojomatic;
 import org.pojomatic.annotations.AutoProperty;
 
 @AutoProperty
-class ApprovalRequestWithNumber extends ApprovalRequest {
+class ApprovalRequestWithInfo extends ApprovalRequest {
 
-    private final String number;
+    private final Request info;
 
     /**
      * @param request The {@link ApprovalRequest} information from the sysapproval_approver record.
-     * @param number The request number from the sc_request record.
+     * @param info The request infofrom the sc_request record.
      */
-    ApprovalRequestWithNumber(
+    ApprovalRequestWithInfo(
             ApprovalRequest request,
-            String number
+            Request info
     ) {
         super(
                 request.getRequestSysId(),
@@ -28,14 +28,14 @@ class ApprovalRequestWithNumber extends ApprovalRequest {
                 request.getDueDate(),
                 request.getCreatedBy()
         );
-        this.number = number;
+        this.info = info;
     }
 
     /**
-     * @return The request number from the sc_request record.
+     * @return The request info from the sc_request record.
      */
-    String getNumber() {
-        return number;
+    Request getInfo() {
+        return info;
     }
 
     @Override

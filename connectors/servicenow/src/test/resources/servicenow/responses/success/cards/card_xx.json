@@ -8,34 +8,41 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "REQ0010002 roF detseuqeR lavorppA",
-        "subtitle": "tseuqeR lavorppA"
+        "title": "APPROVAL REQUEST - REQ0010002"
       },
       "body": {
-        "description": ".test-due-date-2 yb eud si dna test-request-user-2 yb dettimbus saw REQ0010002 .lavorppa ruoy seriuqer tseuqer A",
         "fields": [
           {
-            "title": "rebmuN tekciT",
+            "title": "TOTAL PRICE",
             "type": "GENERAL",
-            "description": "REQ0010002"
+            "description": "$401.98"
           },
           {
-            "title": "retseuqeR",
+            "title": "REQUESTER",
             "type": "GENERAL",
             "description": "test-request-user-2"
           },
           {
-            "title": "yB euD",
+            "title": "DUE BY",
             "type": "GENERAL",
             "description": "test-due-date-2"
+          },
+          {
+            "title": "ITEMS",
+            "type": "COMMENT",
+            "content": [
+              {
+                "text": "Apple iPhone 6 - 2 @ $200.99"
+              }
+            ]
           }
         ]
       },
       "actions": [
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "evorppA",
-          "completed_label": "devorppA",
+          "label": "APPROVE",
+          "completed_label": "APPROVED",
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-2/approve"
           },
@@ -46,8 +53,8 @@
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "tcejeR",
-          "completed_label": "detcejeR",
+          "label": "REJECT",
+          "completed_label": "REJECTED",
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-2/reject"
           },
@@ -57,7 +64,7 @@
           "user_input": [
             {
               "id": "reason",
-              "label": "noitcejer rof nosaeR",
+              "label": "REASON FOR REJECTION",
               "min_length": 1
             }
           ]
@@ -72,34 +79,41 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "REQ0010003 roF detseuqeR lavorppA",
-        "subtitle": "tseuqeR lavorppA"
+        "title": "APPROVAL REQUEST - REQ0010003"
       },
       "body": {
-        "description": ".test-due-date-3 yb eud si dna test-request-user-3 yb dettimbus saw REQ0010003 .lavorppa ruoy seriuqer tseuqer A",
         "fields": [
           {
-            "title": "rebmuN tekciT",
+            "title": "TOTAL PRICE",
             "type": "GENERAL",
-            "description": "REQ0010003"
+            "description": "$902.97"
           },
           {
-            "title": "retseuqeR",
+            "title": "REQUESTER",
             "type": "GENERAL",
             "description": "test-request-user-3"
           },
           {
-            "title": "yB euD",
+            "title": "DUE BY",
             "type": "GENERAL",
             "description": "test-due-date-3"
+          },
+          {
+            "title": "ITEMS",
+            "type": "COMMENT",
+            "content": [
+              {
+                "text": "Samsung Galaxy S7 Edge - 3 @ $300.99"
+              }
+            ]
           }
         ]
       },
       "actions": [
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "evorppA",
-          "completed_label": "devorppA",
+          "label": "APPROVE",
+          "completed_label": "APPROVED",
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-3/approve"
           },
@@ -110,8 +124,8 @@
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "tcejeR",
-          "completed_label": "detcejeR",
+          "label": "REJECT",
+          "completed_label": "REJECTED",
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-3/reject"
           },
@@ -121,7 +135,7 @@
           "user_input": [
             {
               "id": "reason",
-              "label": "noitcejer rof nosaeR",
+              "label": "REASON FOR REJECTION",
               "min_length": 1
             }
           ]
