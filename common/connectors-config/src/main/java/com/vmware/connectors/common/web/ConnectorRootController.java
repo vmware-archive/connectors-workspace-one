@@ -22,7 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static java.util.concurrent.TimeUnit.HOURS;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Rob Worsnop on 7/27/17.
@@ -31,10 +31,16 @@ import static java.util.concurrent.TimeUnit.HOURS;
 public class ConnectorRootController {
 
     private final boolean hasTestAuth;
+    private final long maxAge;
+    private final TimeUnit unit;
 
     @Autowired
-    public ConnectorRootController(@Value("${connector.hasTestAuth:false}") boolean hasTestAuth) {
+    public ConnectorRootController(@Value("${connector.hasTestAuth:false}") boolean hasTestAuth,
+                                   @Value("${rootDiscovery.cacheControl.maxAge:1}") long maxAge,
+                                   @Value("${rootDiscovery.cacheControl.unit:HOURS}") TimeUnit unit) {
         this.hasTestAuth = hasTestAuth;
+        this.maxAge = maxAge;
+        this.unit = unit;
     }
 
     @GetMapping(path = "/", produces = MediaTypes.HAL_JSON_VALUE)
@@ -48,7 +54,7 @@ public class ConnectorRootController {
         addAuth(resource, request);
 
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(1, HOURS))
+                .cacheControl(CacheControl.maxAge(maxAge, unit))
                 .body(resource);
     }
 
