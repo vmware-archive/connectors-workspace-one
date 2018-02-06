@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.AsyncRestOperations;
-import org.springframework.web.client.HttpClientErrorException;
 import rx.Observable;
 import rx.Single;
 
@@ -47,7 +46,6 @@ import java.util.Set;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.*;
 
 /**
@@ -129,9 +127,12 @@ public class JiraController {
     @GetMapping("/test-auth")
     public Single<ResponseEntity<Void>> verifyAuth(@RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
                                                    @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl) {
-        return getIssue(jiraAuth, baseUrl, "XYZ-999")
-                .map(JiraController::stripBody)
-                .onErrorResumeNext(JiraController::map404to200);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(AUTHORIZATION, jiraAuth);
+
+        return Async.toSingle(rest.exchange("{baseUrl}/rest/api/2/myself", HttpMethod.HEAD, new HttpEntity<>(headers),
+                Void.class, baseUrl))
+                .map(ignored -> ResponseEntity.noContent().build());
     }
 
     private Single<ResponseEntity<Void>> addUserToWatcher(JsonDocument jiraUserDetails, HttpHeaders headers,
@@ -162,21 +163,6 @@ public class JiraController {
                 "{baseUrl}/rest/api/2/issue/{issueId}", GET, new HttpEntity<String>(headers), JsonDocument.class,
                 baseUrl, issueId);
         return Async.toSingle(future);
-    }
-
-    private static ResponseEntity<Void> stripBody(ResponseEntity<JsonDocument> entity) {
-        return ResponseEntity.status(entity.getStatusCode()).build();
-    }
-
-    private static Single<ResponseEntity<Void>> map404to200(Throwable throwable) {
-        if (throwable instanceof HttpClientErrorException
-                && HttpClientErrorException.class.cast(throwable).getStatusCode() == NOT_FOUND) {
-            // It's OK to request non-existent Jira issues; we just won't create a card.
-            return Single.just(ResponseEntity.ok().build());
-        } else {
-            // If the problem is not 404, let the problem bubble up
-            return Single.error(throwable);
-        }
     }
 
     private Card transformIssueResponse(ResponseEntity<JsonDocument> result, String baseUrl, String issueId, String routingPrefix) {

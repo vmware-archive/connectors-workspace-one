@@ -23,6 +23,7 @@ import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.HEAD;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.*;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -96,21 +98,32 @@ public class JiraControllerTests extends ControllerTestsBase {
 
     @Test
     public void testAuthSuccess() throws Exception {
-        expect("XYZ-999").andRespond(withStatus(NOT_FOUND));
-        perform(get("/test-auth").with(token(accessToken()))
+        mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
+                .andExpect(method(HEAD))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
+                .andRespond(withSuccess());
+
+        perform(head("/test-auth").with(token(accessToken()))
                 .header("x-jira-authorization", "Bearer abc")
                 .header("x-jira-base-url", "https://jira.acme.com"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
+
         mockJira.verify();
     }
 
     @Test
     public void testAuthFail() throws Exception {
-        expect("XYZ-999").andRespond(withUnauthorizedRequest());
-        perform(get("/test-auth").with(token(accessToken()))
+        mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
+                .andExpect(method(HEAD))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
+                .andRespond(withUnauthorizedRequest());
+
+        perform(head("/test-auth").with(token(accessToken()))
                 .header("x-jira-authorization", "Bearer abc")
                 .header("x-jira-base-url", "https://jira.acme.com"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("x-backend-status", "401"));
+
         mockJira.verify();
     }
 
