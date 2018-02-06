@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/airwatch/templates/generic.hbs"
       },
       "header": {
-        "title": "Boxer"
+        "title": "vmware boxer"
       },
       "body": {
         "description": "Please install this application for better interaction with the resource."
@@ -18,11 +18,15 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Install",
           "url": {
-            "href": "awjade://notify?action=INSTALL_APP&appId=com.android.boxer"
+            "href": "https://hero/connectors/airwatch/mdm/app/install"
           },
-          "type": "GET",
-          "action_key": "INSTALL_APP",
-          "request": {},
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {
+            "app_name": "vmware boxer",
+            "udid": "ABCD",
+            "platform": "android"
+          },
           "user_input": []
         }
       ]

@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.ResponseActions;
@@ -22,12 +24,14 @@ import org.springframework.web.client.AsyncRestTemplate;
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.ExpectedCount.times;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -52,15 +56,27 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     @Value("classpath:airwatch/responses/awUserForbidden.json")
     private Resource awUserForbidden;
 
+    @Value("classpath:greenbox/responses/eucToken.json")
+    private Resource gbEucToken;
+
+    @Value("classpath:greenbox/responses/searchApp.json")
+    private Resource gbSearchApp;
+
+    @Value("classpath:greenbox/responses/installApp.json")
+    private Resource gbInstallApp;
+
     @Autowired
     private AsyncRestTemplate rest;
 
-    private MockRestServiceServer mockAirWatch;
+    private MockRestServiceServer mockBackend;
+
+    private final static String AIRWATCH_BASE_URL = "https://air-watch.acme.com";
+    private final static String GREENBOX_BASE_URL = "https://herocard.vmwareidentity.com";
 
     @Before
     public void setup() throws Exception {
         super.setup();
-        mockAirWatch = MockRestServiceServer.bindTo(rest).ignoreExpectOrder(true).build();
+        mockBackend = MockRestServiceServer.bindTo(rest).ignoreExpectOrder(true).build();
     }
 
     @Test
@@ -85,7 +101,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.concur.breeze")
                 .andRespond(withSuccess(awAppInstalled, APPLICATION_JSON));
         testRequestCards("request.json", "success.json", null);
-        mockAirWatch.verify();
+        mockBackend.verify();
     }
 
     @Test
@@ -95,7 +111,36 @@ public class AirWatchControllerTests extends ControllerTestsBase {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.concur.breeze")
                 .andRespond(withSuccess(awAppInstalled, APPLICATION_JSON));
         testRequestCards("request.json", "success_xx.json", "xx;q=1.0");
-        mockAirWatch.verify();
+        mockBackend.verify();
+    }
+
+    @Test
+    public void testInstallAction() throws Exception {
+
+        expectGBSessionRequests();
+
+        // Search for app "Concur"
+        expectGBRequest(
+                "/catalog-portal/services/api/entitlements?q=Concur",
+                GET, gbCatalogContextCookie("euc123", null))
+                .andRespond(withSuccess().body(gbSearchApp).contentType(APPLICATION_JSON));
+
+        // Trigger install for "MDM-134-Native-Public".
+        expectGBRequest(
+                "/catalog-portal/services/api/activate/MDM-134-Native-Public",
+                POST, gbCatalogContextCookie("euc123", "csrf123"))
+                .andExpect(MockRestRequestMatchers.header("X-XSRF-TOKEN", "csrf123"))
+                .andRespond(withSuccess().body(gbInstallApp).contentType(APPLICATION_JSON));
+
+        perform(post("/mdm/app/install").with(token(accessToken()))
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .header("x-airwatch-base-url", AIRWATCH_BASE_URL)
+                .param("app_name", "Concur")
+                .param("udid", "ABCD")
+                .param("platform", "android"))
+                .andExpect(status().isOk());
+
+        mockBackend.verify();
     }
 
     @Test
@@ -123,18 +168,18 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     }
 
     /*
-    User might try to check someone else's app status.
+     * User might try to check someone else's app status.
      */
     @Test
     public void testRequestCardsForbidden() throws Exception {
-        mockAirWatch.expect(times(1), requestTo(any(String.class)))
+        mockBackend.expect(times(1), requestTo(any(String.class)))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + accessToken()))
                 .andExpect(method(GET))
                 .andRespond(withStatus(FORBIDDEN).body(awUserForbidden));
         perform(requestCards("request.json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(fromFile("connector/responses/forbiddenUdid.json")));
-        mockAirWatch.verify();
+        mockBackend.verify();
     }
 
     @Test
@@ -144,7 +189,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
         perform(requestCards("oneServerError.json"))
                 .andExpect(status().is5xxServerError())
                 .andExpect(header().string("X-Backend-Status", "500"));
-        mockAirWatch.verify();
+        mockBackend.verify();
     }
 
     @Test
@@ -173,14 +218,48 @@ public class AirWatchControllerTests extends ControllerTestsBase {
         return post("/cards/requests").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header("x-airwatch-base-url", "https://air-watch.acme.com")
-                .header("x-routing-prefix", "https://hero/connectors/airwatch")
+                .header("x-airwatch-base-url", AIRWATCH_BASE_URL)
+                .header("x-routing-prefix", "https://hero/connectors/airwatch/")
                 .content(fromFile("/connector/requests/" + requestfile));
     }
 
     private ResponseActions expectAWRequest(String uri) {
-        return mockAirWatch.expect(requestTo("https://air-watch.acme.com" + uri))
+        return mockBackend.expect(requestTo(AIRWATCH_BASE_URL + uri))
                 .andExpect(method(GET))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + accessToken()));
+    }
+
+    private void expectGBSessionRequests() {
+        // eucToken
+        expectGBRequest(
+                "/catalog-portal/services/auth/eucTokens?deviceUdid=ABCD&deviceType=android",
+                POST, gbHZNCookie(accessToken()))
+                .andRespond(withStatus(CREATED).body(gbEucToken).contentType(APPLICATION_JSON));
+
+        // CSRF token
+        HttpHeaders csrfHeaders = new HttpHeaders();
+        csrfHeaders.set(SET_COOKIE, "EUC_XSRF_TOKEN=csrf123;Path=/catalog-portal;Secure");
+        expectGBRequest(
+                "/catalog-portal/", OPTIONS,
+                gbCatalogContextCookie("euc123", null))
+                .andRespond(withSuccess().headers(csrfHeaders));
+    }
+
+    private ResponseActions expectGBRequest(String uri, HttpMethod reqMethod, String cookie) {
+        return mockBackend.expect(requestTo(GREENBOX_BASE_URL + uri))
+                .andExpect(method(reqMethod))
+                .andExpect(MockRestRequestMatchers.header(COOKIE, cookie));
+    }
+
+    private String gbHZNCookie(String hzn) {
+        return "HZN=" + hzn;
+    }
+
+    private String gbCatalogContextCookie(String euc, String csrf) {
+        String contextCookie = "USER_CATALOG_CONTEXT=" + euc;
+        if (csrf != null) {
+            return contextCookie + "; EUC_XSRF_TOKEN=" + csrf;
+        }
+        return contextCookie;
     }
 }
