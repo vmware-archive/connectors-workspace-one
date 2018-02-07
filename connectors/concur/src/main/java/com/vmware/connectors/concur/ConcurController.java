@@ -73,7 +73,7 @@ public class ConcurController {
         }
 
         final HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTHORIZATION, authHeader);
+        headers.set(AUTHORIZATION, "OAuth " + authHeader);
         headers.set(ACCEPT, APPLICATION_JSON_VALUE);
 
         return Observable.from(expenseReportIds)
@@ -91,7 +91,7 @@ public class ConcurController {
             @RequestHeader(name = BACKEND_BASE_URL_HEADER) final String baseUrl,
             @RequestParam(name = REASON) final String reason,
             @PathVariable(name = ConcurConstants.PathVariable.EXPENSE_REPORT_ID) final String workflowstepId) throws IOException, ExecutionException, InterruptedException {
-        logger.info("Approving the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
+        logger.debug("Approving the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
 
         return makeConcurActionRequest(baseUrl, reason, workflowstepId, authHeader, APPROVE);
     }
@@ -104,7 +104,7 @@ public class ConcurController {
             @RequestHeader(name = BACKEND_BASE_URL_HEADER) final String baseUrl,
             @RequestParam(name = REASON) final String reason,
             @PathVariable(name = ConcurConstants.PathVariable.EXPENSE_REPORT_ID) final String workflowstepId) throws IOException, ExecutionException, InterruptedException {
-        logger.info("Rejecting the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
+        logger.debug("Rejecting the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
 
         return makeConcurActionRequest(baseUrl, reason, workflowstepId, authHeader, REJECT);
     }
@@ -115,7 +115,7 @@ public class ConcurController {
                                                                  final String authHeader,
                                                                  final String concurAction) throws IOException, ExecutionException, InterruptedException {
         final HttpHeaders headers = new HttpHeaders();
-        headers.add(AUTHORIZATION, authHeader);
+        headers.add(AUTHORIZATION, "OAuth " + authHeader);
         headers.add(CONTENT_TYPE, APPLICATION_XML_VALUE);
         headers.add(ACCEPT, APPLICATION_JSON_VALUE);
 
@@ -149,7 +149,7 @@ public class ConcurController {
                                                       final String id,
                                                       final String baseUrl,
                                                       final String routingPrefix) {
-        logger.info("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
+        logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
         final Single<ResponseEntity<JsonDocument>> result = getReportDetails(headers, id, baseUrl);
 

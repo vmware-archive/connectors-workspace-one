@@ -148,7 +148,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         perform(post(uri + expenseReportId)
                 .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header("x-concur-authorization", "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-authorization", "0_xxxxEKPk8cnYlWaos22OpPsLk=")
                 .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 .param(ConcurConstants.RequestParam.REASON, "Approval Done"))
                 .andExpect(status().isOk());
@@ -174,7 +174,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         perform(post("/api/expense/reject/" + REPORT_ID_2)
                 .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header("x-concur-authorization", "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-authorization", "0_xxxxEKPk8cnYlWaos22OpPsLk=")
                 .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 // Reason with html character embedded in it.
                 .param(ConcurConstants.RequestParam.REASON, "Approval </comment> <html> </html> Done"))
@@ -227,7 +227,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         perform(post(uri + REPORT_ID_1)
                 .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header("x-concur-authorization", "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-authorization", "0_xxxxEKPk8cnYlWaos22OpPsLk=")
                 .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 .param(ConcurConstants.RequestParam.REASON, "Approval Done"))
                 .andExpect(status().isBadRequest())
@@ -237,7 +237,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     }
 
     private void testRequestCardsWithMissingParameter(final String requestFile, final String responseFile) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk=", requestFile);
+        MockHttpServletRequestBuilder builder = requestCards("0_xxxxEKPk8cnYlWaos22OpPsLk=", requestFile);
 
         perform(builder)
                 .andExpect(status().isBadRequest())
@@ -248,7 +248,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     private void testRequestCards(final String requestFile,
                                   final String responseFile,
                                   final String acceptLanguage) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk=", requestFile);
+        MockHttpServletRequestBuilder builder = requestCards("0_xxxxEKPk8cnYlWaos22OpPsLk=", requestFile);
         if (acceptLanguage != null) {
             builder = builder.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
