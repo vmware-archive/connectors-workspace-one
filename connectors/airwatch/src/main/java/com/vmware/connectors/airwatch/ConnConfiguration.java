@@ -37,7 +37,7 @@ public class ConnConfiguration {
     @Autowired
     public ConnConfiguration(AppConfigurations appConfigurations,
                              Environment environment,
-                             @Value("classpath:static/discovery/metadata.hal") Resource metadataHalResource) {
+                             @Value("classpath:static/discovery/metadata.json") Resource metadataHalResource) {
         this.appConfigurations = appConfigurations;
         this.environment = environment;
         this.metadataHalResource = metadataHalResource;

@@ -89,9 +89,9 @@ public class AirWatchControllerTests extends ControllerTestsBase {
         perform(request(GET, "/"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().json(fromFile("/connector/responses/discovery.json")));
-        perform(request(GET, "/discovery/metadata.hal"))
+        perform(request(GET, "/discovery/metadata.json"))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().json(fromFile("/connector/responses/metadata.hal")));
+                .andExpect(content().json(fromFile("/connector/responses/metadata.json")));
     }
 
     @Test
