@@ -141,8 +141,11 @@
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Approve",
+          "url": {
+            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/approve"
+          },
           "type": "POST",
-          "action_key": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/approve",
+          "action_key": "DIRECT",
           "request": {},
           "user_input": [],
           "completed_label": "Approved"
@@ -150,8 +153,11 @@
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Decline",
+          "url": {
+            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/decline"
+          },
           "type": "POST",
-          "action_key": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/decline",
+          "action_key": "DIRECT",
           "request": {},
           "user_input": [],
           "completed_label": "Declined"
@@ -159,8 +165,11 @@
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Merge",
+          "url": {
+            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/merge"
+          },
           "type": "POST",
-          "action_key": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/merge",
+          "action_key": "DIRECT",
           "request": {},
           "user_input": [],
           "completed_label": "Merged"

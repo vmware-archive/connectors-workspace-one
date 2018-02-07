@@ -336,7 +336,7 @@ public class BitbucketServerController {
                         .setLabel(this.cardTextAccessor.getActionLabel(BITBUCKET_PREFIX + bitBucketServerAction.getAction()))
                         .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel(BITBUCKET_PREFIX + bitBucketServerAction.getAction()))
                         .setActionKey(CardActionKey.DIRECT)
-                        .setActionKey(buildActionUrl(routingPrefix, pullRequest, bitBucketServerAction))
+                        .setUrl(buildActionUrl(routingPrefix, pullRequest, bitBucketServerAction))
                         .setType(HttpMethod.POST)
                         .build()
         );
