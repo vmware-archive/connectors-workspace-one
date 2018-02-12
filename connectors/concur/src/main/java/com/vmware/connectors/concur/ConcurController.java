@@ -186,10 +186,8 @@ public class ConcurController {
         final JsonDocument response = entity.getBody();
         final String approvalStatus = response.read("$.ApprovalStatusName");
         final String reportFrom = response.read("$.EmployeeName");
-
         final String reportPurpose = response.read("$.ReportName");
-        String reportAmount = String.format("%.2f", Float.parseFloat(response.read("$.ReportTotal")));
-        reportAmount = reportAmount + " " + response.read("$.CurrencyCode");
+        final String reportAmount = String.format("%.2f", Float.parseFloat(response.read("$.ReportTotal"))) + " " + response.read("$.CurrencyCode");
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
                 .addField(
