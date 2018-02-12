@@ -1,8 +1,8 @@
 # Salesforce Connector
 
-The Salesforce connector presents cards either inviting the user to add a contact to an account or showing the user existing contact details. It does this based on the user's email address and email addresses found in an email; these are passed as tokens in the card request.
+The Salesforce connector searches Salesforce for Contacts based on the sender's email address and the email address of the Salesforce user.  If the sender is a Contact of the Salesforce user, then an informational card is returned that displays the Contact's name, Account, Phone Number, and if available, information about the associated Opportunity.
 
-Adding a contact to an account and adding an email conversation as an attachment are actions supported by this connector.  Currently, there isn't a card or grid action to expose the email conversation attachment functionality.
+If the sender is not a Contact of the Salesforce user, but other Contacts from the sender's email domain are, then a card is returned offering the create a new Contact in Salesforce, and if desired, associate it with an opportunity that already has Contacts with that email domain.
 
 For generic details on how to build, install, and configure connectors, please see the [README](https://github.com/vmware/connectors-workspace-one/blob/master/README.md) at the root of this repository.
 
