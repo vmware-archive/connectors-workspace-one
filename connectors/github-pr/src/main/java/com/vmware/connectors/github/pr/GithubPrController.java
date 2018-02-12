@@ -201,7 +201,8 @@ public class GithubPrController {
             PullRequestId pullRequestId
     ) {
         return UriComponentsBuilder
-                .fromHttpUrl(baseUrl + "/repos/{owner}/{repo}/pulls/{number}")
+                .fromHttpUrl(baseUrl)
+                .path("/repos/{owner}/{repo}/pulls/{number}")
                 .buildAndExpand(
                         ImmutableMap.of(
                                 "owner", pullRequestId.getOwner(),
