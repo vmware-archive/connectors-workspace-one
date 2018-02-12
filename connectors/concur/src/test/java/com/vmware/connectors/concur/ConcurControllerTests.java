@@ -34,8 +34,7 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -214,6 +213,35 @@ public class ConcurControllerTests extends ControllerTestsBase {
             }
         }
         assertThat(expectedList, equalTo(result));
+    }
+
+    @Test
+    public void testAuthSuccess() throws Exception {
+        this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/v3.0/expense/reports"))
+            .andExpect(method(GET))
+            .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
+            .andRespond(withSuccess());
+
+        perform(get("/test-auth")
+                .with(token(accessToken()))
+                        .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                        .header("x-concur-base-url", "https://implementation.concursolutions.com"))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    public void testAuthFailure() throws Exception {
+        this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/v3.0/expense/reports"))
+                .andExpect(method(GET))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
+                .andRespond(withUnauthorizedRequest());
+
+        perform(get("/test-auth")
+                .with(token(accessToken()))
+                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-base-url", "https://implementation.concursolutions.com"))
+                .andExpect(status().isBadRequest());
     }
 
     private void testUnauthorizedRequest(final String uri) throws Exception {

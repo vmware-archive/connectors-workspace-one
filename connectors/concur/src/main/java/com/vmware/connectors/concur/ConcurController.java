@@ -41,7 +41,6 @@ import static com.vmware.connectors.concur.ConcurConstants.Header.*;
 import static com.vmware.connectors.concur.ConcurConstants.RequestParam.REASON;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.MediaType.*;
-import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 public class ConcurController {
@@ -109,6 +108,20 @@ public class ConcurController {
         return makeConcurActionRequest(baseUrl, reason, workflowstepId, authHeader, REJECT);
     }
 
+    @GetMapping("/test-auth")
+    public Single<ResponseEntity<Void>> verifyAuth(@RequestHeader(AUTHORIZATION_HEADER) final String authHeader,
+                                                   @RequestHeader(BACKEND_BASE_URL_HEADER) final String baseUrl) {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add(AUTHORIZATION, authHeader);
+
+        return Async.toSingle(this.rest.exchange("{baseUrl}/api/v3.0/expense/reports",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                Void.class,
+                baseUrl))
+                .map(response -> ResponseEntity.status(response.getStatusCode()).build());
+    }
+
     private Single<ResponseEntity<String>> makeConcurActionRequest(final String baseUrl,
                                                                  final String reason,
                                                                  final String reportID,
@@ -132,7 +145,7 @@ public class ConcurController {
                             reportID);
 
                     return Async.toSingle(response)
-                            .map(entity -> status(entity.getStatusCode()).build());
+                            .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
                 });
     }
 
