@@ -7,8 +7,8 @@
     "platform": {
       "env": "DEVICE_SYSTEM_NAME"
     },
-    "app_name": {
-      "regex": "(CONNECTOR_REGEX)"
+    "app_keywords": {
+      "regex": "((?i)boxer|concur|poison)"
     }
   }
 }

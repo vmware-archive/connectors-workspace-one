@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.jira;
 
+import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.Before;
@@ -18,11 +19,14 @@ import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.client.AsyncRestTemplate;
 
+import java.util.List;
+
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.HEAD;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.*;
@@ -31,6 +35,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -72,6 +77,42 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
+    public void testRegex() throws Exception {
+        List<String> expected = ImmutableList.of(
+                "ABC-1",
+                "ABCDEFGHIJ-123",
+//                "ABCDEFGHIJK-456", // Should not match because too many letters
+                "ABC-3", // not ideal, but not worth fixing
+                "ABC-4",
+                "ABC-5",
+//                "ABC-6", // Should not match due to leading "x"
+                "ABC-7",
+//                "ABC-8", // Should not match due to leading "1"
+                "ABC-9",
+                "ABC-10",
+                "ABC-11",
+                "ABC-12", // not ideal, but not worth fixing
+                "ABC-13",
+                "ABC-14",
+                "ABC-15", // not ideal, but not worth fixing
+                "ABC-16",
+                "ABC-17",
+                "ABC-18",
+                "ABC-19", // not ideal, but not worth fixing
+//                "ABC-20", // Should not match due to leading "x"
+//                "D-2", // should not match
+//                "MM-2", // should not match
+//                "ZGW-2", // should not match
+//                "XV-2", // should not match
+//                "F-2", // should not match
+//                "SA-2", // should not match
+                "ABC-21"
+        );
+
+        testRegex("issue_id", fromFile("/regex/email.txt"), expected);
+    }
+
+    @Test
     public void testRequestWithEmptyIssue() throws Exception {
         testRequestCards("emptyIssue.json", "emptyIssue.json", null);
     }
@@ -96,21 +137,32 @@ public class JiraControllerTests extends ControllerTestsBase {
 
     @Test
     public void testAuthSuccess() throws Exception {
-        expect("XYZ-999").andRespond(withStatus(NOT_FOUND));
-        perform(get("/test-auth").with(token(accessToken()))
+        mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
+                .andExpect(method(HEAD))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
+                .andRespond(withSuccess());
+
+        perform(head("/test-auth").with(token(accessToken()))
                 .header("x-jira-authorization", "Bearer abc")
                 .header("x-jira-base-url", "https://jira.acme.com"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
+
         mockJira.verify();
     }
 
     @Test
     public void testAuthFail() throws Exception {
-        expect("XYZ-999").andRespond(withUnauthorizedRequest());
-        perform(get("/test-auth").with(token(accessToken()))
+        mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
+                .andExpect(method(HEAD))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
+                .andRespond(withUnauthorizedRequest());
+
+        perform(head("/test-auth").with(token(accessToken()))
                 .header("x-jira-authorization", "Bearer abc")
                 .header("x-jira-base-url", "https://jira.acme.com"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("x-backend-status", "401"));
+
         mockJira.verify();
     }
 

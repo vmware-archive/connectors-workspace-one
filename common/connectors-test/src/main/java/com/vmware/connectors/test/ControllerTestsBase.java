@@ -120,14 +120,14 @@ public class ControllerTestsBase {
         perform(request(GET, "/"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().json(fromFile("/connector/responses/discovery.json")));
-        perform(request(GET, "/discovery/metadata.hal"))
+        perform(request(GET, "/discovery/metadata.json"))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().json(fromFile("/static/discovery/metadata.hal")));
+                .andExpect(content().json(fromFile("/static/discovery/metadata.json")));
     }
 
     protected void testRegex(String tokenProperty, String emailInput, List<String> expected) throws Exception {
         mvc.perform(
-                get("/discovery/metadata.hal")
+                get("/discovery/metadata.json")
                         .with(token(accessToken()))
                         .accept(APPLICATION_JSON)
         ).andExpect(mvcResult -> {
@@ -145,7 +145,7 @@ public class ControllerTestsBase {
 
         List<String> results = new ArrayList<>();
         for (String line : emailInput.split("\\n")) {
-            Matcher matcher = pattern.matcher(line);
+            Matcher matcher = pattern.matcher("\n" + line);
             while (matcher.find()) {
                 results.add(matcher.group(1));
             }

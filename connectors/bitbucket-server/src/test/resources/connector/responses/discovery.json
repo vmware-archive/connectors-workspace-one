@@ -1,7 +1,7 @@
 {
   "_links": {
     "metadata": {
-      "href": "https://my-connector/discovery/metadata.hal"
+      "href": "https://my-connector/discovery/metadata.json"
     },
     "cards": {
       "href": "https://my-connector/cards/requests"

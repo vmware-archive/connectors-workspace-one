@@ -28,13 +28,16 @@ import static com.vmware.connectors.bitbucket.server.utils.BitbucketServerConsta
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.HEAD;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -196,20 +199,31 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
 
     @Test
     public void testAuthSuccess() throws Exception {
-        expect("https://stash.air-watch.com").andRespond(withStatus(HttpStatus.NOT_FOUND));
-        perform(get("/test-auth").with(token(accessToken()))
+        mockBitbucketServer
+                .expect(requestTo("https://stash.air-watch.com/rest/api/1.0/dashboard/pull-request-suggestions?limit=1"))
+                .andExpect(method(HEAD))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
+                .andRespond(withSuccess());
+
+        perform(head("/test-auth").with(token(accessToken()))
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, "https://stash.air-watch.com"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @Test
     public void testAuthFail() throws Exception {
-        expect("https://stash.air-watch.com").andRespond(withStatus(HttpStatus.UNAUTHORIZED));
-        perform(get("/test-auth").with(token(accessToken()))
+        mockBitbucketServer
+                .expect(requestTo("https://stash.air-watch.com/rest/api/1.0/dashboard/pull-request-suggestions?limit=1"))
+                .andExpect(method(HEAD))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
+                .andRespond(withUnauthorizedRequest());
+
+        perform(head("/test-auth").with(token(accessToken()))
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, "https://stash.air-watch.com"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string("x-backend-status", "401"));
     }
 
     private void testBitbucketServerPRAction(final String url,
