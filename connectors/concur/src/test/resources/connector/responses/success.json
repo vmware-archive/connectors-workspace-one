@@ -30,7 +30,7 @@
           {
             "type": "GENERAL",
             "title": "Report Amount",
-            "description": "10000.00000000"
+            "description": "10000.00 INR"
           }
         ]
       },
@@ -114,7 +114,7 @@
           {
             "type": "GENERAL",
             "title": "Report Amount",
-            "description": "10000.00000000"
+            "description": "10000.00 INR"
           }
         ]
       },

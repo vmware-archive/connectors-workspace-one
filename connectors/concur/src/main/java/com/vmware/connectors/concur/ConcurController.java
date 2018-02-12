@@ -73,7 +73,7 @@ public class ConcurController {
         }
 
         final HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTHORIZATION, "OAuth " + authHeader);
+        headers.set(AUTHORIZATION, authHeader);
         headers.set(ACCEPT, APPLICATION_JSON_VALUE);
 
         return Observable.from(expenseReportIds)
@@ -115,7 +115,7 @@ public class ConcurController {
                                                                  final String authHeader,
                                                                  final String concurAction) throws IOException, ExecutionException, InterruptedException {
         final HttpHeaders headers = new HttpHeaders();
-        headers.add(AUTHORIZATION, "OAuth " + authHeader);
+        headers.add(AUTHORIZATION, authHeader);
         headers.add(CONTENT_TYPE, APPLICATION_XML_VALUE);
         headers.add(ACCEPT, APPLICATION_JSON_VALUE);
 
@@ -188,7 +188,8 @@ public class ConcurController {
         final String reportFrom = response.read("$.EmployeeName");
 
         final String reportPurpose = response.read("$.ReportName");
-        final String reportAmount = response.read("$.ReportTotal");
+        String reportAmount = String.format("%.2f", Float.parseFloat(response.read("$.ReportTotal")));
+        reportAmount = reportAmount + " " + response.read("$.CurrencyCode");
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
                 .addField(

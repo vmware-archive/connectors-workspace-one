@@ -148,7 +148,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         perform(post(uri + expenseReportId)
                 .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header("x-concur-authorization", "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
                 .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 .param(ConcurConstants.RequestParam.REASON, "Approval Done"))
                 .andExpect(status().isOk());
@@ -174,7 +174,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         perform(post("/api/expense/reject/" + REPORT_ID_2)
                 .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header("x-concur-authorization", "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
                 .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 // Reason with html character embedded in it.
                 .param(ConcurConstants.RequestParam.REASON, "Approval </comment> <html> </html> Done"))
@@ -227,7 +227,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         perform(post(uri + REPORT_ID_1)
                 .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header("x-concur-authorization", "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
                 .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 .param(ConcurConstants.RequestParam.REASON, "Approval Done"))
                 .andExpect(status().isBadRequest())
@@ -271,7 +271,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         return post("/cards/requests").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header("x-concur-authorization", authToken)
+                .header("x-concur-authorization", "OAuth " + authToken)
                 .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
                 .content(fromFile("/concur/requests/" + requestFile));
