@@ -11,6 +11,7 @@
         "title": "Expense Report Pending Your Approval"
       },
       "body": {
+        "description":"Test Concur connector-1",
         "fields": [
           {
             "type": "GENERAL",
@@ -95,6 +96,7 @@
         "title": "Expense Report Pending Your Approval"
       },
       "body": {
+        "description":"Test Concur connector-2",
         "fields": [
           {
             "type": "GENERAL",

@@ -74,7 +74,7 @@
       "TransactionAmount": "10000.00000000",
       "PostedAmount": "10000.00000000",
       "ApprovedAmount": "10000.00000000",
-      "BusinessPurpose": "Concur",
+      "BusinessPurpose": "Test Concur connector-2",
       "VendorDescription": "Concur",
       "LocationName": "Bangalore",
       "LocationSubdivision": "",

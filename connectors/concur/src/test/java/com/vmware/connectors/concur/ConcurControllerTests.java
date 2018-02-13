@@ -215,36 +215,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         assertThat(expectedList, equalTo(result));
     }
 
-    @Test
-    public void testAuthSuccess() throws Exception {
-        this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/v3.0/expense/reports"))
-            .andExpect(method(GET))
-            .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
-            .andRespond(withSuccess());
-
-        perform(get("/test-auth")
-                .with(token(accessToken()))
-                        .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
-                        .header("x-concur-base-url", "https://implementation.concursolutions.com"))
-                .andExpect(status().isOk());
-    }
-
-
-    @Test
-    public void testAuthFailure() throws Exception {
-        this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/v3.0/expense/reports"))
-                .andExpect(method(GET))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
-                .andRespond(withUnauthorizedRequest());
-
-        perform(get("/test-auth")
-                .with(token(accessToken()))
-                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
-                .header("x-concur-base-url", "https://implementation.concursolutions.com"))
-                .andExpect(status().isBadRequest());
-    }
-
-    private void testUnauthorizedRequest(final String uri) throws Exception {
+     private void testUnauthorizedRequest(final String uri) throws Exception {
         expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
 
         this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/expense/expensereport/v1.1/report/gWujNPAb67r9LjhqgN7BEYYaQOWzavXBtUP1sej$sXfPQ/WorkFlowAction"))

@@ -12,6 +12,7 @@ import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.ObservableUtil;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,7 +68,7 @@ public class ConcurController {
 
         final Set<String> expenseReportIds = cardRequest.getTokens(EXPENSE_REPORT_ID);
         if (CollectionUtils.isEmpty(expenseReportIds)) {
-            logger.info("Expense report ids are empty for the base URL: {} ", baseUrl);
+            logger.debug("Expense report ids are empty for the base URL: {} ", baseUrl);
             return Single.just(ResponseEntity.ok(new Cards()));
         }
 
@@ -106,20 +107,6 @@ public class ConcurController {
         logger.debug("Rejecting the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
 
         return makeConcurActionRequest(baseUrl, reason, workflowstepId, authHeader, REJECT);
-    }
-
-    @GetMapping("/test-auth")
-    public Single<ResponseEntity<Void>> verifyAuth(@RequestHeader(AUTHORIZATION_HEADER) final String authHeader,
-                                                   @RequestHeader(BACKEND_BASE_URL_HEADER) final String baseUrl) {
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add(AUTHORIZATION, authHeader);
-
-        return Async.toSingle(this.rest.exchange("{baseUrl}/api/v3.0/expense/reports",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                Void.class,
-                baseUrl))
-                .map(response -> ResponseEntity.status(response.getStatusCode()).build());
     }
 
     private Single<ResponseEntity<String>> makeConcurActionRequest(final String baseUrl,
@@ -203,34 +190,14 @@ public class ConcurController {
         final String reportAmount = String.format("%.2f", Float.parseFloat(response.read("$.ReportTotal"))) + " " + response.read("$.CurrencyCode");
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
-                .addField(
-                        new CardBodyField.Builder()
-                                .setTitle(this.cardTextAccessor.getMessage("concur.report.status"))
-                                .setDescription(approvalStatus)
-                                .setType(CardBodyFieldType.GENERAL)
-                                .build()
-                )
-                .addField(
-                        new CardBodyField.Builder()
-                                .setTitle(this.cardTextAccessor.getMessage("concur.report.from"))
-                                .setDescription(reportFrom)
-                                .setType(CardBodyFieldType.GENERAL)
-                                .build()
-                )
-                .addField(
-                        new CardBodyField.Builder()
-                                .setTitle(this.cardTextAccessor.getMessage("concur.report.purpose"))
-                                .setDescription(reportPurpose)
-                                .setType(CardBodyFieldType.GENERAL)
-                                .build()
-                )
-                .addField(
-                        new CardBodyField.Builder()
-                                .setTitle(this.cardTextAccessor.getMessage("concur.report.amount"))
-                                .setDescription(reportAmount)
-                                .setType(CardBodyFieldType.GENERAL)
-                                .build()
-                );
+                .addField(makeCardBodyField(this.cardTextAccessor.getMessage("concur.report.status"), approvalStatus))
+                .addField(makeCardBodyField(this.cardTextAccessor.getMessage("concur.report.from"), reportFrom))
+                .addField(makeCardBodyField(this.cardTextAccessor.getMessage("concur.report.purpose"), reportPurpose))
+                .addField(makeCardBodyField(this.cardTextAccessor.getMessage("concur.report.amount"), reportAmount));
+
+        if (StringUtils.isNotBlank(response.read("$.ExpenseEntriesList[0].BusinessPurpose"))) {
+            cardBodyBuilder.setDescription(response.read("$.ExpenseEntriesList[0].BusinessPurpose"));
+        }
 
         final CardAction.Builder openActionBuilder = getOpenActionBuilder(baseUrl);
         final Card.Builder cardBuilder = new Card.Builder()
@@ -249,6 +216,14 @@ public class ConcurController {
             cardBuilder.addAction(rejectActionBuilder.build());
         }
         return cardBuilder.build();
+    }
+
+    private CardBodyField makeCardBodyField(final String title, final String description) {
+        return new CardBodyField.Builder()
+                .setTitle(title)
+                .setDescription(description)
+                .setType(CardBodyFieldType.GENERAL)
+                .build();
     }
 
     private CardAction.Builder getApproveActionBuilder(final String expenseReportId, final String routingPrefix) {
