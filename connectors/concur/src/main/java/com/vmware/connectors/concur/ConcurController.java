@@ -152,7 +152,6 @@ public class ConcurController {
         logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
         final Single<ResponseEntity<JsonDocument>> result = getReportDetails(headers, id, baseUrl);
-
         return result
                 .toObservable()
                 .onErrorResumeNext(ObservableUtil::skip404)
@@ -182,8 +181,29 @@ public class ConcurController {
                                          final String baseUrl,
                                          final String expenseReportId,
                                          final String routingPrefix) {
-
         final JsonDocument response = entity.getBody();
+        final String approvalStatus = response.read("$.ApprovalStatusName");
+
+        final CardAction.Builder openActionBuilder = getOpenActionBuilder(baseUrl);
+        final Card.Builder cardBuilder = new Card.Builder()
+                .setName("Concur")
+                .setTemplate(routingPrefix + "templates/generic.hbs")
+                .setHeader(cardTextAccessor.getMessage("concur.title"), null)
+                .setBody(buildCardBodyBuilder(response))
+                .addAction(openActionBuilder.build());
+
+        // Add approve and reject actions only if the approval status is submitted and pending approval.
+        if (SUBMITTED_AND_PENDING_APPROVAL.equalsIgnoreCase(approvalStatus)) {
+            CardAction.Builder approveActionBuilder = getApproveActionBuilder(expenseReportId, routingPrefix);
+            CardAction.Builder rejectActionBuilder = getRejectActionBuilder(expenseReportId, routingPrefix);
+
+            cardBuilder.addAction(approveActionBuilder.build());
+            cardBuilder.addAction(rejectActionBuilder.build());
+        }
+        return cardBuilder.build();
+    }
+
+    private CardBody buildCardBodyBuilder(final JsonDocument response) {
         final String approvalStatus = response.read("$.ApprovalStatusName");
         final String reportFrom = response.read("$.EmployeeName");
         final String reportPurpose = response.read("$.ReportName");
@@ -199,25 +219,8 @@ public class ConcurController {
             cardBodyBuilder.setDescription(response.read("$.ExpenseEntriesList[0].BusinessPurpose"));
         }
 
-        final CardAction.Builder openActionBuilder = getOpenActionBuilder(baseUrl);
-        final Card.Builder cardBuilder = new Card.Builder()
-                .setName("Concur")
-                .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getMessage("concur.title"), null)
-                .setBody(cardBodyBuilder.build())
-                .addAction(openActionBuilder.build());
-
-        // Add approve and reject actions only if the approval status is submitted and pending approval.
-        if (SUBMITTED_AND_PENDING_APPROVAL.equalsIgnoreCase(approvalStatus)) {
-            CardAction.Builder approveActionBuilder = getApproveActionBuilder(expenseReportId, routingPrefix);
-            CardAction.Builder rejectActionBuilder = getRejectActionBuilder(expenseReportId, routingPrefix);
-
-            cardBuilder.addAction(approveActionBuilder.build());
-            cardBuilder.addAction(rejectActionBuilder.build());
-        }
-        return cardBuilder.build();
+        return cardBodyBuilder.build();
     }
-
     private CardBodyField makeCardBodyField(final String title, final String description) {
         return new CardBodyField.Builder()
                 .setTitle(title)
