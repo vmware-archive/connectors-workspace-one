@@ -34,11 +34,9 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class ConcurControllerTests extends ControllerTestsBase {
@@ -117,28 +115,40 @@ public class ConcurControllerTests extends ControllerTestsBase {
 
     @Test
     public void testApproveRequest() throws Exception {
-        mockExpenseReport("/api/expense/approve/", REPORT_ID_1, approved);
+        expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
+
+        mockExpenseReport("/api/expense/approve/",
+                REPORT_ID_1,
+                approved,
+                "https://implementation.concursolutions.com/api/expense/expensereport/v1.1/report/gWujNPAb67r9LjhqgN7BEYYaQOWzavXBtUP1sej$sXfPQ/WorkFlowAction");
     }
 
     @Test
     public void testRejectRequest() throws Exception {
-        mockExpenseReport("/api/expense/reject/", REPORT_ID_2, rejected);
+        expect(REPORT_ID_2).andRespond(withSuccess(reportId2, APPLICATION_JSON));
+
+        mockExpenseReport("/api/expense/reject/",
+                REPORT_ID_2,
+                rejected,
+                "https://implementation.concursolutions.com/api/expense/expensereport/v1.1/report/gWujNPAb67r9IgBSjNrBNbeHbgDcmoJIs2kyBQX8YzEoS/WorkFlowAction");
     }
 
     private void mockExpenseReport(final String uri,
                                    final String expenseReportId,
-                                   final Resource expectedResponse) throws Exception {
-        this.mockConcur.expect(requestTo("https://concursolutions.com/api/expense/expensereport/v1.1/report/" + expenseReportId + "/workflowaction"))
+                                   final Resource expectedResponse,
+                                   final String workflowActionUrl) throws Exception {
+        this.mockConcur.expect(requestTo(workflowActionUrl))
                 .andExpect(method(POST))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer concur-token"))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
+                .andExpect(MockRestRequestMatchers.header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_XML))
                 .andRespond(withSuccess(expectedResponse, APPLICATION_XML));
 
         perform(post(uri + expenseReportId)
                 .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header("x-concur-authorization", "Bearer concur-token")
-                .header("x-concur-base-url", "https://concursolutions.com")
+                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 .param(ConcurConstants.RequestParam.REASON, "Approval Done"))
                 .andExpect(status().isOk());
 
@@ -147,9 +157,11 @@ public class ConcurControllerTests extends ControllerTestsBase {
 
     @Test
     public void testEscapeHtmlTest() throws Exception {
-        this.mockConcur.expect(requestTo("https://concursolutions.com/api/expense/expensereport/v1.1/report/" + REPORT_ID_2 + "/workflowaction"))
+        expect(REPORT_ID_2).andRespond(withSuccess(reportId2, APPLICATION_JSON));
+
+        this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/expense/expensereport/v1.1/report/gWujNPAb67r9IgBSjNrBNbeHbgDcmoJIs2kyBQX8YzEoS/WorkFlowAction"))
                 .andExpect(method(POST))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer concur-token"))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_XML))
                 // Html characters are escaped.
                 .andExpect(MockRestRequestMatchers.content().xml("<WorkflowAction xmlns=\"http://www.concursolutions.com/api/expense/expensereport/2011/03\">\n" +
@@ -161,8 +173,8 @@ public class ConcurControllerTests extends ControllerTestsBase {
         perform(post("/api/expense/reject/" + REPORT_ID_2)
                 .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header("x-concur-authorization", "Bearer concur-token")
-                .header("x-concur-base-url", "https://concursolutions.com")
+                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 // Reason with html character embedded in it.
                 .param(ConcurConstants.RequestParam.REASON, "Approval </comment> <html> </html> Done"))
                 .andExpect(status().isOk());
@@ -203,17 +215,19 @@ public class ConcurControllerTests extends ControllerTestsBase {
         assertThat(expectedList, equalTo(result));
     }
 
-    private void testUnauthorizedRequest(final String uri) throws Exception {
-        this.mockConcur.expect(requestTo("https://concursolutions.com/api/expense/expensereport/v1.1/report/79D89435DAE94F53BF60/workflowaction"))
+     private void testUnauthorizedRequest(final String uri) throws Exception {
+        expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
+
+        this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/expense/expensereport/v1.1/report/gWujNPAb67r9LjhqgN7BEYYaQOWzavXBtUP1sej$sXfPQ/WorkFlowAction"))
                 .andExpect(method(POST))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer concur-token"))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
 
         perform(post(uri + REPORT_ID_1)
                 .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header("x-concur-authorization", "Bearer concur-token")
-                .header("x-concur-base-url", "https://concursolutions.com")
+                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 .param(ConcurConstants.RequestParam.REASON, "Approval Done"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(fromFile("/connector/responses/invalid_connector_token.json")));
@@ -221,8 +235,8 @@ public class ConcurControllerTests extends ControllerTestsBase {
         this.mockConcur.verify();
     }
 
-    private void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("concur-token", requestFile);
+    private void testRequestCardsWithMissingParameter(final String requestFile, final String responseFile) throws Exception {
+        MockHttpServletRequestBuilder builder = requestCards("0_xxxxEKPk8cnYlWaos22OpPsLk=", requestFile);
 
         perform(builder)
                 .andExpect(status().isBadRequest())
@@ -233,7 +247,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     private void testRequestCards(final String requestFile,
                                   final String responseFile,
                                   final String acceptLanguage) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("concur-token", requestFile);
+        MockHttpServletRequestBuilder builder = requestCards("0_xxxxEKPk8cnYlWaos22OpPsLk=", requestFile);
         if (acceptLanguage != null) {
             builder = builder.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
@@ -246,17 +260,18 @@ public class ConcurControllerTests extends ControllerTestsBase {
     }
 
     private ResponseActions expect(final String issue) {
-        return this.mockConcur.expect(requestTo("https://concursolutions.com/expense/reports/" + issue))
+        return this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/expense/expensereport/v2.0/report/" + issue))
                 .andExpect(method(GET))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer concur-token"));
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
+                .andExpect(MockRestRequestMatchers.header(ACCEPT, APPLICATION_JSON_VALUE));
     }
 
     private MockHttpServletRequestBuilder requestCards(final String authToken, final String requestFile) throws Exception {
         return post("/cards/requests").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header("x-concur-authorization", "Bearer " + authToken)
-                .header("x-concur-base-url", "https://concursolutions.com")
+                .header("x-concur-authorization", "OAuth " + authToken)
+                .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
                 .content(fromFile("/concur/requests/" + requestFile));
     }

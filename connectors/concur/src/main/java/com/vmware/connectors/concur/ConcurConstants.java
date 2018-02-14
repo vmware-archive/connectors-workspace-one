@@ -53,14 +53,24 @@ public final class ConcurConstants {
         }
     }
 
-    public static final class ConcurActions {
+    public static final class ConcurRequestActions {
         public final static String APPROVE = "Approve";
         public final static String REJECT = "Send Back to Employee";
 
         public final static String ACTION_PLACEHOLDER = "${action}";
         public final static String COMMENT_PLACEHOLDER = "${comment}";
 
-        private ConcurActions() {
+        private ConcurRequestActions() {
         }
+    }
+
+    public static final class ConcurResponseActions {
+        public final static String APPROVED = "Approved";
+
+        public final static String SUBMITTED_AND_PENDING_APPROVAL = "Submitted & Pending Approval";
+
+        public final static String SEND_BACK_TO_EMPLOYEE = "Sent Back to Employee";
+
+        public final static String APPROVED_AND_IN_ACCOUNT_REVIEW = "Approved & In Accounting Review";
     }
 }
