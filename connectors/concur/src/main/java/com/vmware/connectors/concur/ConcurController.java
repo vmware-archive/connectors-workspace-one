@@ -42,6 +42,7 @@ import static com.vmware.connectors.concur.ConcurConstants.Header.*;
 import static com.vmware.connectors.concur.ConcurConstants.RequestParam.REASON;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.MediaType.*;
+import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 public class ConcurController {
@@ -123,17 +124,10 @@ public class ConcurController {
         final String concurRequestTemplate = getConcurRequestTemplate(reason, concurAction);
 
         return getWorkFlowActionUrl(headers, reportID, baseUrl)
-                .flatMap(workflowActionUrl -> {
-                    final ListenableFuture<ResponseEntity<String>> response = rest.exchange(workflowActionUrl,
-                            HttpMethod.POST,
-                            new HttpEntity<>(concurRequestTemplate, headers),
-                            String.class,
-                            baseUrl,
-                            reportID);
-
-                    return Async.toSingle(response)
-                            .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
-                });
+                .flatMap(workflowActionUrl -> Async.toSingle(rest.postForEntity(workflowActionUrl,
+                        new HttpEntity<>(concurRequestTemplate, headers),
+                        String.class)))
+                .map(entity -> status(entity.getStatusCode()).build());
     }
 
     private String getConcurRequestTemplate(final String reason,
@@ -151,29 +145,26 @@ public class ConcurController {
                                                       final String routingPrefix) {
         logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
-        final Single<ResponseEntity<JsonDocument>> result = getReportDetails(headers, id, baseUrl);
-        return result
+        return getReportDetails(headers, id, baseUrl)
                 .toObservable()
                 .onErrorResumeNext(ObservableUtil::skip404)
                 .map(entity -> convertResponseIntoCard(entity, baseUrl, id, routingPrefix));
     }
 
     private Single<ResponseEntity<JsonDocument>> getReportDetails(HttpHeaders headers, String id, String baseUrl) {
-        final ListenableFuture<ResponseEntity<JsonDocument>> result = this.rest.exchange("{baseUrl}/api/expense/expensereport/v2.0/report/{id}",
+        return Async.toSingle(this.rest.exchange("{baseUrl}/api/expense/expensereport/v2.0/report/{id}",
                 HttpMethod.GET,
                 new HttpEntity<String>(headers),
                 JsonDocument.class,
                 baseUrl,
-                id);
-        return Async.toSingle(result);
+                id));
     }
 
     private Single<String> getWorkFlowActionUrl(final HttpHeaders headers,
                                                 final String id,
                                                 final String baseUrl) {
-        final Single<ResponseEntity<JsonDocument>> result = getReportDetails(headers, id, baseUrl);
-
-        return result.map(ResponseEntity::getBody)
+        return getReportDetails(headers, id, baseUrl)
+                .map(ResponseEntity::getBody)
                 .map(jsonDocument -> jsonDocument.read("$.WorkflowActionURL"));
     }
 
