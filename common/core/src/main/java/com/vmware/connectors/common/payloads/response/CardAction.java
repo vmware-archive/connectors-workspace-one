@@ -32,6 +32,10 @@ public class CardAction {
     @JsonProperty("id")
     private UUID id;
 
+    @JsonProperty("primary")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean primary;
+
     @JsonProperty("label")
     private String label;
 
@@ -62,18 +66,27 @@ public class CardAction {
     }
 
     /**
-     * Get the CardAction's id, a unique identifier for the action.
+     * Get the {@link CardAction}'s id, a unique identifier for the action.
      *
-     * @return the CardAction's id
+     * @return the {@link CardAction}'s id
      */
     public UUID getId() {
         return id;
     }
 
     /**
-     * Get the CardAction's label, a human-readable description of the action.
+     * Get the {@link CardAction}'s primary flag, a boolean indicating whether the action is a primary action or not.
      *
-     * @return the CardAction's label
+     * @return the {@link CardAction}'s primary flag
+     */
+    public boolean isPrimary() {
+        return primary;
+    }
+
+    /**
+     * Get the {@link CardAction}'s label, a human-readable description of the action.
+     *
+     * @return the {@link CardAction}'s label
      */
     public String getLabel() {
         return label;
@@ -100,7 +113,7 @@ public class CardAction {
     }
 
     /**
-     * Get the CardAction's action key, which is an arbitrary string used by the client to distinguish this
+     * Get the {@link CardAction}'s action key, which is an arbitrary string used by the client to distinguish this
      * action from other actions that may be sent.
      *
      * @return The action's key
@@ -114,7 +127,7 @@ public class CardAction {
      * We would expect a template to convert these values to hidden input fields.
      * <p>
      * The Map returned by this method is <i>unmodifiable</i> - its contents cannot be changed once the
-     * CardAction is created. Use CardAction.Builder.addRequestParam() to add request parameters to the Action.
+     * {@link CardAction} is created. Use {@link CardAction.Builder#addRequestParam(String, String)} to add request parameters to the Action.
      *
      * @return the request values
      */
@@ -128,7 +141,7 @@ public class CardAction {
      * field matches the value in the set.
      * <p>
      * The List returned by this method is <i>unmodifiable</i> - its contents cannot be changed once the
-     * CardAction is created. Use CardAction.Builder.addUserInput() to add user input fields to the Action.
+     * CardAction is created. Use {@link CardAction.Builder#addUserInputField(CardActionInputField)} to add user input fields to the Action.
      *
      * @return the user input field IDs, in the order they were added
      */
@@ -147,10 +160,10 @@ public class CardAction {
     }
 
     /**
-     * This class allows the construction of CardAction objects. To use, create a Builder instance, call its methods
-     * to populate the CardAction, and call build() to receive the completed CardAction and reset the builder.
+     * This class allows the construction of {@link CardAction} objects. To use, create a Builder instance, call its methods
+     * to populate the {@link CardAction}, and call build() to receive the completed {@link CardAction} and reset the builder.
      * <p>
-     * A CardAction can be discarded during creation, returning the Builder to its initial state, by calling reset().
+     * A {@link CardAction} can be discarded during creation, returning the Builder to its initial state, by calling reset().
      * The build() method calls reset() internally.
      */
     public static class Builder {
@@ -165,16 +178,16 @@ public class CardAction {
         }
 
         /**
-         * Discard the CardAction currently under construction and return the Builder to its initial state.
+         * Discard the {@link CardAction} currently under construction and return the Builder to its initial state.
          */
         public void reset() {
             action = new CardAction();
         }
 
         /**
-         * Set the id of the CardAction under construction.
+         * Set the id of the {@link CardAction} under construction.
          *
-         * @param id the CardAction's id
+         * @param id the {@link CardAction}'s id
          * @return this Builder instance, for method chaining
          */
 
@@ -184,9 +197,20 @@ public class CardAction {
         }
 
         /**
-         * Set the label of the CardAction under construction.
+         * Set the primary flag of the {@link CardAction} under construction.
          *
-         * @param label the CardAction's label
+         * @param primary the {@link CardAction}'s primary flag
+         * @return the Builder instance, for method chaining
+         */
+        public Builder setPrimary(boolean primary) {
+            action.primary = primary;
+            return this;
+        }
+
+        /**
+         * Set the label of the {@link CardAction} under construction.
+         *
+         * @param label the {@link CardAction}'s label
          * @return this Builder instance, for method chaining
          */
         public Builder setLabel(String label) {
@@ -195,7 +219,7 @@ public class CardAction {
         }
 
         /**
-         * Set the URL of the endpoint of the web service to which this CardAction will send a request.
+         * Set the URL of the endpoint of the web service to which this {@link CardAction} will send a request.
          *
          * @param href The URL of the service endpoint for this Action.
          * @return this Builder instance, for method chaining
@@ -206,10 +230,10 @@ public class CardAction {
         }
 
         /**
-         * Set the HTTP method (GET, POST, etc) of the CardAction under construction. Defaults to HttpMethod.GET if
+         * Set the HTTP method (GET, POST, etc) of the {@link CardAction} under construction. Defaults to HttpMethod.GET if
          * no value is set here.
          *
-         * @param type the HTTP method of the CardAction
+         * @param type the HTTP method of the {@link CardAction}
          * @return this Builder instance, for method chaining
          */
         public Builder setType(HttpMethod type) {
@@ -218,9 +242,9 @@ public class CardAction {
         }
 
         /**
-         * Set a key for the CardAction under construction, to be used by the client in rendering the Card.
+         * Set a key for the {@link CardAction} under construction, to be used by the client in rendering the Card.
          *
-         * @param key the CardAction's key
+         * @param key the {@link CardAction}'s key
          * @return this Builder instance, for method chaining
          */
         public Builder setActionKey(String key) {
@@ -229,9 +253,9 @@ public class CardAction {
         }
 
         /**
-         * Set a key for the CardAction under construction, to be used by the client in rendering the Card.
+         * Set a key for the {@link CardAction} under construction, to be used by the client in rendering the Card.
          *
-         * @param key the CardAction's key
+         * @param key the {@link CardAction}'s key
          * @return this Builder instance, for method chaining
          */
         public Builder setActionKey(CardActionKey key) {
@@ -240,7 +264,7 @@ public class CardAction {
         }
 
         /**
-         * Add a name/value pair to be sent with the request generated by the CardAction.
+         * Add a name/value pair to be sent with the request generated by the {@link CardAction}.
          * The key/value pairs are <i>not</i> stored in insertion order.
          *
          * @param key   The name of the parameter to be added
@@ -254,7 +278,7 @@ public class CardAction {
 
         /**
          * Add a specification for a parameter to be supplied by the user and sent with the request generated by
-         * the CardAction. input fields are stored in insertion order.
+         * the {@link CardAction}. input fields are stored in insertion order.
          *
          * @param inputField The field for which the user will be prompted.
          * @return this Builder instance, for method chaining
@@ -277,7 +301,7 @@ public class CardAction {
         }
 
         /**
-         * Return the CardAction under construction and reset the Builder to its initial state.
+         * Return the {@link CardAction} under construction and reset the Builder to its initial state.
          *
          * @return The completed CardAction
          */
