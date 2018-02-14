@@ -154,7 +154,9 @@ public class ServiceNowController {
         logger.trace("callForUserSysId called: baseUrl={}", baseUrl);
 
         ListenableFuture<ResponseEntity<JsonDocument>> response = rest.exchange(
-                UriComponentsBuilder.fromHttpUrl(baseUrl + "/api/now/table/{userTableName}")
+                UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path("/api/now/table/{userTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(SysUser.Fields.SYS_ID))
                         .queryParam(SNOW_SYS_PARAM_LIMIT, 1)
                         /*
@@ -196,7 +198,9 @@ public class ServiceNowController {
         );
 
         ListenableFuture<ResponseEntity<JsonDocument>> response = rest.exchange(
-                UriComponentsBuilder.fromHttpUrl(baseUrl + "/api/now/table/{apTableName}")
+                UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path("/api/now/table/{apTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, fields)
                         .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
                         .queryParam(SysApprovalApprover.Fields.SOURCE_TABLE.toString(), ScRequest.TABLE_NAME)
@@ -287,7 +291,9 @@ public class ServiceNowController {
         );
 
         ListenableFuture<ResponseEntity<JsonDocument>> response = rest.exchange(
-                UriComponentsBuilder.fromHttpUrl(baseUrl + "/api/now/table/{scTableName}/{approvalSysId}")
+                UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path("/api/now/table/{scTableName}/{approvalSysId}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
                         .buildAndExpand(
                                 ImmutableMap.of(
@@ -340,7 +346,9 @@ public class ServiceNowController {
         );
 
         ListenableFuture<ResponseEntity<JsonDocument>> response = rest.exchange(
-                UriComponentsBuilder.fromHttpUrl(baseUrl + "/api/now/table/{scTableName}")
+                UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path("/api/now/table/{scTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
                         .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
                         .queryParam(ScRequestedItem.Fields.REQUEST.toString(), approvalRequest.getApprovalSysId())
@@ -518,7 +526,9 @@ public class ServiceNowController {
         );
 
         ListenableFuture<ResponseEntity<JsonDocument>> response = rest.exchange(
-                UriComponentsBuilder.fromHttpUrl(baseUrl + "/api/now/table/{apTableName}/{requestSysId}")
+                UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path("/api/now/table/{apTableName}/{requestSysId}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, fields)
                         .buildAndExpand(
                                 ImmutableMap.of(
