@@ -91,14 +91,16 @@ public class CardBody {
         }
 
         /**
-         * Add a CardBodyField to the CardBody under construction.
+         * Add a CardBodyField to the CardBody under construction if not null.
          * Fields are stored in insertion order.
          *
          * @param field The CardBodyField to be added
          * @return this Builder instance, for method chaining
          */
         public Builder addField(CardBodyField field) {
-            body.fields.add(field);
+            if (field != null) {
+                body.fields.add(field);
+            }
             return this;
         }
 
