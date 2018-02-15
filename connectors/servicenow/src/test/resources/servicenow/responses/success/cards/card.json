@@ -43,6 +43,7 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Approve",
           "completed_label": "Approved",
+          "remove_card_on_completion": true,
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-2/approve"
           },
@@ -55,6 +56,7 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Reject",
           "completed_label": "Rejected",
+          "remove_card_on_completion": true,
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-2/reject"
           },
@@ -114,6 +116,7 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Approve",
           "completed_label": "Approved",
+          "remove_card_on_completion": true,
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-3/approve"
           },
@@ -126,6 +129,7 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Reject",
           "completed_label": "Rejected",
+          "remove_card_on_completion": true,
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-3/reject"
           },

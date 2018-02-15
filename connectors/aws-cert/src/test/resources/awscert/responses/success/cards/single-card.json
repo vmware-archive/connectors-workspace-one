@@ -46,6 +46,8 @@
           },
           "type": "POST",
           "action_key": "DIRECT",
+          "primary": true,
+          "remove_card_on_completion": true,
           "request": {
             "validation_token": "test-validation-token-2",
             "utf8": "\u2713",
