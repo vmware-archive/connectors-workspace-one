@@ -304,6 +304,9 @@ public class SalesforceController {
             String titleMessageKey,
             String description
     ) {
+        if (StringUtils.isBlank(description)) {
+            return null;
+        }
         return new CardBodyField.Builder()
                 .setTitle(cardTextAccessor.getMessage(titleMessageKey))
                 .setType(CardBodyFieldType.GENERAL)
@@ -327,18 +330,13 @@ public class SalesforceController {
             String oppProbability = Double.toString(
                     opportunityDetails.read(oppJsonPathPrefix + "Opportunity.Probability")
             ) + "%";
+            String oppAmount = opportunityDetails.read(oppJsonPathPrefix + "Opportunity.Amount");
 
             cardBodyBuilder
                     .addField(buildGeneralBodyField("senderinfo.opportunity.title", oppName))
                     .addField(buildGeneralBodyField("senderinfo.opportunity.role", oppRole))
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.probability", oppProbability));
-
-            String oppAmount = opportunityDetails.read(oppJsonPathPrefix + "Opportunity.Amount");
-
-            // Opportunity amount is an optional field in salesforce.
-            if (StringUtils.isNotBlank(oppAmount)) {
-                cardBodyBuilder.addField(buildGeneralBodyField("senderinfo.opportunity.amount", oppAmount));
-            }
+                    .addField(buildGeneralBodyField("senderinfo.opportunity.probability", oppProbability))
+                    .addField(buildGeneralBodyField("senderinfo.opportunity.amount", oppAmount));
         }
     }
 

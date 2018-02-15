@@ -77,6 +77,9 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     @Value("classpath:salesforce/response/successContact.json")
     private Resource sfResponseContactExists;
 
+    @Value("classpath:salesforce/response/successContactWithoutPhone.json")
+    private Resource sfResponseContactWithoutPhone;
+
     @Value("classpath:salesforce/response/zeroRecords.json")
     private Resource sfResponseContactDoesNotExist;
 
@@ -88,6 +91,9 @@ public class SalesforceControllerTests extends ControllerTestsBase {
 
     @Value("classpath:salesforce/response/successWithoutAmount.json")
     private Resource sfResponseWithoutAmount;
+
+    @Value("classpath:salesforce/response/successWithoutRole.json")
+    private Resource sfResponseWithoutRole;
 
     @Value("classpath:salesforce/response/newContactCreated.json")
     private Resource sfResponseContactCreated;
@@ -176,6 +182,26 @@ public class SalesforceControllerTests extends ControllerTestsBase {
                 .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(content().string(JsonReplacementsBuilder.from(
                         fromFile("connector/responses/successWithoutAmount.json")).buildForCards()));
+        mockSF.verify();
+    }
+
+    @Test
+    public void testRequestCardWithoutPhoneAndRole() throws Exception {
+        // Phone Number & Role are optional fields
+        // This tests if the cards are produced in case these are blank in salesforce.
+        final String requestFile = "/connector/requests/request.json";
+
+        expectSalesforceRequest(getContactRequestSoql(requestFile))
+                .andRespond(withSuccess(sfResponseContactWithoutPhone, APPLICATION_JSON));
+        expectSalesforceRequest(getContactOpportunitySoql(requestFile))
+                .andRespond(withSuccess(sfResponseWithoutRole, APPLICATION_JSON));
+
+        perform(requestCards("abc", requestFile))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
+                .andExpect(content().string(JsonReplacementsBuilder.from(
+                        fromFile("connector/responses/successWithoutPhoneAndRole.json")).buildForCards()));
         mockSF.verify();
     }
 
