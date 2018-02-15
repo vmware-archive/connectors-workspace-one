@@ -14,6 +14,7 @@
   },
   "actions": [{
     "id": "628a6d06-1925-404b-b241-ff21b273c4ab",
+    "primary": true,
     "label": "Add contact",
     "url": {
       "href": "/connectors/salesforce/accounts/001Q0000012gRPoIAM/contacts"
