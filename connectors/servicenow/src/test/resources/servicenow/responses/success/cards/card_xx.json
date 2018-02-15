@@ -41,6 +41,7 @@
       "actions": [
         {
           "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
           "label": "APPROVE",
           "completed_label": "APPROVED",
           "remove_card_on_completion": true,

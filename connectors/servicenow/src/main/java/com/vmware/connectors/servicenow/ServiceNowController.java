@@ -409,6 +409,7 @@ public class ServiceNowController {
                 .setBody(makeBody(info))
                 .addAction(
                         new CardAction.Builder()
+                                .setPrimary(true)
                                 .setLabel(cardTextAccessor.getActionLabel("approve"))
                                 .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("approve"))
                                 .setRemoveCardOnCompletion(true)
