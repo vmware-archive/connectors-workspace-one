@@ -34,7 +34,8 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -147,7 +148,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         perform(post(uri + expenseReportId)
                 .with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-authorization", "Bearer " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
                 .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 .param(ConcurConstants.RequestParam.REASON, "Approval Done"))
                 .andExpect(status().isOk());
@@ -270,7 +271,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         return post("/cards/requests").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header("x-concur-authorization", "OAuth " + authToken)
+                .header("x-concur-authorization", "Bearer " + authToken)
                 .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
                 .content(fromFile("/concur/requests/" + requestFile));

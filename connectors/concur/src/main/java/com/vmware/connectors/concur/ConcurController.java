@@ -72,8 +72,14 @@ public class ConcurController {
             return Single.just(ResponseEntity.ok(new Cards()));
         }
 
+        /*
+         * TODO: Remove the below line when we start using concur 3.0 API. Currently, concur 2.0 API uses custom OAuth
+         * and we have to send the authorization header with "OAuth" prefix instead of "Bearer".
+         */
+        final String modifiedAuthHeader = authHeader.replace("Bearer", "OAuth");
+
         final HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTHORIZATION, authHeader);
+        headers.set(AUTHORIZATION, modifiedAuthHeader);
         headers.set(ACCEPT, APPLICATION_JSON_VALUE);
 
         return Observable.from(expenseReportIds)
@@ -114,8 +120,14 @@ public class ConcurController {
                                                                  final String reportID,
                                                                  final String authHeader,
                                                                  final String concurAction) throws IOException, ExecutionException, InterruptedException {
+        /*
+         * TODO: Remove the below line when we start using concur 3.0 API. Currently, concur 2.0 API uses custom OAuth
+         * and we have to send the authorization header with "OAuth" prefix instead of "Bearer".
+         */
+        final String modifiedAuthHeader = authHeader.replace("Bearer", "OAuth");
+
         final HttpHeaders headers = new HttpHeaders();
-        headers.add(AUTHORIZATION, authHeader);
+        headers.add(AUTHORIZATION, modifiedAuthHeader);
         headers.add(CONTENT_TYPE, APPLICATION_XML_VALUE);
         headers.add(ACCEPT, APPLICATION_JSON_VALUE);
 
