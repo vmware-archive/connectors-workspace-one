@@ -251,6 +251,8 @@ public class AwsCertController {
                 .setLabel(cardTextAccessor.getActionLabel("approve"))
                 .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("approve"))
                 .setActionKey(CardActionKey.DIRECT)
+                .setPrimary(true)
+                .setRemoveCardOnCompletion(true)
                 .setUrl(routingPrefix + APPROVE_PATH.substring(1))
                 .setType(HttpMethod.POST);
 

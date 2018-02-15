@@ -48,6 +48,10 @@ public class CardAction {
     @JsonProperty("action_key")
     private String actionKey;
 
+    @JsonProperty("remove_card_on_completion")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean removeCardOnCompletion;
+
     @JsonProperty("request")
     private final Map<String, String> request;
 
@@ -120,6 +124,16 @@ public class CardAction {
      */
     public String getActionKey() {
         return actionKey;
+    }
+
+    /**
+     * Get the {@link CardAction}'s removeCardOnCompletion flag, which specifies whether or not the client
+     * should remove the card when this action completes.
+     *
+     * @return The action's removeCardOnCompletion flag
+     */
+    public boolean isRemoveCardOnCompletion() {
+        return removeCardOnCompletion;
     }
 
     /**
@@ -260,6 +274,18 @@ public class CardAction {
          */
         public Builder setActionKey(CardActionKey key) {
             action.actionKey = key.name();
+            return this;
+        }
+
+        /**
+         * Set the removeCardOnCompletion flag for the {@link CardAction} under construction, to be used
+         * by the client for determining whether or not to remove the card when the action completes.
+         *
+         * @param removeCardOnCompletion the {@link CardAction}'s removeCardOnCompletion flag
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setRemoveCardOnCompletion(boolean removeCardOnCompletion) {
+            action.removeCardOnCompletion = removeCardOnCompletion;
             return this;
         }
 
