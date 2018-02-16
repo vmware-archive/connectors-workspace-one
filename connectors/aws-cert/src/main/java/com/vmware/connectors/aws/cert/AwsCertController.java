@@ -256,11 +256,9 @@ public class AwsCertController {
                 .setUrl(routingPrefix + APPROVE_PATH.substring(1))
                 .setType(HttpMethod.POST);
 
-        CardAction.Builder dismissAction = new CardAction.Builder()
-                .setLabel(cardTextAccessor.getActionLabel("dismiss"))
-                .setActionKey(CardActionKey.DISMISS)
-                .setType(null)
-                .setRemoveCardOnCompletion(true);
+        CardAction.Builder dismissAction = CardAction.Builder
+                .dismissAction()
+                .setLabel(cardTextAccessor.getActionLabel("dismiss"));
 
         info.getFormParams().forEach(approveAction::addRequestParam);
 
