@@ -6,11 +6,29 @@
   "fields": {
     "customfield_13100": null,
     "customfield_13102": null,
-    "fixVersions": [],
+    "fixVersions": [
+      {
+        "self": "https://jira01.airwatchdev.com/jira/rest/api/2/version/23847",
+        "id": "23847",
+        "name": "Mobile Flows GA",
+        "released": true
+      },
+      {
+        "self": "https://jira01.airwatchdev.com/jira/rest/api/2/version/25677",
+        "id": "25677",
+        "name": "1.1",
+        "released": false
+      }
+    ],
     "customfield_13101": null,
     "customfield_13104": null,
     "customfield_13500": null,
-    "resolution": null,
+    "resolution": {
+      "self": "https://jira01.airwatchdev.com/jira/rest/api/2/resolution/1",
+      "id": "1",
+      "description": "Work has been completed on this issue.",
+      "name": "Done/Fixed"
+    },
     "customfield_13103": null,
     "customfield_13105": null,
     "customfield_10500": null,
@@ -171,7 +189,7 @@
     "customfield_13304": null,
     "customfield_13303": null,
     "customfield_10700": null,
-    "resolutiondate": null,
+    "resolutiondate": "2016-12-14T18:14:01.000-0500",
     "workratio": -1,
     "watches": {
       "self": "https://jira01.airwatchdev.com/jira/rest/api/2/issue/APF-27/watchers",

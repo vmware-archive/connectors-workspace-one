@@ -8,11 +8,16 @@
         "href": "https://hero/connectors/jira/templates/generic.hbs"
       },
       "header": {
-        "title": "Add a comment to APF-27?"
+        "title": "Add unit/integration tests",
+        "subtitle": "APF-27"
       },
       "body": {
-        "description": "Add a comment to Jira issue: Add unit/integration tests",
         "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Ticket Summary",
+            "description": "Add unit/integration tests"
+          },
           {
             "type": "GENERAL",
             "title": "Project",
@@ -20,8 +25,13 @@
           },
           {
             "type": "GENERAL",
-            "title": "Summary",
-            "description": "Add unit\/integration tests"
+            "title": "Component(s)",
+            "description": "Hero Card Server"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Priority",
+            "description": "P3"
           },
           {
             "type": "GENERAL",
@@ -30,32 +40,22 @@
           },
           {
             "type": "GENERAL",
+            "title": "Resolution",
+            "description": "Done/Fixed"
+          },
+          {
+            "type": "GENERAL",
             "title": "Assignee",
             "description": "Rob Worsnop"
           },
           {
             "type": "GENERAL",
-            "title": "Reporter",
-            "description": "Rob Worsnop"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Components",
-            "description": "Hero Card Server"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Labels",
-            "description": ""
-          },
-          {
-            "type": "GENERAL",
-            "title": "Description",
-            "description": "Figure out best way to test Spring Boot microservices.\r\n\r\nHopefully we can avoid overly granular white-box tests and test APIs."
+            "title": "Fix Version(s)",
+            "description": "Mobile Flows GA,1.1"
           },
           {
             "type": "COMMENT",
-            "title": "Comments",
+            "title": "Comment(s)",
             "content": [
               {
                 "text": "This is another comment"
@@ -71,7 +71,6 @@
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Comment",
-          "completed_label": "Commented",
           "url": {
             "href": "https://hero/connectors/jira/api/v1/issues/249650/comment"
           },
@@ -84,7 +83,8 @@
               "label": "Comment",
               "format": "textarea"
             }
-          ]
+          ],
+          "completed_label": "Commented"
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -100,14 +100,14 @@
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Watch",
-          "completed_label": "Watching",
           "url": {
             "href": "https://hero/connectors/jira/api/v1/issues/249650/watchers"
           },
           "type": "POST",
           "action_key": "DIRECT",
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "completed_label": "Watching"
         }
       ]
     }
