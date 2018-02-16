@@ -11,6 +11,7 @@ import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.Card;
 import com.vmware.connectors.common.payloads.response.CardAction;
 import com.vmware.connectors.common.payloads.response.CardActionInputField;
+import com.vmware.connectors.common.payloads.response.CardActionKey;
 import com.vmware.connectors.common.payloads.response.CardBody;
 import com.vmware.connectors.common.payloads.response.CardBodyField;
 import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
@@ -18,6 +19,7 @@ import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.ObservableUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,8 +171,8 @@ public class JiraController {
         JsonDocument jiraResponse = result.getBody();
         String issueKey = jiraResponse.read("$.key");
         String summary = jiraResponse.read("$.fields.summary");
+        List<String> fixVersions = jiraResponse.read("$.fields.fixVersions[*].name");
         List<String> components = jiraResponse.read("$.fields.components[*].name");
-        List<String> labels = jiraResponse.read("$.fields.labels");
         List<String> allComments = jiraResponse.read("$.fields.comment.comments[*].body");
         Collections.reverse(allComments);
 
@@ -179,22 +181,21 @@ public class JiraController {
         CardAction.Builder openInActionBuilder = getOpenInActionBuilder(baseUrl, issueId);
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
-                .setDescription(cardTextAccessor.getBody(summary))
-                .addField(buildGeneralBodyField("project", jiraResponse.read("$.fields.project.name")))
                 .addField(buildGeneralBodyField("summary", summary))
-                .addField(buildGeneralBodyField("status", jiraResponse.read("$.fields.status.name")))
-                .addField(buildGeneralBodyField("assignee", jiraResponse.read("$.fields.assignee.displayName")))
-                .addField(buildGeneralBodyField("reporter", jiraResponse.read("$.fields.reporter.displayName")))
+                .addField(buildGeneralBodyField("project", jiraResponse.read("$.fields.project.name")))
                 .addField(buildGeneralBodyField("components", String.join(",", components)))
-                .addField(buildGeneralBodyField("labels", String.join(",", labels)))
-                .addField(buildGeneralBodyField("description", jiraResponse.read("$.fields.description")));
+                .addField(buildGeneralBodyField("priority", jiraResponse.read("$.fields.priority.name")))
+                .addField(buildGeneralBodyField("status", jiraResponse.read("$.fields.status.name")))
+                .addField(buildGeneralBodyField("resolution", jiraResponse.read("$.fields.resolution.name")))
+                .addField(buildGeneralBodyField("assignee", jiraResponse.read("$.fields.assignee.displayName")))
+                .addField(buildGeneralBodyField("fixVersions", String.join(",", fixVersions)));
 
         addCommentsField(cardBodyBuilder, allComments);
 
         return new Card.Builder()
                 .setName("Jira")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getHeader(issueKey), null)
+                .setHeader(cardTextAccessor.getHeader(summary), cardTextAccessor.getMessage("subtitle", issueKey))
                 .setBody(cardBodyBuilder.build())
                 .addAction(commentActionBuilder.build())
                 .addAction(openInActionBuilder.build())
@@ -203,9 +204,12 @@ public class JiraController {
     }
 
     private CardBodyField buildGeneralBodyField(String titleMessageKey, String content) {
+        if (StringUtils.isBlank(content)) {
+            return null;
+        }
         return new CardBodyField.Builder()
-                .setTitle(cardTextAccessor.getMessage(titleMessageKey))
-                .setDescription(content)
+                .setTitle(cardTextAccessor.getMessage(titleMessageKey + ".title"))
+                .setDescription(cardTextAccessor.getMessage(titleMessageKey + ".content", content))
                 .setType(CardBodyFieldType.GENERAL)
                 .build();
     }
@@ -214,12 +218,12 @@ public class JiraController {
         CardBodyField.Builder cardFieldBuilder = new CardBodyField.Builder();
 
         if (!allComments.isEmpty()) {
-            cardFieldBuilder.setTitle(cardTextAccessor.getMessage("comments"))
+            cardFieldBuilder.setTitle(cardTextAccessor.getMessage("comments.title"))
                     .setType(CardBodyFieldType.COMMENT);
 
             allComments.stream()
                     .limit(COMMENTS_SIZE)
-                    .forEach(comment -> cardFieldBuilder.addContent(ImmutableMap.of("text", comment)));
+                    .forEach(comment -> cardFieldBuilder.addContent(ImmutableMap.of("text", cardTextAccessor.getMessage("comments.content", comment))));
             cardBodyBuilder.addField(cardFieldBuilder.build());
         }
     }
@@ -230,9 +234,9 @@ public class JiraController {
         String commentLink = "api/v1/issues/" + jiraResponse.read("$.id") + "/comment";
         inputFieldBuilder.setId("body")
                 .setFormat("textarea")
-                .setLabel("Comment");
-        actionBuilder.setLabel(cardTextAccessor.getActionLabel("comment"))
-                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("comment"))
+                .setLabel(cardTextAccessor.getMessage("actions.comment.prompt.label"));
+        actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.comment"))
+                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("actions.comment"))
                 .setActionKey("USER_INPUT")
                 .setUrl(routingPrefix + commentLink)
                 .setType(HttpMethod.POST)
@@ -243,9 +247,9 @@ public class JiraController {
     private CardAction.Builder getWatchActionBuilder(JsonDocument jiraResponse, String routingPrefix) {
         CardAction.Builder actionBuilder = new CardAction.Builder();
         String watchLink = "api/v1/issues/" + jiraResponse.read("$.id") + "/watchers";
-        actionBuilder.setLabel(cardTextAccessor.getActionLabel("watch"))
-                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("watch"))
-                .setActionKey("DIRECT")
+        actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.watch"))
+                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("actions.watch"))
+                .setActionKey(CardActionKey.DIRECT)
                 .setUrl(routingPrefix + watchLink)
                 .setType(HttpMethod.POST);
         return actionBuilder;
@@ -254,8 +258,8 @@ public class JiraController {
     private CardAction.Builder getOpenInActionBuilder(String baseUrl, String issueId) {
         CardAction.Builder actionBuilder = new CardAction.Builder();
         String jiraIssueWebUrl = baseUrl + "/browse/" + issueId;
-        actionBuilder.setLabel(cardTextAccessor.getActionLabel("openin"))
-                .setActionKey("OPEN_IN")
+        actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.openIn"))
+                .setActionKey(CardActionKey.OPEN_IN)
                 .setUrl(jiraIssueWebUrl)
                 .setType(GET);
         return actionBuilder;

@@ -8,54 +8,54 @@
         "href": "https://hero/connectors/jira/templates/generic.hbs"
       },
       "header": {
-        "title": "Prudle ein shickler a APF-27?"
+        "title": "Add unit/integration tests",
+        "subtitle": "APF-27"
       },
       "body": {
-        "description": "Prudle ein shickler a Jira fluken: Add unit/integration tests",
         "fields": [
           {
             "type": "GENERAL",
-            "title": "Baas",
-            "description": "App Platform"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Topphen",
+            "title": "TICKET SUMMARY",
             "description": "Add unit/integration tests"
           },
           {
             "type": "GENERAL",
-            "title": "Huudlein",
-            "description": "Active"
+            "title": "PROJECT",
+            "description": "App Platform"
           },
           {
             "type": "GENERAL",
-            "title": "Heideseit",
-            "description": "Rob Worsnop"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Loudheiler",
-            "description": "Rob Worsnop"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Kurnets",
+            "title": "COMPONENT(S)",
             "description": "Hero Card Server"
           },
           {
             "type": "GENERAL",
-            "title": "Efren",
-            "description": ""
+            "title": "PRIORITY",
+            "description": "P3"
           },
           {
             "type": "GENERAL",
-            "title": "Destrido",
-            "description": "Figure out best way to test Spring Boot microservices.\r\n\r\nHopefully we can avoid overly granular white-box tests and test APIs."
+            "title": "STATUS",
+            "description": "Active"
+          },
+          {
+            "type": "GENERAL",
+            "title": "RESOLUTION",
+            "description": "Done/Fixed"
+          },
+          {
+            "type": "GENERAL",
+            "title": "ASSIGNEE",
+            "description": "Rob Worsnop"
+          },
+          {
+            "type": "GENERAL",
+            "title": "FIX VERSION(S)",
+            "description": "Mobile Flows GA,1.1"
           },
           {
             "type": "COMMENT",
-            "title": "Shicklers",
+            "title": "COMMENT(S)",
             "content": [
               {
                 "text": "This is another comment"
@@ -70,8 +70,7 @@
       "actions": [
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Floy Shickler",
-          "completed_label": "Shickler Floy Serondement",
+          "label": "COMMENT",
           "url": {
             "href": "https://hero/connectors/jira/api/v1/issues/249650/comment"
           },
@@ -81,14 +80,15 @@
           "user_input": [
             {
               "id": "body",
-              "label": "Comment",
+              "label": "COMMENT",
               "format": "textarea"
             }
-          ]
+          ],
+          "completed_label": "COMMENTED"
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Tarayc",
+          "label": "OPEN",
           "url": {
             "href": "https://jira.acme.com/browse/APF-27"
           },
@@ -99,14 +99,15 @@
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Beobachter",
+          "label": "WATCH",
           "url": {
             "href": "https://hero/connectors/jira/api/v1/issues/249650/watchers"
           },
           "type": "POST",
           "action_key": "DIRECT",
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "completed_label": "WATCHING"
         }
       ]
     },
@@ -118,57 +119,42 @@
         "href": "https://hero/connectors/jira/templates/generic.hbs"
       },
       "header": {
-        "title": "Prudle ein shickler a APF-28?"
+        "title": "Add validation to APIs",
+        "subtitle": "APF-28"
       },
       "body": {
-        "description": "Prudle ein shickler a Jira fluken: Add validation to APIs",
         "fields": [
           {
             "type": "GENERAL",
-            "title": "Baas",
-            "description": "App Platform"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Topphen",
+            "title": "TICKET SUMMARY",
             "description": "Add validation to APIs"
           },
           {
             "type": "GENERAL",
-            "title": "Huudlein",
-            "description": "Active"
+            "title": "PROJECT",
+            "description": "App Platform"
           },
           {
             "type": "GENERAL",
-            "title": "Heideseit"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Loudheiler",
-            "description": "Rob Worsnop"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Kurnets",
+            "title": "COMPONENT(S)",
             "description": "Hero Card Server"
           },
           {
             "type": "GENERAL",
-            "title": "Efren",
-            "description": ""
+            "title": "PRIORITY",
+            "description": "P3"
           },
           {
             "type": "GENERAL",
-            "title": "Destrido",
-            "description": "Use Hibernate validator (JSR 349) to validate requests.\r\n\r\nMap to appropriate HTTP status codes and messages."
+            "title": "STATUS",
+            "description": "Active"
           }
         ]
       },
       "actions": [
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Floy Shickler",
-          "completed_label": "Shickler Floy Serondement",
+          "label": "COMMENT",
           "url": {
             "href": "https://hero/connectors/jira/api/v1/issues/249651/comment"
           },
@@ -178,14 +164,15 @@
           "user_input": [
             {
               "id": "body",
-              "label": "Comment",
+              "label": "COMMENT",
               "format": "textarea"
             }
-          ]
+          ],
+          "completed_label": "COMMENTED"
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Tarayc",
+          "label": "OPEN",
           "url": {
             "href": "https://jira.acme.com/browse/APF-28"
           },
@@ -196,14 +183,15 @@
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Beobachter",
+          "label": "WATCH",
           "url": {
             "href": "https://hero/connectors/jira/api/v1/issues/249651/watchers"
           },
           "type": "POST",
           "action_key": "DIRECT",
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "completed_label": "WATCHING"
         }
       ]
     }
