@@ -58,6 +58,14 @@
           },
           "user_input": [],
           "completed_label": "Approved"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Dismiss",
+          "action_key": "DISMISS",
+          "remove_card_on_completion": true,
+          "request": {},
+          "user_input": []
         }
       ]
     }
