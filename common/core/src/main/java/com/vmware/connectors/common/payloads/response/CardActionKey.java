@@ -13,6 +13,11 @@ public enum CardActionKey {
     DIRECT,
 
     /**
+     * Dismiss the card without performing an action.
+     */
+    DISMISS,
+
+    /**
      * Take input from the user in a form.
      */
     USER_INPUT,

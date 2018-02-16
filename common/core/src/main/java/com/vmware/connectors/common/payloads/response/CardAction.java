@@ -185,6 +185,18 @@ public class CardAction {
         private CardAction action;
 
         /**
+         * Creates a new Builder instance with properties set for a dismiss action.
+         */
+        public static Builder dismissAction() {
+            return new Builder()
+                    // currently, we have to provide GET and a url to get the client to handle the dismiss action properly
+                    .setType(HttpMethod.GET)
+                    .setUrl("/dismiss")
+                    .setRemoveCardOnCompletion(true)
+                    .setActionKey(CardActionKey.DISMISS);
+        }
+
+        /**
          * Create a new Builder instance.
          */
         public Builder() {
