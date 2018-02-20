@@ -109,7 +109,7 @@ function CardBuilder() {
         return builder;
     }
 
-    function setHeader(title, subtitle) {
+    function setHeader(title, ...subtitle) {
         card.header = {
             title: title
         };
@@ -287,6 +287,16 @@ function CardActionBuilder() {
         return builder;
     }
 
+    function setPrimary(primary) {
+        action.primary = primary;
+        return builder;
+    }
+
+    function setRemoveCardOnCompletion(removeCardOnCompletion) {
+        action.remove_card_on_completion = removeCardOnCompletion;
+        return builder;
+    }
+
     function setActionKey(actionKey) {
         action.action_key = actionKey;
         return builder;
@@ -312,6 +322,8 @@ function CardActionBuilder() {
     builder.setUrl = setUrl;
     builder.setLabel = setLabel;
     builder.setCompletedLabel = setCompletedLabel;
+    builder.setPrimary = setPrimary;
+    builder.setRemoveCardOnCompletion = setRemoveCardOnCompletion;
     builder.setActionKey = setActionKey;
     builder.addRequestParam = addRequestParam;
     builder.addUserInputField = addUserInputField;

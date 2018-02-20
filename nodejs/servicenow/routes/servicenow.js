@@ -217,7 +217,7 @@ function retrieveRequestedItems(auth, baseUrl, requests) {
 
 function transformResultsIntoCardsUsingBuilder(routingPrefix, result) {
     const lineItems = new CardFieldBuilder()
-        .setType(cardFieldTypes.GENERAL)
+        .setType(cardFieldTypes.COMMENT)
         .setTitle('Items');
 
     result.items.forEach(function (item) {
@@ -225,7 +225,7 @@ function transformResultsIntoCardsUsingBuilder(routingPrefix, result) {
     });
 
     return new CardBuilder()
-        .setHeader(`Approval Request - ${result.number}`)
+        .setHeader('Approval Request', `${result.number}`)
         .setBody(
             new CardBodyBuilder()
                 .addField(
@@ -256,6 +256,8 @@ function transformResultsIntoCardsUsingBuilder(routingPrefix, result) {
             new CardActionBuilder()
                 .setLabel('Approve')
                 .setCompletedLabel('Approved')
+                .setPrimary(true)
+                .setRemoveCardOnCompletion(true)
                 .setActionKey(cardActionKeys.DIRECT)
                 .setUrl(`${routingPrefix}api/v1/tickets/${result.sys_id}/approve`)
                 .setType(httpMethods.POST)
@@ -265,6 +267,7 @@ function transformResultsIntoCardsUsingBuilder(routingPrefix, result) {
             new CardActionBuilder()
                 .setLabel('Reject')
                 .setCompletedLabel('Rejected')
+                .setRemoveCardOnCompletion(true)
                 .setActionKey(cardActionKeys.USER_INPUT)
                 .setUrl(`${routingPrefix}api/v1/tickets/${result.sys_id}/reject`)
                 .setType(httpMethods.POST)
@@ -292,7 +295,10 @@ function transformResultsIntoCardsUsingSimpleJson(routingPrefix, result) {
         creation_date: new Date().toISOString(),
         name: 'ServiceNow',
         header: {
-            title: `Approval Request - ${result.number}`
+            title: 'Approval Request',
+            subtitle: [
+                `${result.number}`
+            ]
         },
         body: {
             fields: [
@@ -308,6 +314,7 @@ function transformResultsIntoCardsUsingSimpleJson(routingPrefix, result) {
                 primary: true,
                 label: 'Approve',
                 completed_label: 'Approved',
+                remove_card_on_completion: true,
                 action_key: 'DIRECT',
                 url: {
                     href: routingPrefix + 'api/v1/tickets/' + result.sys_id + '/approve'
@@ -320,6 +327,7 @@ function transformResultsIntoCardsUsingSimpleJson(routingPrefix, result) {
                 id: uuid(),
                 label: 'Reject',
                 completed_label: 'Rejected',
+                remove_card_on_completion: true,
                 action_key: 'USER_INPUT',
                 url: {
                     href: routingPrefix + 'api/v1/tickets/' + result.sys_id + '/reject'
