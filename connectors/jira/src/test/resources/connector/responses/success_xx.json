@@ -12,12 +12,8 @@
         "subtitle": "APF-27"
       },
       "body": {
+        "description": "Add unit/integration tests",
         "fields": [
-          {
-            "type": "GENERAL",
-            "title": "TICKET SUMMARY",
-            "description": "Add unit/integration tests"
-          },
           {
             "type": "GENERAL",
             "title": "PROJECT",
@@ -58,10 +54,10 @@
             "title": "COMMENT(S)",
             "content": [
               {
-                "text": "This is another comment"
+                "text": "jsmith - This is another comment"
               },
               {
-                "text": "This is a comment"
+                "text": "jdoe - This is a comment"
               }
             ]
           }
@@ -123,12 +119,8 @@
         "subtitle": "APF-28"
       },
       "body": {
+        "description": "Add validation to APIs",
         "fields": [
-          {
-            "type": "GENERAL",
-            "title": "TICKET SUMMARY",
-            "description": "Add validation to APIs"
-          },
           {
             "type": "GENERAL",
             "title": "PROJECT",

@@ -43,6 +43,7 @@ import rx.Single;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -173,7 +174,7 @@ public class JiraController {
         String summary = jiraResponse.read("$.fields.summary");
         List<String> fixVersions = jiraResponse.read("$.fields.fixVersions[*].name");
         List<String> components = jiraResponse.read("$.fields.components[*].name");
-        List<String> allComments = jiraResponse.read("$.fields.comment.comments[*].body");
+        List<Map<String, Object>> allComments = jiraResponse.read("$.fields.comment.comments[*]['body', 'author']");
         Collections.reverse(allComments);
 
         CardAction.Builder commentActionBuilder = getCommentActionBuilder(jiraResponse, routingPrefix);
@@ -181,7 +182,7 @@ public class JiraController {
         CardAction.Builder openInActionBuilder = getOpenInActionBuilder(baseUrl, issueId);
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
-                .addField(buildGeneralBodyField("summary", summary))
+                .setDescription(summary)
                 .addField(buildGeneralBodyField("project", jiraResponse.read("$.fields.project.name")))
                 .addField(buildGeneralBodyField("components", String.join(",", components)))
                 .addField(buildGeneralBodyField("priority", jiraResponse.read("$.fields.priority.name")))
@@ -214,7 +215,7 @@ public class JiraController {
                 .build();
     }
 
-    private void addCommentsField(CardBody.Builder cardBodyBuilder, List<String> allComments) {
+    private void addCommentsField(CardBody.Builder cardBodyBuilder, List<Map<String, Object>> allComments) {
         CardBodyField.Builder cardFieldBuilder = new CardBodyField.Builder();
 
         if (!allComments.isEmpty()) {
@@ -223,6 +224,7 @@ public class JiraController {
 
             allComments.stream()
                     .limit(COMMENTS_SIZE)
+                    .map(commentInfo -> ((Map<String, String>) commentInfo.get("author")).get("name") + " - " + commentInfo.get("body"))
                     .forEach(comment -> cardFieldBuilder.addContent(ImmutableMap.of("text", cardTextAccessor.getMessage("comments.content", comment))));
             cardBodyBuilder.addField(cardFieldBuilder.build());
         }
