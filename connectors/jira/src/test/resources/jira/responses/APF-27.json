@@ -245,7 +245,28 @@
       "startAt": 0,
       "maxResults": 0,
       "total": 0,
-      "comments": [{"body": "This is a comment"}, {"body": "This is another comment"}]
+      "comments": [
+        {
+          "author": {
+            "displayName": "John Doe",
+            "emailAddress": "jdoe@vmware.com",
+            "key": "jdoe",
+            "name": "jdoe",
+            "self": "https://jira01.airwatchdev.com/jira/rest/api/2/user?username=jdoe"
+          },
+          "body": "This is a comment"
+        },
+        {
+          "author": {
+            "displayName": "Jeff Smith",
+            "emailAddress": "jsmith@vmware.com",
+            "key": "jsmith",
+            "name": "jsmith",
+            "self": "https://jira01.airwatchdev.com/jira/rest/api/2/user?username=jsmith"
+          },
+          "body": "This is another comment"
+        }
+      ]
     }
   }
 }
