@@ -8,7 +8,10 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "APPROVAL REQUEST - REQ0010002"
+        "title": "APPROVAL REQUEST",
+        "subtitle": [
+          "REQ0010002"
+        ]
       },
       "body": {
         "fields": [
@@ -82,7 +85,10 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "APPROVAL REQUEST - REQ0010003"
+        "title": "APPROVAL REQUEST",
+        "subtitle": [
+          "REQ0010003"
+        ]
       },
       "body": {
         "fields": [

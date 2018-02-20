@@ -295,7 +295,7 @@ public class SalesforceController {
         return new Card.Builder()
                 .setName("Salesforce") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getMessage("senderinfo.header"), null)
+                .setHeader(cardTextAccessor.getMessage("senderinfo.header"))
                 .setBody(cardBodyBuilder.build())
                 .build();
     }

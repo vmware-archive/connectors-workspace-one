@@ -8,8 +8,10 @@
         "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "Gitlab PR - vmware/test-repo/1",
-        "subtitle": "Gitlab Pull Request #1 for vmware/test-repo"
+        "title": "Gitlab Merge Request",
+        "subtitle": [
+          "vmware/test-repo #1"
+        ]
       },
       "body": {
         "description": "*Created by: TestUser1*\n\ntest body",
@@ -85,8 +87,10 @@
         "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "Gitlab PR - vmware/test-repo/2",
-        "subtitle": "Gitlab Pull Request #2 for vmware/test-repo"
+        "title": "Gitlab Merge Request",
+        "subtitle": [
+          "vmware/test-repo #2"
+        ]
       },
       "body": {
         "description": "*Created by: TestUser1*\n\ntest body",
@@ -207,8 +211,10 @@
         "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "Gitlab PR - vmware/test-repo/3",
-        "subtitle": "Gitlab Pull Request #3 for vmware/test-repo"
+        "title": "Gitlab Merge Request",
+        "subtitle": [
+          "vmware/test-repo #3"
+        ]
       },
       "body": {
         "description": "*Created by: TestUser1*\n\ntest body",

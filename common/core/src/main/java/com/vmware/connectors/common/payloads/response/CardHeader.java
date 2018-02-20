@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 /**
  * This class represents the header of a "hero card", which can contain a title and/or a subtitle.
  * Instances of this class are immutable.
@@ -17,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CardHeader {
 
     private final String title;
-    private final String subtitle;
+    private final List<String> subtitle;
 
     /**
      * Create a new CardHeader.
@@ -26,11 +28,11 @@ public class CardHeader {
      * values rather than, e.g., an empty string.
      *
      * @param title The title
-     * @param subtitle The subtitle
+     * @param subtitle The subtitle(s)
      */
     @JsonCreator
     public CardHeader(@JsonProperty("title") String title,
-                      @JsonProperty("subtitle") String subtitle) {
+                      @JsonProperty("subtitle") List<String> subtitle) {
         this.title = title;
         this.subtitle = subtitle;
     }
@@ -39,7 +41,7 @@ public class CardHeader {
         return title;
     }
 
-    public String getSubtitle() {
+    public List<String> getSubtitle() {
         return subtitle;
     }
 }

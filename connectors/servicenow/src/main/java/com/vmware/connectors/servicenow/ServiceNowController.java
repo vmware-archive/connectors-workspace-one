@@ -405,7 +405,10 @@ public class ServiceNowController {
         return new Card.Builder()
                 .setName("ServiceNow") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getHeader(info.getInfo().getNumber()), null)
+                .setHeader(
+                        cardTextAccessor.getHeader(),
+                        cardTextAccessor.getMessage("subtitle", info.getInfo().getNumber())
+                )
                 .setBody(makeBody(info))
                 .addAction(
                         new CardAction.Builder()

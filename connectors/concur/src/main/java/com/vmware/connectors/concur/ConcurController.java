@@ -178,7 +178,7 @@ public class ConcurController {
         final Card.Builder cardBuilder = new Card.Builder()
                 .setName("Concur")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getMessage("concur.title"), null)
+                .setHeader(cardTextAccessor.getMessage("concur.title"))
                 .setBody(buildCardBodyBuilder(response))
                 .addAction(openActionBuilder.build());
 
