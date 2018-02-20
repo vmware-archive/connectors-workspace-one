@@ -9,8 +9,10 @@
         "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
       },
       "header": {
-        "title": "AWS Cert Req For test-subdomain-1.acme.com",
-        "subtitle": "AWS Certificate Request"
+        "title": "AWS Certificate Request",
+        "subtitle": [
+          "test-subdomain-1.acme.com"
+        ]
       },
       "body": {
         "description": "Review the information presented below and click I Approve only if you recognize the request and the account requesting it.  By clicking I Approve, you authorize Amazon to request a certificate for the above domain name.",
@@ -82,8 +84,10 @@
         "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
       },
       "header": {
-        "title": "AWS Cert Req For test-subdomain-2.acme.com",
-        "subtitle": "AWS Certificate Request"
+        "title": "AWS Certificate Request",
+        "subtitle": [
+          "test-subdomain-2.acme.com"
+        ]
       },
       "body": {
         "description": "Review the information presented below and click I Approve only if you recognize the request and the account requesting it.  By clicking I Approve, you authorize Amazon to request a certificate for the above domain name.",
@@ -155,8 +159,10 @@
         "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
       },
       "header": {
-        "title": "AWS Cert Req For test-subdomain-3.acme.com",
-        "subtitle": "AWS Certificate Request"
+        "title": "AWS Certificate Request",
+        "subtitle": [
+          "test-subdomain-3.acme.com"
+        ]
       },
       "body": {
         "description": "Review the information presented below and click I Approve only if you recognize the request and the account requesting it.  By clicking I Approve, you authorize Amazon to request a certificate for the above domain name.",

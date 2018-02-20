@@ -9,7 +9,9 @@
       },
       "header": {
         "title": "Add unit/integration tests",
-        "subtitle": "APF-27"
+        "subtitle": [
+          "APF-27"
+        ]
       },
       "body": {
         "description": "Add unit/integration tests",

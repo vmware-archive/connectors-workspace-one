@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -241,11 +242,11 @@ public class Card {
          * <code>null</code> for the missing values.
          *
          * @param title    the Card's header title
-         * @param subtitle the Card's header subtitle
+         * @param subtitle the Card's header subtitle(s)
          * @return this Builder instance, for method chaining
          */
-        public Builder setHeader(String title, String subtitle) {
-            return setHeader(new CardHeader(title, subtitle));
+        public Builder setHeader(String title, String... subtitle) {
+            return setHeader(new CardHeader(title, subtitle == null ? null : Arrays.asList(subtitle)));
         }
 
         /**

@@ -9,7 +9,9 @@
   },
   "header": {
     "title": "To be or not to be...",
-    "subtitle": "... that is the question:"
+    "subtitle": [
+      "... that is the question:"
+    ]
   },
   "body": {
     "description": "Which is nobler in the mind?",

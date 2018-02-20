@@ -8,8 +8,10 @@
         "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "GITHUB PR - vmware/test-repo/1",
-        "subtitle": "GITHUB PULL REQUEST #1 FOR vmware/test-repo"
+        "title": "GITHUB PULL REQUEST",
+        "subtitle": [
+          "vmware/test-repo #1"
+        ]
       },
       "body": {
         "description": "Small merged PR example body",
@@ -110,8 +112,10 @@
         "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "GITHUB PR - vmware/test-repo/2",
-        "subtitle": "GITHUB PULL REQUEST #2 FOR vmware/test-repo"
+        "title": "GITHUB PULL REQUEST",
+        "subtitle": [
+          "vmware/test-repo #2"
+        ]
       },
       "body": {
         "description": "Small unmerged PR example body",
@@ -268,8 +272,10 @@
         "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "GITHUB PR - vmware/test-repo/3",
-        "subtitle": "GITHUB PULL REQUEST #3 FOR vmware/test-repo"
+        "title": "GITHUB PULL REQUEST",
+        "subtitle": [
+          "vmware/test-repo #3"
+        ]
       },
       "body": {
         "description": "Small closed PR example body",
