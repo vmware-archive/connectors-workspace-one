@@ -181,7 +181,7 @@ public class JiraController {
         CardAction.Builder openInActionBuilder = getOpenInActionBuilder(baseUrl, issueId);
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
-                .addField(buildGeneralBodyField("summary", summary))
+                .setDescription(summary)
                 .addField(buildGeneralBodyField("project", jiraResponse.read("$.fields.project.name")))
                 .addField(buildGeneralBodyField("components", String.join(",", components)))
                 .addField(buildGeneralBodyField("priority", jiraResponse.read("$.fields.priority.name")))
