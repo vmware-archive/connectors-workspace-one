@@ -1,0 +1,184 @@
+{
+  "cards": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "BITBUCKET SERVER PR - Feature/APF-651 add image and test auth test/Sudharsan Sathiamoorthy",
+        "subtitle": [
+          "DESCRIPTION - * APF-651-Added integration test for getImage and getAuthKey\r\n* APF-651-Added integration test for test auth for connectors"
+        ]
+      },
+      "body": {
+        "description": "* APF-651-Added integration test for getImage and getAuthKey\r\n* APF-651-Added integration test for test auth for connectors",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "REPOSITORY",
+            "description": "app-platform-server"
+          },
+          {
+            "type": "GENERAL",
+            "title": "AUTHOR",
+            "description": "Sudharsan Sathiamoorthy"
+          },
+          {
+            "type": "GENERAL",
+            "title": "TITLE",
+            "description": "Feature/APF-651 add image and test auth test"
+          },
+          {
+            "type": "GENERAL",
+            "title": "STATE",
+            "description": "MERGED"
+          },
+          {
+            "type": "GENERAL",
+            "title": "OPEN",
+            "description": "false"
+          },
+          {
+            "type": "COMMENT",
+            "title": "COMMENT",
+            "content": [
+              {
+                "text": "Test commit for pr 236."
+              },
+              {
+                "text": "Test commit 1."
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "COMMENT",
+          "url": {
+            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/236/comments"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "comment",
+              "label": "COMMENT",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "COMMENTED"
+        }
+      ]
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "BITBUCKET SERVER PR - APF-27-Test commit for stash connector./Sudharsan Sathiamoorthy",
+        "subtitle": [
+          "DESCRIPTION - Please do not merge this branch."
+        ]
+      },
+      "body": {
+        "description": "Please do not merge this branch.",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "REPOSITORY",
+            "description": "app-platform-server"
+          },
+          {
+            "type": "GENERAL",
+            "title": "AUTHOR",
+            "description": "Sudharsan Sathiamoorthy"
+          },
+          {
+            "type": "GENERAL",
+            "title": "TITLE",
+            "description": "APF-27-Test commit for stash connector."
+          },
+          {
+            "type": "GENERAL",
+            "title": "STATE",
+            "description": "OPEN"
+          },
+          {
+            "type": "GENERAL",
+            "title": "OPEN",
+            "description": "false"
+          },
+          {
+            "type": "COMMENT",
+            "title": "COMMENT",
+            "content": [
+              {
+                "text": "Test commit for pr 246."
+              },
+              {
+                "text": "Test commit 1."
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "COMMENT",
+          "url": {
+            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/comments"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "comment",
+              "label": "COMMENT",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "COMMENTED"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "APPROVE",
+          "url": {
+            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/approve"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {},
+          "user_input": [],
+          "completed_label": "APPROVED"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "DECLINE",
+          "url": {
+            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/decline"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {},
+          "user_input": [],
+          "completed_label": "DECLINED"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "MERGE",
+          "url": {
+            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/246/merge"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {},
+          "user_input": [],
+          "completed_label": "MERGED"
+        }
+      ]
+    }
+  ]
+}
