@@ -7,6 +7,7 @@ package com.vmware.connectors.concur;
 
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +110,16 @@ public class ConcurControllerTests extends ControllerTestsBase {
         expect(REPORT_ID_2).andRespond(withSuccess(reportId2, APPLICATION_JSON));
 
         testRequestCards("request.json", "success.json", null);
+
+        this.mockConcur.verify();
+    }
+
+    @Test
+    public void testLocaleRequestCards() throws Exception {
+        expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
+        expect(REPORT_ID_2).andRespond(withSuccess(reportId2, APPLICATION_JSON));
+
+        testRequestCards("request.json", "success_xx.json", "xx");
 
         this.mockConcur.verify();
     }
@@ -247,10 +258,11 @@ public class ConcurControllerTests extends ControllerTestsBase {
     private void testRequestCards(final String requestFile,
                                   final String responseFile,
                                   final String acceptLanguage) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("0_xxxxEKPk8cnYlWaos22OpPsLk=", requestFile);
-        if (acceptLanguage != null) {
-            builder = builder.header(ACCEPT_LANGUAGE, acceptLanguage);
+        final MockHttpServletRequestBuilder builder = requestCards("0_xxxxEKPk8cnYlWaos22OpPsLk=", requestFile);
+        if (StringUtils.isNotBlank(acceptLanguage)) {
+            builder.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
+
         perform(builder)
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))

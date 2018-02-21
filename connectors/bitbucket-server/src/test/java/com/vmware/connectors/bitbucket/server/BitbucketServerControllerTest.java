@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.bitbucket.server.utils.BitbucketServerAction;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,11 +126,28 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
 
     @Test
     public void testCardRequestWithEmptyIssue() throws Exception {
-        testCardRequests("emptyIssue.json", "emptyIssue.json");
+        testCardRequests("emptyIssue.json", "emptyIssue.json", null);
     }
 
     @Test
     public void testCardRequests() throws Exception {
+        buildRequestForCards();
+
+        testCardRequests("request.json", "success.json", null);
+
+        this.mockBitbucketServer.verify();
+    }
+
+    @Test
+    public void testLocaleCardRequests() throws Exception {
+        buildRequestForCards();
+
+        testCardRequests("request.json", "success_xx.json", "xx");
+
+        this.mockBitbucketServer.verify();
+    }
+
+    private void buildRequestForCards() {
         final String pr236Url = "https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1;
         final String pr246Url = "https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_2;
         final String notFoundUrl = "https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/NOT-FOUND/pull-requests/999";
@@ -141,10 +159,6 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
         expect(pr236Url + "/activities").andRespond(withSuccess(pr236Activities, APPLICATION_JSON));
         expect(pr246Url + "/activities").andRespond(withSuccess(pr246Activities, APPLICATION_JSON));
         expect(notFoundUrl + "/activities").andRespond(withStatus(HttpStatus.NOT_FOUND));
-
-        testCardRequests("request.json", "success.json");
-
-        this.mockBitbucketServer.verify();
     }
 
     @Test
@@ -257,8 +271,13 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
                 .andExpect(content().json(fromFile("bitbucket/responses/" + responseFile)));
     }
 
-    private void testCardRequests(final String requestFile, final String responseFile) throws Exception {
+    private void testCardRequests(final String requestFile,
+                                  final String responseFile,
+                                  final String acceptLanguage) throws Exception {
         final MockHttpServletRequestBuilder builder = requestCard(BITBUCKET_SERVER_AUTH_TOKEN, requestFile);
+        if (StringUtils.isNotBlank(acceptLanguage)) {
+            builder.header(ACCEPT_LANGUAGE, acceptLanguage);
+        }
         perform(builder)
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
