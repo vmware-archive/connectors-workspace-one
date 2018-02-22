@@ -5,6 +5,8 @@
 
 package com.vmware.connectors.airwatch.config;
 
+import com.vmware.connectors.airwatch.exceptions.UnsupportedPlatform;
+
 import java.util.List;
 
 /**
@@ -59,6 +61,8 @@ public class AppConfiguration {
         } else if ("ios".equalsIgnoreCase(platform)) {
             return ios;
         }
-        return null;
+        else {
+            throw new UnsupportedPlatform(platform + " is not supported. It should be either android or ios.");
+        }
     }
 }

@@ -201,6 +201,14 @@ public class AirWatchControllerTests extends ControllerTestsBase {
                 .andExpect(content().json(fromFile("connector/responses/invalidUdid.json")));
     }
 
+    @Test
+    public void testRequestForInvalidPlatform() throws Exception{
+        perform(requestCards("invalidPlatform.json"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(fromFile("connector/responses/invalidPlatform.json")));
+
+    }
+
     private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
         MockHttpServletRequestBuilder builder = requestCards(requestFile);
         if (acceptLanguage != null) {

@@ -9,6 +9,7 @@ import com.vmware.connectors.airwatch.config.ManagedApp;
 import com.vmware.connectors.airwatch.exceptions.GbAppMapException;
 import com.vmware.connectors.airwatch.exceptions.ManagedAppNotFound;
 import com.vmware.connectors.airwatch.exceptions.UdidException;
+import com.vmware.connectors.airwatch.exceptions.UnsupportedPlatform;
 import com.vmware.connectors.airwatch.greenbox.GreenBoxApp;
 import com.vmware.connectors.airwatch.greenbox.GreenBoxConnection;
 import com.vmware.connectors.airwatch.service.AppConfigService;
@@ -21,6 +22,7 @@ import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.connectors.common.payloads.response.CardActionKey;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import net.minidev.json.JSONArray;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -115,7 +118,17 @@ public class AirWatchController {
 
         String udid = cardRequest.getTokenSingleValue(UDID_KEY);
         String clientPlatform = cardRequest.getTokenSingleValue(PLATFORM_KEY);
+
+        if (StringUtils.isAnyBlank(udid, clientPlatform)) {
+            logger.debug("Either device UDID or client platform is blank.");
+            return Single.just(new ResponseEntity<>(BAD_REQUEST));
+        }
+
         Set<String> appKeywords = cardRequest.getTokens("app_keywords");
+
+        if (CollectionUtils.isEmpty(appKeywords)) {
+            return Single.just(ResponseEntity.ok(new Cards()));
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(AUTHORIZATION, awAuth);
@@ -151,7 +164,8 @@ public class AirWatchController {
                 .flatMap(greenBoxConnection -> installGbAppByName(appName, greenBoxConnection));
     }
 
-    @ExceptionHandler({UdidException.class, ManagedAppNotFound.class, GbAppMapException.class})
+    @ExceptionHandler({UdidException.class, ManagedAppNotFound.class,
+            GbAppMapException.class, UnsupportedPlatform.class})
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public Map<String, String> handleException(RuntimeException e) {
