@@ -18,8 +18,6 @@ public class UserRecord {
     private String name;
     @JsonProperty("email")
     private String emailAddress;
-    @JsonProperty("scast_id")
-    private String scastId;
 
     public String getName() {
         return name;
@@ -57,14 +55,6 @@ public class UserRecord {
 
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
-    }
-
-    public String getScastId() {
-        return scastId;
-    }
-
-    public void setScastId(String scastId) {
-        this.scastId = scastId;
     }
 
     public String toString() {

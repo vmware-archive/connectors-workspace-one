@@ -423,7 +423,6 @@
                             com.vmware.connectors.jira*,
                             com.vmware.connectors.salesforce*,
                             com.vmware.connectors.servicenow*,
-                            com.vmware.connectors.socialcast*,
                             com.vmware.connectors.common.web,
                             com.vmware.connectors.common.json,
                             com.vmware.connectors.common.config,
