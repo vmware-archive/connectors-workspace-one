@@ -31,7 +31,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -121,13 +120,14 @@ public class AirWatchController {
 
         if (StringUtils.isAnyBlank(udid, clientPlatform)) {
             logger.debug("Either device UDID or client platform is blank.");
-            return Single.just(new ResponseEntity<>(BAD_REQUEST));
+            return Single.just(ResponseEntity.badRequest().build());
         }
 
         Set<String> appKeywords = cardRequest.getTokens("app_keywords");
 
-        if (CollectionUtils.isEmpty(appKeywords)) {
-            return Single.just(ResponseEntity.ok(new Cards()));
+        if (appKeywords == null) {
+            logger.debug("Request is missing app_keywords token.");
+            return Single.just(ResponseEntity.badRequest().build());
         }
 
         HttpHeaders headers = new HttpHeaders();
