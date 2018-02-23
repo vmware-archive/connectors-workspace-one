@@ -288,17 +288,13 @@ public class BitbucketServerController {
 
         final String author = bitBucketServerResponse.read("$.author.user.displayName");
         final String title = bitBucketServerResponse.read("$.title");
-        final String description = bitBucketServerResponse.read("$.description");
         final boolean isPROpen = OPEN.equalsIgnoreCase(bitBucketServerResponse.read("$.state"));
 
         final Card.Builder card = new Card.Builder()
                 .setHeader(
                         this.cardTextAccessor.getHeader(
                                 title,
-                                author),
-                        this.cardTextAccessor.getMessage(
-                                "bitbucket.card.subtitle",
-                                description))
+                                author))
                 .setBody(makeCardBody(bitBucketServerResponse, comments));
 
         addCommentAction(card, routingPrefix, pullRequest);
