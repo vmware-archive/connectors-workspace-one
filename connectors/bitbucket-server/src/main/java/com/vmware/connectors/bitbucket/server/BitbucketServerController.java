@@ -292,9 +292,12 @@ public class BitbucketServerController {
 
         final Card.Builder card = new Card.Builder()
                 .setHeader(
-                        this.cardTextAccessor.getHeader(
-                                title,
-                                author))
+                        this.cardTextAccessor.getHeader(title, author),
+                        this.cardTextAccessor.getMessage("subtitle",
+                                pullRequest.getProjectKey(),
+                                pullRequest.getRepositorySlug(),
+                                pullRequest.getPullRequestId())
+                )
                 .setBody(makeCardBody(bitBucketServerResponse, comments));
 
         addCommentAction(card, routingPrefix, pullRequest);
