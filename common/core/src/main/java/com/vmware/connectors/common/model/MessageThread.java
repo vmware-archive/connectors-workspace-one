@@ -5,7 +5,6 @@
 
 package com.vmware.connectors.common.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 public class MessageThread {
@@ -23,53 +21,8 @@ public class MessageThread {
     @JsonProperty("messages")
     private final List<Message> messages = new ArrayList<>();
 
-    @JsonIgnore
-    public Set<UserRecord> allUsers() {
-        return new HashSet<>(allUsersByEmail().values());
-    }
-
-    @JsonIgnore
-    public Map<String, UserRecord> allUsersByEmail() {
-        final Map<String, UserRecord> emailMap = new HashMap<>();
-        for (Message message : messages) {
-            UserRecord sender = message.getSender();
-            emailMap.put(sender.getEmailAddress(), sender);
-            for (UserRecord recipient : message.getRecipients()) {
-                emailMap.put(recipient.getEmailAddress(), recipient);
-            }
-        }
-        return emailMap;
-    }
-
     public List<Message> getMessages() {
         return messages;
-    }
-
-    @JsonIgnore
-    public String getFirstSubject() {
-        if (messages.isEmpty()) {
-            return null;
-        } else {
-            return messages.get(0).getSubject();
-        }
-    }
-
-    @JsonIgnore
-    public UserRecord getFirstSender() {
-        if (messages.isEmpty()) {
-            return null;
-        } else {
-            return messages.get(0).getSender();
-        }
-    }
-
-    @JsonIgnore
-    public ZonedDateTime getFirstSentDate() {
-        if (messages.isEmpty()) {
-            return null;
-        } else {
-            return messages.get(0).getSentDate();
-        }
     }
 
     public String toString() {
