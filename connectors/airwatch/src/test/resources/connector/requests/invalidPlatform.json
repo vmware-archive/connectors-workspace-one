@@ -1,0 +1,7 @@
+{
+  "tokens": {
+    "udid": ["ABCD"],
+    "platform": ["windows"],
+    "app_keywords": ["Boxer", "Concur"]
+  }
+}
