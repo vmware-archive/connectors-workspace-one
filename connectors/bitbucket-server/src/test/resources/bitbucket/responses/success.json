@@ -4,10 +4,8 @@
       "id": "00000000-0000-0000-0000-000000000000",
       "creation_date": "1970-01-01T00:00:00Z",
       "header": {
-        "title": "Bitbucket Server PR - Feature/APF-651 add image and test auth test/Sudharsan Sathiamoorthy",
-        "subtitle": [
-          "Description - * APF-651-Added integration test for getImage and getAuthKey\r\n* APF-651-Added integration test for test auth for connectors"
-        ]
+        "title": "Bitbucket Server PR",
+        "subtitle":["UFO/app-platform-server #236"]
       },
       "body": {
         "description": "* APF-651-Added integration test for getImage and getAuthKey\r\n* APF-651-Added integration test for test auth for connectors",
@@ -76,10 +74,8 @@
       "id": "00000000-0000-0000-0000-000000000000",
       "creation_date": "1970-01-01T00:00:00Z",
       "header": {
-        "title": "Bitbucket Server PR - APF-27-Test commit for stash connector./Sudharsan Sathiamoorthy",
-        "subtitle": [
-          "Description - Please do not merge this branch."
-        ]
+        "title": "Bitbucket Server PR",
+        "subtitle":["UFO/app-platform-server #246"]
       },
       "body": {
         "description": "Please do not merge this branch.",
