@@ -4,7 +4,7 @@
       "id": "00000000-0000-0000-0000-000000000000",
       "creation_date": "1970-01-01T00:00:00Z",
       "header": {
-        "title": "Bitbucket Server PR - Feature/APF-651 add image and test auth test/Sudharsan Sathiamoorthy",
+        "title": "Bitbucket Server PR",
         "subtitle":["UFO/app-platform-server #236"]
       },
       "body": {
@@ -74,7 +74,7 @@
       "id": "00000000-0000-0000-0000-000000000000",
       "creation_date": "1970-01-01T00:00:00Z",
       "header": {
-        "title": "Bitbucket Server PR - APF-27-Test commit for stash connector./Sudharsan Sathiamoorthy",
+        "title": "Bitbucket Server PR",
         "subtitle":["UFO/app-platform-server #246"]
       },
       "body": {
