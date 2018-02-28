@@ -7,6 +7,7 @@ package com.vmware.connectors.common.utils;
 
 import com.vmware.connectors.common.context.ContextHolder;
 import org.slf4j.MDC;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -46,6 +47,13 @@ public final class Async {
 
         @Override
         public void onFailure(Throwable throwable) {
+            // We do not want to lose the user information("principal") set in MDC.
+            final Map<String, Object> callbackContext = ContextHolder.getContext();
+            final boolean same = callerContext == callbackContext; // NOPMD - We dont have to check identity.
+
+            if (!same && !CollectionUtils.isEmpty(this.mdcMap)) {
+                MDC.setContextMap(this.mdcMap);
+            }
             subscriber.onError(throwable);
         }
 
@@ -57,8 +65,8 @@ public final class Async {
             boolean same = callerContext == callbackContext; // NOPMD I really do want identity
             if (!same) {
                 callbackContext.putAll(callerContext);
-                if (mdcMap != null) {
-                    MDC.setContextMap(mdcMap);
+                if (!CollectionUtils.isEmpty(this.mdcMap)) {
+                    MDC.setContextMap(this.mdcMap);
                 }
             }
             try {
