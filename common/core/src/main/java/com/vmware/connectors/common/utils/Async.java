@@ -7,7 +7,6 @@ package com.vmware.connectors.common.utils;
 
 import com.vmware.connectors.common.context.ContextHolder;
 import org.slf4j.MDC;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -46,31 +45,30 @@ public final class Async {
         }
 
         @Override
-        public void onFailure(Throwable throwable) {
-            // We do not want to lose the user information("principal") set in MDC.
-            final Map<String, Object> callbackContext = ContextHolder.getContext();
-            final boolean same = callerContext == callbackContext; // NOPMD - We dont have to check identity.
-
-            if (!same && !CollectionUtils.isEmpty(this.mdcMap)) {
-                MDC.setContextMap(this.mdcMap);
-            }
-            subscriber.onError(throwable);
+        public void onSuccess(T result) {
+            doAction(() -> subscriber.onSuccess(result));
         }
 
         @Override
-        public void onSuccess(T result) {
+        public void onFailure(Throwable throwable) {
+            doAction(() -> subscriber.onError(throwable));
+        }
+
+        private void doAction(final Runnable action) {
             // Copy the context from the calling thread to the callback thread's context
             // unless the calling thread *is* the callback thread
-            Map<String, Object> callbackContext = ContextHolder.getContext();
-            boolean same = callerContext == callbackContext; // NOPMD I really do want identity
+            final Map<String, Object> callbackContext = ContextHolder.getContext();
+            final boolean same = callerContext == callbackContext; // NOPMD I really do want identity
+
             if (!same) {
                 callbackContext.putAll(callerContext);
-                if (!CollectionUtils.isEmpty(this.mdcMap)) {
+                if (this.mdcMap != null) {
                     MDC.setContextMap(this.mdcMap);
                 }
             }
+
             try {
-                subscriber.onSuccess(result);
+                action.run();
             } finally {
                 if (!same) {
                     callerContext.keySet().forEach(callbackContext::remove);
@@ -78,7 +76,6 @@ public final class Async {
                 }
             }
         }
-
     }
 
     /**
@@ -106,5 +103,4 @@ public final class Async {
             }
         };
     }
-
 }
