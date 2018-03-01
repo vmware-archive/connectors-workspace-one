@@ -45,24 +45,30 @@ public final class Async {
         }
 
         @Override
-        public void onFailure(Throwable throwable) {
-            subscriber.onError(throwable);
+        public void onSuccess(T result) {
+            doAction(() -> subscriber.onSuccess(result));
         }
 
         @Override
-        public void onSuccess(T result) {
+        public void onFailure(Throwable throwable) {
+            doAction(() -> subscriber.onError(throwable));
+        }
+
+        private void doAction(final Runnable action) {
             // Copy the context from the calling thread to the callback thread's context
             // unless the calling thread *is* the callback thread
-            Map<String, Object> callbackContext = ContextHolder.getContext();
-            boolean same = callerContext == callbackContext; // NOPMD I really do want identity
+            final Map<String, Object> callbackContext = ContextHolder.getContext();
+            final boolean same = callerContext == callbackContext; // NOPMD I really do want identity
+
             if (!same) {
                 callbackContext.putAll(callerContext);
-                if (mdcMap != null) {
-                    MDC.setContextMap(mdcMap);
+                if (this.mdcMap != null) {
+                    MDC.setContextMap(this.mdcMap);
                 }
             }
+
             try {
-                subscriber.onSuccess(result);
+                action.run();
             } finally {
                 if (!same) {
                     callerContext.keySet().forEach(callbackContext::remove);
@@ -70,7 +76,6 @@ public final class Async {
                 }
             }
         }
-
     }
 
     /**
@@ -98,5 +103,4 @@ public final class Async {
             }
         };
     }
-
 }
