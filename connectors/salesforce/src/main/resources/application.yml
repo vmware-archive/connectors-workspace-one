@@ -11,3 +11,6 @@ sf:
    opportunityTaskLinkPath: services/data/v20.0/sobjects/Task
    attachmentTasklinkPath: services/data/v20.0/sobjects/Attachment
 
+management:
+  endpoints:
+    web.base-path: /

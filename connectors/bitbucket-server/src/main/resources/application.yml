@@ -6,3 +6,7 @@ server:
 
 connector:
   hasTestAuth: true
+
+management:
+  endpoints:
+    web.base-path: /

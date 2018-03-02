@@ -152,11 +152,10 @@ public class BitbucketServerController {
 
         final BitbucketServerComment bitBucketServerComment = new BitbucketServerComment(comment);
         final ListenableFuture<ResponseEntity<String>> response = this.rest.exchange(
-                "{baseUrl}/rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/comments",
+                baseUrl + "/rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/comments",
                 HttpMethod.POST,
                 new HttpEntity<>(bitBucketServerComment, headers),
                 String.class,
-                baseUrl,
                 pullRequest.getProjectKey(),
                 pullRequest.getRepositorySlug(),
                 pullRequest.getPullRequestId());
@@ -170,11 +169,10 @@ public class BitbucketServerController {
         headers.add(AUTHORIZATION, authHeader);
 
         final ListenableFuture<ResponseEntity<Void>> response = this.rest.exchange(
-                "{baseUrl}/rest/api/1.0/dashboard/pull-request-suggestions?limit=1",
+                baseUrl + "/rest/api/1.0/dashboard/pull-request-suggestions?limit=1",
                 HttpMethod.HEAD,
                 new HttpEntity<>(headers),
-                Void.class,
-                baseUrl);
+                Void.class);
 
         return Async.toSingle(response)
                 .map(ignored -> ResponseEntity.noContent().build());
@@ -185,11 +183,10 @@ public class BitbucketServerController {
                                              final BitbucketServerPullRequest pullRequest) {
 
         final ListenableFuture<ResponseEntity<JsonDocument>> response = this.rest.exchange(
-                "{baseUrl}/rest/api/1.0/projects/{projectKey}/repos/{repostiorySlug}/pull-requests/{pullRequestId}/activities",
+                baseUrl + "/rest/api/1.0/projects/{projectKey}/repos/{repostiorySlug}/pull-requests/{pullRequestId}/activities",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 JsonDocument.class,
-                baseUrl,
                 pullRequest.getProjectKey(),
                 pullRequest.getRepositorySlug(),
                 pullRequest.getPullRequestId());
@@ -220,11 +217,10 @@ public class BitbucketServerController {
                     headers.add(ATLASSIAN_TOKEN, "no-check");
 
                     final ListenableFuture<ResponseEntity<String>> response = this.rest.exchange(
-                            "{baseUrl}/rest/api/1.0/projects/{projectKey}/repos/{repositoryPlug}/pull-requests/{pullRequestId}/{action}?version={version}",
+                            baseUrl + "/rest/api/1.0/projects/{projectKey}/repos/{repositoryPlug}/pull-requests/{pullRequestId}/{action}?version={version}",
                             HttpMethod.POST,
                             new HttpEntity<>(headers),
                             String.class,
-                            baseUrl,
                             pullRequest.getProjectKey(),
                             pullRequest.getRepositorySlug(),
                             pullRequest.getPullRequestId(),
@@ -270,11 +266,10 @@ public class BitbucketServerController {
                                                                     final BitbucketServerPullRequest pullRequest,
                                                                     final String baseUrl) {
         return Async.toSingle(this.rest.exchange(
-                "{baseUrl}/rest/api/1.0/projects/{projectKey}/repos/{respositorySlug}/pull-requests/{pullRequestId}",
+                baseUrl+ "/rest/api/1.0/projects/{projectKey}/repos/{respositorySlug}/pull-requests/{pullRequestId}",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 JsonDocument.class,
-                baseUrl,
                 pullRequest.getProjectKey(),
                 pullRequest.getRepositorySlug(),
                 pullRequest.getPullRequestId()));

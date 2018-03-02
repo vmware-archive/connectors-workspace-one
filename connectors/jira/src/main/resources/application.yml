@@ -4,5 +4,10 @@ server:
      mime-types: application/json,application/xml,text/html,text/xml,text/plain
   server-header: jira-connector
 
+management:
+  endpoints:
+    web.base-path: /
+
+
 connector:
   hasTestAuth: true
