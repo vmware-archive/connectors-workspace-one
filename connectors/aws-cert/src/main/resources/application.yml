@@ -10,3 +10,7 @@ aws:
       approval:
         host: certificates.amazon.com
         path: /approvals
+
+management:
+  endpoints:
+    web.base-path: /

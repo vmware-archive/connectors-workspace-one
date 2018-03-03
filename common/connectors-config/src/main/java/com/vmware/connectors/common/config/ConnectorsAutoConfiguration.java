@@ -5,11 +5,11 @@
 
 package com.vmware.connectors.common.config;
 
-import com.vmware.connectors.common.web.ConnectorRootController;
-import com.vmware.connectors.common.web.ExceptionHandlers;
-import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.context.ContextInterceptor;
 import com.vmware.connectors.common.json.JsonDocumentHttpMessageConverter;
+import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.web.ConnectorRootController;
+import com.vmware.connectors.common.web.ExceptionHandlers;
 import com.vmware.connectors.common.web.MdcFilter;
 import com.vmware.connectors.common.web.SingleReturnValueHandler;
 import org.apache.commons.io.IOUtils;
@@ -22,20 +22,18 @@ import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.nio.conn.NHttpClientConnectionManager;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.JwtAccessTokenConverterRestTemplateCustomizer;
-import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
-import org.springframework.boot.context.embedded.MimeMappings;
+import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.MimeMappings;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.http.CacheControl;
-import org.springframework.http.HttpInputMessage;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpOutputMessage;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.http.client.AsyncClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsAsyncClientHttpRequestFactory;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
@@ -52,7 +50,6 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import javax.servlet.Filter;
 import java.io.IOException;
@@ -68,6 +65,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * Created by Rob Worsnop on 11/29/16.
  */
 @Configuration
+@AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
 @Import({ExceptionHandlers.class, ConnectorRootController.class})
 public class ConnectorsAutoConfiguration {
 
@@ -77,8 +75,8 @@ public class ConnectorsAutoConfiguration {
     }
 
     @Bean
-    public WebMvcConfigurerAdapter observableMVCConfiguration(final SingleReturnValueHandler singleReturnValueHandler) {
-        return new WebMvcConfigurerAdapter() {
+    public WebMvcConfigurer observableMVCConfiguration(final SingleReturnValueHandler singleReturnValueHandler) {
+        return new WebMvcConfigurer() {
             @Override
             public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
                 returnValueHandlers.add(singleReturnValueHandler);
@@ -87,16 +85,13 @@ public class ConnectorsAutoConfiguration {
     }
 
     @Bean
-    public EmbeddedServletContainerCustomizer servletCustomizer() {
-        return new EmbeddedServletContainerCustomizer() {
-            @Override
-            public void customize(ConfigurableEmbeddedServletContainer container) {
-                MimeMappings mappings = new MimeMappings(MimeMappings.DEFAULT);
-                mappings.add("hbs", "text/x-handlebars-template");
-                mappings.add("hal", "application/hal+json");
-                container.setMimeMappings(mappings);
-            }
-        };
+    public ConfigurableServletWebServerFactory webServerFactory() {
+        TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
+        MimeMappings mappings = new MimeMappings(MimeMappings.DEFAULT);
+        mappings.add("hbs", "text/x-handlebars-template");
+        mappings.add("hal", "application/hal+json");
+        factory.setMimeMappings(mappings);
+        return factory;
     }
 
     @Bean
@@ -107,7 +102,7 @@ public class ConnectorsAutoConfiguration {
 
     @Bean
     public JwtAccessTokenConverterRestTemplateCustomizer jwtAccessTokenConverterRestTemplateCustomizer() {
-        return new JwtAccessTokenConverterRestTemplateCustomizer () {
+        return new JwtAccessTokenConverterRestTemplateCustomizer() {
             @Override
             public void customize(RestTemplate template) {
                 template.getMessageConverters().add(0, new AbstractHttpMessageConverter<Map>(MediaType.ALL) {
@@ -150,7 +145,7 @@ public class ConnectorsAutoConfiguration {
     @Bean
     public WebMvcConfigurer webMvcConfigurer(@Value("${static.cacheControl.maxAge:1}") long maxAge,
                                              @Value("${static.cacheControl.unit:DAYS}") TimeUnit unit) {
-        return new WebMvcConfigurerAdapter() {
+        return new WebMvcConfigurer() {
             @Override
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
                 CacheControl cacheControl = CacheControl.maxAge(maxAge, unit);
@@ -188,7 +183,7 @@ public class ConnectorsAutoConfiguration {
                 http.anonymous()
                         .and()
                         .authorizeRequests()
-                        .antMatchers(HttpMethod.GET, "/templates/**", "/discovery/**", "/images/**", "/").permitAll()
+                        .antMatchers(HttpMethod.GET, "/health", "/templates/**", "/discovery/**", "/images/**", "/").permitAll()
                         .and()
                         .authorizeRequests()
                         .antMatchers("/**").authenticated();

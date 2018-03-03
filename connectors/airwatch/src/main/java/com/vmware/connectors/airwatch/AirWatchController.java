@@ -180,9 +180,9 @@ public class AirWatchController {
         logger.debug("Getting app installation status for bundleId: {} with air-watch base url: {}",
                 appBundle, baseUrl);
         ListenableFuture<ResponseEntity<JsonDocument>> future = rest.exchange(
-                "{baseUrl}/deviceservices/AppInstallationStatus?Udid={udid}&BundleId={bundleId}",
+                baseUrl + "/deviceservices/AppInstallationStatus?Udid={udid}&BundleId={bundleId}",
                 HttpMethod.GET, new HttpEntity<String>(headers), JsonDocument.class,
-                baseUrl, udid, appBundle);
+                udid, appBundle);
         return toSingle(future).toObservable()
                 .onErrorResumeNext(throwable -> handleClientError(throwable, udid))
                 .flatMap(entity -> getCard(entity.getBody(), routingPrefix,
@@ -255,9 +255,9 @@ public class AirWatchController {
         String deviceType = platform.replaceAll("(?i)ios", "Apple");
 
         ListenableFuture<ResponseEntity<JsonDocument>> future = rest.exchange(
-                "{baseUrl}/catalog-portal/services/auth/eucTokens?deviceUdid={udid}&deviceType={deviceType}",
+                baseUri + "/catalog-portal/services/auth/eucTokens?deviceUdid={udid}&deviceType={deviceType}",
                 HttpMethod.POST, new HttpEntity<String>(headers), JsonDocument.class,
-                baseUri, udid, deviceType);
+                udid, deviceType);
 
         return toSingle(future)
                 .map(entity -> entity.getBody().read("$.eucToken"));
@@ -289,9 +289,9 @@ public class AirWatchController {
         headers.set(COOKIE, "USER_CATALOG_CONTEXT=" + gbSession.getEucToken());
 
         ListenableFuture<ResponseEntity<JsonDocument>> future = rest.exchange(
-                "{baseUrl}/catalog-portal/services/api/entitlements?q={appName}",
+                gbSession.getBaseUrl() + "/catalog-portal/services/api/entitlements?q={appName}",
                 HttpMethod.GET, new HttpEntity<String>(headers),
-                JsonDocument.class, gbSession.getBaseUrl(), appName);
+                JsonDocument.class, appName);
 
         return toSingle(future)
                 .map(entity -> {
@@ -343,8 +343,7 @@ public class AirWatchController {
         HttpHeaders headers = new HttpHeaders();
         headers.set(COOKIE, "USER_CATALOG_CONTEXT=" + eucToken);
         ListenableFuture<ResponseEntity<String>> future = rest.exchange(
-                "{baseUrl}/catalog-portal/", HttpMethod.OPTIONS, new HttpEntity<String>(headers),
-                String.class, baseUri);
+                baseUri + "/catalog-portal/", HttpMethod.OPTIONS, new HttpEntity<String>(headers), String.class);
         return toSingle(future)
                 .map(entity -> entity.getHeaders().getFirst("Set-Cookie"))
                 .map(cookie -> cookie.split(";")[0].split("EUC_XSRF_TOKEN=")[1]);
