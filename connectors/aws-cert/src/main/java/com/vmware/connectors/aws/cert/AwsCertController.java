@@ -7,9 +7,8 @@ package com.vmware.connectors.aws.cert;
 
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
-import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.ObservableUtil;
+import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,22 +18,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.util.CollectionUtils;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.AsyncRestOperations;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import rx.Observable;
-import rx.Single;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 @RestController
 public class AwsCertController {
@@ -49,14 +54,14 @@ public class AwsCertController {
 
     private final String certificateApprovalHost;
     private final String certificateApprovalPath;
-    private final AsyncRestOperations rest;
+    private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
 
     @Autowired
     public AwsCertController(
             @Value("${aws.certificate.connector.approval.host}") String certificateApprovalHost,
             @Value("${aws.certificate.connector.approval.path}") String certificateApprovalPath,
-            AsyncRestOperations rest,
+            WebClient rest,
             CardTextAccessor cardTextAccessor
     ) {
         this.certificateApprovalHost = certificateApprovalHost.toLowerCase(Locale.US);
@@ -70,37 +75,29 @@ public class AwsCertController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Single<ResponseEntity<Cards>> getCards(
+    public Mono<Cards> getCards(
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
+            @RequestHeader(name = ACCEPT_LANGUAGE, required = false) final Locale locale,
             @Valid @RequestBody CardRequest request
     ) {
         logger.trace("getCards called, routingPrefix={}, request={}", routingPrefix, request);
 
-        List<String> approvalUrls = new ArrayList<>(request.getTokens("approval_urls"));
-
-        if (CollectionUtils.isEmpty(approvalUrls)) {
-            return Single.just(ResponseEntity.ok(new Cards()));
-        }
-
-        approvalUrls = validateUrls(approvalUrls);
-
-        Collections.sort(approvalUrls);
-
-        return getAllCardsInfo(new LinkedHashSet<>(approvalUrls))
-                .filter(pair -> pair.getRight().getStatusCode().is2xxSuccessful())
-                .map(this::parseCardInfoOutOfResponse)
-                .reduce(
-                        new Cards(),
-                        (cards, info) -> appendCard(cards, info, routingPrefix)
-                )
-                .toSingle()
-                .map(ResponseEntity::ok);
+         return Flux.fromStream(validateUrls(request.getTokens("approval_urls")))
+                 .sort()
+                 .flatMap(this::callForCardInfo)
+                 .filter(pair -> pair.getRight().getStatusCode().is2xxSuccessful())
+                 .map(this::parseCardInfoOutOfResponse)
+                 .reduce(
+                         new Cards(),
+                         (cards, info) -> appendCard(cards, info, routingPrefix, locale)
+                 )
+                 .defaultIfEmpty(new Cards())
+                 .subscriberContext(Reactive.setupContext());
     }
 
-    private List<String> validateUrls(List<String> approvalUrls) {
+    private Stream<String> validateUrls(Set<String> approvalUrls) {
         return approvalUrls.stream()
-                .filter(this::validateUrl)
-                .collect(Collectors.toList());
+                .filter(this::validateUrl);
     }
 
     private boolean validateUrl(String approvalUrl) {
@@ -128,31 +125,21 @@ public class AwsCertController {
         return uriComponents.getPath().equals(certificateApprovalPath);
     }
 
-    private Observable<Pair<String, ResponseEntity<String>>> getAllCardsInfo(Set<String> approvalUrls) {
-        return Observable
-                .from(approvalUrls)
-                .flatMap(this::callForCardInfo);
-    }
-
-    private Observable<Pair<String, ResponseEntity<String>>> callForCardInfo(String approvalUrl) {
+    private Flux<Pair<String, ResponseEntity<String>>> callForCardInfo(String approvalUrl) {
         logger.trace("callForCardInfo called: approvalUrl={}", approvalUrl);
 
-        ListenableFuture<ResponseEntity<String>> response = rest.exchange(
-                UriComponentsBuilder
+        return rest.get()
+                .uri( UriComponentsBuilder
                         .fromHttpUrl(approvalUrl)
                         .build()
-                        .toUri(),
-                HttpMethod.GET,
-                HttpEntity.EMPTY,
-                String.class
-        );
-
-        return Async.toSingle(response)
-                .toObservable()
+                        .toUri())
+                .exchange()
+                .flux()
                 // Don't let a bad AWS token skip the rest
-                .onErrorResumeNext(ObservableUtil::skip400) // Expired requests will return 400 bad request
-                .onErrorResumeNext(ObservableUtil::skip404) // Non-existent contexts will return 404 not found
-                .map(responseEntity -> Pair.of(approvalUrl, responseEntity));
+                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable,
+                        httpStatus -> httpStatus == NOT_FOUND || httpStatus == BAD_REQUEST))
+                .flatMap(response -> Reactive.toResponseEntity(response, String.class))
+                .map(response -> Pair.of(approvalUrl, response));
     }
 
     private AwsCertCardInfo parseCardInfoOutOfResponse(Pair<String, ResponseEntity<String>> pair) {
@@ -232,24 +219,25 @@ public class AwsCertController {
         return formParams;
     }
 
-    private Cards appendCard(Cards cards, AwsCertCardInfo info, String routingPrefix) {
+    private Cards appendCard(Cards cards, AwsCertCardInfo info, String routingPrefix, Locale locale) {
         logger.trace("appendCard called: info={}, routingPrefix={}", info, routingPrefix);
 
         cards.getCards()
-                .add(makeCard(info, routingPrefix));
+                .add(makeCard(info, routingPrefix, locale));
 
         return cards;
     }
 
     private Card makeCard(
             AwsCertCardInfo info,
-            String routingPrefix
+            String routingPrefix,
+            Locale locale
     ) {
         logger.trace("makeCard called: info={}, routingPrefix={}", info, routingPrefix);
 
         CardAction.Builder approveAction = new CardAction.Builder()
-                .setLabel(cardTextAccessor.getActionLabel("approve"))
-                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("approve"))
+                .setLabel(cardTextAccessor.getActionLabel("approve", locale))
+                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("approve", locale))
                 .setActionKey(CardActionKey.DIRECT)
                 .setPrimary(true)
                 .setRemoveCardOnCompletion(true)
@@ -258,8 +246,8 @@ public class AwsCertController {
 
         CardAction.Builder dismissAction = CardAction.Builder
                 .dismissAction()
-                .setLabel(cardTextAccessor.getActionLabel("dismiss"))
-                .setCompletedLabel(cardTextAccessor.getActionLabel("dismiss"));
+                .setLabel(cardTextAccessor.getActionLabel("dismiss", locale))
+                .setCompletedLabel(cardTextAccessor.getActionLabel("dismiss", locale));
 
         info.getFormParams().forEach(approveAction::addRequestParam);
 
@@ -277,11 +265,12 @@ public class AwsCertController {
                  */
                 .setExpirationDate(OffsetDateTime.now().plusDays(3))
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getHeader(), cardTextAccessor.getMessage("subtitle", info.getDomain()))
+                .setHeader(cardTextAccessor.getHeader(locale), cardTextAccessor.getMessage("subtitle", locale, info.getDomain()))
                 .setBody(
                         new CardBody.Builder()
                                 .setDescription(
                                         cardTextAccessor.getBody(
+                                                locale,
                                                 info.getDomain(),
                                                 info.getAccountId(),
                                                 info.getRegionName(),
@@ -290,30 +279,30 @@ public class AwsCertController {
                                 )
                                 .addField(
                                         new CardBodyField.Builder()
-                                                .setTitle(cardTextAccessor.getMessage("domain.title"))
+                                                .setTitle(cardTextAccessor.getMessage("domain.title", locale))
                                                 .setType(CardBodyFieldType.GENERAL)
-                                                .setDescription(cardTextAccessor.getMessage("domain.description", info.getDomain()))
+                                                .setDescription(cardTextAccessor.getMessage("domain.description", locale, info.getDomain()))
                                                 .build()
                                 )
                                 .addField(
                                         new CardBodyField.Builder()
-                                                .setTitle(cardTextAccessor.getMessage("accountId.title"))
+                                                .setTitle(cardTextAccessor.getMessage("accountId.title", locale))
                                                 .setType(CardBodyFieldType.GENERAL)
-                                                .setDescription(cardTextAccessor.getMessage("accountId.description", info.getAccountId()))
+                                                .setDescription(cardTextAccessor.getMessage("accountId.description", locale, info.getAccountId()))
                                                 .build()
                                 )
                                 .addField(
                                         new CardBodyField.Builder()
-                                                .setTitle(cardTextAccessor.getMessage("regionName.title"))
+                                                .setTitle(cardTextAccessor.getMessage("regionName.title", locale))
                                                 .setType(CardBodyFieldType.GENERAL)
-                                                .setDescription(cardTextAccessor.getMessage("regionName.description", info.getRegionName()))
+                                                .setDescription(cardTextAccessor.getMessage("regionName.description", locale, info.getRegionName()))
                                                 .build()
                                 )
                                 .addField(
                                         new CardBodyField.Builder()
-                                                .setTitle(cardTextAccessor.getMessage("certId.title"))
+                                                .setTitle(cardTextAccessor.getMessage("certId.title", locale))
                                                 .setType(CardBodyFieldType.GENERAL)
-                                                .setDescription(cardTextAccessor.getMessage("certId.description", info.getCertIdentifier()))
+                                                .setDescription(cardTextAccessor.getMessage("certId.description", locale, info.getCertIdentifier()))
                                                 .build()
                                 )
                                 .build()
@@ -325,9 +314,9 @@ public class AwsCertController {
 
     @PostMapping(
             path = APPROVE_PATH,
-            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+            consumes = APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> approve(
+    public Mono<ResponseEntity<String>> approve(
             @RequestParam Map<String, String> params
     ) {
         logger.trace("approve called: params={}", params);
@@ -335,7 +324,7 @@ public class AwsCertController {
         String approvalUrl = params.get(APPROVAL_URL_PARAM);
 
         if (!validateUrl(approvalUrl)) {
-            return Single.just(ResponseEntity.badRequest().body("Bad url: " + approvalUrl));
+            return Mono.just(ResponseEntity.badRequest().body("Bad url: " + approvalUrl));
         }
 
         MultiValueMap<String, String> formParams = new LinkedMultiValueMap<>();
@@ -345,17 +334,13 @@ public class AwsCertController {
                 .filter(entry -> !entry.getKey().equals(APPROVAL_URL_PARAM))
                 .forEach(kvp -> formParams.add(kvp.getKey(), kvp.getValue()));
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE);
-
-        ListenableFuture<ResponseEntity<String>> response = rest.exchange(
-                approvalUrl,
-                HttpMethod.POST,
-                new HttpEntity<>(formParams, headers),
-                String.class
-        );
-
-        return Async.toSingle(response);
+        return rest.post()
+                .uri(approvalUrl)
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .syncBody(formParams)
+                .exchange()
+                .flatMap(Reactive::checkStatus)
+                .flatMap(response -> Reactive.toResponseEntity(response, String.class));
     }
 
 }

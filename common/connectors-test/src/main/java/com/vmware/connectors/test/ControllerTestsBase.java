@@ -6,11 +6,16 @@
 package com.vmware.connectors.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vmware.connectors.mock.MockClientHttpConnector;
+import com.vmware.connectors.mock.RequestHandlerHolder;
 import org.apache.commons.io.IOUtils;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientCodecCustomizer;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
@@ -21,6 +26,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,6 +62,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ControllerTestsBase {
 
     @Autowired
+    protected RequestHandlerHolder requestHandlerHolder;
+
+    @Autowired
     protected JwtUtils jwt;
 
     @Autowired
@@ -65,6 +74,22 @@ public class ControllerTestsBase {
     protected ObjectMapper mapper;
 
     private String auth;
+
+    @TestConfiguration
+    static class ControllerTestConfiguration {
+        @Bean
+        public RequestHandlerHolder requestHandler() {
+            return new RequestHandlerHolder();
+        }
+
+        @Bean
+        public WebClient.Builder webClientBuilder(WebClientCodecCustomizer codecCustomizer) {
+            WebClient.Builder builder = WebClient.builder();
+            codecCustomizer.customize(builder);
+            builder.clientConnector(new MockClientHttpConnector(requestHandler()));
+            return builder;
+        }
+    }
 
     protected void setup() throws Exception {
         auth = jwt.createAccessToken();

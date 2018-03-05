@@ -6,6 +6,7 @@
 package com.vmware.connectors.github.pr;
 
 import com.google.common.collect.ImmutableList;
+import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.After;
@@ -14,7 +15,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -48,16 +48,13 @@ public class GithubPrControllerTests extends ControllerTestsBase {
 
     private static final String GITHUB_AUTH_TOKEN = "test-auth-token";
 
-    @Autowired
-    private AsyncRestTemplate rest;
-
     private MockRestServiceServer mockGithub;
 
     @Before
     public void setup() throws Exception {
         super.setup();
 
-        mockGithub = MockRestServiceServer.bindTo(rest)
+        mockGithub = MockRestServiceServer.bindTo(requestHandlerHolder)
                 .ignoreExpectOrder(true)
                 .build();
     }

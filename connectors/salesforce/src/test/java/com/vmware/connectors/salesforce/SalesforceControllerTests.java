@@ -8,6 +8,7 @@ package com.vmware.connectors.salesforce;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -117,15 +117,12 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     private Resource sfExistingContactId;
 
 
-    @Autowired
-    private AsyncRestTemplate restTemplate;
-
     private MockRestServiceServer mockSF;
 
     @Before
     public void setup() throws Exception {
         super.setup();
-        mockSF = MockRestServiceServer.bindTo(restTemplate).ignoreExpectOrder(true).build();
+        mockSF = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
 
     @Test
