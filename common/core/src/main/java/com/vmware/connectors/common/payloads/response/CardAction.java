@@ -61,6 +61,9 @@ public class CardAction {
     @JsonProperty("completed_label")
     private String completedLabel;
 
+    @JsonProperty("allow_repeated")
+    private boolean allowRepeated;
+
     // Don't instantiate directly - use the Builder class below
     private CardAction() {
         this.type = HttpMethod.GET;
@@ -167,12 +170,22 @@ public class CardAction {
      * Returns the "completed label". This is the text to be displayed to the user on successful
      * completion of the action.
      *
+
      * @return the completed label
      */
     public String getCompletedLabel() {
         return completedLabel;
     }
 
+    /**
+     * Returns "allow repeated" value. If set to true, then the client can show
+     * the "OPEN_IN" action irrespective of "completed label".
+     *
+     * @return the allow repeated.
+     */
+    public boolean isAllowRepeated() {
+        return allowRepeated;
+    }
     /**
      * This class allows the construction of {@link CardAction} objects. To use, create a Builder instance, call its methods
      * to populate the {@link CardAction}, and call build() to receive the completed {@link CardAction} and reset the builder.
@@ -335,6 +348,17 @@ public class CardAction {
          */
         public Builder setCompletedLabel(String completedLabel) {
             action.completedLabel = completedLabel;
+            return this;
+        }
+
+        /**
+         * Set "allow repeated" value. If set to true, then the client can enable "OPEN_IN" action
+         * always irrespective of "completed label" value has been set or not.
+         * @param allowRepeated
+         * @return
+         */
+        public Builder setAllowRepeated(final boolean allowRepeated) {
+            action.allowRepeated = allowRepeated;
             return this;
         }
 

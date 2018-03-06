@@ -45,7 +45,8 @@
           "type": "GET",
           "action_key": "OPEN_IN",
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "allow_repeated":true
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -130,7 +131,8 @@
           "type": "GET",
           "action_key": "OPEN_IN",
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "allow_repeated":true
         }
       ]
     }

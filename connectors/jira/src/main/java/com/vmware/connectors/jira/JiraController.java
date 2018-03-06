@@ -260,6 +260,7 @@ public class JiraController {
         String jiraIssueWebUrl = baseUrl + "/browse/" + issueId;
         actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.openIn"))
                 .setActionKey(CardActionKey.OPEN_IN)
+                .setAllowRepeated(true)
                 .setUrl(jiraIssueWebUrl)
                 .setType(GET);
         return actionBuilder;
