@@ -77,7 +77,7 @@
         "request":    {"type": "object"},
         "allow_repeated" : {"type": "boolean"}
       },
-      "required": ["id", "completed_label"],
+      "required": ["id", "completed_label", "url", "action_key", "label", "type"],
       "additionalProperties": false
     },
 
