@@ -223,8 +223,8 @@ public class ConcurController {
 
         // Approver has to enter the comment to approve the expense request.
         return new CardAction.Builder()
-                .setLabel(this.cardTextAccessor.getMessage("concur.approve"))
-                .setCompletedLabel(this.cardTextAccessor.getMessage("concur.approved"))
+                .setLabel(this.cardTextAccessor.getActionLabel("concur.approve"))
+                .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("concur.approve"))
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
                 .setUrl(routingPrefix + approveUrl)
@@ -242,15 +242,15 @@ public class ConcurController {
 
         // Approver has to enter the comment to reject the expense request.
         return new CardAction.Builder()
-                .setLabel(this.cardTextAccessor.getMessage("concur.reject"))
-                .setCompletedLabel(this.cardTextAccessor.getMessage("concur.rejected"))
+                .setLabel(this.cardTextAccessor.getActionLabel("concur.reject"))
+                .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("concur.reject"))
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
                 .setUrl(routingPrefix + rejectUrl)
                 .addUserInputField(
                         new CardActionInputField.Builder()
                                 .setId(REASON)
-                                .setLabel(cardTextAccessor.getMessage("concur.reject.reason.label"))
+                                .setLabel(this.cardTextAccessor.getMessage("concur.reject.reason.label"))
                                 .setMinLength(1)
                                 .build()
                 );
@@ -259,7 +259,8 @@ public class ConcurController {
     private CardAction.Builder getOpenActionBuilder(final String baseUrl) {
         // Did not find any concur API to open the concur page with report directly. Only baseUrl is added.
         return new CardAction.Builder()
-                .setLabel(this.cardTextAccessor.getMessage("concur.open"))
+                .setLabel(this.cardTextAccessor.getActionLabel("concur.open"))
+                .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("concur.open"))
                 .setActionKey(CardActionKey.OPEN_IN)
                 .setType(HttpMethod.GET)
                 .setUrl(baseUrl);

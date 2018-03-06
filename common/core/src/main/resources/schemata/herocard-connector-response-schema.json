@@ -76,6 +76,7 @@
         "user_input": {"type": "array", "items": {"$ref": "#/definitions/CARD_ACTION_USER_INPUT"}},
         "request":    {"type": "object"}
       },
+      "required": ["id", "completed_label"],
       "additionalProperties": false
     },
 

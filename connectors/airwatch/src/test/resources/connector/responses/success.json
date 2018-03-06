@@ -27,7 +27,8 @@
             "udid": "ABCD",
             "platform": "android"
           },
-          "user_input": []
+          "user_input": [],
+          "completed_label":"Installed"
         }
       ]
     }

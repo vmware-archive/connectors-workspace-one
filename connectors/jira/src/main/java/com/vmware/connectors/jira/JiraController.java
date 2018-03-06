@@ -259,6 +259,7 @@ public class JiraController {
         CardAction.Builder actionBuilder = new CardAction.Builder();
         String jiraIssueWebUrl = baseUrl + "/browse/" + issueId;
         actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.openIn"))
+                .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("actions.openIn"))
                 .setActionKey(CardActionKey.OPEN_IN)
                 .setUrl(jiraIssueWebUrl)
                 .setType(GET);

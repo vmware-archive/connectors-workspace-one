@@ -236,6 +236,7 @@ public class AirWatchController {
                                                        String platform) {
         CardAction.Builder actionBuilder = new CardAction.Builder();
         actionBuilder.setLabel(cardTextAccessor.getActionLabel("installApp"))
+                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("installApp"))
                 .setActionKey(CardActionKey.DIRECT)
                 .setUrl(routingPrefix + "mdm/app/install")
                 .addRequestParam(APP_NAME_KEY, appName)
