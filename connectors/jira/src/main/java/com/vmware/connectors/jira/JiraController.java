@@ -261,6 +261,7 @@ public class JiraController {
         actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.openIn"))
                 .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("actions.openIn"))
                 .setActionKey(CardActionKey.OPEN_IN)
+                .setAllowRepeated(true)
                 .setUrl(jiraIssueWebUrl)
                 .setType(GET);
         return actionBuilder;
