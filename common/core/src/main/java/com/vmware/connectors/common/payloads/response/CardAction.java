@@ -61,6 +61,9 @@ public class CardAction {
     @JsonProperty("completed_label")
     private String completedLabel;
 
+    @JsonProperty("allow_repeated")
+    private boolean allowRepeated;
+
     // Don't instantiate directly - use the Builder class below
     private CardAction() {
         this.type = HttpMethod.GET;
@@ -167,10 +170,21 @@ public class CardAction {
      * Returns the "completed label". This is the text to be displayed to the user on successful
      * completion of the action.
      *
+
      * @return the completed label
      */
     public String getCompletedLabel() {
         return completedLabel;
+    }
+
+    /**
+     * Returns "allow repeated" value. If set to true, then the client can enable
+     * any card action always irrespective of "completed label".
+     *
+     * @return the allow repeated.
+     */
+    public boolean isAllowRepeated() {
+        return allowRepeated;
     }
 
     /**
@@ -335,6 +349,17 @@ public class CardAction {
          */
         public Builder setCompletedLabel(String completedLabel) {
             action.completedLabel = completedLabel;
+            return this;
+        }
+
+        /**
+         * Set "allow repeated" value. If set to true, then the client can enable any card action
+         * always irrespective of "completed label" value has been set or not.
+         * @param allowRepeated the allowRepeated flag.
+         * @return this Builder instance, for method chaining.
+         */
+        public Builder setAllowRepeated(final boolean allowRepeated) {
+            action.allowRepeated = allowRepeated;
             return this;
         }
 

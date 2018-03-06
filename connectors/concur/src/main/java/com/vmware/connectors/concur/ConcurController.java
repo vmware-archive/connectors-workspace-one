@@ -261,6 +261,7 @@ public class ConcurController {
         return new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getMessage("concur.open"))
                 .setActionKey(CardActionKey.OPEN_IN)
+                .setAllowRepeated(true)
                 .setType(HttpMethod.GET)
                 .setUrl(baseUrl);
     }
