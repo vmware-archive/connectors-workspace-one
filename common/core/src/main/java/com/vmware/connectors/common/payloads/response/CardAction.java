@@ -178,14 +178,15 @@ public class CardAction {
     }
 
     /**
-     * Returns "allow repeated" value. If set to true, then the client can show
-     * the "OPEN_IN" action irrespective of "completed label".
+     * Returns "allow repeated" value. If set to true, then the client can enable
+     * any card action always irrespective of "completed label".
      *
      * @return the allow repeated.
      */
     public boolean isAllowRepeated() {
         return allowRepeated;
     }
+
     /**
      * This class allows the construction of {@link CardAction} objects. To use, create a Builder instance, call its methods
      * to populate the {@link CardAction}, and call build() to receive the completed {@link CardAction} and reset the builder.
@@ -352,10 +353,10 @@ public class CardAction {
         }
 
         /**
-         * Set "allow repeated" value. If set to true, then the client can enable "OPEN_IN" action
+         * Set "allow repeated" value. If set to true, then the client can enable any card action
          * always irrespective of "completed label" value has been set or not.
-         * @param allowRepeated
-         * @return
+         * @param allowRepeated the allowRepeated flag.
+         * @return this Builder instance, for method chaining.
          */
         public Builder setAllowRepeated(final boolean allowRepeated) {
             action.allowRepeated = allowRepeated;
