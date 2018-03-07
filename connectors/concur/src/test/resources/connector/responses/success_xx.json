@@ -8,10 +8,11 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "EXPENSE REPORT PENDING YOUR APPROVAL"
+        "title": "EXPENSE REPORT PENDING YOUR APPROVAL",
+        "subtitle": []
       },
       "body": {
-        "description":"Test Concur connector-1",
+        "description": "Test Concur connector-1",
         "fields": [
           {
             "type": "GENERAL",
@@ -46,6 +47,7 @@
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
+          "completed_label": "OPEN",
           "allow_repeated":true
         },
         {
@@ -94,10 +96,11 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "EXPENSE REPORT PENDING YOUR APPROVAL"
+        "title": "EXPENSE REPORT PENDING YOUR APPROVAL",
+        "subtitle": []
       },
       "body": {
-        "description":"Test Concur connector-2",
+        "description": "Test Concur connector-2",
         "fields": [
           {
             "type": "GENERAL",
@@ -132,6 +135,7 @@
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
+          "completed_label": "OPEN",
           "allow_repeated":true
         }
       ]

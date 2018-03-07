@@ -46,6 +46,7 @@
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
+          "completed_label":"Open",
           "allow_repeated":true
         },
         {
@@ -132,6 +133,7 @@
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
+          "completed_label":"Open",
           "allow_repeated":true
         }
       ]
