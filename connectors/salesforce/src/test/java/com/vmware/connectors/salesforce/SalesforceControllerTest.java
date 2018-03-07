@@ -12,8 +12,8 @@ import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -50,7 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 
-public class SalesforceControllerTests extends ControllerTestsBase {
+class SalesforceControllerTest extends ControllerTestsBase {
 
     private static final String QUERY_FMT_ACCOUNT =
             "SELECT email, account.id, account.name FROM contact WHERE email LIKE '%%%s' AND account.owner.email = '%s'";
@@ -122,24 +122,24 @@ public class SalesforceControllerTests extends ControllerTestsBase {
 
     private MockRestServiceServer mockSF;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         super.setup();
         mockSF = MockRestServiceServer.bindTo(restTemplate).ignoreExpectOrder(true).build();
     }
 
     @Test
-    public void testProtectedResource() throws Exception {
+    void testProtectedResource() throws Exception {
         testProtectedResource(POST, "/cards/requests");
     }
 
     @Test
-    public void testDiscovery() throws Exception {
+    void testDiscovery() throws Exception {
         testConnectorDiscovery();
     }
 
     @Test
-    public void testMissingRequestHeaders() throws Exception {
+    void testMissingRequestHeaders() throws Exception {
         perform(post("/cards/requests").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
@@ -150,7 +150,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardEmpty() throws Exception {
+    void testRequestCardEmpty() throws Exception {
         perform(requestCards("abc", "/connector/requests/emptyRequest.json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON_UTF8))
@@ -158,7 +158,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardWithEmptyToken() throws Exception {
+    void testRequestCardWithEmptyToken() throws Exception {
         perform(requestCards("abc", "/connector/requests/emptyToken.json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON_UTF8))
@@ -166,7 +166,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardWithoutAmount() throws Exception {
+    void testRequestCardWithoutAmount() throws Exception {
         // Amount is an optional field in Opportunity.
         // This tests if the cards are produced in case amount is blank in salesforce.
         final String requestFile = "/connector/requests/request.json";
@@ -186,7 +186,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardWithoutPhoneAndRole() throws Exception {
+    void testRequestCardWithoutPhoneAndRole() throws Exception {
         // Phone Number & Role are optional fields
         // This tests if the cards are produced in case these are blank in salesforce.
         final String requestFile = "/connector/requests/request.json";
@@ -206,7 +206,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardSenderDetailsSuccess() throws Exception {
+    void testRequestCardSenderDetailsSuccess() throws Exception {
         // This is the case where email sender details are available in salesforce.
         final String requestFile = "/connector/requests/request.json";
         expectSalesforceRequest(getContactRequestSoql(requestFile))
@@ -224,7 +224,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardRelatedAccountsSuccess() throws Exception {
+    void testRequestCardRelatedAccountsSuccess() throws Exception {
         /* In this case email sender details are not present in salesforce.
         Collect info about the accounts related to the sender's domain. */
         final String requestFile = "/connector/requests/request.json";
@@ -252,7 +252,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardSenderDetailsSuccessI8n() throws Exception {
+    void testRequestCardSenderDetailsSuccessI8n() throws Exception {
         final String requestFile = "/connector/requests/request.json";
         expectSalesforceRequest(getContactRequestSoql(requestFile))
                 .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
@@ -268,7 +268,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardRelatedAccountsSuccessI8n() throws Exception {
+    void testRequestCardRelatedAccountsSuccessI8n() throws Exception {
         final String requestFile = "/connector/requests/request.json";
         expectSalesforceRequest(getContactRequestSoql(requestFile))
                 .andRespond(withSuccess(sfResponseContactDoesNotExist, APPLICATION_JSON));
@@ -280,7 +280,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
                 .andRespond(withSuccess(sfResponseGeorgeMichaelOpportunities, APPLICATION_JSON));
         expectSalesforceRequest(getAccountOpportunitySoql("001Q0000012gkPHIAY"))
                 .andRespond(withSuccess(sfResponseLeoDCaprioOpportunities, APPLICATION_JSON));
-         expectSalesforceRequest(getAccountOpportunitySoql("001Q0000012glcuIAA"))
+        expectSalesforceRequest(getAccountOpportunitySoql("001Q0000012glcuIAA"))
                 .andRespond(withSuccess(sfResponseWordHowardOpportunities, APPLICATION_JSON));
 
 
@@ -294,7 +294,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardNotAuthorized() throws Exception {
+    void testRequestCardNotAuthorized() throws Exception {
         mockSF.expect(manyTimes(), requestTo(any(String.class)))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer bogus"))
                 .andExpect(method(GET))
@@ -310,7 +310,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardInternalServerError() throws Exception {
+    void testRequestCardInternalServerError() throws Exception {
         final String requestFile = "/connector/requests/request.json";
         mockSF.expect(manyTimes(), requestTo(any(String.class)))
                 .andExpect(method(GET))
@@ -322,7 +322,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testAddContact() throws Exception {
+    void testAddContact() throws Exception {
         UriComponentsBuilder addContactReqBuilder = fromHttpUrl(SERVER_URL).path(ADD_CONTACT_PATH);
         UriComponentsBuilder addOppToContactReqBuilder = fromHttpUrl(SERVER_URL).path(LINK_OPPORTUNITY_PATH);
         mockSF.expect(requestTo(addContactReqBuilder.build().toUri()))
@@ -339,7 +339,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testAddConversations() throws Exception {
+    void testAddConversations() throws Exception {
         UriComponentsBuilder addTaskReqBuilder = fromHttpUrl(SERVER_URL).path(LINK_OPPORTUNITY_TASK_PATH);
         UriComponentsBuilder addAttachmentReqBuilder = fromHttpUrl(SERVER_URL).path(LINK_ATTACHMENT_TASK_PATH);
         Map<String, String> userContactDetailMap = getUserContactDetails("/salesforce/request/conversations.txt");
@@ -361,7 +361,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testGetImage() throws Exception {
+    void testGetImage() throws Exception {
         perform(get("/images/connector.png"))
                 .andExpect(status().isOk())
                 .andExpect(header().longValue(CONTENT_LENGTH, 7314))

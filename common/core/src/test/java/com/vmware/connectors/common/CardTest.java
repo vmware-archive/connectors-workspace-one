@@ -16,7 +16,7 @@ import com.vmware.connectors.common.payloads.response.CardBody;
 import com.vmware.connectors.common.payloads.response.CardBodyField;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.http.HttpMethod;
 
@@ -29,10 +29,10 @@ import java.util.UUID;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 
-public class CardTests {
+public class CardTest {
 
     private OffsetDateTime creationDate = OffsetDateTime.of(2017, 3, 3, 14, 28, 17, (int) MILLISECONDS.toNanos(656), ZoneOffset.ofHoursMinutes(5, 30));
 
@@ -44,7 +44,7 @@ public class CardTests {
 
 
     @Test
-    public void testSimpleRoundTrip() throws Exception {
+    void testSimpleRoundTrip() throws Exception {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         String originalJson = fromFile("simple.json");
         Card card = stringToCard(originalJson);
@@ -56,7 +56,7 @@ public class CardTests {
     }
 
     @Test
-    public void testDifferentCards() throws Exception {
+    void testDifferentCards() throws Exception {
         String originalJson = fromFile("simple.json");
         String rtOriginal = cardToString(stringToCard(originalJson));
 
@@ -69,7 +69,7 @@ public class CardTests {
     }
 
     @Test
-    public void testCardBodyFieldBuilder() throws IOException, JSONException {
+    void testCardBodyFieldBuilder() throws IOException, JSONException {
         CardBodyField.Builder builder = new CardBodyField.Builder();
 
         builder.setTitle("Title of the Card");
@@ -91,7 +91,7 @@ public class CardTests {
     }
 
     @Test
-    public void testCardActionBuilder() throws IOException, JSONException {
+    void testCardActionBuilder() throws IOException, JSONException {
         CardAction.Builder builder = new CardAction.Builder();
         builder.setId(uuid).setActionKey("ADD_MONKEY_ACTION")
                 .setLabel("Add a Monkey")
@@ -141,7 +141,7 @@ public class CardTests {
     }
 
     @Test
-    public void testCardBodyBuilder() throws IOException, JSONException {
+    void testCardBodyBuilder() throws IOException, JSONException {
         CardBody.Builder builder = new CardBody.Builder();
 
         builder.setDescription("A lump of coal");
@@ -165,7 +165,7 @@ public class CardTests {
     }
 
     @Test
-    public void testCardBuilder() throws IOException, JSONException {
+    void testCardBuilder() throws IOException, JSONException {
         Card.Builder cardBuilder = new Card.Builder();
         CardBody.Builder bodyBuilder = new CardBody.Builder();
         CardBodyField.Builder fieldBuilder = new CardBodyField.Builder();
@@ -216,7 +216,7 @@ public class CardTests {
     }
 
     @Test
-    public void testMinimalCardBuilder() throws IOException, JSONException {
+    void testMinimalCardBuilder() throws IOException, JSONException {
         Card.Builder cardBuilder = new Card.Builder();
 
         cardBuilder.setBody("Darkness comes, shrouded in extra darkness, shoved in even more darkness. It's a darkness turducken.");

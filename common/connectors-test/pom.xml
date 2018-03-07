@@ -53,11 +53,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.github.fge</groupId>
             <artifactId>json-schema-core</artifactId>
         </dependency>

@@ -8,8 +8,8 @@ package com.vmware.connectors.aws.cert;
 import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -35,14 +35,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class AwsCertControllerTests extends ControllerTestsBase {
+class AwsCertControllerTest extends ControllerTestsBase {
 
     @Autowired
     private AsyncRestTemplate rest;
 
     private MockRestServiceServer mockAws;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         super.setup();
 
@@ -52,18 +52,18 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testProtectedResource() throws Exception {
+    void testProtectedResource() throws Exception {
         testProtectedResource(POST, "/cards/requests");
         testProtectedResource(POST, "/api/v1/approve");
     }
 
     @Test
-    public void testDiscovery() throws Exception {
+    void testDiscovery() throws Exception {
         testConnectorDiscovery();
     }
 
     @Test
-    public void testRegex() throws Exception {
+    void testRegex() throws Exception {
         List<String> expected = ImmutableList.of(
                 "https://test-aws-region.certificates.fake-amazon.com/approvals?code=test-auth-code&context=test-context"
         );
@@ -119,7 +119,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    public void testRequestCardsSuccess() throws Exception {
+    void testRequestCardsSuccess() throws Exception {
         trainAwsCertForCards();
 
         requestCards("valid/cards/card.json")
@@ -137,7 +137,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCards404DoesNotError() throws Exception {
+    void testRequestCards404DoesNotError() throws Exception {
         mockAws.expect(requestTo("https://test-aws-region-1.certificates.fake-amazon.com/approvals?code=test-auth-code-1&context=test-context-1"))
                 .andExpect(method(GET))
                 .andRespond(withStatus(NOT_FOUND));
@@ -165,7 +165,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCards400DoesNotError() throws Exception {
+    void testRequestCards400DoesNotError() throws Exception {
         mockAws.expect(requestTo("https://test-aws-region-1.certificates.fake-amazon.com/approvals?code=test-auth-code-1&context=test-context-1"))
                 .andExpect(method(GET))
                 .andRespond(withBadRequest());
@@ -212,7 +212,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsLanguageXxSuccess() throws Exception {
+    void testRequestCardsLanguageXxSuccess() throws Exception {
         trainAwsCertForCards();
 
         requestCards("valid/cards/card.json", "xx")
@@ -230,7 +230,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsEmptyApprovalUrlsSuccess() throws Exception {
+    void testRequestCardsEmptyApprovalUrlsSuccess() throws Exception {
         requestCards("valid/cards/empty-approval-urls.json")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -244,7 +244,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsEmptyTokens() throws Exception {
+    void testRequestCardsEmptyTokens() throws Exception {
         requestCards("invalid/cards/empty-tokens.json")
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -252,7 +252,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsMissingTokens() throws Exception {
+    void testRequestCardsMissingTokens() throws Exception {
         requestCards("invalid/cards/missing-tokens.json")
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -264,7 +264,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    public void testApproveActionSuccess() throws Exception {
+    void testApproveActionSuccess() throws Exception {
         String fakeResponse = fromFile("/awscert/fake/approval-confirmation-page.html");
 
         MultiValueMap<String, String> expectedFormData = new LinkedMultiValueMap<>();
@@ -293,7 +293,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testApproveActionInvalidUrl() throws Exception {
+    void testApproveActionInvalidUrl() throws Exception {
         perform(
                 setupPostRequest(
                         "/api/v1/approve",

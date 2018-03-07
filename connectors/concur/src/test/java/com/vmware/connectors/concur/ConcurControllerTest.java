@@ -8,8 +8,8 @@ package com.vmware.connectors.concur;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class ConcurControllerTests extends ControllerTestsBase {
+class ConcurControllerTest extends ControllerTestsBase {
 
     private static final String REPORT_ID_1 = "79D89435DAE94F53BF60";
     private static final String REPORT_ID_2 = "F49BD54084CE4C09BD65";
@@ -62,41 +62,41 @@ public class ConcurControllerTests extends ControllerTestsBase {
     @Value("classpath:concur/responses/rejected.xml")
     private Resource rejected;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         super.setup();
         this.mockConcur = MockRestServiceServer.bindTo(rest).ignoreExpectOrder(true).build();
     }
 
     @Test
-    public void testProtectedResources() throws Exception {
+    void testProtectedResources() throws Exception {
         testProtectedResource(POST, "/cards/requests");
         testProtectedResource(POST, "/api/expense/approve/" + REPORT_ID_1);
         testProtectedResource(POST, "/api/expense/reject/" + REPORT_ID_2);
     }
 
     @Test
-    public void testDiscovery() throws Exception {
+    void testDiscovery() throws Exception {
         testConnectorDiscovery();
     }
 
     @Test
-    public void testRequestWithEmptyIssue() throws Exception {
+    void testRequestWithEmptyIssue() throws Exception {
         testRequestCards("emptyIssue.json", "emptyIssue.json", null);
     }
 
     @Test
-    public void testRequestCardsWithEmptyToken() throws Exception {
+    void testRequestCardsWithEmptyToken() throws Exception {
         testRequestCardsWithMissingParameter("emptyRequest.json", "emptyRequest.json");
     }
 
     @Test
-    public void testRequestCardsEmpty() throws Exception {
+    void testRequestCardsEmpty() throws Exception {
         testRequestCardsWithMissingParameter("emptyToken.json", "emptyToken.json");
     }
 
     @Test
-    public void testGetImage() throws Exception {
+    void testGetImage() throws Exception {
         perform(get("/images/connector.png"))
                 .andExpect(status().isOk())
                 .andExpect(header().longValue(CONTENT_LENGTH, 7601))
@@ -105,7 +105,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsSuccess() throws Exception {
+    void testRequestCardsSuccess() throws Exception {
         expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
         expect(REPORT_ID_2).andRespond(withSuccess(reportId2, APPLICATION_JSON));
 
@@ -115,7 +115,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testLocaleRequestCards() throws Exception {
+    void testLocaleRequestCards() throws Exception {
         expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
         expect(REPORT_ID_2).andRespond(withSuccess(reportId2, APPLICATION_JSON));
 
@@ -125,7 +125,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testApproveRequest() throws Exception {
+    void testApproveRequest() throws Exception {
         expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
 
         mockExpenseReport("/api/expense/approve/",
@@ -135,7 +135,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRejectRequest() throws Exception {
+    void testRejectRequest() throws Exception {
         expect(REPORT_ID_2).andRespond(withSuccess(reportId2, APPLICATION_JSON));
 
         mockExpenseReport("/api/expense/reject/",
@@ -167,7 +167,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testEscapeHtmlTest() throws Exception {
+    void testEscapeHtmlTest() throws Exception {
         expect(REPORT_ID_2).andRespond(withSuccess(reportId2, APPLICATION_JSON));
 
         this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/expense/expensereport/v1.1/report/gWujNPAb67r9IgBSjNrBNbeHbgDcmoJIs2kyBQX8YzEoS/WorkFlowAction"))
@@ -194,17 +194,17 @@ public class ConcurControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testApproveExpenseReportWithUnauthorized() throws Exception {
+    void testApproveExpenseReportWithUnauthorized() throws Exception {
         testUnauthorizedRequest("/api/expense/approve/");
     }
 
     @Test
-    public void testRejectExpenseReportWithUnauthorized() throws Exception {
+    void testRejectExpenseReportWithUnauthorized() throws Exception {
         testUnauthorizedRequest("/api/expense/reject/");
     }
 
     @Test
-    public void testConcurRegex() throws Exception {
+    void testConcurRegex() throws Exception {
         final String concurRegex = "Report\\s*Id\\s*:\\s*([A-Za-z0-9]{20,})";
         final Pattern pattern = Pattern.compile(concurRegex);
 
@@ -217,7 +217,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
 
         final String regexInput = fromFile("concur/regex-input.txt");
         final List<String> result = new ArrayList<>();
-        for (final String input: regexInput.split("\\n")) {
+        for (final String input : regexInput.split("\\n")) {
             final Matcher matcher = pattern.matcher(input);
             while (matcher.find()) {
                 result.add(matcher.group(1));
@@ -226,7 +226,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
         assertThat(expectedList, equalTo(result));
     }
 
-     private void testUnauthorizedRequest(final String uri) throws Exception {
+    private void testUnauthorizedRequest(final String uri) throws Exception {
         expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
 
         this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/expense/expensereport/v1.1/report/gWujNPAb67r9LjhqgN7BEYYaQOWzavXBtUP1sej$sXfPQ/WorkFlowAction"))

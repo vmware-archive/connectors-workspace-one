@@ -10,8 +10,8 @@ import com.vmware.connectors.bitbucket.server.utils.BitbucketServerAction;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class BitbucketServerControllerTest extends ControllerTestsBase {
+class BitbucketServerControllerTest extends ControllerTestsBase {
 
     private static final String BITBUCKET_SERVER_AUTH_TOKEN = "bitbucket-token";
 
@@ -79,7 +79,7 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
     @Value("classpath:bitbucket/responses/activities_pr_246.json")
     private Resource pr246Activities;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         super.setup();
 
@@ -89,7 +89,7 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    public void testProtectedResources() throws Exception {
+    void testProtectedResources() throws Exception {
         testProtectedResource(POST, "/cards/requests");
         testProtectedResource(POST, "/api/v1/UFO/app-platform-server/249/approve");
         testProtectedResource(POST, "/api/v1/UFO/app-platform-server/249/merge");
@@ -98,12 +98,12 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    public void testDiscovery() throws Exception {
+    void testDiscovery() throws Exception {
         testConnectorDiscovery();
     }
 
     @Test
-    public void testRegex() throws Exception {
+    void testRegex() throws Exception {
         final List<String> expectedList = ImmutableList.of(
                 // Project Name/ Repository Plug/ Pull request id.
                 "UFO/app-platform-server - Pull request #244: ",
@@ -116,7 +116,7 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    public void getImage() throws Exception {
+    void getImage() throws Exception {
         perform(get("/images/connector.png"))
                 .andExpect(status().isOk())
                 .andExpect(header().longValue(CONTENT_LENGTH, 11901))
@@ -125,12 +125,12 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    public void testCardRequestWithEmptyIssue() throws Exception {
+    void testCardRequestWithEmptyIssue() throws Exception {
         testCardRequests("emptyIssue.json", "emptyIssue.json", null);
     }
 
     @Test
-    public void testCardRequests() throws Exception {
+    void testCardRequests() throws Exception {
         buildRequestForCards();
 
         testCardRequests("request.json", "success.json", null);
@@ -139,7 +139,7 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    public void testLocaleCardRequests() throws Exception {
+    void testLocaleCardRequests() throws Exception {
         buildRequestForCards();
 
         testCardRequests("request.json", "success_xx.json", "xx");
@@ -162,38 +162,38 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestEmptyCards() throws Exception {
+    void testRequestEmptyCards() throws Exception {
         testRequestCardsWithMissingParameter("emptyRequest.json", "emptyRequest.json");
     }
 
     @Test
-    public void testRequestEmptyToken() throws Exception {
+    void testRequestEmptyToken() throws Exception {
         testRequestCardsWithMissingParameter("emptyToken.json", "emptyToken.json");
     }
 
     @Test
-    public void approve() throws Exception {
+    void approve() throws Exception {
         final String url = "/api/v1/UFO/app-platform-server/236/approve";
 
         testBitbucketServerPRAction(url, approve, BitbucketServerAction.APPROVE);
     }
 
     @Test
-    public void decline() throws Exception {
+    void decline() throws Exception {
         final String url = "/api/v1/UFO/app-platform-server/236/decline";
 
         testBitbucketServerPRAction(url, declined, BitbucketServerAction.DECLINE);
     }
 
     @Test
-    public void merge() throws Exception {
+    void merge() throws Exception {
         final String url = "/api/v1/UFO/app-platform-server/236/merge";
 
         testBitbucketServerPRAction(url, merged, BitbucketServerAction.MERGE);
     }
 
     @Test
-    public void comment() throws Exception {
+    void comment() throws Exception {
         this.mockBitbucketServer.expect(requestTo("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/comments"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
@@ -206,13 +206,13 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, "https://stash.air-watch.com")
                 .param(COMMENT_PARAM_KEY, "Pull request comment")
-                ).andExpect(status().isOk());
+        ).andExpect(status().isOk());
 
         this.mockBitbucketServer.verify();
     }
 
     @Test
-    public void testAuthSuccess() throws Exception {
+    void testAuthSuccess() throws Exception {
         mockBitbucketServer
                 .expect(requestTo("https://stash.air-watch.com/rest/api/1.0/dashboard/pull-request-suggestions?limit=1"))
                 .andExpect(method(HEAD))
@@ -226,7 +226,7 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    public void testAuthFail() throws Exception {
+    void testAuthFail() throws Exception {
         mockBitbucketServer
                 .expect(requestTo("https://stash.air-watch.com/rest/api/1.0/dashboard/pull-request-suggestions?limit=1"))
                 .andExpect(method(HEAD))

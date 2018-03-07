@@ -6,29 +6,29 @@
 package com.vmware.connectors.common.context;
 
 import com.google.common.net.HttpHeaders;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Created by Rob Worsnop on 3/31/17.
  */
-public class ContextInterceptorTests {
+class ContextInterceptorTest {
     private ContextInterceptor contextInterceptor = new ContextInterceptor();
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         ContextHolder.getContext().clear();
     }
 
     @Test
-    public void testPreHandleWithLanguage() throws Exception {
+    void testPreHandleWithLanguage() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
         request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "en");
 
@@ -38,7 +38,7 @@ public class ContextInterceptorTests {
     }
 
     @Test
-    public void testPreHandleWithLocale() throws Exception {
+    void testPreHandleWithLocale() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
         request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US");
 
@@ -48,7 +48,7 @@ public class ContextInterceptorTests {
     }
 
     @Test
-    public void testPreHandleWithPrioritizedLocale() throws Exception {
+    void testPreHandleWithPrioritizedLocale() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
         request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-GB;q=0.2,en-US;q=0.4");
 
@@ -58,7 +58,7 @@ public class ContextInterceptorTests {
     }
 
     @Test
-    public void testPreHandleWithInvalidHeader() throws Exception {
+    void testPreHandleWithInvalidHeader() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "just wrong");
@@ -69,14 +69,14 @@ public class ContextInterceptorTests {
     }
 
     @Test
-    public void testPreHandleWithoutAcceptLanguage() throws Exception {
+    void testPreHandleWithoutAcceptLanguage() throws Exception {
         contextInterceptor.preHandle(new MockHttpServletRequest("GET", "/"), null, null);
 
         assertThat(ContextHolder.getContext().get("locale"), is(nullValue()));
     }
 
     @Test
-    public void testPostHandle() throws Exception {
+    void testPostHandle() throws Exception {
         ContextHolder.getContext().put("foo", "bar");
 
         contextInterceptor.postHandle(null, null, null, null);

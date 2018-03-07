@@ -7,8 +7,8 @@ package com.vmware.connectors.servicenow;
 
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class ServiceNowControllerTests extends ControllerTestsBase {
+class ServiceNowControllerTest extends ControllerTestsBase {
 
     private static final String SNOW_AUTH_TOKEN = "test-GOOD-auth-token";
 
@@ -42,7 +42,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
 
     private MockRestServiceServer mockServiceNow;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         super.setup();
 
@@ -52,14 +52,14 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testProtectedResource() throws Exception {
+    void testProtectedResource() throws Exception {
         testProtectedResource(POST, "/cards/requests");
         testProtectedResource(POST, "/api/v1/tickets/1234/approve");
         testProtectedResource(POST, "/api/v1/tickets/1234/reject");
     }
 
     @Test
-    public void testDiscovery() throws Exception {
+    void testDiscovery() throws Exception {
         testConnectorDiscovery();
     }
 
@@ -142,7 +142,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    public void testRequestCardsUnauthorized() throws Exception {
+    void testRequestCardsUnauthorized() throws Exception {
         mockServiceNow.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
@@ -154,13 +154,13 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsAuthHeaderMissing() throws Exception {
+    void testRequestCardsAuthHeaderMissing() throws Exception {
         requestCards(null, "valid/cards/card.json")
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testRequestCardsSuccess() throws Exception {
+    void testRequestCardsSuccess() throws Exception {
         trainServiceNowForCards();
 
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json")
@@ -213,7 +213,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsLanguageXxSuccess() throws Exception {
+    void testRequestCardsLanguageXxSuccess() throws Exception {
         trainServiceNowForCards();
 
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json", "xx")
@@ -229,7 +229,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsEmptyTicketsSuccess() throws Exception {
+    void testRequestCardsEmptyTicketsSuccess() throws Exception {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/empty-tickets.json")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -243,7 +243,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsMissingTicketsSuccess() throws Exception {
+    void testRequestCardsMissingTicketsSuccess() throws Exception {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/missing-tickets.json")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -257,7 +257,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsEmptyEmailSuccess() throws Exception {
+    void testRequestCardsEmptyEmailSuccess() throws Exception {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/empty-email.json")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -271,7 +271,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsMissingEmailSuccess() throws Exception {
+    void testRequestCardsMissingEmailSuccess() throws Exception {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/missing-email.json")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -285,7 +285,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsEmptyTokens() throws Exception {
+    void testRequestCardsEmptyTokens() throws Exception {
         requestCards(SNOW_AUTH_TOKEN, "invalid/cards/empty-tokens.json")
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -293,7 +293,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsMissingTokens() throws Exception {
+    void testRequestCardsMissingTokens() throws Exception {
         requestCards(SNOW_AUTH_TOKEN, "invalid/cards/missing-tokens.json")
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -305,7 +305,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    public void testApproveActionUnauthorized() throws Exception {
+    void testApproveActionUnauthorized() throws Exception {
         mockServiceNow.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
@@ -317,13 +317,13 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testApproveAuthHeaderMissing() throws Exception {
+    void testApproveAuthHeaderMissing() throws Exception {
         approve(null, "valid/actions/approve.form")
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testApproveActionSuccess() throws Exception {
+    void testApproveActionSuccess() throws Exception {
         String fakeResponse = fromFile("/servicenow/fake/approve.json");
 
         String expected = fromFile("/servicenow/responses/success/actions/approve.json");
@@ -347,7 +347,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    public void testRejectActionUnauthorized() throws Exception {
+    void testRejectActionUnauthorized() throws Exception {
         mockServiceNow.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
@@ -359,13 +359,13 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRejectAuthHeaderMissing() throws Exception {
+    void testRejectAuthHeaderMissing() throws Exception {
         reject(null, "valid/actions/reject.form")
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testRejectActionSuccess() throws Exception {
+    void testRejectActionSuccess() throws Exception {
         String fakeResponse = fromFile("/servicenow/fake/reject.json");
 
         String expected = fromFile("/servicenow/responses/success/actions/reject.json");
@@ -386,7 +386,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRejectActionMissingReason() throws Exception {
+    void testRejectActionMissingReason() throws Exception {
         reject(SNOW_AUTH_TOKEN, "invalid/actions/reject/missing-reason.form")
                 .andExpect(status().isBadRequest());
     }

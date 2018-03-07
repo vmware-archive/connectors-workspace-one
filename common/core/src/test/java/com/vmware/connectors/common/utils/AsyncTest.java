@@ -6,8 +6,9 @@
 package com.vmware.connectors.common.utils;
 
 import com.vmware.connectors.common.context.ContextHolder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.util.concurrent.FailureCallback;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
@@ -18,31 +19,33 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Created by Rob Worsnop on 3/31/17.
  */
-public class AsyncTests {
+class AsyncTest {
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         ContextHolder.getContext().clear();
     }
 
     @Test
-    public void testToSingleSingleThreadSuccess() throws Exception {
+    void testToSingleSingleThreadSuccess() throws Exception {
         testToSingleSuccess(false);
     }
 
     @Test
-    public void testToSingleMultithreadSuccess() throws Exception {
+    void testToSingleMultithreadSuccess() throws Exception {
         testToSingleSuccess(true);
     }
 
-    @Test(expected = ExecutionException.class)
-    public void testToSingleFailure() throws Exception {
-        Async.toSingle(listenableFuture(true, true)).toBlocking().toFuture().get();
+    @Test
+    void testToSingleFailure() throws Exception {
+        Assertions.assertThrows(ExecutionException.class, () -> {
+            Async.toSingle(listenableFuture(true, true)).toBlocking().toFuture().get();
+        });
     }
 
     private void testToSingleSuccess(boolean threaded) throws Exception {
