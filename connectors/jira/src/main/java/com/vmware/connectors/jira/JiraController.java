@@ -101,9 +101,9 @@ public class JiraController {
         headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
         logger.debug("Adding jira comments for issue id : {} with Jira server: {}", issueKey, baseUrl);
         ListenableFuture<ResponseEntity<String>> future = rest.exchange(
-                "{baseUrl}/rest/api/2/issue/{issueKey}/comment", HttpMethod.POST,
+                baseUrl + "/rest/api/2/issue/{issueKey}/comment", HttpMethod.POST,
                 new HttpEntity<>(Collections.singletonMap("body", body), headers), String.class,
-                baseUrl, issueKey);
+                issueKey);
         return Async.toSingle(future)
                 .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
     }
@@ -119,8 +119,8 @@ public class JiraController {
         logger.debug("Adding the user to watcher list for jira issue id : {} with jira server : {}", issueKey, baseUrl);
 
         ListenableFuture<ResponseEntity<JsonDocument>> selfFuture = rest.exchange(
-                "{baseUrl}/rest/api/2/myself", GET,
-                new HttpEntity<>(headers), JsonDocument.class, baseUrl);
+                baseUrl + "/rest/api/2/myself", GET,
+                new HttpEntity<>(headers), JsonDocument.class);
 
         return Async.toSingle(selfFuture)
                 .flatMap(entity -> addUserToWatcher(entity.getBody(), headers, baseUrl, issueKey))
@@ -133,8 +133,7 @@ public class JiraController {
         HttpHeaders headers = new HttpHeaders();
         headers.set(AUTHORIZATION, jiraAuth);
 
-        return Async.toSingle(rest.exchange("{baseUrl}/rest/api/2/myself", HttpMethod.HEAD, new HttpEntity<>(headers),
-                Void.class, baseUrl))
+        return Async.toSingle(rest.exchange(baseUrl + "/rest/api/2/myself", HttpMethod.HEAD, new HttpEntity<>(headers), Void.class))
                 .map(ignored -> ResponseEntity.noContent().build());
     }
 
@@ -142,9 +141,9 @@ public class JiraController {
                                                           String baseUrl, String issueKey) {
         String user = jiraUserDetails.read("$.name");
         ListenableFuture<ResponseEntity<String>> addWatcherFuture = rest.exchange(
-                "{baseUrl}/rest/api/2/issue/{issueKey}/watchers", HttpMethod.POST,
+                baseUrl + "/rest/api/2/issue/{issueKey}/watchers", HttpMethod.POST,
                 new HttpEntity<>(String.format("\"%s\"", user), headers), String.class,
-                baseUrl, issueKey);
+                issueKey);
         return Async.toSingle(addWatcherFuture)
                 .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
 
@@ -163,8 +162,7 @@ public class JiraController {
         HttpHeaders headers = new HttpHeaders();
         headers.set(AUTHORIZATION, jiraAuth);
         ListenableFuture<ResponseEntity<JsonDocument>> future = rest.exchange(
-                "{baseUrl}/rest/api/2/issue/{issueId}", GET, new HttpEntity<String>(headers), JsonDocument.class,
-                baseUrl, issueId);
+                baseUrl + "/rest/api/2/issue/{issueId}", GET, new HttpEntity<String>(headers), JsonDocument.class, issueId);
         return Async.toSingle(future);
     }
 
@@ -262,6 +260,7 @@ public class JiraController {
         String jiraIssueWebUrl = baseUrl + "/browse/" + issueId;
         actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.openIn"))
                 .setActionKey(CardActionKey.OPEN_IN)
+                .setAllowRepeated(true)
                 .setUrl(jiraIssueWebUrl)
                 .setType(GET);
         return actionBuilder;

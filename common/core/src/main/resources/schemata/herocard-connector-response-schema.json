@@ -74,7 +74,8 @@
         "url":        {"$ref": "#/definitions/LINK"},
         "type":       {"$ref": "#/definitions/HTTP_METHODS"},
         "user_input": {"type": "array", "items": {"$ref": "#/definitions/CARD_ACTION_USER_INPUT"}},
-        "request":    {"type": "object"}
+        "request":    {"type": "object"},
+        "allow_repeated" : {"type": "boolean"}
       },
       "additionalProperties": false
     },

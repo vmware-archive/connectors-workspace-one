@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=roswell
-ExecStart=/usr/bin/java -jar /opt/vmware/connectors/airwatch/airwatch-connector.jar  --spring.config.location=file:/opt/vmware/connectors/airwatch/application.properties,file:/etc/opt/vmware/connectors/airwatch/application.properties,file:/etc/opt/vmware/connectors/airwatch/managed-apps.yml
+ExecStart=/usr/bin/java -jar /opt/vmware/connectors/airwatch/airwatch-connector.jar  --spring.config.additional-location=file:/opt/vmware/connectors/airwatch/application.properties,file:/etc/opt/vmware/connectors/airwatch/application.properties,file:/etc/opt/vmware/connectors/airwatch/managed-apps.yml
 Restart=on-abort
 
 [Install]

@@ -151,11 +151,10 @@ public class ConcurController {
     }
 
     private Single<ResponseEntity<JsonDocument>> getReportDetails(HttpHeaders headers, String id, String baseUrl) {
-        return Async.toSingle(this.rest.exchange("{baseUrl}/api/expense/expensereport/v2.0/report/{id}",
+        return Async.toSingle(this.rest.exchange(baseUrl + "/api/expense/expensereport/v2.0/report/{id}",
                 HttpMethod.GET,
                 new HttpEntity<String>(headers),
                 JsonDocument.class,
-                baseUrl,
                 id));
     }
 
@@ -262,6 +261,7 @@ public class ConcurController {
         return new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getMessage("concur.open"))
                 .setActionKey(CardActionKey.OPEN_IN)
+                .setAllowRepeated(true)
                 .setType(HttpMethod.GET)
                 .setUrl(baseUrl);
     }
