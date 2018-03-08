@@ -180,7 +180,6 @@ public class JiraController {
         CardAction.Builder openInActionBuilder = getOpenInActionBuilder(baseUrl, issueId);
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
-                .setDescription(summary)
                 .addField(buildGeneralBodyField("project", jiraResponse.read("$.fields.project.name")))
                 .addField(buildGeneralBodyField("components", String.join(",", components)))
                 .addField(buildGeneralBodyField("priority", jiraResponse.read("$.fields.priority.name")))
@@ -194,7 +193,7 @@ public class JiraController {
         return new Card.Builder()
                 .setName("Jira")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getHeader(summary), cardTextAccessor.getMessage("subtitle", issueKey))
+                .setHeader("[Jira] " + cardTextAccessor.getHeader(summary), cardTextAccessor.getMessage("subtitle", issueKey))
                 .setBody(cardBodyBuilder.build())
                 .addAction(commentActionBuilder.build())
                 .addAction(openInActionBuilder.build())

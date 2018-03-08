@@ -224,7 +224,7 @@ public class AirWatchController {
         cardBuilder
                 .setName("AirWatch")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getHeader(appName))
+                .setHeader("[AirWatch] " + cardTextAccessor.getHeader(appName))
                 .setBody(cardBodyBuilder.build())
                 .addAction(appInstallActionBuilder.build());
         return Observable.just(cardBuilder.build());

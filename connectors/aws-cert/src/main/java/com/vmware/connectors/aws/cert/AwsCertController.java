@@ -276,7 +276,7 @@ public class AwsCertController {
                  */
                 .setExpirationDate(OffsetDateTime.now().plusDays(3))
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getHeader(), cardTextAccessor.getMessage("subtitle", info.getDomain()))
+                .setHeader("[AWS-Cert] " + cardTextAccessor.getHeader(), cardTextAccessor.getMessage("subtitle", info.getDomain()))
                 .setBody(
                         new CardBody.Builder()
                                 .setDescription(

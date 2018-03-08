@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "Expense Report Pending Your Approval"
+        "title": "[Concur] Expense Report Pending Your Approval"
       },
       "body": {
         "description":"Test Concur connector-1",
@@ -95,7 +95,7 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "Expense Report Pending Your Approval"
+        "title": "[Concur] Expense Report Pending Your Approval"
       },
       "body": {
         "description":"Test Concur connector-2",

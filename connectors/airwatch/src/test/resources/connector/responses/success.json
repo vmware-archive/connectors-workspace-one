@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/airwatch/templates/generic.hbs"
       },
       "header": {
-        "title": "vmware boxer"
+        "title": "[AirWatch] vmware boxer"
       },
       "body": {
         "description": "Please install this application for better interaction with the resource."

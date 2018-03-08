@@ -250,7 +250,7 @@ public class GitlabPrController {
                 .setName("GitlabPr") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(
-                        cardTextAccessor.getHeader(),
+                        "[Gitlab] " + cardTextAccessor.getHeader(),
                         cardTextAccessor.getMessage(
                                 "subtitle",
                                 mergeRequestId.getNamespace(),

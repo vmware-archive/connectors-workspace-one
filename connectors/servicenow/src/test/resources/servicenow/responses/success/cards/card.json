@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "Approval Request",
+        "title": "[Service Now] Approval Request",
         "subtitle": [
           "REQ0010002"
         ]
@@ -84,7 +84,7 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "Approval Request",
+        "title": "[Service Now] Approval Request",
         "subtitle": [
           "REQ0010003"
         ]
