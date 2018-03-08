@@ -285,7 +285,7 @@ public class BitbucketServerController {
 
         final Card.Builder card = new Card.Builder()
                 .setHeader(
-                        "[Bitbucket Server] " + this.cardTextAccessor.getHeader(),
+                        this.cardTextAccessor.getHeader(),
                         this.cardTextAccessor.getMessage("subtitle",
                                 pullRequest.getProjectKey(),
                                 pullRequest.getRepositorySlug(),

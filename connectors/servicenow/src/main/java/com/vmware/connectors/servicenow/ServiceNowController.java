@@ -406,7 +406,7 @@ public class ServiceNowController {
                 .setName("ServiceNow") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(
-                        "[Service Now] " + cardTextAccessor.getHeader(),
+                        cardTextAccessor.getHeader(),
                         cardTextAccessor.getMessage("subtitle", info.getInfo().getNumber())
                 )
                 .setBody(makeBody(info))

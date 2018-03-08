@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[Github] MERGE REQUEST",
+        "title": "[GITHUB] MERGE REQUEST",
         "subtitle": [
           "vmware/test-repo #1"
         ]
@@ -112,7 +112,7 @@
         "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[Github] MERGE REQUEST",
+        "title": "[GITHUB] MERGE REQUEST",
         "subtitle": [
           "vmware/test-repo #2"
         ]
@@ -272,7 +272,7 @@
         "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[Github] MERGE REQUEST",
+        "title": "[GITHUB] MERGE REQUEST",
         "subtitle": [
           "vmware/test-repo #3"
         ]

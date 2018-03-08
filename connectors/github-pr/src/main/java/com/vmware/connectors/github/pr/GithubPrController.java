@@ -229,7 +229,7 @@ public class GithubPrController {
                 .setName("GithubPr") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(
-                        "[Github] " + cardTextAccessor.getHeader(),
+                        cardTextAccessor.getHeader(),
                         cardTextAccessor.getMessage(
                                 "subtitle",
                                 pullRequestId.getOwner(),

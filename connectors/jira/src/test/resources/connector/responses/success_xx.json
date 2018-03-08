@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/jira/templates/generic.hbs"
       },
       "header": {
-        "title": "[Jira] Add unit/integration tests",
+        "title": "[JIRA] Add unit/integration tests",
         "subtitle": [
           "APF-27"
         ]
@@ -118,7 +118,7 @@
         "href": "https://hero/connectors/jira/templates/generic.hbs"
       },
       "header": {
-        "title": "[Jira] Add validation to APIs",
+        "title": "[JIRA] Add validation to APIs",
         "subtitle": [
           "APF-28"
         ]

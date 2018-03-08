@@ -9,7 +9,7 @@
         "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
       },
       "header": {
-        "title": "[AWS-Cert] CERTIFICATE REQUEST",
+        "title": "[AWS-CERT] CERTIFICATE REQUEST",
         "subtitle": [
           "test-subdomain-1.acme.com"
         ]
@@ -84,7 +84,7 @@
         "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
       },
       "header": {
-        "title": "[AWS-Cert] CERTIFICATE REQUEST",
+        "title": "[AWS-CERT] CERTIFICATE REQUEST",
         "subtitle": [
           "test-subdomain-2.acme.com"
         ]
@@ -159,7 +159,7 @@
         "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
       },
       "header": {
-        "title": "[AWS-Cert] CERTIFICATE REQUEST",
+        "title": "[AWS-CERT] CERTIFICATE REQUEST",
         "subtitle": [
           "test-subdomain-3.acme.com"
         ]

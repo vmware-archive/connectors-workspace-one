@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[Gitlab] MERGE REQUEST",
+        "title": "[GITLAB] MERGE REQUEST",
         "subtitle": [
           "vmware/test-repo #1"
         ]
@@ -87,7 +87,7 @@
         "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[Gitlab] MERGE REQUEST",
+        "title": "[GITLAB] MERGE REQUEST",
         "subtitle": [
           "vmware/test-repo #2"
         ]
@@ -211,7 +211,7 @@
         "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[Gitlab] MERGE REQUEST",
+        "title": "[GITLAB] MERGE REQUEST",
         "subtitle": [
           "vmware/test-repo #3"
         ]

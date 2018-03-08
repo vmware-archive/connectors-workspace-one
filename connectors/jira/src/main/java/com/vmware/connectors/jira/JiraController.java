@@ -193,7 +193,7 @@ public class JiraController {
         return new Card.Builder()
                 .setName("Jira")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader("[Jira] " + cardTextAccessor.getHeader(summary), cardTextAccessor.getMessage("subtitle", issueKey))
+                .setHeader(cardTextAccessor.getHeader(summary), cardTextAccessor.getMessage("subtitle", issueKey))
                 .setBody(cardBodyBuilder.build())
                 .addAction(commentActionBuilder.build())
                 .addAction(openInActionBuilder.build())
