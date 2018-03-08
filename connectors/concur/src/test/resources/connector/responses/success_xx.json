@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "EXPENSE REPORT PENDING YOUR APPROVAL",
+        "title": "[CONCUR] EXPENSE REPORT PENDING YOUR APPROVAL",
         "subtitle": []
       },
       "body": {
@@ -96,7 +96,7 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "EXPENSE REPORT PENDING YOUR APPROVAL",
+        "title": "[CONCUR] EXPENSE REPORT PENDING YOUR APPROVAL",
         "subtitle": []
       },
       "body": {
