@@ -18,6 +18,7 @@
         "name":         {"type": "string"},
         "creation_date": {"type": "string", "format": "date-time"},
         "expiration_date" :{"type": "string", "format": "date-time"},
+        "importance": { "type": "integer" },
         "template":     {"$ref": "#/definitions/LINK"},
         "header":       {"$ref": "#/definitions/CARD_HEADER"},
         "body":         {"$ref": "#/definitions/CARD_BODY"},
