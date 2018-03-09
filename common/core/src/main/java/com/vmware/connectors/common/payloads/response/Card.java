@@ -40,6 +40,9 @@ public class Card {
     @JsonInclude(NON_NULL)
     private OffsetDateTime expirationDate;
 
+    @JsonProperty("importance")
+    private Integer importance;
+
     @JsonProperty("template")
     private Link template;
 
@@ -73,7 +76,6 @@ public class Card {
      *
      * @return The Card's creation date
      */
-
     public OffsetDateTime getCreationDate() {
         return creationDate;
     }
@@ -83,9 +85,17 @@ public class Card {
      *
      * @return The Card's expiration date
      */
-
     public OffsetDateTime getExpirationDate() {
         return expirationDate;
+    }
+
+    /**
+     * Get the priority of the card.
+     *
+     * @return The card importance value.
+     */
+    public Integer getImportance() {
+        return importance;
     }
 
     /**
@@ -190,12 +200,20 @@ public class Card {
          * @param creationDate the Card's creation date, assumed to be an ISO-8601 compliant datetime
          * @return this Builder instance, for method chaining
          */
-
-
         public Builder setCreationDate(OffsetDateTime creationDate) {
             card.creationDate = creationDate;
             return this;
+        }
 
+        /**
+         * Set the importance of the card.
+         *
+         * @param importance priority of the card.
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setImportance(Integer importance) {
+            card.importance = importance;
+            return this;
         }
 
         /**
@@ -204,8 +222,6 @@ public class Card {
          * @param expirationDate the Card's creation date, assumed to be an ISO-8601 compliant datetime
          * @return this Builder instance, for method chaining
          */
-
-
         public Builder setExpirationDate(OffsetDateTime expirationDate) {
             card.expirationDate = expirationDate;
             return this;
@@ -302,6 +318,4 @@ public class Card {
             return completedCard;
         }
     }
-
-
 }
