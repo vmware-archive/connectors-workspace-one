@@ -81,7 +81,8 @@
               "format": "textarea"
             }
           ],
-          "completed_label": "Commented"
+          "completed_label": "Commented",
+          "allow_repeated": true
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -164,7 +165,8 @@
               "format": "textarea"
             }
           ],
-          "completed_label": "Commented"
+          "completed_label": "Commented",
+          "allow_repeated": true
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -177,7 +179,7 @@
           "request": {},
           "user_input": [],
           "completed_label": "Open",
-          "allow_repeated":true
+          "allow_repeated": true
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
