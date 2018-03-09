@@ -343,6 +343,7 @@ public class BitbucketServerController {
                         .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel(BITBUCKET_SERVER_COMMENTS))
                         .setActionKey(CardActionKey.USER_INPUT)
                         .setUrl(buildActionUrl(routingPrefix, pullRequest, BitbucketServerAction.COMMENTS))
+                        .setAllowRepeated(true)
                         .addUserInputField(
                                 new CardActionInputField.Builder()
                                         .setId(COMMENT_PARAM_KEY)

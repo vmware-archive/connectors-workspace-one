@@ -81,7 +81,8 @@
               "format": "textarea"
             }
           ],
-          "completed_label": "COMMENTED"
+          "completed_label": "COMMENTED",
+          "allow_repeated": true
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -164,7 +165,8 @@
               "format": "textarea"
             }
           ],
-          "completed_label": "COMMENTED"
+          "completed_label": "COMMENTED",
+          "allow_repeated": true
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",

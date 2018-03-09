@@ -239,6 +239,7 @@ public class JiraController {
                 .setActionKey("USER_INPUT")
                 .setUrl(routingPrefix + commentLink)
                 .setType(HttpMethod.POST)
+                .setAllowRepeated(true)
                 .addUserInputField(inputFieldBuilder.build());
         return actionBuilder;
     }
