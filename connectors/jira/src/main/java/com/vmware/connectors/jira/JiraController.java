@@ -31,7 +31,6 @@ import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.*;
 
 /**
@@ -132,7 +131,7 @@ public class JiraController {
     private Flux<Card> getCardForIssue(String jiraAuth, String baseUrl, String issueId, String routingPrefix, Locale locale) {
         return Flux.from(getIssue(jiraAuth, baseUrl, issueId))
                 // if an issue is not found, we'll just not bother creating a card
-                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable, NOT_FOUND))
+                .onErrorResume(Reactive::skipOnNotFound)
                 .flatMap(Reactive.wrapMapper(jiraResponse -> transformIssueResponse(jiraResponse, baseUrl, issueId, routingPrefix, locale)))
                 .doOnEach(Reactive.wrapForItem(card -> logger.debug("Created card. {} -> {}", issueId, card.getHeader().getTitle())));
 

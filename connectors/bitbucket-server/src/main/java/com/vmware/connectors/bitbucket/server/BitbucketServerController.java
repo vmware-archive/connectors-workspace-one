@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
 import static com.vmware.connectors.bitbucket.server.utils.BitbucketServerConstants.*;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
 public class BitbucketServerController {
@@ -239,7 +238,7 @@ public class BitbucketServerController {
 
         return Mono.zip(bitBucketServerResponse, comments, Pair::of)
                 .flux()
-                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable, NOT_FOUND))
+                .onErrorResume(Reactive::skipOnNotFound)
                 .map(pair -> convertResponseIntoCard(pair.getLeft(), pullRequest, routingPrefix, pair.getRight(), locale));
     }
 

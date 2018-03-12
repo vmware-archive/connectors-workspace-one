@@ -35,7 +35,6 @@ import java.util.stream.Stream;
 
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @RestController
@@ -150,7 +149,7 @@ public class GithubPrController {
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToFlux(PullRequest.class)
-                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable, NOT_FOUND))
+                .onErrorResume(Reactive::skipOnNotFound)
                 .map(pullRequest -> Pair.of(pullRequestId, pullRequest));
         }
 

@@ -127,6 +127,14 @@ public final class Reactive {
         }
     }
 
+    public static <R> Flux<R> skipOnBadRequest(Throwable throwable) {
+        return skipOnStatus(throwable, HttpStatus.BAD_REQUEST);
+    }
+
+    public static <R> Flux<R> skipOnNotFound(Throwable throwable) {
+        return skipOnStatus(throwable, HttpStatus.NOT_FOUND);
+    }
+
     public static <R> Flux<R> skipOnStatus(Throwable throwable, HttpStatus httpStatus) {
         return skipOnStatus(throwable, status -> status.equals(httpStatus));
     }

@@ -36,8 +36,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
@@ -136,8 +134,8 @@ public class AwsCertController {
                 .exchange()
                 .flux()
                 // Don't let a bad AWS token skip the rest
-                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable,
-                        httpStatus -> httpStatus == NOT_FOUND || httpStatus == BAD_REQUEST))
+                .onErrorResume(Reactive::skipOnBadRequest) // Expired requests will return 400 bad request
+                .onErrorResume(Reactive::skipOnNotFound) // Non-existent contexts will return 404 not found
                 .flatMap(response -> Reactive.toResponseEntity(response, String.class))
                 .map(response -> Pair.of(approvalUrl, response));
     }

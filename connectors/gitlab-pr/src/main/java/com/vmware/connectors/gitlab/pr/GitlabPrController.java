@@ -39,7 +39,6 @@ import java.util.stream.Stream;
 
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @RestController
@@ -162,7 +161,7 @@ public class GitlabPrController {
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToFlux(MergeRequest.class)
-                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable, NOT_FOUND))
+                .onErrorResume(Reactive::skipOnNotFound)
                 .map(mergeRequest -> Pair.of(mergeRequestId, mergeRequest));
    }
 

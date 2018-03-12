@@ -39,7 +39,6 @@ import static com.vmware.connectors.concur.ConcurConstants.Header.*;
 import static com.vmware.connectors.concur.ConcurConstants.RequestParam.REASON;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.*;
 
 @RestController
@@ -55,10 +54,10 @@ public class ConcurController {
     @Autowired
     public ConcurController(WebClient rest,
                             CardTextAccessor cardTextAccessor,
-                            @Value("classpath:static/templates/concur-request-template.xml") Resource concurrRequestTemplate) {
+                            @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
-        this.concurrRequestTemplate = concurrRequestTemplate;
+        this.concurrRequestTemplate = concurRequestTemplate;
     }
 
     @PostMapping(path = "/cards/requests",
@@ -144,7 +143,7 @@ public class ConcurController {
 
         return getReportDetails(authHeader, id, baseUrl)
                 .flux()
-                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable, NOT_FOUND))
+                .onErrorResume(Reactive::skipOnNotFound)
                 .map(entity -> convertResponseIntoCard(entity, baseUrl, id, routingPrefix, locale));
     }
 
