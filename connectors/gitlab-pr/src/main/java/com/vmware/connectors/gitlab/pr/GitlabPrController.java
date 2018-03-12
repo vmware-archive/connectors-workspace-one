@@ -130,7 +130,7 @@ public class GitlabPrController {
     private boolean validHost(
             UriComponents uriComponents
     ) {
-        return uriComponents.getHost().equalsIgnoreCase("gitlab.com");
+        return "gitlab.com".equalsIgnoreCase(uriComponents.getHost());
     }
 
     private MergeRequestId getMergeRequestId(

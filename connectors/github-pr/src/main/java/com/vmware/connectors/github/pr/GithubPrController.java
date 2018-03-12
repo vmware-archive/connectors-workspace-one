@@ -122,7 +122,7 @@ public class GithubPrController {
     private boolean validHost(
             UriComponents uriComponents
     ) {
-        return uriComponents.getHost().equalsIgnoreCase("github.com");
+        return "github.com".equalsIgnoreCase(uriComponents.getHost());
     }
 
     private PullRequestId getPullRequestId(
