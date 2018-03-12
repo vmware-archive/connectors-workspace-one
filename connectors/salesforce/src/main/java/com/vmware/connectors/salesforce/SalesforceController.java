@@ -38,7 +38,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.*;
@@ -173,7 +172,7 @@ public class SalesforceController {
             @RequestHeader(SALESFORCE_AUTH_HEADER) String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
-            @RequestHeader(value = ACCEPT_LANGUAGE, required = false) Locale locale,
+            Locale locale,
             @Valid @RequestBody CardRequest cardRequest
     ) {
         // Sender email and user email are required, and sender email has to at least have a non-final @ in it

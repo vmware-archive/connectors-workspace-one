@@ -27,7 +27,6 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 import java.util.*;
 
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -59,7 +58,7 @@ public class JiraController {
             @RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
             @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(name = ROUTING_PREFIX) String routingPrefix,
-            @RequestHeader(name = ACCEPT_LANGUAGE, required = false) Locale locale,
+            Locale locale,
             @Valid @RequestBody CardRequest cardRequest) {
 
         Set<String> issueIds = cardRequest.getTokens("issue_id");

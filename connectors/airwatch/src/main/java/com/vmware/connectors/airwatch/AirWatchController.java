@@ -42,7 +42,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
@@ -100,7 +99,7 @@ public class AirWatchController {
             @RequestHeader(name = AIRWATCH_AUTH_HEADER) String awAuth,
             @RequestHeader(name = AIRWATCH_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(name = ROUTING_PREFIX) String routingPrefix,
-            @RequestHeader(name = ACCEPT_LANGUAGE, required = false) Locale locale,
+            Locale locale,
             @Valid @RequestBody CardRequest cardRequest) {
 
         String udid = cardRequest.getTokenSingleValue(UDID_KEY);

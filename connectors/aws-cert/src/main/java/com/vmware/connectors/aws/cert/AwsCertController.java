@@ -35,7 +35,6 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
@@ -75,7 +74,7 @@ public class AwsCertController {
     )
     public Mono<Cards> getCards(
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
-            @RequestHeader(name = ACCEPT_LANGUAGE, required = false) final Locale locale,
+            final Locale locale,
             @Valid @RequestBody CardRequest request
     ) {
         logger.trace("getCards called, routingPrefix={}, request={}", routingPrefix, request);

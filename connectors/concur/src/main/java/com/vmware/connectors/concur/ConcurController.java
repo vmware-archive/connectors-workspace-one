@@ -37,7 +37,6 @@ import static com.vmware.connectors.concur.ConcurConstants.ConcurResponseActions
 import static com.vmware.connectors.concur.ConcurConstants.Fields.EXPENSE_REPORT_ID;
 import static com.vmware.connectors.concur.ConcurConstants.Header.*;
 import static com.vmware.connectors.concur.ConcurConstants.RequestParam.REASON;
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.*;
 
@@ -67,7 +66,7 @@ public class ConcurController {
             @RequestHeader(name = AUTHORIZATION_HEADER) final String authHeader,
             @RequestHeader(name = BACKEND_BASE_URL_HEADER) final String baseUrl,
             @RequestHeader(name = ROUTING_PREFIX) final String routingPrefix,
-            @RequestHeader(name = ACCEPT_LANGUAGE, required = false) final Locale locale,
+            final Locale locale,
             @Valid @RequestBody CardRequest cardRequest) {
 
         final Set<String> expenseReportIds = cardRequest.getTokens(EXPENSE_REPORT_ID);

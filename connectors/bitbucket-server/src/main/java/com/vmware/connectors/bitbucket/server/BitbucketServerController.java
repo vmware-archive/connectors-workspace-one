@@ -36,7 +36,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.vmware.connectors.bitbucket.server.utils.BitbucketServerConstants.*;
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
@@ -70,7 +69,7 @@ public class BitbucketServerController {
             @RequestHeader(AUTH_HEADER) final String authHeader,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
-            @RequestHeader(value = ACCEPT_LANGUAGE, required = false) final Locale locale,
+            final Locale locale,
             @Valid @RequestBody final CardRequest cardRequest) {
 
         logger.trace("Cards requests for bitbucket server connector - baseUrlHeader: {}, routingPrefix: {}",
