@@ -69,7 +69,7 @@ public class MockClientHttpConnector implements ClientHttpConnector {
             List<String> responseCookies = Optional.ofNullable(
                     response.getHeaders().get(SET_COOKIE)).orElse(Collections.emptyList());
             responseCookies.forEach(cookie -> {
-                ResponseCookie responseCookie = toResponseCookiue(cookie);
+                ResponseCookie responseCookie = toResponseCookie(cookie);
                 mockClientHttpResponse.getCookies().add(responseCookie.getName(), responseCookie);
             });
 
@@ -82,7 +82,7 @@ public class MockClientHttpConnector implements ClientHttpConnector {
         }
     }
 
-    ResponseCookie toResponseCookiue(String cookie) {
+    private ResponseCookie toResponseCookie(String cookie) {
         String [] tokens = cookie.split("; |;");
         SortedMap<String, String> cookieMap  =
                 Arrays.stream(tokens).collect(
