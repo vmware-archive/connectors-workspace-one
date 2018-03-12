@@ -22,6 +22,7 @@ import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.List;
 
+import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -230,6 +231,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
         requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
@@ -268,6 +270,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
         requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"), "xx")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
@@ -282,6 +285,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
         requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/empty-pr-urls.json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder

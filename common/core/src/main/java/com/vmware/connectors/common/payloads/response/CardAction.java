@@ -70,6 +70,7 @@ public class CardAction {
         this.request = new HashMap<>();
         this.userInput = new ArrayList<>();
         this.id = UUID.randomUUID();
+        this.completedLabel = "Completed";
     }
 
     /**
