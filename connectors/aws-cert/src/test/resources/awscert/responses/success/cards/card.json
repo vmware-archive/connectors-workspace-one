@@ -71,7 +71,8 @@
           "action_key": "DISMISS",
           "remove_card_on_completion": true,
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "completed_label": "Dismissed"
         }
       ]
     },
@@ -146,7 +147,8 @@
           "action_key": "DISMISS",
           "remove_card_on_completion": true,
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "completed_label": "Dismissed"
         }
       ]
     },
@@ -221,7 +223,8 @@
           "action_key": "DISMISS",
           "remove_card_on_completion": true,
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "completed_label": "Dismissed"
         }
       ]
     }
