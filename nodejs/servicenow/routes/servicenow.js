@@ -295,7 +295,7 @@ function transformResultsIntoCardsUsingSimpleJson(routingPrefix, result) {
         creation_date: new Date().toISOString(),
         name: 'ServiceNow',
         header: {
-            title: 'Approval Request',
+            title: '[Service Now] Approval Request',
             subtitle: [
                 `${result.number}`
             ]
