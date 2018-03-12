@@ -99,7 +99,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     public void testGetImage() throws Exception {
         perform(get("/images/connector.png"))
                 .andExpect(status().isOk())
-                .andExpect(header().longValue(CONTENT_LENGTH, 7601))
+                .andExpect(header().longValue(CONTENT_LENGTH, 9339))
                 .andExpect(header().string(CONTENT_TYPE, IMAGE_PNG_VALUE))
                 .andExpect((content().bytes(bytesFromFile("/static/images/connector.png"))));
     }
