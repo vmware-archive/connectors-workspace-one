@@ -6,46 +6,30 @@
 package com.vmware.connectors.servicenow;
 
 import com.google.common.collect.ImmutableMap;
-import com.vmware.connectors.common.payloads.request.CardRequest;
-import com.vmware.connectors.common.payloads.response.Card;
-import com.vmware.connectors.common.payloads.response.CardAction;
-import com.vmware.connectors.common.payloads.response.CardActionInputField;
-import com.vmware.connectors.common.payloads.response.CardActionKey;
-import com.vmware.connectors.common.payloads.response.CardBody;
-import com.vmware.connectors.common.payloads.response.CardBodyField;
-import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
-import com.vmware.connectors.common.payloads.response.Cards;
-import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.json.JsonDocument;
-import com.vmware.connectors.common.utils.Async;
+import com.vmware.connectors.common.payloads.request.CardRequest;
+import com.vmware.connectors.common.payloads.response.*;
+import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.AsyncRestOperations;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import rx.Observable;
-import rx.Single;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @RestController
 public class ServiceNowController {
@@ -91,12 +75,12 @@ public class ServiceNowController {
      */
     private static final int MAX_APPROVAL_RESULTS = 10000;
 
-    private final AsyncRestOperations rest;
+    private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
 
     @Autowired
     public ServiceNowController(
-            AsyncRestOperations rest,
+            WebClient rest,
             CardTextAccessor cardTextAccessor
     ) {
         this.rest = rest;
@@ -108,10 +92,11 @@ public class ServiceNowController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Single<ResponseEntity<Cards>> getCards(
+    public Mono<Cards> getCards(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
+            Locale locale,
             @Valid @RequestBody CardRequest request
     ) {
         logger.trace("getCards called, baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, request);
@@ -119,42 +104,38 @@ public class ServiceNowController {
         Set<String> requestNumbers = request.getTokens("ticket_id");
 
         if (CollectionUtils.isEmpty(requestNumbers)) {
-            return Single.just(ResponseEntity.ok(new Cards()));
+            return Mono.just(new Cards());
         }
 
         String email = request.getTokenSingleValue("email");
 
         if (email == null) {
-            return Single.just(ResponseEntity.ok(new Cards()));
+            return Mono.just(new Cards());
         }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", auth);
 
-        HttpEntity<HttpHeaders> httpHeaders = new HttpEntity<>(headers);
-
-        return callForUserSysId(baseUrl, email, httpHeaders)
-                .flatMap(userSysId -> callForApprovalRequests(baseUrl, httpHeaders, userSysId))
-                .flatMapObservable(approvalRequests -> callForAllRequestNumbers(baseUrl, httpHeaders, approvalRequests))
+        return callForUserSysId(baseUrl, email, auth)
+                .flux()
+                .flatMap(userSysId -> callForApprovalRequests(baseUrl, auth, userSysId))
+                .flatMap(approvalRequest -> callForAndAggregateRequestInfo(baseUrl, auth, approvalRequest))
                 .filter(info -> requestNumbers.contains(info.getInfo().getNumber()))
-                .flatMap(approvalRequestWithInfo -> callForAndAggregateRequestedItems(baseUrl, httpHeaders, approvalRequestWithInfo))
+                .flatMap(approvalRequestWithInfo -> callForAndAggregateRequestedItems(baseUrl, auth, approvalRequestWithInfo))
                 .reduce(
                         new Cards(),
-                        (cards, info) -> appendCard(cards, info, routingPrefix)
+                        (cards, info) -> appendCard(cards, info, routingPrefix, locale)
                 )
-                .toSingle()
-                .map(ResponseEntity::ok);
+                .subscriberContext(Reactive.setupContext());
     }
 
-    private Single<String> callForUserSysId(
+    private Mono<String> callForUserSysId(
             String baseUrl,
             String email,
-            HttpEntity<HttpHeaders> headers
+            String auth
     ) {
         logger.trace("callForUserSysId called: baseUrl={}", baseUrl);
 
-        ListenableFuture<ResponseEntity<JsonDocument>> response = rest.exchange(
-                UriComponentsBuilder
+        return rest.get()
+                .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
                         .path("/api/now/table/{userTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(SysUser.Fields.SYS_ID))
@@ -172,19 +153,16 @@ public class ServiceNowController {
                                 )
                         )
                         .encode()
-                        .toUri(),
-                HttpMethod.GET,
-                headers,
-                JsonDocument.class
-        );
-
-        return Async.toSingle(response)
-                .map(userInfoResponse -> userInfoResponse.getBody().read("$.result[0]." + SysUser.Fields.SYS_ID));
+                        .toUri())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(userInfoResponse -> userInfoResponse.read("$.result[0]." + SysUser.Fields.SYS_ID));
     }
 
-    private Single<List<ApprovalRequest>> callForApprovalRequests(
+    private Flux<ApprovalRequest> callForApprovalRequests(
             String baseUrl,
-            HttpEntity<HttpHeaders> headers,
+            String auth,
             String userSysId
     ) {
         logger.trace("callForApprovalRequests called: baseUrl={}, userSysId={}", baseUrl, userSysId);
@@ -196,9 +174,8 @@ public class ServiceNowController {
                 SysApprovalApprover.Fields.DUE_DATE,
                 SysApprovalApprover.Fields.SYS_CREATED_BY
         );
-
-        ListenableFuture<ResponseEntity<JsonDocument>> response = rest.exchange(
-                UriComponentsBuilder
+        return rest.get()
+                .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
                         .path("/api/now/table/{apTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, fields)
@@ -212,13 +189,10 @@ public class ServiceNowController {
                                 )
                         )
                         .encode()
-                        .toUri(),
-                HttpMethod.GET,
-                headers,
-                JsonDocument.class
-        );
-
-        return Async.toSingle(response)
+                        .toUri())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToFlux(JsonDocument.class)
                 /*
                  * I had trouble getting JsonPath to return me something more meaningful than a List<Map<>>.
                  *
@@ -230,8 +204,9 @@ public class ServiceNowController {
                  * what information I had, but I'm not sure it follows the way we've been doing our code for the other
                  * microservices.
                  */
-                .map(approvalRequestsResponse -> approvalRequestsResponse.getBody().<List<Map<String, Object>>>read("$.result[*]"))
-                .map(results -> results.stream().map(this::convertJsonDocToApprovalReq).collect(Collectors.toList()));
+                .flatMap(approvalRequests -> Flux.fromIterable(approvalRequests.<List<Map<String, Object>>>read("$.result[*]")))
+                .map(this::convertJsonDocToApprovalReq);
+
     }
 
     private String joinFields(Object... args) {
@@ -254,32 +229,20 @@ public class ServiceNowController {
         );
     }
 
-    private Observable<ApprovalRequestWithInfo> callForAllRequestNumbers(
+    private Mono<ApprovalRequestWithInfo> callForAndAggregateRequestInfo(
             String baseUrl,
-            HttpEntity<HttpHeaders> headers,
-            List<ApprovalRequest> approvalRequests
-    ) {
-        logger.trace("callForAllRequestNumbers called: baseUrl={}, approvalRequests={}", baseUrl, approvalRequests);
-
-        return Observable.from(approvalRequests)
-                .flatMap(approvalRequest -> callForAndAggregateRequestInfo(baseUrl, headers, approvalRequest));
-    }
-
-    private Observable<ApprovalRequestWithInfo> callForAndAggregateRequestInfo(
-            String baseUrl,
-            HttpEntity<HttpHeaders> headers,
+            String auth,
             ApprovalRequest approvalRequest
     ) {
         logger.trace("callForAndAggregateRequestInfo called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
 
-        return callForRequestInfo(baseUrl, headers, approvalRequest)
-                .toObservable()
-                .map(requestNumber -> new ApprovalRequestWithInfo(approvalRequest, requestNumber));
+        return callForRequestInfo(baseUrl, auth, approvalRequest)
+               .map(requestNumber -> new ApprovalRequestWithInfo(approvalRequest, requestNumber));
     }
 
-    private Single<Request> callForRequestInfo(
+    private Mono<Request> callForRequestInfo(
             String baseUrl,
-            HttpEntity<HttpHeaders> headers,
+            String auth,
             ApprovalRequest approvalRequest
     ) {
         logger.trace("callForRequestInfo called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
@@ -290,8 +253,8 @@ public class ServiceNowController {
                 ScRequest.Fields.NUMBER
         );
 
-        ListenableFuture<ResponseEntity<JsonDocument>> response = rest.exchange(
-                UriComponentsBuilder
+        return rest.get()
+                .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
                         .path("/api/now/table/{scTableName}/{approvalSysId}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
@@ -302,37 +265,34 @@ public class ServiceNowController {
                                 )
                         )
                         .encode()
-                        .toUri(),
-                HttpMethod.GET,
-                headers,
-                JsonDocument.class
-        );
-
-        return Async.toSingle(response)
+                        .toUri())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
                 .map(
-                        reqInfoResponse ->
+                        reqInfo ->
                                 new Request(
-                                        reqInfoResponse.getBody().read(RESULT_PREFIX + ScRequest.Fields.NUMBER),
-                                        reqInfoResponse.getBody().read(RESULT_PREFIX + ScRequest.Fields.PRICE)
+                                        reqInfo.read(RESULT_PREFIX + ScRequest.Fields.NUMBER),
+                                        reqInfo.read(RESULT_PREFIX + ScRequest.Fields.PRICE)
                                 )
                 );
     }
 
-    private Observable<ApprovalRequestWithItems> callForAndAggregateRequestedItems(
+    private Mono<ApprovalRequestWithItems> callForAndAggregateRequestedItems(
             String baseUrl,
-            HttpEntity<HttpHeaders> headers,
+            String auth,
             ApprovalRequestWithInfo approvalRequest
     ) {
         logger.trace("callForAndAggregateRequestedItems called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
 
-        return callForRequestedItems(baseUrl, headers, approvalRequest)
-                .toObservable()
+        return callForRequestedItems(baseUrl, auth, approvalRequest)
+                .collectList()
                 .map(items -> new ApprovalRequestWithItems(approvalRequest, items));
     }
 
-    private Single<List<RequestedItem>> callForRequestedItems(
+    private Flux<RequestedItem> callForRequestedItems(
             String baseUrl,
-            HttpEntity<HttpHeaders> headers,
+            String auth,
             ApprovalRequestWithInfo approvalRequest
     ) {
         logger.trace("callForRequestedItems called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
@@ -345,28 +305,25 @@ public class ServiceNowController {
                 ScRequestedItem.Fields.QUANTITY
         );
 
-        ListenableFuture<ResponseEntity<JsonDocument>> response = rest.exchange(
-                UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
-                        .path("/api/now/table/{scTableName}")
-                        .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
-                        .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
-                        .queryParam(ScRequestedItem.Fields.REQUEST.toString(), approvalRequest.getApprovalSysId())
-                        .buildAndExpand(
-                                ImmutableMap.of(
-                                        "scTableName", ScRequestedItem.TABLE_NAME
+        return rest.get()
+                .uri(              UriComponentsBuilder
+                                .fromHttpUrl(baseUrl)
+                                .path("/api/now/table/{scTableName}")
+                                .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
+                                .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
+                                .queryParam(ScRequestedItem.Fields.REQUEST.toString(), approvalRequest.getApprovalSysId())
+                                .buildAndExpand(
+                                        ImmutableMap.of(
+                                                "scTableName", ScRequestedItem.TABLE_NAME
+                                        )
                                 )
-                        )
-                        .encode()
-                        .toUri(),
-                HttpMethod.GET,
-                headers,
-                JsonDocument.class
-        );
-
-        return Async.toSingle(response)
-                .map(itemsResponse -> itemsResponse.getBody().<List<Map<String, Object>>>read("$.result[*]"))
-                .map(results -> results.stream().map(this::convertJsonDocToRequestedItem).collect(Collectors.toList()));
+                                .encode()
+                                .toUri())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToFlux(JsonDocument.class)
+                .flatMap(items -> Flux.fromIterable(items.<List<Map<String, Object>>>read("$.result[*]")))
+                .map(this::convertJsonDocToRequestedItem);
     }
 
     private RequestedItem convertJsonDocToRequestedItem(
@@ -383,14 +340,11 @@ public class ServiceNowController {
         );
     }
 
-    private Cards appendCard(Cards cards, ApprovalRequestWithItems info, String routingPrefix) {
+    private Cards appendCard(Cards cards, ApprovalRequestWithItems info, String routingPrefix, Locale locale) {
         logger.trace("appendCard called: cards={}, info={}, routingPrefix={}", cards, info, routingPrefix);
 
         cards.getCards().add(
-                makeCard(
-                        routingPrefix,
-                        info
-                )
+                makeCard(routingPrefix, info, locale)
         );
 
         return cards;
@@ -398,7 +352,8 @@ public class ServiceNowController {
 
     private Card makeCard(
             String routingPrefix,
-            ApprovalRequestWithItems info
+            ApprovalRequestWithItems info,
+            Locale locale
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 
@@ -406,15 +361,15 @@ public class ServiceNowController {
                 .setName("ServiceNow") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(
-                        cardTextAccessor.getHeader(),
-                        cardTextAccessor.getMessage("subtitle", info.getInfo().getNumber())
+                        cardTextAccessor.getHeader(locale),
+                        cardTextAccessor.getMessage("subtitle", locale, info.getInfo().getNumber())
                 )
-                .setBody(makeBody(info))
+                .setBody(makeBody(info, locale))
                 .addAction(
                         new CardAction.Builder()
                                 .setPrimary(true)
-                                .setLabel(cardTextAccessor.getActionLabel("approve"))
-                                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("approve"))
+                                .setLabel(cardTextAccessor.getActionLabel("approve", locale))
+                                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("approve", locale))
                                 .setRemoveCardOnCompletion(true)
                                 .setActionKey(CardActionKey.DIRECT)
                                 .setUrl(getServiceNowUrl(routingPrefix, info.getRequestSysId()) + "/approve")
@@ -423,8 +378,8 @@ public class ServiceNowController {
                 )
                 .addAction(
                         new CardAction.Builder()
-                                .setLabel(cardTextAccessor.getActionLabel("reject"))
-                                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("reject"))
+                                .setLabel(cardTextAccessor.getActionLabel("reject", locale))
+                                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("reject", locale))
                                 .setRemoveCardOnCompletion(true)
                                 .setActionKey(CardActionKey.USER_INPUT)
                                 .setUrl(getServiceNowUrl(routingPrefix, info.getRequestSysId()) + "/reject")
@@ -432,7 +387,7 @@ public class ServiceNowController {
                                 .addUserInputField(
                                         new CardActionInputField.Builder()
                                                 .setId(REASON_PARAM_KEY)
-                                                .setLabel(cardTextAccessor.getActionLabel("reject.reason"))
+                                                .setLabel(cardTextAccessor.getActionLabel("reject.reason", locale))
                                                 .setMinLength(1)
                                                 .build()
                                 )
@@ -442,39 +397,40 @@ public class ServiceNowController {
     }
 
     private CardBody makeBody(
-            ApprovalRequestWithItems info
+            ApprovalRequestWithItems info,
+            Locale locale
     ) {
         CardBody.Builder body = new CardBody.Builder()
                 .addField(
                         new CardBodyField.Builder()
-                                .setTitle(cardTextAccessor.getMessage("totalPrice.title"))
+                                .setTitle(cardTextAccessor.getMessage("totalPrice.title", locale))
                                 .setType(CardBodyFieldType.GENERAL)
-                                .setDescription(cardTextAccessor.getMessage("totalPrice.description", info.getInfo().getTotalPrice()))
+                                .setDescription(cardTextAccessor.getMessage("totalPrice.description", locale, info.getInfo().getTotalPrice()))
                                 .build()
                 )
                 .addField(
                         new CardBodyField.Builder()
-                                .setTitle(cardTextAccessor.getMessage("createdBy.title"))
+                                .setTitle(cardTextAccessor.getMessage("createdBy.title", locale))
                                 .setType(CardBodyFieldType.GENERAL)
-                                .setDescription(cardTextAccessor.getMessage("createdBy.description", info.getCreatedBy()))
+                                .setDescription(cardTextAccessor.getMessage("createdBy.description", locale, info.getCreatedBy()))
                                 .build()
                 )
                 .addField(
                         new CardBodyField.Builder()
-                                .setTitle(cardTextAccessor.getMessage("dueDate.title"))
+                                .setTitle(cardTextAccessor.getMessage("dueDate.title", locale))
                                 .setType(CardBodyFieldType.GENERAL)
-                                .setDescription(cardTextAccessor.getMessage("dueDate.description", info.getDueDate()))
+                                .setDescription(cardTextAccessor.getMessage("dueDate.description", locale, info.getDueDate()))
                                 .build()
                 );
 
 
         CardBodyField.Builder itemsBuilder = new CardBodyField.Builder()
-                .setTitle(cardTextAccessor.getMessage("items.title"))
+                .setTitle(cardTextAccessor.getMessage("items.title", locale))
                 .setType(CardBodyFieldType.COMMENT);
 
         for (RequestedItem item : info.getItems()) {
             String lineItem = cardTextAccessor.getMessage(
-                    "items.line",
+                    "items.line", locale,
                     item.getShortDescription(),
                     item.getQuantity(),
                     item.getPrice()
@@ -495,7 +451,7 @@ public class ServiceNowController {
             path = "/api/v1/tickets/{requestSysId}/approve",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<Map<String, Object>>> approve(
+    public Mono<Map<String, Object>> approve(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @PathVariable("requestSysId") String requestSysId
@@ -505,7 +461,7 @@ public class ServiceNowController {
         return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.APPROVED, null);
     }
 
-    private Single<ResponseEntity<Map<String, Object>>> updateRequest(
+    private Mono<Map<String, Object>> updateRequest(
             String auth,
             String baseUrl,
             String requestSysId,
@@ -513,10 +469,6 @@ public class ServiceNowController {
             String comments
     ) {
         logger.trace("updateState called: baseUrl={}, requestSysId={}, state={}", baseUrl, requestSysId, state);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", auth);
-        headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
 
         ImmutableMap.Builder<String, String> body = new ImmutableMap.Builder<String, String>()
                 .put(SysApprovalApprover.Fields.STATE.toString(), state.toString());
@@ -530,9 +482,8 @@ public class ServiceNowController {
                 SysApprovalApprover.Fields.STATE,
                 SysApprovalApprover.Fields.COMMENTS
         );
-
-        ListenableFuture<ResponseEntity<JsonDocument>> response = rest.exchange(
-                UriComponentsBuilder
+        return rest.patch()
+                .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
                         .path("/api/now/table/{apTableName}/{requestSysId}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, fields)
@@ -543,27 +494,24 @@ public class ServiceNowController {
                                 )
                         )
                         .encode()
-                        .toUri(),
-                HttpMethod.PATCH,
-                new HttpEntity<>(body.build(), headers),
-                JsonDocument.class
-        );
-
-        return Async.toSingle(response)
-                .map(ResponseEntity::getBody)
+                        .toUri())
+                .header(AUTHORIZATION, auth)
+                .contentType(APPLICATION_JSON)
+                .syncBody(body.build())
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
                 .map(data -> ImmutableMap.of(
                         "approval_sys_id", data.read(RESULT_PREFIX + SysApprovalApprover.Fields.SYS_ID),
                         "approval_state", data.read(RESULT_PREFIX + SysApprovalApprover.Fields.STATE),
                         "approval_comments", data.read(RESULT_PREFIX + SysApprovalApprover.Fields.COMMENTS)
-                ))
-                .map(ResponseEntity::ok);
+                ));
     }
 
     @PostMapping(
             path = "/api/v1/tickets/{requestSysId}/reject",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<Map<String, Object>>> reject(
+    public Mono<Map<String, Object>> reject(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @PathVariable("requestSysId") String requestSysId,

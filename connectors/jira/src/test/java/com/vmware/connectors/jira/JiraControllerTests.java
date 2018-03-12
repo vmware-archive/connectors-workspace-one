@@ -6,37 +6,54 @@
 package com.vmware.connectors.jira;
 
 import com.google.common.collect.ImmutableList;
+import com.vmware.connectors.mock.MockClientHttpConnector;
+import com.vmware.connectors.mock.MockRestServiceServer;
+import com.vmware.connectors.mock.RequestHandler;
+import com.vmware.connectors.mock.RequestHandlerHolder;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientCodecCustomizer;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
-import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.http.client.reactive.ClientHttpResponse;
+import org.springframework.mock.http.client.reactive.MockClientHttpRequest;
+import org.springframework.mock.http.client.reactive.MockClientHttpResponse;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.client.AsyncRestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
+import java.util.function.Function;
 
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.http.HttpHeaders.*;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.HEAD;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.ExpectedCount.times;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -53,15 +70,12 @@ public class JiraControllerTests extends ControllerTestsBase {
     @Value("classpath:jira/responses/myself.json")
     private Resource myself;
 
-    @Autowired
-    private AsyncRestTemplate rest;
-
     private MockRestServiceServer mockJira;
 
     @Before
     public void setup() throws Exception {
         super.setup();
-        mockJira = MockRestServiceServer.bindTo(rest).ignoreExpectOrder(true).build();
+        mockJira = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
 
     @Test

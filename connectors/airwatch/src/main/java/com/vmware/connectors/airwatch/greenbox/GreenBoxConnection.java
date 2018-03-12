@@ -5,11 +5,15 @@
 
 package com.vmware.connectors.airwatch.greenbox;
 
+import org.pojomatic.Pojomatic;
+import org.pojomatic.annotations.AutoProperty;
+
 import java.net.URI;
 
 /**
  * Created by harshas on 01/31/18.
  */
+@AutoProperty
 public class GreenBoxConnection {
 
     private final URI baseUri;
@@ -34,5 +38,10 @@ public class GreenBoxConnection {
 
     public String getCsrfToken() {
         return csrfToken;
+    }
+
+    @Override
+    public String toString() {
+        return Pojomatic.toString(this);
     }
 }
