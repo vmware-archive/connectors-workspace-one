@@ -72,7 +72,7 @@
           "remove_card_on_completion": true,
           "request": {},
           "user_input": [],
-          "completed_label": "DISMISSED"
+          "completed_label": "DISMISS"
         }
       ]
     },
@@ -148,7 +148,7 @@
           "remove_card_on_completion": true,
           "request": {},
           "user_input": [],
-          "completed_label": "DISMISSED"
+          "completed_label": "DISMISS"
         }
       ]
     },
@@ -224,7 +224,7 @@
           "remove_card_on_completion": true,
           "request": {},
           "user_input": [],
-          "completed_label": "DISMISSED"
+          "completed_label": "DISMISS"
         }
       ]
     }

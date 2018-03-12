@@ -259,7 +259,7 @@ public class AwsCertController {
         CardAction.Builder dismissAction = CardAction.Builder
                 .dismissAction()
                 .setLabel(cardTextAccessor.getActionLabel("dismiss"))
-                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("dismiss"));
+                .setCompletedLabel(cardTextAccessor.getActionLabel("dismiss"));
 
         info.getFormParams().forEach(approveAction::addRequestParam);
 

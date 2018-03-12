@@ -22,6 +22,7 @@ import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.List;
 
+import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
@@ -218,6 +219,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
         requestCards("valid/cards/card.json", "xx")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
@@ -234,6 +236,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
         requestCards("valid/cards/empty-approval-urls.json")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
