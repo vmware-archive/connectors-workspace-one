@@ -158,7 +158,11 @@ public final class Reactive {
         try {
             return supplier.get();
         } finally {
-            MDC.setContextMap(savedContextMap);
+            if (savedContextMap == null) {
+                MDC.clear();
+            } else {
+                MDC.setContextMap(savedContextMap);
+            }
         }
     }
 }
