@@ -5,18 +5,17 @@
 
 package com.vmware.connectors.servicenow;
 
+import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.client.AsyncRestTemplate;
 
+import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
@@ -37,16 +36,13 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
 
     private static final String SNOW_AUTH_TOKEN = "test-GOOD-auth-token";
 
-    @Autowired
-    private AsyncRestTemplate rest;
-
     private MockRestServiceServer mockServiceNow;
 
     @Before
     public void setup() throws Exception {
         super.setup();
 
-        mockServiceNow = MockRestServiceServer.bindTo(rest)
+        mockServiceNow = MockRestServiceServer.bindTo(requestHandlerHolder)
                 .ignoreExpectOrder(true)
                 .build();
     }
@@ -166,6 +162,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
@@ -219,6 +216,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json", "xx")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
@@ -233,6 +231,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/empty-tickets.json")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder

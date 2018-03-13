@@ -15,20 +15,21 @@ import com.vmware.connectors.common.model.MessageThread;
 import com.vmware.connectors.common.model.UserRecord;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
-import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.AsyncRestOperations;
-import rx.Observable;
-import rx.Single;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -38,7 +39,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
@@ -94,13 +94,13 @@ public class SalesforceController {
 
     private final String sfAttachmentTasklinkPath;
 
-    private final AsyncRestOperations rest;
+    private final WebClient rest;
 
     private final CardTextAccessor cardTextAccessor;
 
     @Autowired
     public SalesforceController(
-            AsyncRestOperations rest,
+            WebClient rest,
             CardTextAccessor cardTextAccessor,
             @Value("${sf.searchAccountsPath}") String sfSearchAccountPath,
             @Value("${sf.addContactPath}") String sfAddContactPath,
@@ -121,36 +121,21 @@ public class SalesforceController {
     // Methods common to both the cards request and the actions
     ///////////////////////////////////////////////////////////////////
 
-    private HttpHeaders makeHeaders(String auth) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTHORIZATION, auth);
-        return headers;
-    }
-
-    private HttpHeaders makeJsonHeaders(String auth) {
-        HttpHeaders headers = makeHeaders(auth);
-        headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
-        return headers;
-    }
-
     /**
      * Retrieve contact data from Salesforce.
      *
      * @param contactSoql - Specify the SOQL to run
      */
-    private Single<ResponseEntity<JsonDocument>> retrieveContacts(
+    private Mono<JsonDocument> retrieveContacts(
             String auth,
             String baseUrl,
             String contactSoql
     ) {
-        return Async.toSingle(
-                rest.exchange(
-                        makeSearchAccountUri(baseUrl, contactSoql),
-                        HttpMethod.GET,
-                        new HttpEntity<String>(makeHeaders(auth)),
-                        JsonDocument.class
-                )
-        );
+        return rest.get()
+                .uri(makeSearchAccountUri(baseUrl, contactSoql))
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class);
     }
 
     private URI makeSearchAccountUri(
@@ -183,10 +168,11 @@ public class SalesforceController {
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Single<ResponseEntity<Cards>> getCards(
+    public Mono<ResponseEntity<Cards>> getCards(
             @RequestHeader(SALESFORCE_AUTH_HEADER) String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
+            Locale locale,
             @Valid @RequestBody CardRequest cardRequest
     ) {
         // Sender email and user email are required, and sender email has to at least have a non-final @ in it
@@ -197,20 +183,18 @@ public class SalesforceController {
         // TODO: implement a better system of validating domain names than "yup, it's not empty"
         if (StringUtils.isBlank(senderDomain) || StringUtils.isBlank(user)) {
             logger.warn("Either sender email or user email is blank for url: {}", baseUrl);
-            return Single.just(new ResponseEntity<>(BAD_REQUEST));
+            return Mono.just(new ResponseEntity<>(BAD_REQUEST));
         }
 
-        HttpHeaders headers = makeHeaders(auth);
-
-        return retrieveContactInfos(auth, baseUrl, user, sender)
-                .map(HttpEntity::getBody)
-                .flatMap(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, headers, user, senderDomain))
-                .map(this::toCards)
-                .map(ResponseEntity::ok);
+         return retrieveContactInfos(auth, baseUrl, user, sender)
+                 .flatMap(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth, user, senderDomain, locale))
+                 .map(this::toCards)
+                 .map(ResponseEntity::ok)
+                 .subscriberContext(Reactive.setupContext());
     }
 
     // Retrieve contact name, account name, and phone
-    private Single<ResponseEntity<JsonDocument>> retrieveContactInfos(
+    private Mono<JsonDocument> retrieveContactInfos(
             String auth,
             String baseUrl,
             String userEmail,
@@ -222,93 +206,93 @@ public class SalesforceController {
     }
 
 
-    private Single<List<Card>> getCards(
+    private Mono<List<Card>> getCards(
             JsonDocument contactDetails,
             String senderEmail,
             String baseUrl,
             String routingPrefix,
-            HttpHeaders headers,
+            String auth,
             String userEmail,
-            String senderDomain
+            String senderDomain,
+            Locale locale
     ) {
         int contactsSize = contactDetails.read("$.totalSize");
         if (contactsSize > 0) {
             // Contact already exists in the salesforce account. Return a card to show the sender information.
             logger.debug("Returning contact info for email: {} ", senderEmail);
-            return makeCardFromContactDetails(headers, baseUrl, routingPrefix, userEmail, senderEmail, contactDetails)
+            return makeCardFromContactDetails(auth, baseUrl, routingPrefix, userEmail, senderEmail, contactDetails, locale)
                     .map(ImmutableList::of);
         } else {
             // Contact doesn't exist in salesforce. Return a card to show accounts that are related to sender domain.
             logger.debug("Returning accounts info for domain: {} ", senderDomain);
-            return makeCardsFromSenderDomain(headers, baseUrl, routingPrefix, userEmail, senderEmail, senderDomain);
+            return makeCardsFromSenderDomain(auth, baseUrl, routingPrefix, userEmail, senderEmail, senderDomain, locale);
         }
     }
 
-    private Single<Card> makeCardFromContactDetails(
-            HttpHeaders headers,
+    private Mono<Card> makeCardFromContactDetails(
+            String auth,
             String baseUrl,
             String routingPrefix,
             String userEmail,
             String senderEmail,
-            JsonDocument contactDetails
+            JsonDocument contactDetails,
+            Locale locale
     ) {
-        return retrieveOpportunities(headers, baseUrl, userEmail, senderEmail)
-                .map(entity -> createUserDetailsCard(contactDetails, entity.getBody(), routingPrefix));
+        return retrieveOpportunities(auth, baseUrl, userEmail, senderEmail)
+                .map(body -> createUserDetailsCard(contactDetails, body, routingPrefix, locale));
     }
 
-    private Single<ResponseEntity<JsonDocument>> retrieveOpportunities(
-            HttpHeaders headers,
+    private Mono<JsonDocument> retrieveOpportunities(
+            String auth,
             String baseUrl,
             String userEmail,
             String senderEmail
     ) {
         String soql = String.format(QUERY_FMT_CONTACT_OPPORTUNITY, senderEmail, userEmail);
-
-        return Async.toSingle(
-                rest.exchange(
-                        makeSearchAccountUri(baseUrl, soql),
-                        HttpMethod.GET,
-                        new HttpEntity<String>(headers),
-                        JsonDocument.class
-                )
-        );
+        return rest.get()
+                .uri(makeSearchAccountUri(baseUrl, soql))
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class);
     }
 
     // Create card for showing information about the email sender, related opportunities.
     private Card createUserDetailsCard(
             JsonDocument contactDetails,
             JsonDocument opportunityDetails,
-            String routingPrefix
+            String routingPrefix,
+            Locale locale
     ) {
         String contactName = contactDetails.read("$.records[0].Name");
         String contactPhNo = contactDetails.read("$.records[0].MobilePhone");
         String contactAccountName = contactDetails.read("$.records[0].Account.Name");
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
-                .setDescription(cardTextAccessor.getMessage("senderinfo.body"))
-                .addField(buildGeneralBodyField("senderinfo.name", contactName))
-                .addField(buildGeneralBodyField("senderinfo.account", contactAccountName))
-                .addField(buildGeneralBodyField("senderinfo.phone", contactPhNo));
+                .setDescription(cardTextAccessor.getMessage("senderinfo.body", locale))
+                .addField(buildGeneralBodyField("senderinfo.name", contactName, locale))
+                .addField(buildGeneralBodyField("senderinfo.account", contactAccountName, locale))
+                .addField(buildGeneralBodyField("senderinfo.phone", contactPhNo, locale));
 
-        addOpportunities(cardBodyBuilder, opportunityDetails);
+        addOpportunities(cardBodyBuilder, opportunityDetails, locale);
 
         return new Card.Builder()
                 .setName("Salesforce") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getMessage("senderinfo.header"))
+                .setHeader(cardTextAccessor.getMessage("senderinfo.header", locale))
                 .setBody(cardBodyBuilder.build())
                 .build();
     }
 
     private CardBodyField buildGeneralBodyField(
             String titleMessageKey,
-            String description
+            String description,
+            Locale locale
     ) {
         if (StringUtils.isBlank(description)) {
             return null;
         }
         return new CardBodyField.Builder()
-                .setTitle(cardTextAccessor.getMessage(titleMessageKey))
+                .setTitle(cardTextAccessor.getMessage(titleMessageKey, locale))
                 .setType(CardBodyFieldType.GENERAL)
                 .setDescription(description)
                 .build();
@@ -316,7 +300,8 @@ public class SalesforceController {
 
     private void addOpportunities(
             CardBody.Builder cardBodyBuilder,
-            JsonDocument opportunityDetails
+            JsonDocument opportunityDetails,
+            Locale locale
     ) {
         // Fill in the opportunity details.
         int totalOpportunities = opportunityDetails.read("$.totalSize");
@@ -333,45 +318,41 @@ public class SalesforceController {
             String oppAmount = opportunityDetails.read(oppJsonPathPrefix + "Opportunity.Amount");
 
             cardBodyBuilder
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.title", oppName))
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.role", oppRole))
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.probability", oppProbability))
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.amount", oppAmount));
+                    .addField(buildGeneralBodyField("senderinfo.opportunity.title", oppName, locale))
+                    .addField(buildGeneralBodyField("senderinfo.opportunity.role", oppRole, locale))
+                    .addField(buildGeneralBodyField("senderinfo.opportunity.probability", oppProbability, locale))
+                    .addField(buildGeneralBodyField("senderinfo.opportunity.amount", oppAmount, locale));
         }
     }
 
-    private Single<List<Card>> makeCardsFromSenderDomain(
-            HttpHeaders headers,
+    private Mono<List<Card>> makeCardsFromSenderDomain(
+            String auth,
             String baseUrl,
             String routingPrefix,
             String userEmail,
             String senderEmail,
-            String senderDomain
+            String senderDomain,
+            Locale locale
     ) {
-        return retrieveAccountDetails(headers, baseUrl, userEmail, senderDomain)
-                .map(ResponseEntity::getBody)
+        return retrieveAccountDetails(auth, baseUrl, userEmail, senderDomain)
                 .map(body -> body.<List<Map<String, Object>>>read("$.records"))
                 .map(contactRecords -> getUniqueAccounts(contactRecords, senderEmail))
-                .flatMap(accounts -> addRelatedOpportunities(accounts, baseUrl, headers))
-                .map(list -> createRelatedAccountsCards(list, senderEmail, routingPrefix));
+                .flatMap(accounts -> addRelatedOpportunities(accounts, baseUrl, auth))
+                .map(list -> createRelatedAccountsCards(list, senderEmail, routingPrefix, locale));
     }
 
-    private Single<ResponseEntity<JsonDocument>> retrieveAccountDetails(
-            HttpHeaders headers,
+    private Mono<JsonDocument> retrieveAccountDetails(
+            String auth,
             String baseUrl,
             String userEmail,
             String senderDomain
     ) {
         String soql = String.format(QUERY_FMT_ACCOUNT, senderDomain, userEmail);
-
-        return Async.toSingle(
-                rest.exchange(
-                        makeSearchAccountUri(baseUrl, soql),
-                        HttpMethod.GET,
-                        new HttpEntity<String>(headers),
-                        JsonDocument.class
-                )
-        );
+        return rest.get()
+                .uri(makeSearchAccountUri(baseUrl, soql))
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class);
     }
 
     /**
@@ -413,43 +394,39 @@ public class SalesforceController {
         return new ArrayList<>(uniqueAccounts);
     }
 
-    private Single<List<SFAccount>> addRelatedOpportunities(
+    private Mono<List<SFAccount>> addRelatedOpportunities(
             List<SFAccount> uniqueAccounts,
             String baseUrl,
-            HttpHeaders headers
+            String auth
     ) {
         // Fetch list of opportunities related to each account. Update the account objects with the result.
-        return Observable
-                .from(uniqueAccounts)
-                .flatMapSingle(account -> supplementAccOpportunities(account, baseUrl, headers))
-                .toList()
-                .toSingle();
+        return Flux
+                .fromIterable(uniqueAccounts)
+                .flatMap(account -> supplementAccOpportunities(account, baseUrl, auth))
+                .collectList();
     }
 
-    private Single<SFAccount> supplementAccOpportunities(
+    private Mono<SFAccount> supplementAccOpportunities(
             SFAccount account,
             String baseUrl,
-            HttpHeaders headers
+            String auth
     ) {
-        return retrieveAccountOpportunities(headers, baseUrl, account.getId())
-                .map(entity -> setAccOpportunities(entity.getBody(), account));
+        return retrieveAccountOpportunities(auth, baseUrl, account.getId())
+                .map(body -> setAccOpportunities(body, account));
     }
 
-    private  Single<ResponseEntity<JsonDocument>> retrieveAccountOpportunities(
-            HttpHeaders headers,
+    private  Mono<JsonDocument> retrieveAccountOpportunities(
+            String auth,
             String baseUrl,
             String accountId
     ) {
         String soql = String.format(QUERY_FMT_ACCOUNT_OPPORTUNITY, accountId);
+        return rest.get()
+                .uri(makeSearchAccountUri(baseUrl, soql))
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class);
 
-        return Async.toSingle(
-                rest.exchange(
-                        makeSearchAccountUri(baseUrl, soql),
-                        HttpMethod.GET,
-                        new HttpEntity<String>(headers),
-                        JsonDocument.class
-                )
-        );
     }
 
     private SFAccount setAccOpportunities(
@@ -471,7 +448,8 @@ public class SalesforceController {
     private List<Card> createRelatedAccountsCards(
             List<SFAccount> accounts,
             String contactEmail,
-            String routingPrefix
+            String routingPrefix,
+            Locale locale
     ) {
         return accounts
                 .stream()
@@ -479,9 +457,9 @@ public class SalesforceController {
                         new Card.Builder()
                                 .setName("Salesforce")
                                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                                .setHeader(cardTextAccessor.getMessage("addcontact.header"), null)
-                                .setBody(cardTextAccessor.getMessage("addcontact.body", contactEmail, acct.getName()))
-                                .addAction(createAddContactAction(routingPrefix, contactEmail, acct))
+                                .setHeader(cardTextAccessor.getMessage("addcontact.header", locale), null)
+                                .setBody(cardTextAccessor.getMessage("addcontact.body", locale, contactEmail, acct.getName()))
+                                .addAction(createAddContactAction(routingPrefix, contactEmail, acct, locale))
                                 .build()
                 )
                 .collect(Collectors.toList());
@@ -490,14 +468,15 @@ public class SalesforceController {
     private CardAction createAddContactAction(
             String routingPrefix,
             String contactEmail,
-            SFAccount acct
+            SFAccount acct,
+            Locale locale
     ) {
         String acctId = acct.getId();
         String addContactLink = routingPrefix + ADD_CONTACT_PATH.replace("{accountId}", acctId);
 
         CardAction.Builder actionBuilder = new CardAction.Builder()
-                .setLabel(cardTextAccessor.getActionLabel("addcontact.add"))
-                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("addcontact.add"))
+                .setLabel(cardTextAccessor.getActionLabel("addcontact.add", locale))
+                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("addcontact.add", locale))
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setUrl(addContactLink)
                 .setType(HttpMethod.POST)
@@ -516,19 +495,20 @@ public class SalesforceController {
                                 .setMinLength(1).build()
                 );
 
-        addOpportunitiesSelectInputField(actionBuilder, acct.getAccOpportunities());
+        addOpportunitiesSelectInputField(actionBuilder, acct.getAccOpportunities(), locale);
 
         return actionBuilder.build();
     }
 
     private void addOpportunitiesSelectInputField(
             CardAction.Builder actionBuilder,
-            List<SFOpportunity> opportunities
+            List<SFOpportunity> opportunities,
+            Locale locale
     ) {
         if (!opportunities.isEmpty()) {  // There exists some opportunities related to this account.
             CardActionInputField.Builder inputFieldBuilder = new CardActionInputField.Builder()
                     .setId("opportunity_ids")
-                    .setLabel(cardTextAccessor.getMessage("account.opportunity.label"))
+                    .setLabel(cardTextAccessor.getMessage("account.opportunity.label", locale))
                     .setFormat("select")
                     .setMinLength(0);
             for (SFOpportunity sfOpportunity : opportunities) {
@@ -552,7 +532,7 @@ public class SalesforceController {
             path = ADD_CONTACT_PATH,
             consumes = APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<Void>> addContact(
+    public Mono<ResponseEntity<Void>> addContact(
             @RequestHeader(SALESFORCE_AUTH_HEADER) String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
             @PathVariable("accountId") String accountId,
@@ -567,15 +547,13 @@ public class SalesforceController {
          *  - Link Opportunities to the contact (from 1-n).
          * More : https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_composite_sobject_tree_flat.htm
          */
-        HttpHeaders headers = makeJsonHeaders(auth);
-
-        return addContact(headers, baseUrl, accountId, contactEmail, lastName, firstName)
-                .flatMap(entity -> linkOpportunitiesToContact(entity, opportunityIds, baseUrl, headers))
+        return addContact(auth, baseUrl, accountId, contactEmail, lastName, firstName)
+                .flatMap(entity -> linkOpportunitiesToContact(entity, opportunityIds, baseUrl, auth))
                 .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
     }
 
-    private Single<ResponseEntity<JsonDocument>> addContact(
-            HttpHeaders headers,
+    private Mono<ResponseEntity<JsonDocument>> addContact(
+            String auth,
             String baseUrl,
             String accountId,
             String contactEmail,
@@ -594,39 +572,37 @@ public class SalesforceController {
 
         logger.debug("Adding contact: {} with Salesforce server: {}", body, baseUrl);
 
-        return Async.toSingle(
-                rest.exchange(
-                        makeUri(baseUrl, sfAddContactPath),
-                        HttpMethod.POST,
-                        new HttpEntity<>(body, headers),
-                        JsonDocument.class
-                )
-            );
+        return rest.post()
+                .uri(makeUri(baseUrl, sfAddContactPath))
+                .header(AUTHORIZATION, auth)
+                .contentType(APPLICATION_JSON)
+                .exchange()
+                .flatMap(Reactive::checkStatus)
+                .flatMap(response -> Reactive.toResponseEntity(response, JsonDocument.class));
     }
 
-    private Single<ResponseEntity<Void>> linkOpportunitiesToContact(
+    private Mono<ResponseEntity<Void>> linkOpportunitiesToContact(
             ResponseEntity<JsonDocument> addContactResponse,
             Set<String> opportunityIds,
             String baseUrl,
-            HttpHeaders headers
+            String auth
     ) {
         if (CollectionUtils.isEmpty(opportunityIds)) {
             // No opportunity is available to link
-            return Single.just(ResponseEntity.status(addContactResponse.getStatusCode()).build());
+            return Mono.just(ResponseEntity.status(addContactResponse.getStatusCode()).build());
         } else {
             String contactId = addContactResponse.getBody().read("$.id");
 
-            return Observable
-                    .from(opportunityIds)
-                    .flatMapSingle(opportunityId -> linkOpportunityToContact(baseUrl, headers, opportunityId, contactId))
-                    .map(ignored -> ResponseEntity.ok().<Void>build())
-                    .toSingle();
+            return Flux
+                    .fromIterable(opportunityIds)
+                    .flatMap(opportunityId -> linkOpportunityToContact(baseUrl, auth, opportunityId, contactId))
+                    .then(Mono.just(ResponseEntity.ok().build()));
         }
     }
 
-    private Single<?> linkOpportunityToContact(
+    private Mono<?> linkOpportunityToContact(
             String baseUrl,
-            HttpHeaders headers,
+            String auth,
             String opportunityId,
             String contactId
     ) {
@@ -635,14 +611,13 @@ public class SalesforceController {
                 "ContactId", contactId
         );
 
-        return Async.toSingle(
-                rest.exchange(
-                        makeUri(baseUrl, sfOpportunityContactLinkPath),
-                        HttpMethod.POST,
-                        new HttpEntity<>(body, headers),
-                        String.class
-                )
-        );
+        return rest.post()
+                .uri(makeUri(baseUrl, sfOpportunityContactLinkPath))
+                .header(AUTHORIZATION, auth)
+                .contentType(APPLICATION_JSON)
+                .syncBody(body)
+                .retrieve()
+                .bodyToMono(String.class);
     }
 
     ///////////////////////////////////////////////////////////////////
@@ -653,7 +628,7 @@ public class SalesforceController {
             path = ADD_CONVERSATIONS_PATH,
             consumes = APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<Void>> addEmailConversation(
+    public Mono<Void> addEmailConversation(
             @RequestHeader(SALESFORCE_AUTH_HEADER) String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
             @RequestParam("user_email") String userEmail,
@@ -666,9 +641,9 @@ public class SalesforceController {
         byte[] formattedConversations = formatConversations(conversations).getBytes(StandardCharsets.UTF_8);
 
         return retrieveContactIds(auth, baseUrl, userEmail, contactEmail)
-                .map(ResponseEntity::getBody)
-                .map(body -> body.<List<String>>read("$..Id"))
-                .map(contactIds -> contactIds.get(0))
+                .flux()
+                .flatMap(body -> Flux.fromIterable(body.<List<String>>read("$..Id")))
+                .next()
                 .flatMap(
                         contactId ->
                                 linkContactIdToOpportunity(
@@ -679,8 +654,7 @@ public class SalesforceController {
                                         baseUrl,
                                         auth
                                 )
-                )
-                .map(ignored -> ResponseEntity.ok().build());
+                );
     }
 
     private String formatConversations(String conversations) throws IOException {
@@ -725,7 +699,7 @@ public class SalesforceController {
     }
 
     // Only retrieve the contact ID
-    private Single<ResponseEntity<JsonDocument>> retrieveContactIds(
+    private Mono<JsonDocument> retrieveContactIds(
             String auth,
             String baseUrl,
             String userEmail,
@@ -736,7 +710,7 @@ public class SalesforceController {
         return retrieveContacts(auth, baseUrl, contactIdSoql);
     }
 
-    private Single<?> linkContactIdToOpportunity(
+    private Mono<Void> linkContactIdToOpportunity(
             String contactId,
             Set<String> opportunityIds,
             byte[] conversations,
@@ -744,10 +718,8 @@ public class SalesforceController {
             String baseUrl,
             String auth
     ) {
-        return Observable
-                .from(opportunityIds)
-                .flatMapSingle(
-                        opportunityId ->
+        return Flux.fromIterable(opportunityIds)
+                .flatMap(opportunityId ->
                                 addEmailConversationToOpportunity(
                                         contactId,
                                         opportunityId,
@@ -756,11 +728,10 @@ public class SalesforceController {
                                         auth,
                                         baseUrl
                                 )
-                )
-                .toSingle();
+                ).then(Mono.empty());
     }
 
-    private Single<?> addEmailConversationToOpportunity(
+    private Mono<String> addEmailConversationToOpportunity(
             String contactId,
             String opportunityId,
             byte[] conversation,
@@ -774,38 +745,34 @@ public class SalesforceController {
                 .flatMap(parentId -> linkAttachmentToTask(parentId, conversation, attachmentName, baseUrl, auth));
     }
 
-    private Single<ResponseEntity<JsonDocument>> retrieveOpportunityTaskLink(
+    private Mono<ResponseEntity<JsonDocument>> retrieveOpportunityTaskLink(
             String auth,
             String baseUrl,
             String opportunityId,
             String contactId
     ) {
-        HttpHeaders headers = makeJsonHeaders(auth);
-
         Map<String, String> body = ImmutableMap.of(
                 "WhatId", opportunityId,
                 "Subject", CONVERSATION_TYPE,
                 "WhoId", contactId
         );
-
-        return Async.toSingle(
-                rest.exchange(
-                        makeUri(baseUrl, sfOpportunityTaskLinkPath),
-                        HttpMethod.POST,
-                        new HttpEntity<>(body, headers),
-                        JsonDocument.class
-                )
-        );
+        return rest.post()
+                .uri(makeUri(baseUrl, sfOpportunityTaskLinkPath))
+                .header(AUTHORIZATION, auth)
+                .contentType(APPLICATION_JSON)
+                .syncBody(body)
+                .exchange()
+                .flatMap(Reactive::checkStatus)
+                .flatMap(response -> Reactive.toResponseEntity(response, JsonDocument.class));
     }
 
-    private Single<?> linkAttachmentToTask(
+    private Mono<String> linkAttachmentToTask(
             String parentId,
             byte[] conversations,
             String attachmentName,
             String baseUrl,
             String auth
     ) {
-        HttpHeaders headers = makeJsonHeaders(auth);
 
         Map<String, String> body = ImmutableMap.of(
                 "Body", Base64Utils.encodeToString(conversations),
@@ -813,15 +780,13 @@ public class SalesforceController {
                 "ParentId", parentId,
                 "ContentType", TEXT_PLAIN_VALUE
         );
-
-        return Async.toSingle(
-                rest.exchange(
-                        makeUri(baseUrl, sfAttachmentTasklinkPath),
-                        HttpMethod.POST,
-                        new HttpEntity<>(body, headers),
-                        String.class
-                )
-        );
+        return rest.post()
+                .uri(makeUri(baseUrl, sfAttachmentTasklinkPath))
+                .header(AUTHORIZATION, auth)
+                .contentType(APPLICATION_JSON)
+                .syncBody(body)
+                .retrieve()
+                .bodyToMono(String.class);
     }
 
 }

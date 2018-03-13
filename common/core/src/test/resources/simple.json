@@ -3,6 +3,7 @@
   "name": "Salesforce",
   "creation_date":"2017-03-03T08:58:17.656Z",
   "expiration_date":"2017-05-03T08:58:17.656Z",
+  "importance": 1,
   "template": {
     "href": "/connectors/salesforce/templates/generic.hbs"
   },
@@ -35,6 +36,7 @@
         "min_length": 1
       }
     ],
-    "allow_repeated":true
+    "allow_repeated":true,
+    "completed_label": "Completed"
   }]
 }

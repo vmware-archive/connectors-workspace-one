@@ -7,7 +7,7 @@
         "href": "https://hero/connectors/salesforce/templates/generic.hbs"
       },
       "header": {
-        "title": "SalesForce Contact Detail"
+        "title": "[Salesforce] Contact Detail"
       },
       "body": {
         "description": "Contact Details from your Salesforce account",

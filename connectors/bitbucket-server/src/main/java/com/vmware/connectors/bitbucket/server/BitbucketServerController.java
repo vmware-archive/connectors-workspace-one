@@ -12,28 +12,28 @@ import com.vmware.connectors.bitbucket.server.utils.BitbucketServerPullRequest;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
-import com.vmware.connectors.common.utils.Async;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.ObservableUtil;
+import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.AsyncRestOperations;
-import rx.Observable;
-import rx.Single;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static com.vmware.connectors.bitbucket.server.utils.BitbucketServerConstants.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -51,21 +51,25 @@ public class BitbucketServerController {
 
     private static final String BITBUCKET_SERVER_COMMENTS = "bitbucket.comments";
 
-    @Resource
-    private AsyncRestOperations rest;
+    private final WebClient rest;
+    private final CardTextAccessor cardTextAccessor;
 
-    @Resource
-    private CardTextAccessor cardTextAccessor;
+    @Autowired
+    public BitbucketServerController(WebClient rest, CardTextAccessor cardTextAccessor) {
+        this.rest = rest;
+        this.cardTextAccessor = cardTextAccessor;
+    }
 
     @PostMapping(
             value = "/cards/requests",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Single<ResponseEntity<Cards>> getCards(
+    public Mono<Cards> getCards(
             @RequestHeader(AUTH_HEADER) final String authHeader,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
+            final Locale locale,
             @Valid @RequestBody final CardRequest cardRequest) {
 
         logger.trace("Cards requests for bitbucket server connector - baseUrlHeader: {}, routingPrefix: {}",
@@ -73,27 +77,22 @@ public class BitbucketServerController {
                 routingPrefix);
 
         final Set<String> cardTokens = cardRequest.getTokens(BITBUCKET_PR_EMAIL_SUBJECT);
-        if (CollectionUtils.isEmpty(cardTokens)) {
-            return Single.just(ResponseEntity.ok(new Cards()));
-        }
+
 
         final Set<BitbucketServerPullRequest> pullRequests = convertToBitbucketServerPR(cardTokens);
 
-        final HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTHORIZATION, authHeader);
-
-        return Observable.from(pullRequests)
-                .flatMap(pullRequest -> getCardForBitbucketServerPR(headers, pullRequest, baseUrl, routingPrefix))
+        return Flux.fromIterable(pullRequests)
+                .flatMap(pullRequest -> getCardForBitbucketServerPR(authHeader, pullRequest, baseUrl, routingPrefix, locale))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
-                .map(ResponseEntity::ok)
-                .toSingle();
+                .defaultIfEmpty(new Cards())
+                .subscriberContext(Reactive.setupContext());
     }
 
     @PostMapping(
             path = "/api/v1/{projectKey}/{repositorySlug}/{pullRequestId}/approve",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> approve(final BitbucketServerPullRequest pullRequest,
+    public Mono<String> approve(final BitbucketServerPullRequest pullRequest,
                                                   @RequestHeader(AUTH_HEADER) final String authHeader,
                                                   @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
 
@@ -108,7 +107,7 @@ public class BitbucketServerController {
             path = "/api/v1/{projectKey}/{repositorySlug}/{pullRequestId}/merge",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> merge(final BitbucketServerPullRequest pullRequest,
+    public Mono<String> merge(final BitbucketServerPullRequest pullRequest,
                                                 @RequestHeader(AUTH_HEADER) final String authHeader,
                                                 @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
 
@@ -123,7 +122,7 @@ public class BitbucketServerController {
             path = "/api/v1/{projectKey}/{repositorySlug}/{pullRequestId}/decline",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> decline(final BitbucketServerPullRequest pullRequest,
+    public Mono<String> decline(final BitbucketServerPullRequest pullRequest,
                                                   @RequestHeader(AUTH_HEADER) final String authHeader,
                                                   @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
 
@@ -138,7 +137,7 @@ public class BitbucketServerController {
             path = "/api/v1/{projectKey}/{repositorySlug}/{pullRequestId}/comments",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> comments(final BitbucketServerPullRequest pullRequest,
+    public Mono<ResponseEntity<String>> comments(final BitbucketServerPullRequest pullRequest,
                                                    @RequestParam(COMMENT_PARAM_KEY) final String comment,
                                                    @RequestHeader(AUTH_HEADER) final String authHeader,
                                                    @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
@@ -147,153 +146,130 @@ public class BitbucketServerController {
                 pullRequest,
                 baseUrl);
 
-        final HttpHeaders headers = buildHeaders(authHeader);
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-
         final BitbucketServerComment bitBucketServerComment = new BitbucketServerComment(comment);
-        final ListenableFuture<ResponseEntity<String>> response = this.rest.exchange(
-                baseUrl + "/rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/comments",
-                HttpMethod.POST,
-                new HttpEntity<>(bitBucketServerComment, headers),
-                String.class,
-                pullRequest.getProjectKey(),
-                pullRequest.getRepositorySlug(),
-                pullRequest.getPullRequestId());
-        return Async.toSingle(response);
+        return rest.post()
+                .uri(baseUrl + "/rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/comments",
+                        pullRequest.getProjectKey(), pullRequest.getRepositorySlug(), pullRequest.getPullRequestId())
+                .header(AUTHORIZATION, authHeader)
+                .contentType(MediaType.APPLICATION_JSON)
+                .syncBody(bitBucketServerComment)
+                .exchange()
+                .flatMap(Reactive::checkStatus)
+                .flatMap(response -> Reactive.toResponseEntity(response, String.class));
     }
 
     @GetMapping("/test-auth")
-    public Single<ResponseEntity<Void>> verifyAuth(@RequestHeader(AUTH_HEADER) final String authHeader,
+    public Mono<ResponseEntity<Void>> verifyAuth(@RequestHeader(AUTH_HEADER) final String authHeader,
                                                    @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add(AUTHORIZATION, authHeader);
-
-        final ListenableFuture<ResponseEntity<Void>> response = this.rest.exchange(
-                baseUrl + "/rest/api/1.0/dashboard/pull-request-suggestions?limit=1",
-                HttpMethod.HEAD,
-                new HttpEntity<>(headers),
-                Void.class);
-
-        return Async.toSingle(response)
-                .map(ignored -> ResponseEntity.noContent().build());
+        return rest.head()
+                .uri(baseUrl + "/rest/api/1.0/dashboard/pull-request-suggestions?limit=1")
+                .header(AUTHORIZATION, authHeader)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .then(Mono.just(ResponseEntity.noContent().build()));
     }
 
-    private Single<List<String>> getComments(final String baseUrl,
-                                             final HttpHeaders headers,
+    private Mono<List<String>> getComments(final String baseUrl,
+                                             final String authHeader,
                                              final BitbucketServerPullRequest pullRequest) {
 
-        final ListenableFuture<ResponseEntity<JsonDocument>> response = this.rest.exchange(
-                baseUrl + "/rest/api/1.0/projects/{projectKey}/repos/{repostiorySlug}/pull-requests/{pullRequestId}/activities",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                JsonDocument.class,
-                pullRequest.getProjectKey(),
-                pullRequest.getRepositorySlug(),
-                pullRequest.getPullRequestId());
-
-        return Async.toSingle(response)
-                .map(ResponseEntity::getBody)
-                .map(jsonDocument -> jsonDocument.<List<String>>read("$.values[*].comment.text"))
-                .map(comments -> comments.stream().limit(COMMENTS_SIZE).collect(Collectors.toList()));
-
+         return rest.get()
+                 .uri(baseUrl + "/rest/api/1.0/projects/{projectKey}/repos/{repostiorySlug}/pull-requests/{pullRequestId}/activities",
+                        pullRequest.getProjectKey(), pullRequest.getRepositorySlug(), pullRequest.getPullRequestId())
+                 .header(AUTHORIZATION, authHeader)
+                 .retrieve()
+                 .bodyToFlux(JsonDocument.class)
+                 .flatMap(body -> Flux.fromIterable(body.<List<String>>read("$.values[*].comment.text")))
+                 .take(COMMENTS_SIZE)
+                 .collectList();
     }
 
-    private Single<ResponseEntity<String>> performBitbucketServerAction(final String baseUrl,
+    private Mono<String> performBitbucketServerAction(final String baseUrl,
                                                                         final String authHeader,
                                                                         final BitbucketServerPullRequest pullRequest,
                                                                         final BitbucketServerAction bitBucketServerAction) {
-        final HttpHeaders headers = buildHeaders(authHeader);
-
         // Get current version of the pull request. Pull request "version" changes when we do any actions on it.
         // When the pull request is raised, the current value will be 0.
         // For example, when we approve the pull request, then the version will change from 0 to 1.
         // We have to add the latest version of the pull request URI to do any actions. Otherwise, the ACTION will be rejected.
         // If the build for the branch is going on, then the actions would be rejected.
-        // final Single<String> version = getVersion(headers, baseUrl, pullRequest);
-        return getVersion(headers, baseUrl, pullRequest)
-                .flatMap(version -> {
-
-                    // This header is added for skipping the CSRF check. Otherwise, Atlassian denies the pull request ACTION.
-                    headers.add(ATLASSIAN_TOKEN, "no-check");
-
-                    final ListenableFuture<ResponseEntity<String>> response = this.rest.exchange(
-                            baseUrl + "/rest/api/1.0/projects/{projectKey}/repos/{repositoryPlug}/pull-requests/{pullRequestId}/{action}?version={version}",
-                            HttpMethod.POST,
-                            new HttpEntity<>(headers),
-                            String.class,
-                            pullRequest.getProjectKey(),
-                            pullRequest.getRepositorySlug(),
-                            pullRequest.getPullRequestId(),
-                            bitBucketServerAction.getAction(),
-                            version);
-
-                    return Async.toSingle(response);
-                });
-
+        return getVersion(authHeader, baseUrl, pullRequest)
+                .flatMap(version -> performBitbucketServerAction(baseUrl,
+                        authHeader, pullRequest, bitBucketServerAction, version));
     }
 
-    private HttpHeaders buildHeaders(final String authHeader) {
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add(AUTHORIZATION, authHeader);
-        return headers;
+    private Mono<String> performBitbucketServerAction(final String baseUrl,
+                                                      final String authHeader,
+                                                      final BitbucketServerPullRequest pullRequest,
+                                                      final BitbucketServerAction bitBucketServerAction,
+                                                      String version) {
+        return rest.post()
+                .uri(baseUrl + "/rest/api/1.0/projects/{projectKey}/repos/{repositoryPlug}/pull-requests/{pullRequestId}/{action}?version={version}",
+                        pullRequest.getProjectKey(),
+                        pullRequest.getRepositorySlug(),
+                        pullRequest.getPullRequestId(),
+                        bitBucketServerAction.getAction(),
+                        version)
+                .header(AUTHORIZATION, authHeader)
+                .header(ATLASSIAN_TOKEN, "no-check")
+                .retrieve()
+                .bodyToMono(String.class);
     }
 
-    private Single<String> getVersion(final HttpHeaders headers,
+    private Mono<String> getVersion(final String authHeader,
                                       final String baseUrl,
                                       final BitbucketServerPullRequest pullRequest) {
 
-        return getPullRequestInfo(headers, pullRequest, baseUrl)
-                .map(ResponseEntity::getBody)
-                .map(jsonDocument -> Integer.toString(jsonDocument.read("$.version")));
+        return getPullRequestInfo(authHeader, pullRequest, baseUrl)
+               .map(jsonDocument -> Integer.toString(jsonDocument.read("$.version")));
 
     }
 
-    private Observable<Card> getCardForBitbucketServerPR(final HttpHeaders headers,
+    private Flux<Card> getCardForBitbucketServerPR(final String authHeader,
                                                      final BitbucketServerPullRequest pullRequest,
                                                      final String baseUrl,
-                                                     final String routingPrefix) {
+                                                     final String routingPrefix,
+                                                     final Locale locale) {
         logger.debug("Requesting pull request info from bitbucket server base url: {} and pull request info: {}", baseUrl, pullRequest);
 
-        final Single<ResponseEntity<JsonDocument>> bitBucketServerResponse = getPullRequestInfo(headers, pullRequest, baseUrl);
-        final Single<List<String>> comments = getComments(baseUrl, headers, pullRequest);
+        final Mono<JsonDocument> bitBucketServerResponse = getPullRequestInfo(authHeader, pullRequest, baseUrl);
+        final Mono<List<String>> comments = getComments(baseUrl, authHeader, pullRequest);
 
-        return Observable.zip(bitBucketServerResponse.toObservable(), comments.toObservable(), Pair::of)
-                .onErrorResumeNext(ObservableUtil::skip404)
-                .map(pair -> convertResponseIntoCard(pair.getLeft(), pullRequest, routingPrefix, pair.getRight()));
+        return Mono.zip(bitBucketServerResponse, comments, Pair::of)
+                .flux()
+                .onErrorResume(Reactive::skipOnNotFound)
+                .map(pair -> convertResponseIntoCard(pair.getLeft(), pullRequest, routingPrefix, pair.getRight(), locale));
     }
 
-    private Single<ResponseEntity<JsonDocument>> getPullRequestInfo(final HttpHeaders headers,
+    private Mono<JsonDocument> getPullRequestInfo(final String authHeader,
                                                                     final BitbucketServerPullRequest pullRequest,
                                                                     final String baseUrl) {
-        return Async.toSingle(this.rest.exchange(
-                baseUrl+ "/rest/api/1.0/projects/{projectKey}/repos/{respositorySlug}/pull-requests/{pullRequestId}",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                JsonDocument.class,
-                pullRequest.getProjectKey(),
-                pullRequest.getRepositorySlug(),
-                pullRequest.getPullRequestId()));
+        return rest.get()
+                .uri(baseUrl+ "/rest/api/1.0/projects/{projectKey}/repos/{respositorySlug}/pull-requests/{pullRequestId}",
+                        pullRequest.getProjectKey(), pullRequest.getRepositorySlug(), pullRequest.getPullRequestId())
+                .header(AUTHORIZATION, authHeader)
+                .retrieve()
+                .bodyToMono(JsonDocument.class);
     }
 
-    private Card convertResponseIntoCard(final ResponseEntity<JsonDocument> entity,
+    private Card convertResponseIntoCard(final JsonDocument bitBucketServerResponse,
                                          final BitbucketServerPullRequest pullRequest,
                                          final String routingPrefix,
-                                         final List<String> comments) {
-        final JsonDocument bitBucketServerResponse = entity.getBody();
-
+                                         final List<String> comments,
+                                         final Locale locale) {
         final boolean isPROpen = OPEN.equalsIgnoreCase(bitBucketServerResponse.read("$.state"));
 
         final Card.Builder card = new Card.Builder()
                 .setHeader(
-                        this.cardTextAccessor.getHeader(),
-                        this.cardTextAccessor.getMessage("subtitle",
+                        this.cardTextAccessor.getHeader(locale),
+                        this.cardTextAccessor.getMessage("subtitle", locale,
                                 pullRequest.getProjectKey(),
                                 pullRequest.getRepositorySlug(),
                                 pullRequest.getPullRequestId())
                 )
-                .setBody(makeCardBody(bitBucketServerResponse, comments));
+                .setBody(makeCardBody(bitBucketServerResponse, comments, locale));
 
-        addCommentAction(card, routingPrefix, pullRequest);
+        addCommentAction(card, routingPrefix, pullRequest, locale);
 
         // Add the following actions, only if the pull request state is open.
         if (isPROpen) {
@@ -301,19 +277,22 @@ public class BitbucketServerController {
             addPullRequestAction(card,
                     routingPrefix,
                     pullRequest,
-                    BitbucketServerAction.APPROVE);
+                    BitbucketServerAction.APPROVE,
+                    locale);
 
             // Add decline ACTION.
             addPullRequestAction(card,
                     routingPrefix,
                     pullRequest,
-                    BitbucketServerAction.DECLINE);
+                    BitbucketServerAction.DECLINE,
+                    locale);
 
             // Add merge ACTION.
             addPullRequestAction(card,
                     routingPrefix,
                     pullRequest,
-                    BitbucketServerAction.MERGE);
+                    BitbucketServerAction.MERGE,
+                    locale);
         }
 
         return card.build();
@@ -322,11 +301,12 @@ public class BitbucketServerController {
     private void addPullRequestAction(final Card.Builder card,
                                       final String routingPrefix,
                                       final BitbucketServerPullRequest pullRequest,
-                                      final BitbucketServerAction bitBucketServerAction) {
+                                      final BitbucketServerAction bitBucketServerAction,
+                                      final Locale locale) {
         card.addAction(
                 new CardAction.Builder()
-                        .setLabel(this.cardTextAccessor.getActionLabel(BITBUCKET_PREFIX + bitBucketServerAction.getAction()))
-                        .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel(BITBUCKET_PREFIX + bitBucketServerAction.getAction()))
+                        .setLabel(this.cardTextAccessor.getActionLabel(BITBUCKET_PREFIX + bitBucketServerAction.getAction(), locale))
+                        .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel(BITBUCKET_PREFIX + bitBucketServerAction.getAction(), locale))
                         .setActionKey(CardActionKey.DIRECT)
                         .setUrl(buildActionUrl(routingPrefix, pullRequest, bitBucketServerAction))
                         .setType(HttpMethod.POST)
@@ -336,17 +316,19 @@ public class BitbucketServerController {
 
     private void addCommentAction(final Card.Builder card,
                                   final String routingPrefix,
-                                  final BitbucketServerPullRequest pullRequest) {
+                                  final BitbucketServerPullRequest pullRequest,
+                                  final Locale locale) {
         card.addAction(
                 new CardAction.Builder()
-                        .setLabel(this.cardTextAccessor.getActionLabel(BITBUCKET_SERVER_COMMENTS))
-                        .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel(BITBUCKET_SERVER_COMMENTS))
+                        .setLabel(this.cardTextAccessor.getActionLabel(BITBUCKET_SERVER_COMMENTS, locale))
+                        .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel(BITBUCKET_SERVER_COMMENTS, locale))
                         .setActionKey(CardActionKey.USER_INPUT)
                         .setUrl(buildActionUrl(routingPrefix, pullRequest, BitbucketServerAction.COMMENTS))
+                        .setAllowRepeated(true)
                         .addUserInputField(
                                 new CardActionInputField.Builder()
                                         .setId(COMMENT_PARAM_KEY)
-                                        .setLabel(this.cardTextAccessor.getMessage(BITBUCKET_SERVER_COMMENTS))
+                                        .setLabel(this.cardTextAccessor.getMessage(BITBUCKET_SERVER_COMMENTS, locale))
                                         .setMinLength(1)
                                         .build()
                         )
@@ -367,38 +349,40 @@ public class BitbucketServerController {
                 bitBucketServerAction.getAction());
     }
 
-    private CardBody makeCardBody(final JsonDocument bitbucketServerResponse, final List<String> comments) {
+    private CardBody makeCardBody(
+            final JsonDocument bitbucketServerResponse, final List<String> comments, final Locale locale) {
         final CardBody.Builder cardBody = new CardBody.Builder();
         cardBody.setDescription(bitbucketServerResponse.read("$.description"));
 
-        cardBody.addField(makeCardBodyField("bitbucket.repository", bitbucketServerResponse.read("$.fromRef.repository.slug")));
-        cardBody.addField(makeCardBodyField("bitbucket.author", bitbucketServerResponse.read("$.author.user.displayName")));
-        cardBody.addField(makeCardBodyField("bitbucket.title", bitbucketServerResponse.read("$.title")));
-        cardBody.addField(makeCardBodyField("bitbucket.state", bitbucketServerResponse.read("$.state")));
-        cardBody.addField(makeCardBodyField("bitbucket.open", Boolean.toString(bitbucketServerResponse.read("$.open"))));
+        cardBody.addField(makeCardBodyField("bitbucket.repository", bitbucketServerResponse.read("$.fromRef.repository.slug"), locale));
+        cardBody.addField(makeCardBodyField("bitbucket.author", bitbucketServerResponse.read("$.author.user.displayName"), locale));
+        cardBody.addField(makeCardBodyField("bitbucket.title", bitbucketServerResponse.read("$.title"), locale));
+        cardBody.addField(makeCardBodyField("bitbucket.state", bitbucketServerResponse.read("$.state"), locale));
+        cardBody.addField(makeCardBodyField("bitbucket.open", Boolean.toString(bitbucketServerResponse.read("$.open")), locale));
 
         if (!CollectionUtils.isEmpty(comments)) {
-            cardBody.addField(addCommentField(comments));
+            cardBody.addField(addCommentField(comments, locale));
         }
         return cardBody.build();
     }
 
-    private CardBodyField addCommentField(final List<String> comments) {
+    private CardBodyField addCommentField(final List<String> comments, final Locale locale) {
         final CardBodyField.Builder cardBodyFieldBuilder = new CardBodyField.Builder();
-        cardBodyFieldBuilder.setTitle(this.cardTextAccessor.getMessage(BITBUCKET_SERVER_COMMENTS));
+        cardBodyFieldBuilder.setTitle(this.cardTextAccessor.getMessage(BITBUCKET_SERVER_COMMENTS, locale));
         cardBodyFieldBuilder.setType(CardBodyFieldType.COMMENT);
 
         comments.forEach(comment -> cardBodyFieldBuilder.addContent(ImmutableMap.of("text", comment)));
         return cardBodyFieldBuilder.build();
     }
 
-    private CardBodyField makeCardBodyField(final String messageKeyPrefix, final String descriptionArgs) {
+    private CardBodyField makeCardBodyField(
+            final String messageKeyPrefix, final String descriptionArgs, final Locale locale) {
         return new CardBodyField.Builder()
-                .setTitle(cardTextAccessor.getMessage(messageKeyPrefix + ".title"))
+                .setTitle(cardTextAccessor.getMessage(messageKeyPrefix + ".title", locale))
                 .setType(CardBodyFieldType.GENERAL)
                 .setDescription(
                         cardTextAccessor.getMessage(
-                                messageKeyPrefix + ".description",
+                                messageKeyPrefix + ".description", locale,
                                 descriptionArgs
                         )
                 )

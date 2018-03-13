@@ -8,13 +8,12 @@
         "href": "https://hero/connectors/jira/templates/generic.hbs"
       },
       "header": {
-        "title": "Add unit/integration tests",
+        "title": "[Jira] Add unit/integration tests",
         "subtitle": [
           "APF-27"
         ]
       },
       "body": {
-        "description": "Add unit/integration tests",
         "fields": [
           {
             "type": "GENERAL",
@@ -82,7 +81,8 @@
               "format": "textarea"
             }
           ],
-          "completed_label": "Commented"
+          "completed_label": "Commented",
+          "allow_repeated": true
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -94,6 +94,7 @@
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
+          "completed_label": "Open",
           "allow_repeated":true
         },
         {
@@ -118,13 +119,12 @@
         "href": "https://hero/connectors/jira/templates/generic.hbs"
       },
       "header": {
-        "title": "Add validation to APIs",
+        "title": "[Jira] Add validation to APIs",
         "subtitle": [
           "APF-28"
         ]
       },
       "body": {
-        "description": "Add validation to APIs",
         "fields": [
           {
             "type": "GENERAL",
@@ -165,7 +165,8 @@
               "format": "textarea"
             }
           ],
-          "completed_label": "Commented"
+          "completed_label": "Commented",
+          "allow_repeated": true
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -177,7 +178,8 @@
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
-          "allow_repeated":true
+          "completed_label": "Open",
+          "allow_repeated": true
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",

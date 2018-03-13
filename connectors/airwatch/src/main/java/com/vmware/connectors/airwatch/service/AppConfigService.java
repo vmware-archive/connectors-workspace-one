@@ -5,9 +5,11 @@
 
 package com.vmware.connectors.airwatch.service;
 
+import com.vmware.connectors.airwatch.config.AppConfiguration;
 import com.vmware.connectors.airwatch.config.AppConfigurations;
 import com.vmware.connectors.airwatch.config.ManagedApp;
-import com.vmware.connectors.airwatch.config.AppConfiguration;
+
+import java.util.Optional;
 
 /**
  * Created by harshas on 9/19/17.
@@ -20,15 +22,15 @@ public class AppConfigService {
         this.appConfigurations = appConfigurations;
     }
 
-    public ManagedApp findManagedApp(String keyword, String platform) {
+    public Optional<ManagedApp> findManagedApp(String keyword, String platform) {
         for (AppConfiguration appConfiguration : appConfigurations.getApps()) {
             ManagedApp app = appConfiguration.getApp(platform);
             // If the keyword matches to the app's name or its configured keywords.
             if (app.getName().equalsIgnoreCase(keyword) ||
                     appConfiguration.getKeywords().stream().anyMatch(keyword::equalsIgnoreCase)) {
-                return app;
+                return Optional.of(app);
             }
         }
-        return null;
+        return Optional.empty();
     }
 }

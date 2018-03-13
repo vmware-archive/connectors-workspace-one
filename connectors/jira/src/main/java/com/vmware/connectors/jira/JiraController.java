@@ -8,47 +8,28 @@ package com.vmware.connectors.jira;
 import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
-import com.vmware.connectors.common.payloads.response.Card;
-import com.vmware.connectors.common.payloads.response.CardAction;
-import com.vmware.connectors.common.payloads.response.CardActionInputField;
-import com.vmware.connectors.common.payloads.response.CardActionKey;
-import com.vmware.connectors.common.payloads.response.CardBody;
-import com.vmware.connectors.common.payloads.response.CardBodyField;
-import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
-import com.vmware.connectors.common.payloads.response.Cards;
-import com.vmware.connectors.common.utils.Async;
+import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.ObservableUtil;
+import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.AsyncRestOperations;
-import rx.Observable;
-import rx.Single;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.MediaType.*;
 
 /**
@@ -63,111 +44,109 @@ public class JiraController {
 
     private static final int COMMENTS_SIZE = 2;
 
-    private final AsyncRestOperations rest;
+    private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
 
     @Autowired
-    public JiraController(AsyncRestOperations rest, CardTextAccessor cardTextAccessor) {
+    public JiraController(WebClient rest, CardTextAccessor cardTextAccessor) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
     }
 
     @PostMapping(path = "/cards/requests", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-    public Single<ResponseEntity<Cards>> getCards(
+    public Mono<Cards> getCards(
             @RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
             @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(name = ROUTING_PREFIX) String routingPrefix,
+            Locale locale,
             @Valid @RequestBody CardRequest cardRequest) {
 
         Set<String> issueIds = cardRequest.getTokens("issue_id");
-        if (CollectionUtils.isEmpty(issueIds)) {
-            logger.debug("Empty jira issues for Jira server: {}", baseUrl);
-            return Single.just(ResponseEntity.ok(new Cards()));
-        }
-        return Observable.from(issueIds)
-                .flatMap(issueId -> getCardForIssue(jiraAuth, baseUrl, issueId, routingPrefix))
+
+        return Flux.fromIterable(issueIds)
+                .flatMap(issueId -> getCardForIssue(jiraAuth, baseUrl, issueId, routingPrefix, locale))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
-                .map(ResponseEntity::ok)
-                .toSingle();
+                .defaultIfEmpty(new Cards())
+                .subscriberContext(Reactive.setupContext());
     }
 
     @PostMapping(path = "/api/v1/issues/{issueKey}/comment", consumes = APPLICATION_FORM_URLENCODED_VALUE)
-    public Single<ResponseEntity<Void>> addComment(
+    public Mono<ResponseEntity<Object>> addComment(
             @RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
             @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl,
             @PathVariable String issueKey, @RequestParam String body) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTHORIZATION, jiraAuth);
-        headers.set(CONTENT_TYPE, APPLICATION_JSON_VALUE);
         logger.debug("Adding jira comments for issue id : {} with Jira server: {}", issueKey, baseUrl);
-        ListenableFuture<ResponseEntity<String>> future = rest.exchange(
-                baseUrl + "/rest/api/2/issue/{issueKey}/comment", HttpMethod.POST,
-                new HttpEntity<>(Collections.singletonMap("body", body), headers), String.class,
-                issueKey);
-        return Async.toSingle(future)
-                .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
+        return rest.post()
+                .uri(baseUrl + "/rest/api/2/issue/{issueKey}/comment", issueKey)
+                .header(AUTHORIZATION, jiraAuth)
+                .contentType(APPLICATION_JSON)
+                .syncBody(Collections.singletonMap("body", body))
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(response -> ResponseEntity.status(CREATED).build())
+                .subscriberContext(Reactive.setupContext());
     }
 
     @PostMapping(path = "/api/v1/issues/{issueKey}/watchers")
-    public Single<ResponseEntity<Void>> addWatcher(
+    public Mono<ResponseEntity<Void>> addWatcher(
             @RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
             @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl,
             @PathVariable String issueKey) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTHORIZATION, jiraAuth);
-        headers.setContentType(APPLICATION_JSON);
         logger.debug("Adding the user to watcher list for jira issue id : {} with jira server : {}", issueKey, baseUrl);
-
-        ListenableFuture<ResponseEntity<JsonDocument>> selfFuture = rest.exchange(
-                baseUrl + "/rest/api/2/myself", GET,
-                new HttpEntity<>(headers), JsonDocument.class);
-
-        return Async.toSingle(selfFuture)
-                .flatMap(entity -> addUserToWatcher(entity.getBody(), headers, baseUrl, issueKey))
-                .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
+        return rest.get()
+                .uri(baseUrl + "/rest/api/2/myself")
+                .header(AUTHORIZATION, jiraAuth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .flatMap(body -> addUserToWatcher(body, jiraAuth, baseUrl, issueKey))
+                .map(status -> ResponseEntity.status(status).<Void>build())
+                .subscriberContext(Reactive.setupContext());
     }
 
     @GetMapping("/test-auth")
-    public Single<ResponseEntity<Void>> verifyAuth(@RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
+    public Mono<ResponseEntity<Void>> verifyAuth(@RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
                                                    @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTHORIZATION, jiraAuth);
-
-        return Async.toSingle(rest.exchange(baseUrl + "/rest/api/2/myself", HttpMethod.HEAD, new HttpEntity<>(headers), Void.class))
-                .map(ignored -> ResponseEntity.noContent().build());
+        return rest.head()
+                .uri(baseUrl + "/rest/api/2/myself")
+                .header(AUTHORIZATION, jiraAuth)
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(ignored -> ResponseEntity.noContent().<Void>build())
+                .subscriberContext(Reactive.setupContext());
     }
 
-    private Single<ResponseEntity<Void>> addUserToWatcher(JsonDocument jiraUserDetails, HttpHeaders headers,
-                                                          String baseUrl, String issueKey) {
+    private Mono<HttpStatus> addUserToWatcher(JsonDocument jiraUserDetails, String jiraAuth,
+                                                              String baseUrl, String issueKey) {
         String user = jiraUserDetails.read("$.name");
-        ListenableFuture<ResponseEntity<String>> addWatcherFuture = rest.exchange(
-                baseUrl + "/rest/api/2/issue/{issueKey}/watchers", HttpMethod.POST,
-                new HttpEntity<>(String.format("\"%s\"", user), headers), String.class,
-                issueKey);
-        return Async.toSingle(addWatcherFuture)
-                .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
-
+        return rest.post()
+                .uri(baseUrl + "/rest/api/2/issue/{issueKey}/watchers", issueKey)
+                .header(AUTHORIZATION, jiraAuth)
+                .contentType(APPLICATION_JSON)
+                .syncBody(String.format("\"%s\"", user))
+                .exchange()
+                .map(ClientResponse::statusCode);
     }
 
-    private Observable<Card> getCardForIssue(String jiraAuth, String baseUrl, String issueId, String routingPrefix) {
-        return getIssue(jiraAuth, baseUrl, issueId).toObservable()
+    private Flux<Card> getCardForIssue(String jiraAuth, String baseUrl, String issueId, String routingPrefix, Locale locale) {
+        return Flux.from(getIssue(jiraAuth, baseUrl, issueId))
                 // if an issue is not found, we'll just not bother creating a card
-                .onErrorResumeNext(ObservableUtil::skip404)
-                .map(entity -> transformIssueResponse(entity, baseUrl, issueId, routingPrefix));
+                .onErrorResume(Reactive::skipOnNotFound)
+                .flatMap(Reactive.wrapMapper(jiraResponse -> transformIssueResponse(jiraResponse, baseUrl, issueId, routingPrefix, locale)))
+                .doOnEach(Reactive.wrapForItem(card -> logger.debug("Created card. {} -> {}", issueId, card.getHeader().getTitle())));
 
     }
 
-    private Single<ResponseEntity<JsonDocument>> getIssue(String jiraAuth, String baseUrl, String issueId) {
+    private Mono<JsonDocument> getIssue(String jiraAuth, String baseUrl, String issueId) {
         logger.debug("Getting info for Jira id: {} with Jira server: {}", issueId, baseUrl);
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTHORIZATION, jiraAuth);
-        ListenableFuture<ResponseEntity<JsonDocument>> future = rest.exchange(
-                baseUrl + "/rest/api/2/issue/{issueId}", GET, new HttpEntity<String>(headers), JsonDocument.class, issueId);
-        return Async.toSingle(future);
+        return rest.get()
+                .uri(baseUrl + "/rest/api/2/issue/{issueId}", issueId)
+                .header(AUTHORIZATION, jiraAuth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class);
     }
 
-    private Card transformIssueResponse(ResponseEntity<JsonDocument> result, String baseUrl, String issueId, String routingPrefix) {
-        JsonDocument jiraResponse = result.getBody();
+    private Card transformIssueResponse(JsonDocument jiraResponse, String baseUrl, String issueId,
+                                        String routingPrefix, Locale locale) {
         String issueKey = jiraResponse.read("$.key");
         String summary = jiraResponse.read("$.fields.summary");
         List<String> fixVersions = jiraResponse.read("$.fields.fixVersions[*].name");
@@ -175,26 +154,25 @@ public class JiraController {
         List<Map<String, Object>> allComments = jiraResponse.read("$.fields.comment.comments[*]['body', 'author']");
         Collections.reverse(allComments);
 
-        CardAction.Builder commentActionBuilder = getCommentActionBuilder(jiraResponse, routingPrefix);
-        CardAction.Builder watchActionBuilder = getWatchActionBuilder(jiraResponse, routingPrefix);
-        CardAction.Builder openInActionBuilder = getOpenInActionBuilder(baseUrl, issueId);
+        CardAction.Builder commentActionBuilder = getCommentActionBuilder(jiraResponse, routingPrefix, locale);
+        CardAction.Builder watchActionBuilder = getWatchActionBuilder(jiraResponse, routingPrefix, locale);
+        CardAction.Builder openInActionBuilder = getOpenInActionBuilder(baseUrl, issueId, locale);
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
-                .setDescription(summary)
-                .addField(buildGeneralBodyField("project", jiraResponse.read("$.fields.project.name")))
-                .addField(buildGeneralBodyField("components", String.join(",", components)))
-                .addField(buildGeneralBodyField("priority", jiraResponse.read("$.fields.priority.name")))
-                .addField(buildGeneralBodyField("status", jiraResponse.read("$.fields.status.name")))
-                .addField(buildGeneralBodyField("resolution", jiraResponse.read("$.fields.resolution.name")))
-                .addField(buildGeneralBodyField("assignee", jiraResponse.read("$.fields.assignee.displayName")))
-                .addField(buildGeneralBodyField("fixVersions", String.join(",", fixVersions)));
+                .addField(buildGeneralBodyField("project", jiraResponse.read("$.fields.project.name"), locale))
+                .addField(buildGeneralBodyField("components", String.join(",", components),locale))
+                .addField(buildGeneralBodyField("priority", jiraResponse.read("$.fields.priority.name"), locale))
+                .addField(buildGeneralBodyField("status", jiraResponse.read("$.fields.status.name"), locale))
+                .addField(buildGeneralBodyField("resolution", jiraResponse.read("$.fields.resolution.name"), locale))
+                .addField(buildGeneralBodyField("assignee", jiraResponse.read("$.fields.assignee.displayName"), locale))
+                .addField(buildGeneralBodyField("fixVersions", String.join(",", fixVersions), locale));
 
-        addCommentsField(cardBodyBuilder, allComments);
+        addCommentsField(cardBodyBuilder, allComments, locale);
 
         return new Card.Builder()
                 .setName("Jira")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                .setHeader(cardTextAccessor.getHeader(summary), cardTextAccessor.getMessage("subtitle", issueKey))
+                .setHeader(cardTextAccessor.getHeader(locale, summary), cardTextAccessor.getMessage("subtitle", locale, issueKey))
                 .setBody(cardBodyBuilder.build())
                 .addAction(commentActionBuilder.build())
                 .addAction(openInActionBuilder.build())
@@ -202,63 +180,67 @@ public class JiraController {
                 .build();
     }
 
-    private CardBodyField buildGeneralBodyField(String titleMessageKey, String content) {
+    private CardBodyField buildGeneralBodyField(String titleMessageKey, String content, Locale locale) {
         if (StringUtils.isBlank(content)) {
             return null;
         }
         return new CardBodyField.Builder()
-                .setTitle(cardTextAccessor.getMessage(titleMessageKey + ".title"))
-                .setDescription(cardTextAccessor.getMessage(titleMessageKey + ".content", content))
+                .setTitle(cardTextAccessor.getMessage(titleMessageKey + ".title", locale))
+                .setDescription(cardTextAccessor.getMessage(titleMessageKey + ".content", locale, content))
                 .setType(CardBodyFieldType.GENERAL)
                 .build();
     }
 
-    private void addCommentsField(CardBody.Builder cardBodyBuilder, List<Map<String, Object>> allComments) {
+    private void addCommentsField(CardBody.Builder cardBodyBuilder, List<Map<String, Object>> allComments, Locale locale) {
         CardBodyField.Builder cardFieldBuilder = new CardBodyField.Builder();
 
         if (!allComments.isEmpty()) {
-            cardFieldBuilder.setTitle(cardTextAccessor.getMessage("comments.title"))
+            cardFieldBuilder.setTitle(cardTextAccessor.getMessage("comments.title", locale))
                     .setType(CardBodyFieldType.COMMENT);
 
             allComments.stream()
                     .limit(COMMENTS_SIZE)
                     .map(commentInfo -> ((Map<String, String>) commentInfo.get("author")).get("name") + " - " + commentInfo.get("body"))
-                    .forEach(comment -> cardFieldBuilder.addContent(ImmutableMap.of("text", cardTextAccessor.getMessage("comments.content", comment))));
+                    .forEach(comment -> cardFieldBuilder.addContent(ImmutableMap.of("text",
+                            cardTextAccessor.getMessage("comments.content", locale, comment))));
             cardBodyBuilder.addField(cardFieldBuilder.build());
         }
     }
 
-    private CardAction.Builder getCommentActionBuilder(JsonDocument jiraResponse, String routingPrefix) {
+    private CardAction.Builder getCommentActionBuilder(JsonDocument jiraResponse, String routingPrefix, Locale locale) {
         CardAction.Builder actionBuilder = new CardAction.Builder();
         CardActionInputField.Builder inputFieldBuilder = new CardActionInputField.Builder();
         String commentLink = "api/v1/issues/" + jiraResponse.read("$.id") + "/comment";
         inputFieldBuilder.setId("body")
                 .setFormat("textarea")
-                .setLabel(cardTextAccessor.getMessage("actions.comment.prompt.label"));
-        actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.comment"))
-                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("actions.comment"))
+                .setLabel(cardTextAccessor.getMessage("actions.comment.prompt.label", locale));
+        actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.comment", locale))
+                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("actions.comment", locale))
                 .setActionKey("USER_INPUT")
                 .setUrl(routingPrefix + commentLink)
                 .setType(HttpMethod.POST)
+                .setAllowRepeated(true)
                 .addUserInputField(inputFieldBuilder.build());
         return actionBuilder;
     }
 
-    private CardAction.Builder getWatchActionBuilder(JsonDocument jiraResponse, String routingPrefix) {
+    private CardAction.Builder getWatchActionBuilder(JsonDocument jiraResponse,
+                                                     String routingPrefix, Locale locale) {
         CardAction.Builder actionBuilder = new CardAction.Builder();
         String watchLink = "api/v1/issues/" + jiraResponse.read("$.id") + "/watchers";
-        actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.watch"))
-                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("actions.watch"))
+        actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.watch", locale))
+                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("actions.watch", locale))
                 .setActionKey(CardActionKey.DIRECT)
                 .setUrl(routingPrefix + watchLink)
                 .setType(HttpMethod.POST);
         return actionBuilder;
     }
 
-    private CardAction.Builder getOpenInActionBuilder(String baseUrl, String issueId) {
+    private CardAction.Builder getOpenInActionBuilder(String baseUrl, String issueId, Locale locale) {
         CardAction.Builder actionBuilder = new CardAction.Builder();
         String jiraIssueWebUrl = baseUrl + "/browse/" + issueId;
-        actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.openIn"))
+        actionBuilder.setLabel(cardTextAccessor.getActionLabel("actions.openIn", locale))
+                .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("actions.openIn", locale))
                 .setActionKey(CardActionKey.OPEN_IN)
                 .setAllowRepeated(true)
                 .setUrl(jiraIssueWebUrl)

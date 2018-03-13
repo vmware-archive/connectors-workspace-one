@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "Expense Report Pending Your Approval"
+        "title": "[Concur] Expense Report Pending Your Approval"
       },
       "body": {
         "description":"Test Concur connector-1",
@@ -46,6 +46,7 @@
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
+          "completed_label":"Open",
           "allow_repeated":true
         },
         {
@@ -94,7 +95,7 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "Expense Report Pending Your Approval"
+        "title": "[Concur] Expense Report Pending Your Approval"
       },
       "body": {
         "description":"Test Concur connector-2",
@@ -132,6 +133,7 @@
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
+          "completed_label":"Open",
           "allow_repeated":true
         }
       ]

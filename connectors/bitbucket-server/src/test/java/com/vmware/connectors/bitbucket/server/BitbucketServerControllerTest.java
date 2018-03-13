@@ -7,20 +7,18 @@ package com.vmware.connectors.bitbucket.server;
 
 import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.bitbucket.server.utils.BitbucketServerAction;
+import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.client.AsyncRestTemplate;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,18 +26,12 @@ import java.util.List;
 import static com.vmware.connectors.bitbucket.server.utils.BitbucketServerConstants.*;
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.springframework.http.HttpHeaders.*;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.HEAD;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class BitbucketServerControllerTest extends ControllerTestsBase {
@@ -50,8 +42,6 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
 
     private static final String PULL_REQUEST_ID_2 = "246";
 
-    @Autowired
-    private AsyncRestTemplate rest;
 
     private MockRestServiceServer mockBitbucketServer;
 
@@ -83,7 +73,7 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
     public void setup() throws Exception {
         super.setup();
 
-        mockBitbucketServer = MockRestServiceServer.bindTo(rest)
+        mockBitbucketServer = MockRestServiceServer.bindTo(requestHandlerHolder)
                 .ignoreExpectOrder(true)
                 .build();
     }

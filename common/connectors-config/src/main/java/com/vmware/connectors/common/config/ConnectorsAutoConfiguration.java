@@ -5,26 +5,20 @@
 
 package com.vmware.connectors.common.config;
 
-import com.vmware.connectors.common.context.ContextInterceptor;
-import com.vmware.connectors.common.json.JsonDocumentHttpMessageConverter;
+import com.vmware.connectors.common.json.JsonDocumentDecoder;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.web.ConnectorRootController;
 import com.vmware.connectors.common.web.ExceptionHandlers;
 import com.vmware.connectors.common.web.MdcFilter;
-import com.vmware.connectors.common.web.SingleReturnValueHandler;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
-import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
-import org.apache.http.nio.conn.NHttpClientConnectionManager;
-import org.apache.http.nio.reactor.IOReactorException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.JwtAccessTokenConverterConfigurer;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.JwtAccessTokenConverterRestTemplateCustomizer;
 import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
+import org.springframework.boot.web.codec.CodecCustomizer;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.MimeMappings;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
@@ -34,8 +28,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.*;
-import org.springframework.http.client.AsyncClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsAsyncClientHttpRequestFactory;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -43,18 +35,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.web.client.AsyncRestOperations;
-import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.Filter;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -69,20 +57,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Import({ExceptionHandlers.class, ConnectorRootController.class})
 public class ConnectorsAutoConfiguration {
 
-    @Bean
-    public SingleReturnValueHandler singleReturnValueHandler() {
-        return new SingleReturnValueHandler();
-    }
-
-    @Bean
-    public WebMvcConfigurer observableMVCConfiguration(final SingleReturnValueHandler singleReturnValueHandler) {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
-                returnValueHandlers.add(singleReturnValueHandler);
-            }
-        };
-    }
 
     @Bean
     public ConfigurableServletWebServerFactory webServerFactory() {
@@ -125,6 +99,11 @@ public class ConnectorsAutoConfiguration {
         };
     }
 
+    @Bean
+    public JwtAccessTokenConverterConfigurer jwtAccessTokenConverterConfigurer () {
+        return new JwtConverter();
+    }
+
     /*
      * Since Spring beans are eagerly loaded by default, this will check that either
      * the vIdmPubKeyUrl or vIdmPubKeyValue was configured at startup (allowing users to see their
@@ -159,12 +138,6 @@ public class ConnectorsAutoConfiguration {
                         .addResourceLocations("classpath:/static/images/")
                         .setCacheControl(cacheControl);
             }
-
-            @Override
-            public void addInterceptors(InterceptorRegistry registry) {
-                registry.addInterceptor(new ContextInterceptor());
-            }
-
         };
     }
 
@@ -205,36 +178,12 @@ public class ConnectorsAutoConfiguration {
     }
 
     @Bean
-    public AsyncClientHttpRequestFactory asyncClientHttpRequestFactory(
-            NHttpClientConnectionManager clientConnectionManager,
-            @Value("${http.client.maxConnTotal:1024}") int maxConnTotal,
-            @Value("${http.client.maxConnPerRoute:1024}") int maxConnPerRoute) throws InterruptedException {
-        CloseableHttpAsyncClient client = HttpAsyncClientBuilder.create()
-                // Some backends will return a cookie and prefer it to the Authorization header.
-                // This is very bad when we re-use a connection for different users!
-                .disableCookieManagement()
-                .setMaxConnTotal(maxConnTotal)
-                .setMaxConnPerRoute(maxConnPerRoute)
-                .setConnectionManager(clientConnectionManager)
-                .build();
-        return new HttpComponentsAsyncClientHttpRequestFactory(client);
+    public WebClient webClient(WebClient.Builder builder) {
+        return builder.build();
     }
 
     @Bean
-    public NHttpClientConnectionManager clientConnectionManager() throws IOReactorException {
-        DefaultConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor();
-        return new PoolingNHttpClientConnectionManager(connectingIOReactor);
-    }
-
-    @Bean
-    public AsyncRestOperations rest(AsyncClientHttpRequestFactory requestFactory) {
-        AsyncRestTemplate template = new AsyncRestTemplate(requestFactory);
-        template.getMessageConverters().add(0, new JsonDocumentHttpMessageConverter());
-        return template;
-    }
-
-    @Bean
-    public IdleConnectionsEvictor idleConnectionsEvictor(NHttpClientConnectionManager connMgr) {
-        return new IdleConnectionsEvictor(connMgr);
+    public CodecCustomizer codecCustomizer() {
+        return configurer -> configurer.customCodecs().decoder(new JsonDocumentDecoder());
     }
 }
