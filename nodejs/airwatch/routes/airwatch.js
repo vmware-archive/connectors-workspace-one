@@ -205,7 +205,7 @@ function installApp(req, res) {
         headers: {
             'Cookie': `HZN=${authToken}`
         },
-        url: baseUrl + '/catalog-portal/services/auth/eucTokens',
+        url: greenBoxUrl + '/catalog-portal/services/auth/eucTokens',
         qs: {
             deviceUdid: udid,
             deviceType: deviceType
@@ -221,7 +221,7 @@ function installApp(req, res) {
             headers: {
                 'Cookie': `USER_CATALOG_CONTEXT=${eucToken}`
             },
-            url: baseUrl + '/catalog-portal/'
+            url: greenBoxUrl + '/catalog-portal/'
         };
         return rp(csrfTokenOptions).then(response => {
             return {
