@@ -6,6 +6,7 @@
 package com.vmware.connectors.gitlab.pr;
 
 import com.google.common.collect.ImmutableList;
+import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.jupiter.api.AfterEach;
@@ -14,33 +15,27 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
+import static org.hamcrest.Matchers.any;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -49,16 +44,13 @@ class GitlabPrControllerTest extends ControllerTestsBase {
 
     private static final String GITLAB_AUTH_TOKEN = "test-auth-token";
 
-    @Autowired
-    private AsyncRestTemplate rest;
-
     private MockRestServiceServer mockGitlab;
 
     @BeforeEach
     public void setup() throws Exception {
         super.setup();
 
-        mockGitlab = MockRestServiceServer.bindTo(rest)
+        mockGitlab = MockRestServiceServer.bindTo(requestHandlerHolder)
                 .ignoreExpectOrder(true)
                 .build();
     }
@@ -217,6 +209,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
         requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"), acceptLanguage)
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
@@ -225,7 +218,6 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                         )
                 );
     }
-
 
     private void trainGitlabForCards() throws Exception {
         mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/1"))
@@ -254,6 +246,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
         requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/empty-pr-urls.json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
