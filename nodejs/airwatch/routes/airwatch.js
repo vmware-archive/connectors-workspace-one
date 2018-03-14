@@ -28,17 +28,23 @@ function handleError(res, data, err) {
     res.status(errCode).json(data);
 }
 
+
 /**
  * Called into by the Boxer client to display cards for requests in the UI.
  *
- * TODO - write up a description
- *
  * This function will generate the card objects for the client by taking in
- * the ticket_id parameter passed in by the client (that was determined by
- * running the regex from this project's metadata.json -- found by HAL
- * discovery and applying it to the Boxer email).  The ticket_id is an array
- * of the request numbers (ex. REQ0010001).
+ * the platform, udid, and app_keywords parameters passed in by the client
+ * (that was determined by running the regex and providing the env vars from
+ * this project's metadata.json -- found by HAL discovery and applying it to
+ * the Boxer email).  The app_keywords is an array of the keywords that will
+ * match configuration for this instance (in managed-apps.yml) to determine
+ * which bundle IDs to pass to AirWatch for presenting Install buttons to
+ * the user.
  *
+ * This connector will check with AirWatch whether the app bundle is already
+ * installed or not and will present cards with Install buttons for any of
+ * the apps that were determined to be missing on the device.
+
  * With the user's sys_id, we look up their pending request for approvals (
  * state=requested and approver=our_user_sys_id) and look up those records'
  * request numbers to later filter only the results that match the ticket_id
@@ -59,126 +65,116 @@ function requestCards(req, res) {
 
     log('requestCards: baseUrl=%s, routingPrefix=%s, user=%s, cardRequest=', baseUrl, routingPrefix, principal, cardRequest);
 
-    if (!req.body.tokens) {
-        res.status(400).json({message: 'tokens is required'});
-        return;
+    if (!cardRequest.tokens) {
+        return res.status(400).json({message: 'tokens is required'});
     }
 
-    const udids = req.body.tokens.udid;
+    const udids = cardRequest.tokens.udid;
     if (!udids || !udids.length) {
-        res.status(400).json({message: 'udid is required'});
-        return;
+        return res.status(400).json({message: 'udid is required'});
     }
     const udid = udids[0];
 
-    const clientPlatforms = req.body.tokens.platform;
+    const clientPlatforms = cardRequest.tokens.platform;
     if (!clientPlatforms || !clientPlatforms.length) {
-        res.status(400).json({message: 'platform is required'});
-        return;
+        return res.status(400).json({message: 'platform is required'});
     }
     const clientPlatform = clientPlatforms[0].toLowerCase();
 
-    const appKeywords = req.body.tokens.app_keywords;
+    const appKeywords = cardRequest.tokens.app_keywords;
     if (!appKeywords) {
-        res.status(400).json({message: 'app_keywords is required'});
-        return;
+        return res.status(400).json({message: 'app_keywords is required'});
     }
     if (!appKeywords.length) {
-        res.json({cards: []});
-        return;
+        return res.json({cards: []});
     }
 
-    // loop through the config to find the "managed apps" based on platform and app keywords
-
-    // log('Getting app installation status for bundleId: %s with air-watch base url: %s", app.id, baseUrl);
-    // GET baseUrl + '/deviceservices/AppInstallationStatus?Udid=${udid}&BundleId=${app.id}'
-    // Authorization header is the same as the vIdm auth header
-    // maybe do the weird error handling that Shree did (string.contains): I need to test against a real instance to see if we can clean that up
-    // if (result.IsApplicationInstalled === false) { make a non-empty card } // (undefined/null implies true)
-    // TODO - build the card
-
-    const promises = managedApps.airwatch.apps.filter(app => {
-        return app[clientPlatform] && _.intersection(app.keywords, appKeywords).length;
-    }).map(app => {
-        const appBundle = app[clientPlatform].id;
-        const appName = app[clientPlatform].name;
-        log('Getting app installation status for bundleId: %s with air-watch base url: %s', appBundle, baseUrl);
-        const options = {
-            json: true,
-            headers: {
-                'Authorization': auth
-            },
-            url: baseUrl + '/deviceservices/AppInstallationStatus',
-            qs: {
-                Udid: udid,
-                BundleId: appBundle
-            }
-        };
-        return rp(options).then(result => {
-            return {
-                appName: appName,
-                appBundle: appBundle,
-                isInstalled: result.IsApplicationInstalled !== false
-            };
-            // `User is not associated with the UDID : ${udid}`
-            // `Unable to resolve the UDID : ${udid}`
-        }); // TODO - catch here? (the error handling of Error:1001 is user forbidden, Error:1002 is udid not found)
-    });
+    const promises = managedApps.airwatch.apps.filter(app => app[clientPlatform])
+        .filter(app => _.intersection(app.keywords, appKeywords).length > 0)
+        .map(app => fetchAppInstallStatus(baseUrl, auth, clientPlatform, udid, app));
 
     return Promise.all(promises).then(apps => {
-        const cards = apps.map(app => {
-            if (app.IsApplicationInstalled) {
-                return;
-            }
-            return {
-                id: uuid(),
-                creation_date: new Date().toISOString(),
-                header: {
-                    title: `[AirWatch] ${app.appName}`
-                },
-                body: {
-                    description: 'Please install this application for better interaction with the resource.'
-                },
-                actions: [
-                    {
-                        id: uuid(),
-                        label: 'Install',
-                        completed_label: 'Installed',
-                        action_key: 'DIRECT',
-                        url: {
-                            href: routingPrefix + 'mdm/app/install'
-                        },
-                        type: 'POST',
-                        request: {
-                            app_name: app.appName,
-                            udid: udid,
-                            platform: clientPlatform
-                        },
-                        user_input: []
-                    }
-                ]
-            };
-        }).filter(card => {
-            return !!card; // filter away undefined (already installed)
-        });
+
+        console.log('apps is: ', apps);
+
+        const cards = apps.filter(app => app.isInstalled === false)
+            .map(app => makeCard(routingPrefix, clientPlatform, udid, app));
 
         return res.json({cards: cards});
-    });
+
+    }).catch(err => handleError(res, {message: 'Failed to generate cards', err: err}, err));
 }
 
+function fetchAppInstallStatus(baseUrl, auth, clientPlatform, udid, app) {
+    const appBundle = app[clientPlatform].id;
+    const appName = app[clientPlatform].name;
+    log('Getting app installation status for bundleId: %s with air-watch base url: %s', appBundle, baseUrl);
+    const options = {
+        json: true,
+        headers: {
+            'Authorization': auth
+        },
+        url: baseUrl + '/deviceservices/AppInstallationStatus',
+        qs: {
+            Udid: udid,
+            BundleId: appBundle
+        }
+    };
+    return rp(options).then(result => ({
+        appName: appName,
+        appBundle: appBundle,
+        isInstalled: result.IsApplicationInstalled !== false // undefined implies the app is installed
+        // `User is not associated with the UDID : ${udid}`
+        // `Unable to resolve the UDID : ${udid}`
+    })); // TODO - catch here? (the error handling of Error:1001 is user forbidden, Error:1002 is udid not found)}
+}
+
+function makeCard(routingPrefix, clientPlatform, udid, app) {
+    return {
+        id: uuid(),
+        creation_date: new Date().toISOString(),
+        header: {
+            title: `[AirWatch] ${app.appName}`
+        },
+        body: {
+            description: 'Please install this application for better interaction with the resource.'
+        },
+        actions: [
+            {
+                id: uuid(),
+                label: 'Install',
+                completed_label: 'Installed',
+                action_key: 'DIRECT',
+                url: {
+                    href: routingPrefix + 'mdm/app/install'
+                },
+                type: 'POST',
+                request: {
+                    app_name: app.appName,
+                    udid: udid,
+                    platform: clientPlatform
+                },
+                user_input: []
+            }
+        ]
+    };
+}
 
 /**
- * TODO - write up something for this
+ * Install the app to the device.
  *
- * Approve the ServiceNow request.
- *
- * This will be called by the client when a user clicks the Approve button in
+ * This will be called by the client when a user clicks the Install button in
  * their card.
  *
- * The requestSysId was previously encoded into the url for the Approve button
- * by our requestCards call and the auth header and base url header are
- * provided by the client because we told it to in our metadata.json that it
- * found during HAL discovery (and when setting up a tenant connector config).
+ * The app_name, udid, and platform were previously put into the request object
+ * for the Install button by our requestCards call and the auth header and base
+ * url header are provided by the client because we told it to in our
+ * metadata.json that it found during HAL discovery (and when setting up a
+ * tenant connector config).
+ *
+ * This action will look up enough information (tokens for cookies) to interact
+ * with GreenBox in order to register that the provided app should be installed
+ * on the provided device.
  */
 function installApp(req, res) {
     const auth = req.headers['authorization']
@@ -196,10 +192,18 @@ function installApp(req, res) {
     }
 
     const authToken = auth.replace('Bearer ', '');
-
     const deviceType = platform === 'ios' ? 'Apple' : platform;
 
-    const eucTokenOptions = {
+    fetchEucToken(authToken, udid, deviceType)
+        .then(eucToken => fetchCsrfToken(eucToken))
+        .then(tokens => fetchEntitlements(appName, tokens))
+        .then(data => greenBoxInstall(data))
+        .then(ignored => res.status(204).end())
+        .catch(err => handleError(res, {message: 'Failed to install app'}, err));
+}
+
+function fetchEucToken(authToken, udid, deviceType) {
+    const options = {
         json: true,
         method: 'POST',
         headers: {
@@ -212,63 +216,63 @@ function installApp(req, res) {
         }
     };
 
-    return rp(eucTokenOptions).then(result => {
-        return result.eucToken;
-    }).then(eucToken => {
-        const csrfTokenOptions = {
-            resolveWithFullResponse: true,
-            method: 'OPTIONS',
-            headers: {
-                'Cookie': `USER_CATALOG_CONTEXT=${eucToken}`
-            },
-            url: greenBoxUrl + '/catalog-portal/'
-        };
-        return rp(csrfTokenOptions).then(response => {
-            return {
-                eucToken,
-                csrfToken: response.headers['set-cookie'][0].replace('EUC_XSRF_TOKEN=', '')
-            };
-        });
-    }).then(tokens => {
-        const greenBoxAppOptions = {
-            json: true,
-            headers: {
-                'Cookie': `USER_CATALOG_CONTEXT=${tokens.eucToken}`
-            },
-            url: greenBoxUrl + '/catalog-portal/services/api/entitlements',
-            qs: {
-                q: appName
-            }
-        };
-        return rp(greenBoxAppOptions).then(results => {
-            const entitlements = results._embedded.entitlements;
-            if (entitlements.length !== 1) {
-                return Promise.reject({message: `Unable to map ${appName} to a single GreenBox app`});
-            }
-            return {
-                tokens,
-                greenBoxAppName: entitlements[0].name,
-                greenBoxInstallLink: entitlements[0]._links.install.href
-            };
-        });
-    }).then(data => {
-        const greenBoxInstallOptions = {
-            json: true,
-            method: 'POST',
-            headers: {
-                'Cookie': `USER_CATALOG_CONTEXT=${data.tokens.eucToken};EUC_XSRF_TOKEN=${data.tokens.csrfToken}`,
-                'X-XSRF-TOKEN': data.tokens.csrfToken
-            },
-            url: data.greenBoxInstallLink
-        };
-        return rp(greenBoxInstallOptions).then(results => {
-            log('Install action status: %s for %s', results.status, data.greenBoxAppName);
-            return results.status;
-        });
-    }).then(ignored => res.status(204).end());
-
+    return rp(options).then(result => result.eucToken);
 }
 
+function fetchCsrfToken(eucToken) {
+    const options = {
+        resolveWithFullResponse: true,
+        method: 'OPTIONS',
+        headers: {
+            'Cookie': `USER_CATALOG_CONTEXT=${eucToken}`
+        },
+        url: greenBoxUrl + '/catalog-portal/'
+    };
+    return rp(options).then(response => ({
+        eucToken,
+        csrfToken: response.headers['set-cookie'][0].replace('EUC_XSRF_TOKEN=', '')
+    }));
+}
+
+function fetchEntitlements(appName, tokens) {
+    const options = {
+        json: true,
+        headers: {
+            'Cookie': `USER_CATALOG_CONTEXT=${tokens.eucToken}`
+        },
+        url: greenBoxUrl + '/catalog-portal/services/api/entitlements',
+        qs: {
+            q: appName
+        }
+    };
+    return rp(options).then(results => {
+        const entitlements = results._embedded.entitlements;
+        if (entitlements.length !== 1) {
+            return Promise.reject({message: `Unable to map ${appName} to a single GreenBox app`});
+        }
+        return {
+            tokens,
+            greenBoxAppName: entitlements[0].name,
+            greenBoxInstallLink: entitlements[0]._links.install.href
+        };
+    });
+}
+
+function greenBoxInstall(data) {
+    const options = {
+        json: true,
+        method: 'POST',
+        headers: {
+            'Cookie': `USER_CATALOG_CONTEXT=${data.tokens.eucToken};EUC_XSRF_TOKEN=${data.tokens.csrfToken}`,
+            'X-XSRF-TOKEN': data.tokens.csrfToken
+        },
+        url: data.greenBoxInstallLink
+    };
+    return rp(options).then(results => {
+        log('Install action status: %s for %s', results.status, data.greenBoxAppName);
+        return results.status;
+    });
+}
 
 exports.requestCards = requestCards;
 exports.installApp = installApp;
