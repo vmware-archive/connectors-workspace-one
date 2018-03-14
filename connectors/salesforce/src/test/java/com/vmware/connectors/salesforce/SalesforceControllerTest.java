@@ -13,7 +13,13 @@ import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -32,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
@@ -50,6 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SalesforceControllerTest extends ControllerTestsBase {
 
     private static final String QUERY_FMT_ACCOUNT =
@@ -149,82 +157,47 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andExpect(status().reason(containsString("Missing request header 'x-salesforce-authorization'")));
     }
 
-    @Test
-    void testRequestCardEmpty() throws Exception {
-        perform(requestCards("abc", "/connector/requests/emptyRequest.json"))
+    @DisplayName("Card request invalid token cases")
+    @ParameterizedTest(name = "{index} ==> ''{0}''")
+    @CsvSource({"/connector/requests/emptyRequest.json, connector/responses/emptyRequest.json",
+            "/connector/requests/emptyToken.json, connector/responses/emptyToken.json"})
+    void testRequestCardsInvalidTokens(String reqFile, String resFile) throws Exception {
+        perform(requestCards("abc", reqFile))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON_UTF8))
-                .andExpect(content().json(fromFile("connector/responses/emptyRequest.json")));
+                .andExpect(content().json(fromFile(resFile)));
     }
 
-    @Test
-    void testRequestCardWithEmptyToken() throws Exception {
-        perform(requestCards("abc", "/connector/requests/emptyToken.json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON_UTF8))
-                .andExpect(content().json(fromFile("connector/responses/emptyToken.json")));
-    }
-
-    @Test
-    void testRequestCardWithoutAmount() throws Exception {
-        // Amount is an optional field in Opportunity.
-        // This tests if the cards are produced in case amount is blank in salesforce.
+    @DisplayName("Card request contact details cases")
+    @ParameterizedTest(name = "{index} ==> Response=''{2}'', Language=''{3}''")
+    @MethodSource("contactCardTestArgProvider")
+    void testRequestCardContactDetailsSuccess(Resource contactResponse, Resource contactOppResponse,
+                                              String resFile, String lang) throws Exception {
         final String requestFile = "/connector/requests/request.json";
-
         expectSalesforceRequest(getContactRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
+                .andRespond(withSuccess(contactResponse, APPLICATION_JSON));
         expectSalesforceRequest(getContactOpportunitySoql(requestFile))
-                .andRespond(withSuccess(sfResponseWithoutAmount, APPLICATION_JSON));
+                .andRespond(withSuccess(contactOppResponse, APPLICATION_JSON));
 
-        perform(requestCards("abc", requestFile))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(content().string(JsonReplacementsBuilder.from(
-                        fromFile("connector/responses/successWithoutAmount.json")).buildForCards()));
+        testRequestCards(requestFile, resFile, lang);
         mockSF.verify();
     }
 
-    @Test
-    void testRequestCardWithoutPhoneAndRole() throws Exception {
-        // Phone Number & Role are optional fields
-        // This tests if the cards are produced in case these are blank in salesforce.
-        final String requestFile = "/connector/requests/request.json";
-
-        expectSalesforceRequest(getContactRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactWithoutPhone, APPLICATION_JSON));
-        expectSalesforceRequest(getContactOpportunitySoql(requestFile))
-                .andRespond(withSuccess(sfResponseWithoutRole, APPLICATION_JSON));
-
-        perform(requestCards("abc", requestFile))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(content().string(JsonReplacementsBuilder.from(
-                        fromFile("connector/responses/successWithoutPhoneAndRole.json")).buildForCards()));
-        mockSF.verify();
+    private Stream<Arguments> contactCardTestArgProvider() {
+        return Stream.of(
+                Arguments.of(sfResponseContactExists, sfResponseWithoutAmount, "successWithoutAmount.json", null),
+                Arguments.of(sfResponseContactWithoutPhone, sfResponseWithoutRole, "successWithoutPhoneAndRole.json", null),
+                Arguments.of(sfResponseContactExists, sfResponseContactOpportunities, "successSenderDetails.json", null),
+                Arguments.of(sfResponseContactExists, sfResponseContactOpportunities, "successSenderDetails_xx.json", "xx")
+        );
     }
 
-    @Test
-    void testRequestCardSenderDetailsSuccess() throws Exception {
-        // This is the case where email sender details are available in salesforce.
-        final String requestFile = "/connector/requests/request.json";
-        expectSalesforceRequest(getContactRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
-        expectSalesforceRequest(getContactOpportunitySoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactOpportunities, APPLICATION_JSON));
-
-        perform(requestCards("abc", requestFile))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(content().string(JsonReplacementsBuilder.from(
-                        fromFile("connector/responses/successSenderDetails.json")).buildForCards()));
-        mockSF.verify();
-    }
-
-    @Test
-    void testRequestCardRelatedAccountsSuccess() throws Exception {
+    @DisplayName("Card request sender related accounts cases")
+    @ParameterizedTest(name = "{index} ==> Language=''{1}''")
+    @CsvSource({
+            "successRelatedAccounts.json, ",
+            "successRelatedAccounts_xx.json, xx"})
+    void testRequestCardRelatedAccountsSuccess(String resFile, String lang) throws Exception {
         /* In this case email sender details are not present in salesforce.
         Collect info about the accounts related to the sender's domain. */
         final String requestFile = "/connector/requests/request.json";
@@ -241,55 +214,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
         expectSalesforceRequest(getAccountOpportunitySoql("001Q0000012glcuIAA"))
                 .andRespond(withSuccess(sfResponseWordHowardOpportunities, APPLICATION_JSON));
 
-
-        perform(requestCards("abc", requestFile))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(content().string(JsonReplacementsBuilder.from(
-                        fromFile("connector/responses/successRelatedAccounts.json")).buildForCards()));
-        mockSF.verify();
-    }
-
-    @Test
-    void testRequestCardSenderDetailsSuccessI8n() throws Exception {
-        final String requestFile = "/connector/requests/request.json";
-        expectSalesforceRequest(getContactRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
-        expectSalesforceRequest(getContactOpportunitySoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactOpportunities, APPLICATION_JSON));
-        perform(requestCards("abc", requestFile).header(ACCEPT_LANGUAGE, "xx"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(content().string(JsonReplacementsBuilder.from(
-                        fromFile("connector/responses/successSenderDetails_xx.json")).buildForCards()));
-        mockSF.verify();
-    }
-
-    @Test
-    void testRequestCardRelatedAccountsSuccessI8n() throws Exception {
-        final String requestFile = "/connector/requests/request.json";
-        expectSalesforceRequest(getContactRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactDoesNotExist, APPLICATION_JSON));
-        expectSalesforceRequest(getAccountRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseAccounts, APPLICATION_JSON));
-
-        // Opportunity requests for each account.
-        expectSalesforceRequest(getAccountOpportunitySoql("001Q0000012gRPoIAM"))
-                .andRespond(withSuccess(sfResponseGeorgeMichaelOpportunities, APPLICATION_JSON));
-        expectSalesforceRequest(getAccountOpportunitySoql("001Q0000012gkPHIAY"))
-                .andRespond(withSuccess(sfResponseLeoDCaprioOpportunities, APPLICATION_JSON));
-        expectSalesforceRequest(getAccountOpportunitySoql("001Q0000012glcuIAA"))
-                .andRespond(withSuccess(sfResponseWordHowardOpportunities, APPLICATION_JSON));
-
-
-        perform(requestCards("abc", requestFile).header(ACCEPT_LANGUAGE, "xx"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(content().string(JsonReplacementsBuilder.from(
-                        fromFile("connector/responses/successRelatedAccounts_xx.json")).buildForCards()));
+        testRequestCards(requestFile, resFile, lang);
         mockSF.verify();
     }
 
@@ -367,6 +292,19 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andExpect(header().longValue(CONTENT_LENGTH, 7314))
                 .andExpect(header().string(CONTENT_TYPE, IMAGE_PNG_VALUE))
                 .andExpect((content().bytes(bytesFromFile("/static/images/connector.png"))));
+    }
+
+    private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
+        MockHttpServletRequestBuilder builder = requestCards("abc", requestFile);
+        if (acceptLanguage != null) {
+            builder = builder.header(ACCEPT_LANGUAGE, acceptLanguage);
+        }
+        perform(builder)
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
+                .andExpect(content().string(JsonReplacementsBuilder.from(
+                        fromFile("connector/responses/" + responseFile)).buildForCards()));
     }
 
     private MockHttpServletRequestBuilder requestCards(String authToken, String filePath) throws Exception {

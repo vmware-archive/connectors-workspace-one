@@ -9,7 +9,10 @@ import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -117,21 +120,29 @@ class JiraControllerTest extends ControllerTestsBase {
         testRequestCards("emptyIssue.json", "emptyIssue.json", null);
     }
 
-    @Test
-    void testRequestCardsWithEmptyToken() throws Exception {
-        testRequestCardsWithMissingParameter("emptyRequest.json", "emptyRequest.json");
+    @ParameterizedTest(name = "{index} ==> ''{0}''")
+    @DisplayName("Missing parameter cases")
+    @CsvSource({
+            "emptyRequest.json, emptyRequest.json",
+            "emptyToken.json, emptyToken.json"})
+    void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
+        MockHttpServletRequestBuilder builder = requestCards("abc", requestFile);
+
+        perform(builder)
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().json(fromFile("connector/responses/" + responseFile)));
     }
 
-    @Test
-    void testRequestCardsEmpty() throws Exception {
-        testRequestCardsWithMissingParameter("emptyToken.json", "emptyToken.json");
-    }
-
-    @Test
-    void testRequestCardsSuccess() throws Exception {
+    @DisplayName("Card request success cases")
+    @ParameterizedTest(name = "{index} ==> Language=''{0}''")
+    @CsvSource({
+            " , success.json",
+            "xx, success_xx.json"})
+    void testRequestCardsSuccess(String lang, String resFile) throws Exception {
         expect("APF-27").andRespond(withSuccess(apf27, APPLICATION_JSON));
         expect("APF-28").andRespond(withSuccess(apf28, APPLICATION_JSON));
-        testRequestCards("request.json", "success.json", null);
+        testRequestCards("request.json", resFile, lang);
         mockJira.verify();
     }
 
@@ -178,14 +189,6 @@ class JiraControllerTest extends ControllerTestsBase {
                 .content(fromFile("/jira/requests/request.json")))
                 .andExpect(status().isBadRequest())
                 .andExpect(status().reason(containsString("Missing request header 'x-jira-authorization'")));
-    }
-
-    @Test
-    void testRequestCardsSuccessI18n() throws Exception {
-        expect("APF-27").andRespond(withSuccess(apf27, APPLICATION_JSON));
-        expect("APF-28").andRespond(withSuccess(apf28, APPLICATION_JSON));
-        testRequestCards("request.json", "success_xx.json", "xx;q=1.0");
-        mockJira.verify();
     }
 
     @Test
@@ -359,15 +362,6 @@ class JiraControllerTest extends ControllerTestsBase {
                 .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(content().string(JsonReplacementsBuilder.from(
                         fromFile("connector/responses/" + responseFile)).buildForCards()));
-    }
-
-    private void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("abc", requestFile);
-
-        perform(builder)
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("connector/responses/" + responseFile)));
     }
 
     private MockHttpServletRequestBuilder requestCards(String authToken, String requestfile) throws Exception {

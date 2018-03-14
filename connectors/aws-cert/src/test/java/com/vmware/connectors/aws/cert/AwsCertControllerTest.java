@@ -9,8 +9,13 @@ import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
@@ -25,7 +30,6 @@ import java.util.List;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.TEXT_HTML;
@@ -118,17 +122,21 @@ class AwsCertControllerTest extends ControllerTestsBase {
     // Request Cards
     /////////////////////////////
 
-    @Test
-    void testRequestCardsSuccess() throws Exception {
+    @ParameterizedTest(name = "{index} ==> Language=''{0}''")
+    @DisplayName("Card request success cases")
+    @CsvSource({
+            "  , /awscert/responses/success/cards/card.json",
+            "xx, /awscert/responses/success/cards/card_xx.json"})
+    void testRequestCardsSuccess(String lang, String responseFile) throws Exception {
         trainAwsCertForCards();
 
-        requestCards("valid/cards/card.json")
+        requestCards("valid/cards/card.json", lang)
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
-                                        .from(fromFile("/awscert/responses/success/cards/card.json"))
+                                        .from(fromFile(responseFile))
                                         .buildForCards()
                         )
                 );
@@ -136,11 +144,15 @@ class AwsCertControllerTest extends ControllerTestsBase {
         mockAws.verify();
     }
 
-    @Test
-    void testRequestCards404DoesNotError() throws Exception {
+    @ParameterizedTest
+    @EnumSource(
+            value = HttpStatus.class,
+            names = {"BAD_REQUEST", "NOT_FOUND"
+            })
+    void testRequestCardsBackend4xx(HttpStatus backendStatus) throws Exception {
         mockAws.expect(requestTo("https://test-aws-region-1.certificates.fake-amazon.com/approvals?code=test-auth-code-1&context=test-context-1"))
                 .andExpect(method(GET))
-                .andRespond(withStatus(NOT_FOUND));
+                .andRespond(withStatus(backendStatus));
 
         mockAws.expect(requestTo("https://test-aws-region-2.certificates.fake-amazon.com/approvals?code=test-auth-code-2&context=test-context-2"))
                 .andExpect(method(GET))
@@ -148,35 +160,7 @@ class AwsCertControllerTest extends ControllerTestsBase {
 
         mockAws.expect(requestTo("https://certificates.FAKE-amazon.com/approvals?code=test-auth-code-3&context=test-context-3"))
                 .andExpect(method(GET))
-                .andRespond(withStatus(NOT_FOUND));
-
-        requestCards("valid/cards/card.json")
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(
-                        content().string(
-                                JsonReplacementsBuilder
-                                        .from(fromFile("/awscert/responses/success/cards/single-card.json"))
-                                        .buildForCards()
-                        )
-                );
-
-        mockAws.verify();
-    }
-
-    @Test
-    void testRequestCards400DoesNotError() throws Exception {
-        mockAws.expect(requestTo("https://test-aws-region-1.certificates.fake-amazon.com/approvals?code=test-auth-code-1&context=test-context-1"))
-                .andExpect(method(GET))
-                .andRespond(withBadRequest());
-
-        mockAws.expect(requestTo("https://test-aws-region-2.certificates.fake-amazon.com/approvals?code=test-auth-code-2&context=test-context-2"))
-                .andExpect(method(GET))
-                .andRespond(withSuccess(fromFile("awscert/fake/approval-page-2.html"), TEXT_HTML));
-
-        mockAws.expect(requestTo("https://certificates.FAKE-amazon.com/approvals?code=test-auth-code-3&context=test-context-3"))
-                .andExpect(method(GET))
-                .andRespond(withBadRequest());
+                .andRespond(withStatus(backendStatus));
 
         requestCards("valid/cards/card.json")
                 .andExpect(status().isOk())
@@ -212,24 +196,6 @@ class AwsCertControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testRequestCardsLanguageXxSuccess() throws Exception {
-        trainAwsCertForCards();
-
-        requestCards("valid/cards/card.json", "xx")
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(
-                        content().string(
-                                JsonReplacementsBuilder
-                                        .from(fromFile("/awscert/responses/success/cards/card_xx.json"))
-                                        .buildForCards()
-                        )
-                );
-
-        mockAws.verify();
-    }
-
-    @Test
     void testRequestCardsEmptyApprovalUrlsSuccess() throws Exception {
         requestCards("valid/cards/empty-approval-urls.json")
                 .andExpect(status().isOk())
@@ -243,20 +209,16 @@ class AwsCertControllerTest extends ControllerTestsBase {
                 );
     }
 
-    @Test
-    void testRequestCardsEmptyTokens() throws Exception {
-        requestCards("invalid/cards/empty-tokens.json")
+    @ParameterizedTest
+    @DisplayName("Bad card request cases")
+    @CsvSource({
+            "invalid/cards/empty-tokens.json, /awscert/responses/error/cards/empty-tokens.json",
+            "invalid/cards/missing-tokens.json, /awscert/responses/error/cards/missing-tokens.json"})
+    void testRequestCardsInsufficientInput(String reqFile, String resFile) throws Exception {
+        requestCards(reqFile)
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("/awscert/responses/error/cards/empty-tokens.json"), false));
-    }
-
-    @Test
-    void testRequestCardsMissingTokens() throws Exception {
-        requestCards("invalid/cards/missing-tokens.json")
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("/awscert/responses/error/cards/missing-tokens.json"), false));
+                .andExpect(content().json(fromFile(resFile), false));
     }
 
     /////////////////////////////

@@ -8,7 +8,10 @@ package com.vmware.connectors.servicenow;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -159,17 +162,21 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void testRequestCardsSuccess() throws Exception {
+    @DisplayName("Card request success cases")
+    @ParameterizedTest(name = "{index} ==> Language=''{0}''")
+    @CsvSource({
+            " , /servicenow/responses/success/cards/card.json",
+            "xx, /servicenow/responses/success/cards/card_xx.json"})
+    void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         trainServiceNowForCards();
 
-        requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json")
+        requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json", acceptLanguage)
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
-                                        .from(fromFile("/servicenow/responses/success/cards/card.json"))
+                                        .from(fromFile(responseFile))
                                         .buildForCards()
                         )
                 );
@@ -213,22 +220,6 @@ class ServiceNowControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testRequestCardsLanguageXxSuccess() throws Exception {
-        trainServiceNowForCards();
-
-        requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json", "xx")
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(
-                        content().string(
-                                JsonReplacementsBuilder
-                                        .from(fromFile("/servicenow/responses/success/cards/card_xx.json"))
-                                        .buildForCards()
-                        )
-                );
-    }
-
-    @Test
     void testRequestCardsEmptyTicketsSuccess() throws Exception {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/empty-tickets.json")
                 .andExpect(status().isOk())
@@ -242,29 +233,18 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 );
     }
 
-    @Test
-    void testRequestCardsMissingTicketsSuccess() throws Exception {
-        requestCards(SNOW_AUTH_TOKEN, "valid/cards/missing-tickets.json")
+    @DisplayName("Card request invalid token cases")
+    @ParameterizedTest(name = "{index} ==> ''{0}''")
+    @CsvSource({"valid/cards/missing-tickets.json, /servicenow/responses/success/cards/missing-tickets.json",
+            "valid/cards/empty-email.json, /servicenow/responses/success/cards/empty-email.json"})
+    void testRequestCardsInvalidTokens(String reqFile, String resFile) throws Exception {
+        requestCards(SNOW_AUTH_TOKEN, reqFile)
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
-                                        .from(fromFile("/servicenow/responses/success/cards/missing-tickets.json"))
-                                        .buildForCards()
-                        )
-                );
-    }
-
-    @Test
-    void testRequestCardsEmptyEmailSuccess() throws Exception {
-        requestCards(SNOW_AUTH_TOKEN, "valid/cards/empty-email.json")
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(
-                        content().string(
-                                JsonReplacementsBuilder
-                                        .from(fromFile("/servicenow/responses/success/cards/empty-email.json"))
+                                        .from(fromFile(resFile))
                                         .buildForCards()
                         )
                 );

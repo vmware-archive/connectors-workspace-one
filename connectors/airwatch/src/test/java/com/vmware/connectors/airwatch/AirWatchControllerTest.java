@@ -8,7 +8,10 @@ package com.vmware.connectors.airwatch;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -94,24 +97,17 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .andExpect(content().json(fromFile("/connector/responses/metadata.json")));
     }
 
-    @Test
-    void testRequestCardsSuccess() throws Exception {
+    @DisplayName("Card request success cases")
+    @ParameterizedTest(name = "{index} ==> Language=''{0}''")
+    @CsvSource({
+            " , success.json",
+            "xx;q=1.0, success_xx.json"})
+    void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.android.boxer")
                 .andRespond(withSuccess(awAppNotInstalled, APPLICATION_JSON));
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.concur.breeze")
                 .andRespond(withSuccess(awAppInstalled, APPLICATION_JSON));
-        testRequestCards("request.json", "success.json", null);
-        mockBackend.verify();
-    }
-
-    @Test
-    void testRequestCardsSuccessI18n() throws Exception {
-        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.android.boxer")
-                .andRespond(withSuccess(awAppNotInstalled, APPLICATION_JSON));
-        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.concur.breeze")
-                .andRespond(withSuccess(awAppInstalled, APPLICATION_JSON));
-        testRequestCards("request.json", "success_xx.json", "xx;q=1.0");
-        mockBackend.verify();
+        testRequestCards("request.json", responseFile, acceptLanguage);
     }
 
     @Test
@@ -154,17 +150,12 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .andExpect(status().reason(containsString("Missing request header 'x-airwatch-base-url'")));
     }
 
-    @Test
-    void testRequestEmptyAppName() throws Exception {
-        testRequestCards("emptyAppName.json", "emptyCard.json", null);
-    }
-
-    /*
-    No card is returned for client requesting for unmanaged apps.
-     */
-    @Test
-    void testRequestBogusAppName() throws Exception {
-        testRequestCards("bogusAppName.json", "emptyCard.json", null);
+    @ParameterizedTest
+    @CsvSource({
+            "emptyAppName.json, emptyCard.json",
+            "bogusAppName.json, emptyCard.json"})
+    void testRequestInvalidAppName(String requestFile, String responseFile) throws Exception {
+        testRequestCards(requestFile, responseFile, null);
     }
 
     /*

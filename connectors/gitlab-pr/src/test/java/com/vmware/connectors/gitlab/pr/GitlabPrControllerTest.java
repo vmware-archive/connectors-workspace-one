@@ -10,7 +10,10 @@ import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
@@ -203,21 +206,26 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void testRequestCardsSuccess() throws Exception {
+    @DisplayName("Card request success cases")
+    @ParameterizedTest(name = "{index} ==> Language=''{0}''")
+    @CsvSource({
+            " , responses/success/cards/card.json",
+            "xx, responses/success/cards/card_xx.json"})
+    void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         trainGitlabForCards();
 
-        requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"))
+        requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"), acceptLanguage)
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
-                                        .from(fromFile("responses/success/cards/card.json"))
+                                        .from(fromFile(responseFile))
                                         .buildForCards()
                         )
                 );
     }
+
 
     private void trainGitlabForCards() throws Exception {
         mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/1"))
@@ -242,22 +250,6 @@ class GitlabPrControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testRequestCardsLanguageXxSuccess() throws Exception {
-        trainGitlabForCards();
-
-        requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"), "xx")
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(
-                        content().string(
-                                JsonReplacementsBuilder
-                                        .from(fromFile("responses/success/cards/card_xx.json"))
-                                        .buildForCards()
-                        )
-                );
-    }
-
-    @Test
     void testRequestCardsEmptyPrUrlsSuccess() throws Exception {
         requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/empty-pr-urls.json"))
                 .andExpect(status().isOk())
@@ -277,20 +269,15 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void testRequestCardsEmptyTokens() throws Exception {
-        requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/invalid/cards/empty-tokens.json"))
+    @DisplayName("Card request invalid token cases")
+    @ParameterizedTest(name = "{index} ==> ''{0}''")
+    @CsvSource({"requests/invalid/cards/empty-tokens.json, responses/error/cards/empty-tokens.json",
+            "requests/invalid/cards/missing-tokens.json, responses/error/cards/missing-tokens.json"})
+    void testRequestCardsInvalidTokens(String reqFile, String resFile) throws Exception {
+        requestCards(GITLAB_AUTH_TOKEN, fromFile(reqFile))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("responses/error/cards/empty-tokens.json"), false));
-    }
-
-    @Test
-    void testRequestCardsMissingTokens() throws Exception {
-        requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/invalid/cards/missing-tokens.json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("responses/error/cards/missing-tokens.json"), false));
+                .andExpect(content().json(fromFile(resFile), false));
     }
 
     /////////////////////////////

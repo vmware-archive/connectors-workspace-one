@@ -11,7 +11,13 @@ import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -24,6 +30,7 @@ import org.springframework.web.client.AsyncRestTemplate;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.vmware.connectors.bitbucket.server.utils.BitbucketServerConstants.*;
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
@@ -42,6 +49,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BitbucketServerControllerTest extends ControllerTestsBase {
 
     private static final String BITBUCKET_SERVER_AUTH_TOKEN = "bitbucket-token";
@@ -129,20 +137,15 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
         testCardRequests("emptyIssue.json", "emptyIssue.json", null);
     }
 
-    @Test
-    void testCardRequests() throws Exception {
+    @DisplayName("Card request success cases")
+    @ParameterizedTest(name = "{index} ==> Language=''{0}''")
+    @CsvSource({
+            " , success.json",
+            "xx, success_xx.json"})
+    void testRequestCardsSuccess(String lang, String resFile) throws Exception {
         buildRequestForCards();
 
-        testCardRequests("request.json", "success.json", null);
-
-        this.mockBitbucketServer.verify();
-    }
-
-    @Test
-    void testLocaleCardRequests() throws Exception {
-        buildRequestForCards();
-
-        testCardRequests("request.json", "success_xx.json", "xx");
+        testCardRequests("request.json", resFile, lang);
 
         this.mockBitbucketServer.verify();
     }
@@ -161,35 +164,54 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
         expect(notFoundUrl + "/activities").andRespond(withStatus(HttpStatus.NOT_FOUND));
     }
 
-    @Test
-    void testRequestEmptyCards() throws Exception {
-        testRequestCardsWithMissingParameter("emptyRequest.json", "emptyRequest.json");
+    @ParameterizedTest(name = "{index} ==> ''{0}''")
+    @DisplayName("Missing parameter cases")
+    @CsvSource({
+            "emptyRequest.json, emptyRequest.json",
+            "emptyToken.json, emptyToken.json"})
+    void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
+        MockHttpServletRequestBuilder builder = requestCard(BITBUCKET_SERVER_AUTH_TOKEN, requestFile);
+
+        perform(builder)
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().json(fromFile("bitbucket/responses/" + responseFile)));
     }
 
-    @Test
-    void testRequestEmptyToken() throws Exception {
-        testRequestCardsWithMissingParameter("emptyToken.json", "emptyToken.json");
+    @DisplayName("PR Action cases")
+    @ParameterizedTest(name = "{index} ==> Action=''{2}''")
+    @MethodSource("actionProvider")
+    void testBitbucketServerPRAction(final String url,
+                                     final Resource resource,
+                                     final BitbucketServerAction stashAction) throws Exception {
+        expect("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1).andRespond(withSuccess(pr236, APPLICATION_JSON));
+
+        this.mockBitbucketServer.expect(requestTo("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/" + stashAction.getAction() + "?version=10"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
+                .andExpect(MockRestRequestMatchers.header(ATLASSIAN_TOKEN, "no-check"))
+                .andRespond(withSuccess(resource, APPLICATION_JSON));
+
+        perform(post(url)
+                .with(token(accessToken()))
+                .contentType(APPLICATION_FORM_URLENCODED_VALUE)
+                .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
+                .header(BASE_URL_HEADER, "https://stash.air-watch.com")
+                .header(ROUTING_PREFIX, "https://hero/connectors/stash/"))
+                .andExpect(status().isOk());
+
+        this.mockBitbucketServer.verify();
     }
 
-    @Test
-    void approve() throws Exception {
-        final String url = "/api/v1/UFO/app-platform-server/236/approve";
-
-        testBitbucketServerPRAction(url, approve, BitbucketServerAction.APPROVE);
-    }
-
-    @Test
-    void decline() throws Exception {
-        final String url = "/api/v1/UFO/app-platform-server/236/decline";
-
-        testBitbucketServerPRAction(url, declined, BitbucketServerAction.DECLINE);
-    }
-
-    @Test
-    void merge() throws Exception {
-        final String url = "/api/v1/UFO/app-platform-server/236/merge";
-
-        testBitbucketServerPRAction(url, merged, BitbucketServerAction.MERGE);
+    private Stream<Arguments> actionProvider(){
+        String approveUrl = "/api/v1/UFO/app-platform-server/236/approve";
+        String declineUrl = "/api/v1/UFO/app-platform-server/236/decline";
+        String mergeUrl = "/api/v1/UFO/app-platform-server/236/merge";
+        return Stream.of(
+                Arguments.of(approveUrl, approve, BitbucketServerAction.APPROVE),
+                Arguments.of(declineUrl, declined, BitbucketServerAction.DECLINE),
+                Arguments.of(mergeUrl, merged, BitbucketServerAction.MERGE)
+        );
     }
 
     @Test
@@ -238,37 +260,6 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .header(BASE_URL_HEADER, "https://stash.air-watch.com"))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("x-backend-status", "401"));
-    }
-
-    private void testBitbucketServerPRAction(final String url,
-                                             final Resource resource,
-                                             final BitbucketServerAction stashAction) throws Exception {
-        expect("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1).andRespond(withSuccess(pr236, APPLICATION_JSON));
-
-        this.mockBitbucketServer.expect(requestTo("https://stash.air-watch.com/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/" + stashAction.getAction() + "?version=10"))
-                .andExpect(method(POST))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
-                .andExpect(MockRestRequestMatchers.header(ATLASSIAN_TOKEN, "no-check"))
-                .andRespond(withSuccess(resource, APPLICATION_JSON));
-
-        perform(post(url)
-                .with(token(accessToken()))
-                .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
-                .header(BASE_URL_HEADER, "https://stash.air-watch.com")
-                .header(ROUTING_PREFIX, "https://hero/connectors/stash/"))
-                .andExpect(status().isOk());
-
-        this.mockBitbucketServer.verify();
-    }
-
-    private void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCard(BITBUCKET_SERVER_AUTH_TOKEN, requestFile);
-
-        perform(builder)
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("bitbucket/responses/" + responseFile)));
     }
 
     private void testCardRequests(final String requestFile,

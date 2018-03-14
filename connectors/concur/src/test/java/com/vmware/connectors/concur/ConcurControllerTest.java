@@ -9,7 +9,11 @@ import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -85,14 +89,18 @@ class ConcurControllerTest extends ControllerTestsBase {
         testRequestCards("emptyIssue.json", "emptyIssue.json", null);
     }
 
-    @Test
-    void testRequestCardsWithEmptyToken() throws Exception {
-        testRequestCardsWithMissingParameter("emptyRequest.json", "emptyRequest.json");
-    }
+    @DisplayName("Missing parameter cases")
+    @ParameterizedTest(name = "{index} ==> ''{0}''")
+    @CsvSource({
+            "emptyRequest.json, emptyRequest.json",
+            "emptyToken.json, emptyToken.json"})
+    void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
+        MockHttpServletRequestBuilder builder = requestCards("0_xxxxEKPk8cnYlWaos22OpPsLk=", requestFile);
 
-    @Test
-    void testRequestCardsEmpty() throws Exception {
-        testRequestCardsWithMissingParameter("emptyToken.json", "emptyToken.json");
+        perform(builder)
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().json(fromFile("connector/responses/" + responseFile)));
     }
 
     @Test
@@ -104,22 +112,16 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .andExpect((content().bytes(bytesFromFile("/static/images/connector.png"))));
     }
 
-    @Test
-    void testRequestCardsSuccess() throws Exception {
+    @DisplayName("Card request success cases")
+    @ParameterizedTest(name = "{index} ==> Language=''{0}''")
+    @CsvSource({
+            " , success.json",
+            "xx, success_xx.json"})
+    void testRequestCardsSuccess(String lang, String resFile) throws Exception {
         expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
         expect(REPORT_ID_2).andRespond(withSuccess(reportId2, APPLICATION_JSON));
 
-        testRequestCards("request.json", "success.json", null);
-
-        this.mockConcur.verify();
-    }
-
-    @Test
-    void testLocaleRequestCards() throws Exception {
-        expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
-        expect(REPORT_ID_2).andRespond(withSuccess(reportId2, APPLICATION_JSON));
-
-        testRequestCards("request.json", "success_xx.json", "xx");
+        testRequestCards("request.json", resFile, lang);
 
         this.mockConcur.verify();
     }
@@ -193,14 +195,28 @@ class ConcurControllerTest extends ControllerTestsBase {
         this.mockConcur.verify();
     }
 
-    @Test
-    void testApproveExpenseReportWithUnauthorized() throws Exception {
-        testUnauthorizedRequest("/api/expense/approve/");
-    }
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/api/expense/approve/",
+            "/api/expense/reject/"})
+    void testUnauthorizedRequest(String uri) throws Exception {
+        expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
 
-    @Test
-    void testRejectExpenseReportWithUnauthorized() throws Exception {
-        testUnauthorizedRequest("/api/expense/reject/");
+        this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/expense/expensereport/v1.1/report/gWujNPAb67r9LjhqgN7BEYYaQOWzavXBtUP1sej$sXfPQ/WorkFlowAction"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
+                .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
+
+        perform(post(uri + REPORT_ID_1)
+                .with(token(accessToken()))
+                .contentType(APPLICATION_FORM_URLENCODED_VALUE)
+                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-base-url", "https://implementation.concursolutions.com")
+                .param(ConcurConstants.RequestParam.REASON, "Approval Done"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(fromFile("/connector/responses/invalid_connector_token.json")));
+
+        this.mockConcur.verify();
     }
 
     @Test
@@ -224,35 +240,6 @@ class ConcurControllerTest extends ControllerTestsBase {
             }
         }
         assertThat(expectedList, equalTo(result));
-    }
-
-    private void testUnauthorizedRequest(final String uri) throws Exception {
-        expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));
-
-        this.mockConcur.expect(requestTo("https://implementation.concursolutions.com/api/expense/expensereport/v1.1/report/gWujNPAb67r9LjhqgN7BEYYaQOWzavXBtUP1sej$sXfPQ/WorkFlowAction"))
-                .andExpect(method(POST))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
-                .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
-
-        perform(post(uri + REPORT_ID_1)
-                .with(token(accessToken()))
-                .contentType(APPLICATION_FORM_URLENCODED_VALUE)
-                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
-                .header("x-concur-base-url", "https://implementation.concursolutions.com")
-                .param(ConcurConstants.RequestParam.REASON, "Approval Done"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(fromFile("/connector/responses/invalid_connector_token.json")));
-
-        this.mockConcur.verify();
-    }
-
-    private void testRequestCardsWithMissingParameter(final String requestFile, final String responseFile) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("0_xxxxEKPk8cnYlWaos22OpPsLk=", requestFile);
-
-        perform(builder)
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("connector/responses/" + responseFile)));
     }
 
     private void testRequestCards(final String requestFile,
