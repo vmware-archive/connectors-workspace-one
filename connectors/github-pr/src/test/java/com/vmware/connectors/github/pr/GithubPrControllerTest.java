@@ -6,6 +6,7 @@
 package com.vmware.connectors.github.pr;
 
 import com.google.common.collect.ImmutableList;
+import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.jupiter.api.AfterEach;
@@ -14,17 +15,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.List;
 
+import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -50,16 +49,13 @@ class GithubPrControllerTest extends ControllerTestsBase {
 
     private static final String GITHUB_AUTH_TOKEN = "test-auth-token";
 
-    @Autowired
-    private AsyncRestTemplate rest;
-
     private MockRestServiceServer mockGithub;
 
     @BeforeEach
     public void setup() throws Exception {
         super.setup();
 
-        mockGithub = MockRestServiceServer.bindTo(rest)
+        mockGithub = MockRestServiceServer.bindTo(requestHandlerHolder)
                 .ignoreExpectOrder(true)
                 .build();
     }
@@ -237,6 +233,7 @@ class GithubPrControllerTest extends ControllerTestsBase {
         requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"), acceptLanguage)
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
@@ -273,6 +270,7 @@ class GithubPrControllerTest extends ControllerTestsBase {
         requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/empty-pr-urls.json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder

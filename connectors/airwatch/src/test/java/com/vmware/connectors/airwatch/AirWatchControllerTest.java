@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.airwatch;
 
+import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,28 +13,21 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.client.AsyncRestTemplate;
 
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.http.HttpHeaders.*;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.OPTIONS;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.ExpectedCount.times;
@@ -68,10 +62,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
     @Value("classpath:greenbox/responses/installApp.json")
     private Resource gbInstallApp;
 
-    @Autowired
-    private AsyncRestTemplate rest;
-
-    private MockRestServiceServer mockBackend;
+    private com.vmware.connectors.mock.MockRestServiceServer mockBackend;
 
     private final static String AIRWATCH_BASE_URL = "https://air-watch.acme.com";
     private final static String GREENBOX_BASE_URL = "https://herocard.vmwareidentity.com";
@@ -79,7 +70,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
     @BeforeEach
     public void setup() throws Exception {
         super.setup();
-        mockBackend = MockRestServiceServer.bindTo(rest).ignoreExpectOrder(true).build();
+        mockBackend = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
 
     @Test

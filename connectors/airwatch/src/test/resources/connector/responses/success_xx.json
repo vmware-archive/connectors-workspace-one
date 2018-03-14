@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/airwatch/templates/generic.hbs"
       },
       "header": {
-        "title": "vmware boxer"
+        "title": "[AIRWATCH] vmware boxer"
       },
       "body": {
         "description": "Uttama kriyegagi nivu ee app annu sthapisabahudu."
@@ -27,7 +27,8 @@
             "udid": "ABCD",
             "platform": "android"
           },
-          "user_input": []
+          "user_input": [],
+          "completed_label":"INSTALLED"
         }
       ]
     }

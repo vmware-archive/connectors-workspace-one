@@ -7,7 +7,7 @@
         "href": "https://hero/connectors/salesforce/templates/generic.hbs"
       },
       "header": {
-        "title": "Absender anzeigen"
+        "title": "[SALESFORCE] Absender anzeigen"
       },
       "body": {
         "description": "Absenderdetails aus Ihrem Salesforce-Konto",

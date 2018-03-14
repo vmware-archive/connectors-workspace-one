@@ -7,48 +7,34 @@ package com.vmware.connectors.github.pr;
 
 import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.payloads.request.CardRequest;
-import com.vmware.connectors.common.payloads.response.Card;
-import com.vmware.connectors.common.payloads.response.CardAction;
-import com.vmware.connectors.common.payloads.response.CardActionInputField;
-import com.vmware.connectors.common.payloads.response.CardActionKey;
-import com.vmware.connectors.common.payloads.response.CardBody;
-import com.vmware.connectors.common.payloads.response.CardBodyField;
-import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
-import com.vmware.connectors.common.payloads.response.Cards;
-import com.vmware.connectors.common.utils.Async;
+import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.ObservableUtil;
+import com.vmware.connectors.common.utils.Reactive;
 import com.vmware.connectors.github.pr.v3.PullRequest;
 import com.vmware.connectors.github.pr.v3.Review;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.AsyncRestOperations;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import rx.Observable;
-import rx.Single;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @RestController
 public class GithubPrController {
@@ -68,12 +54,12 @@ public class GithubPrController {
 
     private static final int URI_SEGMENT_SIZE = 4;
 
-    private final AsyncRestOperations rest;
+    private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
 
     @Autowired
     public GithubPrController(
-            AsyncRestOperations rest,
+            WebClient rest,
             CardTextAccessor cardTextAccessor
     ) {
         this.rest = rest;
@@ -85,15 +71,16 @@ public class GithubPrController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Single<ResponseEntity<Cards>> getCards(
+    public Mono<Cards> getCards(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
+            Locale locale,
             @Valid @RequestBody CardRequest request
     ) {
         logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, request);
 
-        List<PullRequestId> pullRequestIds = request.getTokens("pull_request_urls")
+        Stream<PullRequestId> pullRequestIds = request.getTokens("pull_request_urls")
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet()) // squash duplicates
@@ -103,18 +90,11 @@ public class GithubPrController {
                 .filter(Objects::nonNull)
                 .filter(this::validHost)
                 .map(this::getPullRequestId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .filter(Objects::nonNull);
 
-        if (CollectionUtils.isEmpty(pullRequestIds)) {
-            return Single.just(ResponseEntity.ok(new Cards()));
-        }
-
-        HttpHeaders headers = makeHeaders(auth);
-        HttpEntity<HttpHeaders> httpHeaders = new HttpEntity<>(headers);
-
-        return fetchAllPullRequests(baseUrl, httpHeaders, pullRequestIds)
-                .map(pair -> makeCard(routingPrefix, pair))
+        return Flux.fromStream(pullRequestIds)
+                .flatMap(pullRequestId -> fetchPullRequest(baseUrl, pullRequestId, auth))
+                .map(pair -> makeCard(routingPrefix, pair, locale))
                 .reduce(
                         new Cards(),
                         (cards, card) -> {
@@ -122,8 +102,8 @@ public class GithubPrController {
                             return cards;
                         }
                 )
-                .map(ResponseEntity::ok)
-                .toSingle();
+                .defaultIfEmpty(new Cards())
+                .subscriberContext(Reactive.setupContext());
     }
 
     private UriComponents parseUri(
@@ -141,7 +121,7 @@ public class GithubPrController {
     private boolean validHost(
             UriComponents uriComponents
     ) {
-        return uriComponents.getHost().equalsIgnoreCase("github.com");
+        return "github.com".equalsIgnoreCase(uriComponents.getHost());
     }
 
     private PullRequestId getPullRequestId(
@@ -157,44 +137,20 @@ public class GithubPrController {
         return pullRequestId;
     }
 
-    private HttpHeaders makeHeaders(String auth) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, auth);
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        return headers;
-    }
-
-    private Observable<Pair<PullRequestId, PullRequest>> fetchAllPullRequests(
-            String baseUrl,
-            HttpEntity<HttpHeaders> headers,
-            List<PullRequestId> ids
-    ) {
-        logger.trace("fetchAllPullRequests called: baseUrl={}, ids={}", baseUrl, ids);
-
-        return Observable.from(ids)
-                .flatMap(pullRequestId -> fetchPullRequest(baseUrl, pullRequestId, headers));
-    }
-
-    private Observable<Pair<PullRequestId, PullRequest>> fetchPullRequest(
+    private Flux<Pair<PullRequestId, PullRequest>> fetchPullRequest(
             String baseUrl,
             PullRequestId pullRequestId,
-            HttpEntity<HttpHeaders> headers
+            String auth
     ) {
         logger.trace("fetchPullRequest called: baseUrl={}, id={}", baseUrl, pullRequestId);
-
-        ListenableFuture<ResponseEntity<PullRequest>> response = rest.exchange(
-                makeGithubUri(baseUrl, pullRequestId),
-                HttpMethod.GET,
-                headers,
-                PullRequest.class
-        );
-
-        return Async.toSingle(response)
-                .toObservable()
-                .onErrorResumeNext(ObservableUtil::skip404)
-                .map(ResponseEntity::getBody)
+        return rest.get()
+                .uri(makeGithubUri(baseUrl, pullRequestId))
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToFlux(PullRequest.class)
+                .onErrorResume(Reactive::skipOnNotFound)
                 .map(pullRequest -> Pair.of(pullRequestId, pullRequest));
-    }
+        }
 
     private String makeGithubUri(
             String baseUrl,
@@ -217,7 +173,8 @@ public class GithubPrController {
 
     private Card makeCard(
             String routingPrefix,
-            Pair<PullRequestId, PullRequest> info
+            Pair<PullRequestId, PullRequest> info,
+            Locale locale
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 
@@ -229,34 +186,35 @@ public class GithubPrController {
                 .setName("GithubPr") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(
-                        cardTextAccessor.getHeader(),
+                        cardTextAccessor.getHeader(locale),
                         cardTextAccessor.getMessage(
-                                "subtitle",
+                                "subtitle", locale,
                                 pullRequestId.getOwner(),
                                 pullRequestId.getRepo(),
                                 pullRequestId.getNumber()
                         )
                 )
-                .setBody(createBody(pullRequestId, pullRequest));
+                .setBody(createBody(pullRequestId, pullRequest, locale));
 
-        addCloseAction(card, routingPrefix, pullRequestId, isOpen);
-        addMergeAction(card, routingPrefix, pullRequestId, pullRequest, isOpen);
-        addApproveAction(card, routingPrefix, pullRequestId, isOpen);
-        addCommentAction(card, routingPrefix, pullRequestId);
-        addRequestChangesAction(card, routingPrefix, pullRequestId, isOpen);
+        addCloseAction(card, routingPrefix, pullRequestId, isOpen, locale);
+        addMergeAction(card, routingPrefix, pullRequestId, pullRequest, isOpen, locale);
+        addApproveAction(card, routingPrefix, pullRequestId, isOpen, locale);
+        addCommentAction(card, routingPrefix, pullRequestId, locale);
+        addRequestChangesAction(card, routingPrefix, pullRequestId, isOpen, locale);
 
         return card.build();
     }
 
     private CardBody createBody(
             PullRequestId pullRequestId,
-            PullRequest pullRequest
+            PullRequest pullRequest,
+            Locale locale
     ) {
         CardBody.Builder body = new CardBody.Builder();
 
-        addInfo(body, pullRequestId, pullRequest);
-        addFinishedDates(body, pullRequest);
-        addChangeStats(body, pullRequest);
+        addInfo(body, pullRequestId, pullRequest, locale);
+        addFinishedDates(body, pullRequest, locale);
+        addChangeStats(body, pullRequest, locale);
 
         return body.build();
     }
@@ -264,33 +222,34 @@ public class GithubPrController {
     private void addInfo(
             CardBody.Builder body,
             PullRequestId pullRequestId,
-            PullRequest pullRequest
+            PullRequest pullRequest,
+            Locale locale
     ) {
         body
-                .setDescription(cardTextAccessor.getBody(pullRequest.getBody()))
-                .addField(buildGeneralBodyField("repository", pullRequestId.getOwner(), pullRequestId.getRepo()))
-                .addField(buildGeneralBodyField("requester", pullRequest.getUser().getLogin()))
-                .addField(buildGeneralBodyField("title", pullRequest.getTitle()))
-                .addField(buildGeneralBodyField("state", pullRequest.getState()))
-                .addField(buildGeneralBodyField("merged", pullRequest.isMerged()))
-                .addField(buildGeneralBodyField("mergeable", pullRequest.getMergeable()))
+                .setDescription(cardTextAccessor.getBody(locale, pullRequest.getBody()))
+                .addField(buildGeneralBodyField("repository", locale, pullRequestId.getOwner(), pullRequestId.getRepo()))
+                .addField(buildGeneralBodyField("requester", locale, pullRequest.getUser().getLogin()))
+                .addField(buildGeneralBodyField("title", locale, pullRequest.getTitle()))
+                .addField(buildGeneralBodyField("state", locale, pullRequest.getState()))
+                .addField(buildGeneralBodyField("merged", locale, pullRequest.isMerged()))
+                .addField(buildGeneralBodyField("mergeable", locale, pullRequest.getMergeable()))
                 .addField(
                         buildGeneralBodyField(
-                                "createdAt",
+                                "createdAt", locale,
                                 DateTimeFormatter.ISO_INSTANT.format(pullRequest.getCreatedAt().toInstant())
                         )
                 )
-                .addField(buildGeneralBodyField("comments", pullRequest.getComments()))
-                .addField(buildGeneralBodyField("reviewComments", pullRequest.getReviewComments()));
+                .addField(buildGeneralBodyField("comments", locale, pullRequest.getComments()))
+                .addField(buildGeneralBodyField("reviewComments", locale, pullRequest.getReviewComments()));
     }
 
-    private CardBodyField buildGeneralBodyField(String messageKeyPrefix, Object... descriptionArgs) {
+    private CardBodyField buildGeneralBodyField(String messageKeyPrefix, Locale locale, Object... descriptionArgs) {
         return new CardBodyField.Builder()
-                .setTitle(cardTextAccessor.getMessage(messageKeyPrefix + ".title"))
+                .setTitle(cardTextAccessor.getMessage(messageKeyPrefix + ".title", locale))
                 .setType(CardBodyFieldType.GENERAL)
                 .setDescription(
                         cardTextAccessor.getMessage(
-                                messageKeyPrefix + ".description",
+                                messageKeyPrefix + ".description", locale,
                                 descriptionArgs
                         )
                 )
@@ -299,13 +258,14 @@ public class GithubPrController {
 
     private void addFinishedDates(
             CardBody.Builder body,
-            PullRequest pullRequest
+            PullRequest pullRequest,
+            Locale locale
     ) {
         if (pullRequest.getClosedAt() != null) {
             if (pullRequest.isMerged()) {
                 body.addField(
                         buildGeneralBodyField(
-                                "mergedAt",
+                                "mergedAt", locale,
                                 DateTimeFormatter.ISO_INSTANT.format(pullRequest.getMergedAt().toInstant()),
                                 pullRequest.getMergedBy().getLogin()
                         )
@@ -313,7 +273,7 @@ public class GithubPrController {
             } else {
                 body.addField(
                         buildGeneralBodyField(
-                                "closedAt",
+                                "closedAt", locale,
                                 DateTimeFormatter.ISO_INSTANT.format(pullRequest.getClosedAt().toInstant())
                         )
                 );
@@ -323,31 +283,33 @@ public class GithubPrController {
 
     private void addChangeStats(
             CardBody.Builder body,
-            PullRequest pullRequest
+            PullRequest pullRequest,
+            Locale locale
     ) {
         body
-                .addField(buildGeneralBodyField("commits", pullRequest.getCommits()))
-                .addField(buildGeneralBodyField("changes", pullRequest.getAdditions(), pullRequest.getDeletions()))
-                .addField(buildGeneralBodyField("filesChanged", pullRequest.getChangedFiles()));
+                .addField(buildGeneralBodyField("commits", locale, pullRequest.getCommits()))
+                .addField(buildGeneralBodyField("changes", locale, pullRequest.getAdditions(), pullRequest.getDeletions()))
+                .addField(buildGeneralBodyField("filesChanged", locale, pullRequest.getChangedFiles()));
     }
 
     private void addCloseAction(
             Card.Builder card,
             String routingPrefix,
             PullRequestId pullRequestId,
-            boolean isOpen
+            boolean isOpen,
+            Locale locale
     ) {
         if (isOpen) {
             card.addAction(
                     new CardAction.Builder()
-                            .setLabel(cardTextAccessor.getActionLabel("close"))
-                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("close"))
+                            .setLabel(cardTextAccessor.getActionLabel("close", locale))
+                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("close", locale))
                             .setActionKey(CardActionKey.USER_INPUT)
                             .setUrl(getActionUrl(routingPrefix, pullRequestId, "close"))
                             .addUserInputField(
                                     new CardActionInputField.Builder()
                                             .setId(CLOSE_REASON_PARAM_KEY)
-                                            .setLabel(cardTextAccessor.getActionLabel("close.reason"))
+                                            .setLabel(cardTextAccessor.getActionLabel("close.reason", locale))
                                             .build()
                             )
                             .setType(HttpMethod.POST)
@@ -361,13 +323,14 @@ public class GithubPrController {
             String routingPrefix,
             PullRequestId pullRequestId,
             PullRequest pullRequest,
-            boolean isOpen
+            boolean isOpen,
+            Locale locale
     ) {
         if (isOpen && Boolean.TRUE.equals(pullRequest.getMergeable())) {
             card.addAction(
                     new CardAction.Builder()
-                            .setLabel(cardTextAccessor.getActionLabel("merge"))
-                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("merge"))
+                            .setLabel(cardTextAccessor.getActionLabel("merge", locale))
+                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("merge", locale))
                             .setActionKey(CardActionKey.DIRECT)
                             .setUrl(getActionUrl(routingPrefix, pullRequestId, "merge"))
                             .addRequestParam(SHA_PARAM_KEY, pullRequest.getHead().getSha())
@@ -381,13 +344,14 @@ public class GithubPrController {
             Card.Builder card,
             String routingPrefix,
             PullRequestId pullRequestId,
-            boolean isOpen
+            boolean isOpen,
+            Locale locale
     ) {
         if (isOpen) {
             card.addAction(
                     new CardAction.Builder()
-                            .setLabel(cardTextAccessor.getActionLabel("approve"))
-                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("approve"))
+                            .setLabel(cardTextAccessor.getActionLabel("approve", locale))
+                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("approve", locale))
                             .setActionKey(CardActionKey.DIRECT)
                             .setUrl(getActionUrl(routingPrefix, pullRequestId, "approve"))
                             .setType(HttpMethod.POST)
@@ -399,18 +363,19 @@ public class GithubPrController {
     private void addCommentAction(
             Card.Builder card,
             String routingPrefix,
-            PullRequestId pullRequestId
+            PullRequestId pullRequestId,
+            Locale locale
     ) {
         card.addAction(
                 new CardAction.Builder()
-                        .setLabel(cardTextAccessor.getActionLabel("comment"))
-                        .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("comment"))
+                        .setLabel(cardTextAccessor.getActionLabel("comment", locale))
+                        .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("comment", locale))
                         .setActionKey(CardActionKey.USER_INPUT)
                         .setUrl(getActionUrl(routingPrefix, pullRequestId, "comment"))
                         .addUserInputField(
                                 new CardActionInputField.Builder()
                                         .setId(COMMENT_PARAM_KEY)
-                                        .setLabel(cardTextAccessor.getActionLabel("comment.comment"))
+                                        .setLabel(cardTextAccessor.getActionLabel("comment.comment", locale))
                                         .setMinLength(1)
                                         .build()
                         )
@@ -423,19 +388,20 @@ public class GithubPrController {
             Card.Builder card,
             String routingPrefix,
             PullRequestId pullRequestId,
-            boolean isOpen
+            boolean isOpen,
+            Locale locale
     ) {
         if (isOpen) {
             card.addAction(
                     new CardAction.Builder()
-                            .setLabel(cardTextAccessor.getActionLabel("requestChanges"))
-                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("requestChanges"))
+                            .setLabel(cardTextAccessor.getActionLabel("requestChanges", locale))
+                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("requestChanges", locale))
                             .setActionKey(CardActionKey.USER_INPUT)
                             .setUrl(getActionUrl(routingPrefix, pullRequestId, "request-changes"))
                             .addUserInputField(
                                     new CardActionInputField.Builder()
                                             .setId(REQUEST_PARAM_KEY)
-                                            .setLabel(cardTextAccessor.getActionLabel("requestChanges.request"))
+                                            .setLabel(cardTextAccessor.getActionLabel("requestChanges.request", locale))
                                             .setMinLength(1)
                                             .build()
                             )
@@ -455,7 +421,7 @@ public class GithubPrController {
             path = "/api/v1/{owner}/{repo}/{number}/close",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> close(
+    public Mono<String> close(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             PullRequestId pullRequestId,
@@ -468,10 +434,10 @@ public class GithubPrController {
                 reason
         );
 
-        Single<ResponseEntity<String>> reasonResponse;
+        Mono<String> reasonResponse;
 
         if (StringUtils.isEmpty(reason)) {
-            reasonResponse = Single.just(ResponseEntity.ok("does not matter"));
+            reasonResponse = Mono.just("does not matter");
         } else {
             reasonResponse = postReview(
                     pullRequestId,
@@ -485,29 +451,25 @@ public class GithubPrController {
                 .flatMap(ignored -> closePullRequest(auth, baseUrl, pullRequestId));
     }
 
-    private Single<ResponseEntity<String>> closePullRequest(
+    private Mono<String> closePullRequest(
             String auth,
             String baseUrl,
             PullRequestId pullRequestId
     ) {
-        HttpHeaders headers = makeHeaders(auth);
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(ImmutableMap.of("state", "closed"), headers);
-
-        ListenableFuture<ResponseEntity<String>> response = rest.exchange(
-                makeGithubUri(baseUrl, pullRequestId),
-                HttpMethod.PATCH,
-                request,
-                String.class
-        );
-
-        return Async.toSingle(response);
+       return rest.patch()
+                .uri(makeGithubUri(baseUrl, pullRequestId))
+                .header(AUTHORIZATION, auth)
+                .contentType(APPLICATION_JSON)
+                .syncBody(ImmutableMap.of("state", "closed"))
+                .retrieve()
+                .bodyToMono(String.class);
     }
 
     @PostMapping(
             path = "/api/v1/{owner}/{repo}/{number}/merge",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> merge(
+    public Mono<String> merge(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             PullRequestId pullRequestId,
@@ -519,24 +481,20 @@ public class GithubPrController {
                 pullRequestId
         );
 
-        HttpHeaders headers = makeHeaders(auth);
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(ImmutableMap.of("sha", sha), headers);
-
-        ListenableFuture<ResponseEntity<String>> response = rest.exchange(
-                makeGithubUri(baseUrl, pullRequestId) + "/merge",
-                HttpMethod.PUT,
-                request,
-                String.class
-        );
-
-        return Async.toSingle(response);
+        return rest.put()
+                .uri(makeGithubUri(baseUrl, pullRequestId) + "/merge")
+                .header(AUTHORIZATION, auth)
+                .contentType(APPLICATION_JSON)
+                .syncBody(ImmutableMap.of("sha", sha))
+                .retrieve()
+                .bodyToMono(String.class);
     }
 
     @PostMapping(
             path = "/api/v1/{owner}/{repo}/{number}/approve",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> approve(
+    public Mono<String> approve(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             PullRequestId pullRequestId
@@ -559,7 +517,7 @@ public class GithubPrController {
             path = "/api/v1/{owner}/{repo}/{number}/comment",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> comment(
+    public Mono<String> comment(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             PullRequestId pullRequestId,
@@ -584,7 +542,7 @@ public class GithubPrController {
             path = "/api/v1/{owner}/{repo}/{number}/request-changes",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> requestChanges(
+    public Mono<String> requestChanges(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             PullRequestId pullRequestId,
@@ -605,23 +563,19 @@ public class GithubPrController {
         );
     }
 
-    private Single<ResponseEntity<String>> postReview(
+    private Mono<String> postReview(
             PullRequestId pullRequestId,
             Review review,
             String auth,
             String baseUrl
     ) {
-        HttpHeaders headers = makeHeaders(auth);
-        HttpEntity<Review> request = new HttpEntity<>(review, headers);
-
-        ListenableFuture<ResponseEntity<String>> response = rest.exchange(
-                makeGithubUri(baseUrl, pullRequestId) + "/reviews",
-                HttpMethod.POST,
-                request,
-                String.class
-        );
-
-        return Async.toSingle(response);
+        return rest.post()
+                .uri(makeGithubUri(baseUrl, pullRequestId) + "/reviews")
+                .header(AUTHORIZATION, auth)
+                .contentType(APPLICATION_JSON)
+                .syncBody(review)
+                .retrieve()
+                .bodyToMono(String.class);
     }
 
 }

@@ -9,7 +9,7 @@
         "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
       },
       "header": {
-        "title": "AWS Certificate Request",
+        "title": "[AWS-Cert] Certificate Request",
         "subtitle": [
           "test-subdomain-1.acme.com"
         ]
@@ -71,7 +71,8 @@
           "action_key": "DISMISS",
           "remove_card_on_completion": true,
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "completed_label": "Dismiss"
         }
       ]
     },
@@ -84,7 +85,7 @@
         "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
       },
       "header": {
-        "title": "AWS Certificate Request",
+        "title": "[AWS-Cert] Certificate Request",
         "subtitle": [
           "test-subdomain-2.acme.com"
         ]
@@ -146,7 +147,8 @@
           "action_key": "DISMISS",
           "remove_card_on_completion": true,
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "completed_label": "Dismiss"
         }
       ]
     },
@@ -159,7 +161,7 @@
         "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
       },
       "header": {
-        "title": "AWS Certificate Request",
+        "title": "[AWS-Cert] Certificate Request",
         "subtitle": [
           "test-subdomain-3.acme.com"
         ]
@@ -221,7 +223,8 @@
           "action_key": "DISMISS",
           "remove_card_on_completion": true,
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "completed_label": "Dismiss"
         }
       ]
     }

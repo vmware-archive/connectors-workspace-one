@@ -6,6 +6,7 @@
 package com.vmware.connectors.jira;
 
 import com.google.common.collect.ImmutableList;
+import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,14 +14,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.List;
 
@@ -56,15 +54,12 @@ class JiraControllerTest extends ControllerTestsBase {
     @Value("classpath:jira/responses/myself.json")
     private Resource myself;
 
-    @Autowired
-    private AsyncRestTemplate rest;
-
     private MockRestServiceServer mockJira;
 
     @BeforeEach
     public void setup() throws Exception {
         super.setup();
-        mockJira = MockRestServiceServer.bindTo(rest).ignoreExpectOrder(true).build();
+        mockJira = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
 
     @Test
