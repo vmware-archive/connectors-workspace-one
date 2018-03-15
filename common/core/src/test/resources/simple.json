@@ -39,6 +39,7 @@
         "min_length": 1
       }
     ],
-    "allow_repeated":true
+    "allow_repeated":true,
+    "completed_label": "Completed"
   }]
 }

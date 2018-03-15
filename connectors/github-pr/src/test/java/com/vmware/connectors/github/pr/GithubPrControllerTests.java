@@ -6,6 +6,7 @@
 package com.vmware.connectors.github.pr;
 
 import com.google.common.collect.ImmutableList;
+import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.After;
@@ -14,7 +15,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -22,6 +22,7 @@ import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.List;
 
+import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -47,16 +48,13 @@ public class GithubPrControllerTests extends ControllerTestsBase {
 
     private static final String GITHUB_AUTH_TOKEN = "test-auth-token";
 
-    @Autowired
-    private AsyncRestTemplate rest;
-
     private MockRestServiceServer mockGithub;
 
     @Before
     public void setup() throws Exception {
         super.setup();
 
-        mockGithub = MockRestServiceServer.bindTo(rest)
+        mockGithub = MockRestServiceServer.bindTo(requestHandlerHolder)
                 .ignoreExpectOrder(true)
                 .build();
     }
@@ -230,6 +228,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
         requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
@@ -268,6 +267,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
         requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"), "xx")
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
@@ -282,6 +282,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
         requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/empty-pr-urls.json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder

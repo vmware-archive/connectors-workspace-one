@@ -5,20 +5,18 @@
 
 package com.vmware.connectors.concur;
 
+import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +33,8 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,9 +43,6 @@ public class ConcurControllerTests extends ControllerTestsBase {
 
     private static final String REPORT_ID_1 = "79D89435DAE94F53BF60";
     private static final String REPORT_ID_2 = "F49BD54084CE4C09BD65";
-
-    @Autowired
-    private AsyncRestTemplate rest;
 
     private MockRestServiceServer mockConcur;
 
@@ -65,7 +61,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     @Before
     public void setup() throws Exception {
         super.setup();
-        this.mockConcur = MockRestServiceServer.bindTo(rest).ignoreExpectOrder(true).build();
+        this.mockConcur = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
 
     @Test
@@ -99,7 +95,7 @@ public class ConcurControllerTests extends ControllerTestsBase {
     public void testGetImage() throws Exception {
         perform(get("/images/connector.png"))
                 .andExpect(status().isOk())
-                .andExpect(header().longValue(CONTENT_LENGTH, 7601))
+                .andExpect(header().longValue(CONTENT_LENGTH, 9339))
                 .andExpect(header().string(CONTENT_TYPE, IMAGE_PNG_VALUE))
                 .andExpect((content().bytes(bytesFromFile("/static/images/connector.png"))));
     }

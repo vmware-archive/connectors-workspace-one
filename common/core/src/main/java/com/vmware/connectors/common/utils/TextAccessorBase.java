@@ -5,7 +5,6 @@
 
 package com.vmware.connectors.common.utils;
 
-import com.vmware.connectors.common.context.ContextHolder;
 import org.springframework.context.MessageSource;
 
 import java.util.Locale;
@@ -17,11 +16,7 @@ public class TextAccessorBase {
         this.messageSource = messageSource;
     }
 
-    protected static Locale locale() {
-        return (Locale) ContextHolder.getContext().get("locale");
-    }
-
-    public String getMessage(String code, Object... args) {
-        return messageSource.getMessage(code, args, locale());
+    public String getMessage(String code, Locale locale, Object... args) {
+        return messageSource.getMessage(code, args, locale);
     }
 }

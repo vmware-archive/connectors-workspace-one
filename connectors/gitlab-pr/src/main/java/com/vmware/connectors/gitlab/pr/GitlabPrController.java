@@ -7,17 +7,9 @@ package com.vmware.connectors.gitlab.pr;
 
 import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.payloads.request.CardRequest;
-import com.vmware.connectors.common.payloads.response.Card;
-import com.vmware.connectors.common.payloads.response.CardAction;
-import com.vmware.connectors.common.payloads.response.CardActionInputField;
-import com.vmware.connectors.common.payloads.response.CardActionKey;
-import com.vmware.connectors.common.payloads.response.CardBody;
-import com.vmware.connectors.common.payloads.response.CardBodyField;
-import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
-import com.vmware.connectors.common.payloads.response.Cards;
-import com.vmware.connectors.common.utils.Async;
+import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.ObservableUtil;
+import com.vmware.connectors.common.utils.Reactive;
 import com.vmware.connectors.gitlab.pr.v4.MergeRequest;
 import com.vmware.connectors.gitlab.pr.v4.MergeRequestActionConstants;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,33 +17,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.AsyncRestOperations;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import rx.Observable;
-import rx.Single;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.time.format.DateTimeFormatter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @RestController
 public class GitlabPrController {
@@ -73,13 +60,13 @@ public class GitlabPrController {
     private static final String MERGE_REQUESTS = "merge_requests";
 
     private final boolean isEnterpriseEdition;
-    private final AsyncRestOperations rest;
+    private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
 
     @Autowired
     public GitlabPrController(
             @Value("${gitlab.connector.enterprise:false}") boolean isEnterpriseEdition,
-            AsyncRestOperations rest,
+            WebClient rest,
             CardTextAccessor cardTextAccessor
     ) {
         this.isEnterpriseEdition = isEnterpriseEdition;
@@ -92,15 +79,16 @@ public class GitlabPrController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Single<ResponseEntity<Cards>> getCards(
+    public Mono<Cards> getCards(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
+            Locale locale,
             @Valid @RequestBody CardRequest request
     ) {
         logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, request);
 
-        List<MergeRequestId> mergeRequestIds = request.getTokens("merge_request_urls")
+        Stream<MergeRequestId> mergeRequestIds = request.getTokens("merge_request_urls")
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet()) // squash duplicates
@@ -110,18 +98,11 @@ public class GitlabPrController {
                 .filter(Objects::nonNull)
                 .filter(this::validHost)
                 .map(this::getMergeRequestId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .filter(Objects::nonNull);
 
-        if (CollectionUtils.isEmpty(mergeRequestIds)) {
-            return Single.just(ResponseEntity.ok(new Cards()));
-        }
-
-        HttpHeaders headers = makeHeaders(auth);
-        HttpEntity<HttpHeaders> httpHeaders = new HttpEntity<>(headers);
-
-        return fetchAllMergeRequests(baseUrl, httpHeaders, mergeRequestIds)
-                .map(pair -> makeCard(routingPrefix, pair))
+       return Flux.fromStream(mergeRequestIds)
+                .flatMap(mergeRequestId -> fetchMergeRequest(baseUrl, mergeRequestId, auth))
+                .map(pair -> makeCard(routingPrefix, pair, locale))
                 .reduce(
                         new Cards(),
                         (cards, card) -> {
@@ -129,8 +110,8 @@ public class GitlabPrController {
                             return cards;
                         }
                 )
-                .map(ResponseEntity::ok)
-                .toSingle();
+               .defaultIfEmpty(new Cards())
+               .subscriberContext(Reactive.setupContext());
     }
 
     private UriComponents parseUri(
@@ -148,7 +129,7 @@ public class GitlabPrController {
     private boolean validHost(
             UriComponents uriComponents
     ) {
-        return uriComponents.getHost().equalsIgnoreCase("gitlab.com");
+        return "gitlab.com".equalsIgnoreCase(uriComponents.getHost());
     }
 
     private MergeRequestId getMergeRequestId(
@@ -167,44 +148,21 @@ public class GitlabPrController {
         return mergeRequestId;
     }
 
-    private HttpHeaders makeHeaders(String auth) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, auth);
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        return headers;
-    }
-
-    private Observable<Pair<MergeRequestId, MergeRequest>> fetchAllMergeRequests(
-            String baseUrl,
-            HttpEntity<HttpHeaders> headers,
-            List<MergeRequestId> mergeRequestIds
-    ) {
-        logger.trace("fetchAllMergeRequests called: baseUrl={}, ids={}", baseUrl, mergeRequestIds);
-
-        return Observable.from(mergeRequestIds)
-                .flatMap(mergeRequestId -> fetchMergeRequest(baseUrl, mergeRequestId, headers));
-    }
-
-    private Observable<Pair<MergeRequestId, MergeRequest>> fetchMergeRequest(
+    private Flux<Pair<MergeRequestId, MergeRequest>> fetchMergeRequest(
             String baseUrl,
             MergeRequestId mergeRequestId,
-            HttpEntity<HttpHeaders> headers
+            String auth
     ) {
         logger.trace("fetchMergeRequest called: baseUrl={}, id={}", baseUrl, mergeRequestId);
 
-        ListenableFuture<ResponseEntity<MergeRequest>> response = rest.exchange(
-                makeGitlabUri(baseUrl, mergeRequestId),
-                HttpMethod.GET,
-                headers,
-                MergeRequest.class
-        );
-
-        return Async.toSingle(response)
-                .toObservable()
-                .onErrorResumeNext(ObservableUtil::skip404)
-                .map(ResponseEntity::getBody)
+        return rest.get()
+                .uri(makeGitlabUri(baseUrl, mergeRequestId))
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToFlux(MergeRequest.class)
+                .onErrorResume(Reactive::skipOnNotFound)
                 .map(mergeRequest -> Pair.of(mergeRequestId, mergeRequest));
-    }
+   }
 
     private URI makeGitlabUri(
             String baseUrl,
@@ -239,7 +197,8 @@ public class GitlabPrController {
 
     private Card makeCard(
             String routingPrefix,
-            Pair<MergeRequestId, MergeRequest> info
+            Pair<MergeRequestId, MergeRequest> info,
+            Locale locale
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 
@@ -250,32 +209,33 @@ public class GitlabPrController {
                 .setName("GitlabPr") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(
-                        cardTextAccessor.getHeader(),
+                        cardTextAccessor.getHeader(locale),
                         cardTextAccessor.getMessage(
-                                "subtitle",
+                                "subtitle", locale,
                                 mergeRequestId.getNamespace(),
                                 mergeRequestId.getProjectName(),
                                 mergeRequestId.getNumber()
                         )
                 )
-                .setBody(createBody(mergeRequestId, mergeRequest));
+                .setBody(createBody(mergeRequestId, mergeRequest, locale));
 
-        addCloseAction(card, routingPrefix, mergeRequestId, mergeRequest);
-        addMergeAction(card, routingPrefix, mergeRequestId, mergeRequest);
-        addApproveAction(card, routingPrefix, mergeRequestId, mergeRequest);
-        addCommentAction(card, routingPrefix, mergeRequestId);
+        addCloseAction(card, routingPrefix, mergeRequestId, mergeRequest, locale);
+        addMergeAction(card, routingPrefix, mergeRequestId, mergeRequest, locale);
+        addApproveAction(card, routingPrefix, mergeRequestId, mergeRequest, locale);
+        addCommentAction(card, routingPrefix, mergeRequestId, locale);
 
         return card.build();
     }
 
     private CardBody createBody(
             MergeRequestId mergeRequestId,
-            MergeRequest mergeRequest
+            MergeRequest mergeRequest,
+            Locale locale
     ) {
         CardBody.Builder body = new CardBody.Builder();
 
-        addInfo(body, mergeRequestId, mergeRequest);
-        addChangeStats(body, mergeRequest);
+        addInfo(body, mergeRequestId, mergeRequest, locale);
+        addChangeStats(body, mergeRequest, locale);
 
         return body.build();
     }
@@ -283,31 +243,32 @@ public class GitlabPrController {
     private void addInfo(
             CardBody.Builder body,
             MergeRequestId mergeRequestId,
-            MergeRequest mergeRequest
+            MergeRequest mergeRequest,
+            Locale locale
     ) {
         body
-                .setDescription(cardTextAccessor.getBody(mergeRequest.getDescription()))
-                .addField(buildGeneralBodyField("repository", mergeRequestId.getNamespace(), mergeRequestId.getProjectName()))
-                .addField(buildGeneralBodyField("requester", mergeRequest.getAuthor().getUsername()))
-                .addField(buildGeneralBodyField("title", mergeRequest.getTitle()))
-                .addField(buildGeneralBodyField("state", mergeRequest.getState()))
-                .addField(buildGeneralBodyField("mergeable", mergeRequest.getMergeStatus()))
+                .setDescription(cardTextAccessor.getBody(locale, mergeRequest.getDescription()))
+                .addField(buildGeneralBodyField("repository", locale, mergeRequestId.getNamespace(), mergeRequestId.getProjectName()))
+                .addField(buildGeneralBodyField("requester", locale, mergeRequest.getAuthor().getUsername()))
+                .addField(buildGeneralBodyField("title", locale, mergeRequest.getTitle()))
+                .addField(buildGeneralBodyField("state", locale, mergeRequest.getState()))
+                .addField(buildGeneralBodyField("mergeable", locale, mergeRequest.getMergeStatus()))
                 .addField(
                         buildGeneralBodyField(
-                                "createdAt",
+                                "createdAt", locale,
                                 DateTimeFormatter.ISO_INSTANT.format(mergeRequest.getCreatedAt().toInstant())
                         )
                 )
-                .addField(buildGeneralBodyField("comments", mergeRequest.getUserNotesCount()));
+                .addField(buildGeneralBodyField("comments", locale, mergeRequest.getUserNotesCount()));
     }
 
-    private CardBodyField buildGeneralBodyField(String messageKeyPrefix, Object... descriptionArgs) {
+    private CardBodyField buildGeneralBodyField(String messageKeyPrefix, Locale locale, Object... descriptionArgs) {
         return new CardBodyField.Builder()
-                .setTitle(cardTextAccessor.getMessage(messageKeyPrefix + ".title"))
+                .setTitle(cardTextAccessor.getMessage(messageKeyPrefix + ".title", locale))
                 .setType(CardBodyFieldType.GENERAL)
                 .setDescription(
                         cardTextAccessor.getMessage(
-                                messageKeyPrefix + ".description",
+                                messageKeyPrefix + ".description", locale,
                                 descriptionArgs
                         )
                 )
@@ -316,28 +277,30 @@ public class GitlabPrController {
 
     private void addChangeStats(
             CardBody.Builder body,
-            MergeRequest mergeRequest
+            MergeRequest mergeRequest,
+            Locale locale
     ) {
-        body.addField(buildGeneralBodyField("changes", mergeRequest.getChangesCount()));
+        body.addField(buildGeneralBodyField("changes", locale, mergeRequest.getChangesCount()));
     }
 
     private void addCloseAction(
             Card.Builder card,
             String routingPrefix,
             MergeRequestId mergeRequestId,
-            MergeRequest mergeRequest
+            MergeRequest mergeRequest,
+            Locale locale
     ) {
         if (mergeRequest.getState().isOpen()) {
             card.addAction(
                     new CardAction.Builder()
-                            .setLabel(cardTextAccessor.getActionLabel("close"))
-                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("close"))
+                            .setLabel(cardTextAccessor.getActionLabel("close", locale))
+                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("close", locale))
                             .setActionKey(CardActionKey.USER_INPUT)
                             .setUrl(getActionUrl(routingPrefix, mergeRequestId, "close"))
                             .addUserInputField(
                                     new CardActionInputField.Builder()
                                             .setId(CLOSE_REASON_PARAM_KEY)
-                                            .setLabel(cardTextAccessor.getActionLabel("close.reason"))
+                                            .setLabel(cardTextAccessor.getActionLabel("close.reason", locale))
                                             .build()
                             )
                             .setType(HttpMethod.POST)
@@ -350,13 +313,14 @@ public class GitlabPrController {
             Card.Builder card,
             String routingPrefix,
             MergeRequestId mergeRequestId,
-            MergeRequest mergeRequest
+            MergeRequest mergeRequest,
+            Locale locale
     ) {
         if (mergeRequest.getState().isOpen() && mergeRequest.getMergeStatus().canBeMerged()) {
             card.addAction(
                     new CardAction.Builder()
-                            .setLabel(cardTextAccessor.getActionLabel("merge"))
-                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("merge"))
+                            .setLabel(cardTextAccessor.getActionLabel("merge", locale))
+                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("merge", locale))
                             .setActionKey(CardActionKey.DIRECT)
                             .setUrl(getActionUrl(routingPrefix, mergeRequestId, "merge"))
                             .addRequestParam(SHA_PARAM_KEY, mergeRequest.getSha())
@@ -370,13 +334,14 @@ public class GitlabPrController {
             Card.Builder card,
             String routingPrefix,
             MergeRequestId mergeRequestId,
-            MergeRequest mergeRequest
+            MergeRequest mergeRequest,
+            Locale locale
     ) {
         if (mergeRequest.getState().isOpen() && isEnterpriseEdition) {
             card.addAction(
                     new CardAction.Builder()
-                            .setLabel(cardTextAccessor.getActionLabel("approve"))
-                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("approve"))
+                            .setLabel(cardTextAccessor.getActionLabel("approve", locale))
+                            .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("approve", locale))
                             .setActionKey(CardActionKey.DIRECT)
                             .setUrl(getActionUrl(routingPrefix, mergeRequestId, "approve"))
                             .addRequestParam(SHA_PARAM_KEY, mergeRequest.getSha())
@@ -389,18 +354,19 @@ public class GitlabPrController {
     private void addCommentAction(
             Card.Builder card,
             String routingPrefix,
-            MergeRequestId mergeRequestId
+            MergeRequestId mergeRequestId,
+            Locale locale
     ) {
         card.addAction(
                 new CardAction.Builder()
-                        .setLabel(cardTextAccessor.getActionLabel("comment"))
-                        .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("comment"))
+                        .setLabel(cardTextAccessor.getActionLabel("comment", locale))
+                        .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("comment", locale))
                         .setActionKey(CardActionKey.USER_INPUT)
                         .setUrl(getActionUrl(routingPrefix, mergeRequestId, "comment"))
                         .addUserInputField(
                                 new CardActionInputField.Builder()
                                         .setId(COMMENT_PARAM_KEY)
-                                        .setLabel(cardTextAccessor.getActionLabel("comment.comment"))
+                                        .setLabel(cardTextAccessor.getActionLabel("comment.comment", locale))
                                         .setMinLength(1)
                                         .build()
                         )
@@ -424,7 +390,7 @@ public class GitlabPrController {
             path = "/api/v1/{namespace}/{projectName}/{number}/comment",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> comment(
+    public Mono<String> comment(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             MergeRequestId mergeRequestId,
@@ -440,7 +406,7 @@ public class GitlabPrController {
         return postNote(auth, baseUrl, mergeRequestId, comment);
     }
 
-    private Single<ResponseEntity<String>> postNote(
+    private Mono<String> postNote(
             String auth,
             String baseUrl,
             MergeRequestId mergeRequestId,
@@ -453,7 +419,7 @@ public class GitlabPrController {
         return actionRequest(auth, baseUrl, mergeRequestId, "/notes", HttpMethod.POST, body);
     }
 
-    private Single<ResponseEntity<String>> actionRequest(
+    private Mono<String> actionRequest(
             String auth,
             String baseUrl,
             MergeRequestId mergeRequestId,
@@ -461,24 +427,20 @@ public class GitlabPrController {
             HttpMethod method,
             Map<String, Object> body
     ) {
-        HttpHeaders headers = makeHeaders(auth);
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-
-        ListenableFuture<ResponseEntity<String>> response = rest.exchange(
-                makeGitlabUri(baseUrl, mergeRequestId, action),
-                method,
-                request,
-                String.class
-        );
-
-        return Async.toSingle(response);
+        return rest.method(method)
+                .uri(makeGitlabUri(baseUrl, mergeRequestId, action))
+                .header(AUTHORIZATION, auth)
+                .contentType(APPLICATION_JSON)
+                .syncBody(body)
+                .retrieve()
+                .bodyToMono(String.class);
     }
 
     @PostMapping(
             path = "/api/v1/{namespace}/{projectName}/{number}/close",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> close(
+    public Mono<String> close(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             MergeRequestId mergeRequestId,
@@ -491,10 +453,10 @@ public class GitlabPrController {
                 reason
         );
 
-        Single<ResponseEntity<String>> noteResponse;
+        Mono<String> noteResponse;
 
         if (StringUtils.isEmpty(reason)) {
-            noteResponse = Single.just(ResponseEntity.ok("does not matter"));
+            noteResponse = Mono.just("does not matter");
         } else {
             noteResponse = postNote(
                     auth,
@@ -508,7 +470,7 @@ public class GitlabPrController {
                 .flatMap(ignored -> closeMergeRequest(auth, baseUrl, mergeRequestId));
     }
 
-    private Single<ResponseEntity<String>> closeMergeRequest(
+    private Mono<String> closeMergeRequest(
             String auth,
             String baseUrl,
             MergeRequestId mergeRequestId
@@ -524,7 +486,7 @@ public class GitlabPrController {
             path ="/api/v1/{namespace}/{projectName}/{number}/merge",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> merge(
+    public Mono<String> merge(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             MergeRequestId mergeRequestId,
@@ -548,7 +510,7 @@ public class GitlabPrController {
             path = "/api/v1/{namespace}/{projectName}/{number}/approve",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Single<ResponseEntity<String>> approve(
+    public Mono<String> approve(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             MergeRequestId mergeRequestId,
