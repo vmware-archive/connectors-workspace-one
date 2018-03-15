@@ -8,6 +8,7 @@ package com.vmware.connectors.airwatch;
 import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,7 +69,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
     private final static String GREENBOX_BASE_URL = "https://herocard.vmwareidentity.com";
 
     @BeforeEach
-    public void setup() throws Exception {
+    void init() throws Exception {
         super.setup();
         mockBackend = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
@@ -91,7 +92,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            " , success.json",
+            StringUtils.EMPTY + ", success.json",
             "xx;q=1.0, success_xx.json"})
     void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.android.boxer")

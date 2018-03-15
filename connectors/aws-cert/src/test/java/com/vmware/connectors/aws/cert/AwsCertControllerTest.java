@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,11 +43,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AwsCertControllerTest extends ControllerTestsBase {
 
 
-
     private MockRestServiceServer mockAws;
 
     @BeforeEach
-    public void setup() throws Exception {
+    void init() throws Exception {
         super.setup();
 
         mockAws = MockRestServiceServer.bindTo(requestHandlerHolder)
@@ -124,7 +124,7 @@ class AwsCertControllerTest extends ControllerTestsBase {
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @DisplayName("Card request success cases")
     @CsvSource({
-            "  , /awscert/responses/success/cards/card.json",
+            StringUtils.EMPTY + ", /awscert/responses/success/cards/card.json",
             "xx, /awscert/responses/success/cards/card_xx.json"})
     void testRequestCardsSuccess(String lang, String responseFile) throws Exception {
         trainAwsCertForCards();

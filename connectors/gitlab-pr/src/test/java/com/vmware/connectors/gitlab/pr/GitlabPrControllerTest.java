@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,7 +48,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
     private MockRestServiceServer mockGitlab;
 
     @BeforeEach
-    public void setup() throws Exception {
+    void init() throws Exception {
         super.setup();
 
         mockGitlab = MockRestServiceServer.bindTo(requestHandlerHolder)
@@ -201,7 +202,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            " , responses/success/cards/card.json",
+            StringUtils.EMPTY + ", responses/success/cards/card.json",
             "xx, responses/success/cards/card_xx.json"})
     void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         trainGitlabForCards();

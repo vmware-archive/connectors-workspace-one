@@ -8,6 +8,7 @@ package com.vmware.connectors.servicenow;
 import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,7 @@ class ServiceNowControllerTest extends ControllerTestsBase {
     private MockRestServiceServer mockServiceNow;
 
     @BeforeEach
-    public void setup() throws Exception {
+    void init() throws Exception {
         super.setup();
 
         mockServiceNow = MockRestServiceServer.bindTo(requestHandlerHolder)
@@ -161,7 +162,7 @@ class ServiceNowControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            " , /servicenow/responses/success/cards/card.json",
+            StringUtils.EMPTY + ", /servicenow/responses/success/cards/card.json",
             "xx, /servicenow/responses/success/cards/card_xx.json"})
     void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         trainServiceNowForCards();

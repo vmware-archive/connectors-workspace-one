@@ -78,7 +78,7 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
     private Resource pr246Activities;
 
     @BeforeEach
-    public void setup() throws Exception {
+    void init() throws Exception {
         super.setup();
 
         mockBitbucketServer = MockRestServiceServer.bindTo(requestHandlerHolder)
@@ -130,7 +130,7 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            " , success.json",
+            StringUtils.EMPTY + ", success.json",
             "xx, success_xx.json"})
     void testRequestCardsSuccess(String lang, String resFile) throws Exception {
         buildRequestForCards();

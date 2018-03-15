@@ -128,7 +128,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
     private MockRestServiceServer mockSF;
 
     @BeforeEach
-    public void setup() throws Exception {
+    void init() throws Exception {
         super.setup();
         mockSF = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
@@ -192,7 +192,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @DisplayName("Card request sender related accounts cases")
     @ParameterizedTest(name = "{index} ==> Language=''{1}''")
     @CsvSource({
-            "successRelatedAccounts.json, ",
+            "successRelatedAccounts.json, " + StringUtils.EMPTY,
             "successRelatedAccounts_xx.json, xx"})
     void testRequestCardRelatedAccountsSuccess(String resFile, String lang) throws Exception {
         /* In this case email sender details are not present in salesforce.

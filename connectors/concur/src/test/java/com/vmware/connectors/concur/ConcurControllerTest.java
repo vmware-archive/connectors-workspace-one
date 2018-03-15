@@ -63,7 +63,7 @@ class ConcurControllerTest extends ControllerTestsBase {
     private Resource rejected;
 
     @BeforeEach
-    public void setup() throws Exception {
+    void init() throws Exception {
         super.setup();
         this.mockConcur = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
@@ -111,7 +111,7 @@ class ConcurControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            " , success.json",
+            StringUtils.EMPTY + ", success.json",
             "xx, success_xx.json"})
     void testRequestCardsSuccess(String lang, String resFile) throws Exception {
         expect(REPORT_ID_1).andRespond(withSuccess(reportId1, APPLICATION_JSON));

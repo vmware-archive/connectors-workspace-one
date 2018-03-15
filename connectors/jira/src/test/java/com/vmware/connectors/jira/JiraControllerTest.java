@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ class JiraControllerTest extends ControllerTestsBase {
     private MockRestServiceServer mockJira;
 
     @BeforeEach
-    public void setup() throws Exception {
+    void init() throws Exception {
         super.setup();
         mockJira = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
@@ -132,7 +133,7 @@ class JiraControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            " , success.json",
+            StringUtils.EMPTY + ", success.json",
             "xx, success_xx.json"})
     void testRequestCardsSuccess(String lang, String resFile) throws Exception {
         expect("APF-27").andRespond(withSuccess(apf27, APPLICATION_JSON));
