@@ -3,6 +3,7 @@
   "backend_base_url_header": "x-gitlab-pr-base-url",
   "fields": {
     "merge_request_urls": {
+      "capture_group": 1,
       "regex": "(https://gitlab.com/[a-zA-Z0-9-]+/[a-zA-Z0-9._-]+/merge_requests/[0-9]+)"
     }
   }

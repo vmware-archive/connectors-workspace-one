@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -161,18 +162,19 @@ public class ControllerTestsBase {
             Map<String, Object> fields = (Map<String, Object>) results.get("fields");
             Map<String, Object> tokenDefinition = (Map<String, Object>) fields.get(tokenProperty);
             String regex = (String) tokenDefinition.get("regex");
-            verifyRegex(regex, emailInput, expected);
+            Integer captureGroup = (Integer) tokenDefinition.get("capture_group");
+            verifyRegex(regex, captureGroup, emailInput, expected);
         });
     }
 
-    private void verifyRegex(String regex, String emailInput, List<String> expected) throws Exception {
+    private void verifyRegex(String regex, Integer captureGroup, String emailInput, List<String> expected) throws Exception {
         Pattern pattern = Pattern.compile(regex);
 
         List<String> results = new ArrayList<>();
         for (String line : emailInput.split("\\n")) {
             Matcher matcher = pattern.matcher("\n" + line);
             while (matcher.find()) {
-                results.add(matcher.group(1));
+                results.add(matcher.group(Optional.ofNullable(captureGroup).orElse(0)));
             }
         }
 

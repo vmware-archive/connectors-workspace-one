@@ -3,6 +3,7 @@
   "backend_base_url_header": "x-github-pr-base-url",
   "fields": {
     "pull_request_urls": {
+      "capture_group": 1,
       "regex": "(https://github.com/[a-zA-Z0-9-]+/[a-zA-Z0-9._-]+/pull/[0-9]+)"
     }
   }
