@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.test.web.client.ResponseActions;
@@ -63,11 +64,13 @@ class JiraControllerTest extends ControllerTestsBase {
         mockJira = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
 
-    @Test
-    void testProtectedResource() throws Exception {
-        testProtectedResource(POST, "/cards/requests");
-        testProtectedResource(POST, "/api/v1/issues/1234/comment");
-        testProtectedResource(POST, "/api/v1/issues/1234/watchers");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/cards/requests",
+            "/api/v1/issues/1234/comment",
+            "/api/v1/issues/1234/watchers"})
+    void testProtectedResource(String uri) throws Exception {
+        testProtectedResource(POST, uri);
     }
 
     @Test

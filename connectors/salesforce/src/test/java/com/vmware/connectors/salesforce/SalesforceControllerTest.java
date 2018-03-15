@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -74,6 +75,8 @@ class SalesforceControllerTest extends ControllerTestsBase {
 
 
     private static final String SERVER_URL = "https://acme.salesforce.com";
+
+    private static final String TRAVIS_ACCOUNT_ID = "0014100000Vc2iPAAR";
 
     private static final String ACCOUNT_SEARCH_PATH = "services/data/v20.0/query";
 
@@ -133,9 +136,12 @@ class SalesforceControllerTest extends ControllerTestsBase {
         mockSF = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
 
-    @Test
-    void testProtectedResource() throws Exception {
-        testProtectedResource(POST, "/cards/requests");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/cards/requests",
+            "/accounts/" + TRAVIS_ACCOUNT_ID + "/contacts"})
+    void testProtectedResource(String uri) throws Exception {
+        testProtectedResource(POST, uri);
     }
 
     @Test
@@ -255,7 +261,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess());
-        perform(requestAddContact("abc", "0014100000Vc2iPAAR", "/salesforce/request/contact.txt"))
+        perform(requestAddContact("abc", TRAVIS_ACCOUNT_ID, "/salesforce/request/contact.txt"))
                 .andExpect(status().isOk());
         mockSF.verify();
     }

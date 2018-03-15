@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
@@ -54,10 +55,12 @@ class AwsCertControllerTest extends ControllerTestsBase {
                 .build();
     }
 
-    @Test
-    void testProtectedResource() throws Exception {
-        testProtectedResource(POST, "/cards/requests");
-        testProtectedResource(POST, "/api/v1/approve");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/cards/requests",
+            "/api/v1/approve"})
+    void testProtectedResource(String uri) throws Exception {
+        testProtectedResource(POST, uri);
     }
 
     @Test

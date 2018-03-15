@@ -19,6 +19,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -86,13 +87,15 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .build();
     }
 
-    @Test
-    void testProtectedResources() throws Exception {
-        testProtectedResource(POST, "/cards/requests");
-        testProtectedResource(POST, "/api/v1/UFO/app-platform-server/249/approve");
-        testProtectedResource(POST, "/api/v1/UFO/app-platform-server/249/merge");
-        testProtectedResource(POST, "/api/v1/UFO/app-platform-server/249/comments");
-        testProtectedResource(POST, "/api/v1/UFO/app-platform-server/249/decline");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/cards/requests",
+            "/api/v1/UFO/app-platform-server/249/approve",
+            "/api/v1/UFO/app-platform-server/249/merge",
+            "/api/v1/UFO/app-platform-server/249/comments",
+            "/api/v1/UFO/app-platform-server/249/decline"})
+    void testProtectedResources(String uri) throws Exception {
+        testProtectedResource(POST, uri);
     }
 
     @Test
@@ -193,7 +196,7 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
         this.mockBitbucketServer.verify();
     }
 
-    private Stream<Arguments> actionProvider(){
+    private Stream<Arguments> actionProvider() {
         String approveUrl = "/api/v1/UFO/app-platform-server/236/approve";
         String declineUrl = "/api/v1/UFO/app-platform-server/236/decline";
         String mergeUrl = "/api/v1/UFO/app-platform-server/236/merge";

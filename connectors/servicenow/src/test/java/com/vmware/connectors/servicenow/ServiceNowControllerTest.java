@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.ResultActions;
@@ -51,11 +52,13 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 .build();
     }
 
-    @Test
-    void testProtectedResource() throws Exception {
-        testProtectedResource(POST, "/cards/requests");
-        testProtectedResource(POST, "/api/v1/tickets/1234/approve");
-        testProtectedResource(POST, "/api/v1/tickets/1234/reject");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/cards/requests",
+            "/api/v1/tickets/1234/approve",
+            "/api/v1/tickets/1234/reject"})
+    void testProtectedResource(String uri) throws Exception {
+        testProtectedResource(POST, uri);
     }
 
     @Test

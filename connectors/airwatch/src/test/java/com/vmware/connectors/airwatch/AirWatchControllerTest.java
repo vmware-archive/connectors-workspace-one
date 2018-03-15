@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -74,9 +75,12 @@ class AirWatchControllerTest extends ControllerTestsBase {
         mockBackend = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
 
-    @Test
-    void testProtectedResource() throws Exception {
-        testProtectedResource(POST, "/cards/requests");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/cards/requests",
+            "/mdm/app/install"})
+    void testProtectedResource(String uri) throws Exception {
+        testProtectedResource(POST, uri);
     }
 
     @Test

@@ -68,11 +68,13 @@ class ConcurControllerTest extends ControllerTestsBase {
         this.mockConcur = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
 
-    @Test
-    void testProtectedResources() throws Exception {
-        testProtectedResource(POST, "/cards/requests");
-        testProtectedResource(POST, "/api/expense/approve/" + REPORT_ID_1);
-        testProtectedResource(POST, "/api/expense/reject/" + REPORT_ID_2);
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/cards/requests",
+            "/api/expense/approve/" + REPORT_ID_1,
+            "/api/expense/reject/" + REPORT_ID_2})
+    void testProtectedResources(String uri) throws Exception {
+        testProtectedResource(POST, uri);
     }
 
     @Test
