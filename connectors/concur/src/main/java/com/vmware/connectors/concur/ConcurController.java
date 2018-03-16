@@ -185,8 +185,8 @@ public class ConcurController {
             CardAction.Builder approveActionBuilder = getApproveActionBuilder(expenseReportId, routingPrefix, locale);
             CardAction.Builder rejectActionBuilder = getRejectActionBuilder(expenseReportId, routingPrefix, locale);
 
-            cardBuilder.addAction(approveActionBuilder.build());
             cardBuilder.addAction(rejectActionBuilder.build());
+            cardBuilder.addAction(approveActionBuilder.build());
         }
         return cardBuilder.build();
     }
