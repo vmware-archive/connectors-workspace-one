@@ -9,16 +9,19 @@ import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.List;
 
@@ -44,14 +47,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class GithubPrControllerTests extends ControllerTestsBase {
+class GithubPrControllerTest extends ControllerTestsBase {
 
     private static final String GITHUB_AUTH_TOKEN = "test-auth-token";
 
     private MockRestServiceServer mockGithub;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void init() throws Exception {
         super.setup();
 
         mockGithub = MockRestServiceServer.bindTo(requestHandlerHolder)
@@ -59,28 +62,30 @@ public class GithubPrControllerTests extends ControllerTestsBase {
                 .build();
     }
 
-    @After
-    public void teardown() throws Exception {
+    @AfterEach
+    void teardown() throws Exception {
         mockGithub.verify();
     }
 
-    @Test
-    public void testProtectedResource() throws Exception {
-        testProtectedResource(POST, "/cards/requests");
-        testProtectedResource(POST, "/api/v1/test-owner/test-repo/1234/close");
-        testProtectedResource(POST, "/api/v1/test-owner/test-repo/1234/merge");
-        testProtectedResource(POST, "/api/v1/test-owner/test-repo/1234/approve");
-        testProtectedResource(POST, "/api/v1/test-owner/test-repo/1234/comment");
-        testProtectedResource(POST, "/api/v1/test-owner/test-repo/1234/request-changes");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/cards/requests",
+            "/api/v1/test-owner/test-repo/1234/close",
+            "/api/v1/test-owner/test-repo/1234/merge",
+            "/api/v1/test-owner/test-repo/1234/approve",
+            "/api/v1/test-owner/test-repo/1234/comment",
+            "/api/v1/test-owner/test-repo/1234/request-changes"})
+    void testProtectedResource(String uri) throws Exception {
+        testProtectedResource(POST, uri);
     }
 
     @Test
-    public void testDiscovery() throws Exception {
+    void testDiscovery() throws Exception {
         testConnectorDiscovery();
     }
 
     @Test
-    public void testRegex() throws Exception {
+    void testRegex() throws Exception {
         List<String> expected = ImmutableList.of(
                 /*
                  * There are 3 links because of the patch and diff links.  The
@@ -206,7 +211,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    public void testRequestCardsUnauthorized() throws Exception {
+    void testRequestCardsUnauthorized() throws Exception {
         mockGithub.expect(ExpectedCount.manyTimes(), requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
@@ -216,23 +221,27 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsAuthHeaderMissing() throws Exception {
+    void testRequestCardsAuthHeaderMissing() throws Exception {
         requestCards(null, fromFile("requests/valid/cards/card.json"))
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    public void testRequestCardsSuccess() throws Exception {
+    @DisplayName("Card request success cases")
+    @ParameterizedTest(name = "{index} ==> Language=''{0}''")
+    @CsvSource({
+            StringUtils.EMPTY + ", responses/success/cards/card.json",
+            "xx, responses/success/cards/card_xx.json"})
+    void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         trainGithubForCards();
 
-        requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"))
+        requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"), acceptLanguage)
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(
                         content().string(
                                 JsonReplacementsBuilder
-                                        .from(fromFile("responses/success/cards/card.json"))
+                                        .from(fromFile(responseFile))
                                         .buildForCards()
                         )
                 );
@@ -261,24 +270,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsLanguageXxSuccess() throws Exception {
-        trainGithubForCards();
-
-        requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"), "xx")
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(
-                        content().string(
-                                JsonReplacementsBuilder
-                                        .from(fromFile("responses/success/cards/card_xx.json"))
-                                        .buildForCards()
-                        )
-                );
-    }
-
-    @Test
-    public void testRequestCardsEmptyPrUrlsSuccess() throws Exception {
+    void testRequestCardsEmptyPrUrlsSuccess() throws Exception {
         requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/empty-pr-urls.json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -293,25 +285,20 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsMissingPrUrlsSuccess() throws Exception {
+    void testRequestCardsMissingPrUrls() throws Exception {
         requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/missing-pr-urls.json"))
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    public void testRequestCardsEmptyTokens() throws Exception {
-        requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/invalid/cards/empty-tokens.json"))
+    @DisplayName("Card request invalid token cases")
+    @ParameterizedTest(name = "{index} ==> ''{0}''")
+    @CsvSource({"requests/invalid/cards/empty-tokens.json, responses/error/cards/empty-tokens.json",
+            "requests/invalid/cards/missing-tokens.json, responses/error/cards/missing-tokens.json"})
+    void testRequestCardsInvalidTokens(String reqFile, String resFile) throws Exception {
+        requestCards(GITHUB_AUTH_TOKEN, fromFile(reqFile))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("responses/error/cards/empty-tokens.json"), false));
-    }
-
-    @Test
-    public void testRequestCardsMissingTokens() throws Exception {
-        requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/invalid/cards/missing-tokens.json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("responses/error/cards/missing-tokens.json"), false));
+                .andExpect(content().json(fromFile(resFile), false));
     }
 
     /////////////////////////////
@@ -319,7 +306,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    public void testApproveActionUnauthorized() throws Exception {
+    void testApproveActionUnauthorized() throws Exception {
         mockGithub.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
@@ -329,13 +316,13 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testApproveAuthHeaderMissing() throws Exception {
+    void testApproveAuthHeaderMissing() throws Exception {
         approve(null)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testApproveActionSuccess() throws Exception {
+    void testApproveActionSuccess() throws Exception {
         String fakeResponse = fromFile("fake/actions/approve/success.json");
 
         String expected = fromFile("responses/actions/approve/success.json");
@@ -355,7 +342,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testApproveActionFailed() throws Exception {
+    void testApproveActionFailed() throws Exception {
         String fakeResponse = fromFile("fake/actions/approve/failed.json");
 
         String expected = fromFile("responses/actions/approve/failed.json");
@@ -384,7 +371,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    public void testCloseActionUnauthorized() throws Exception {
+    void testCloseActionUnauthorized() throws Exception {
         mockGithub.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
@@ -394,13 +381,13 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testCloseAuthHeaderMissing() throws Exception {
+    void testCloseAuthHeaderMissing() throws Exception {
         close(null, "test-close-reason")
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testCloseActionSuccess() throws Exception {
+    void testCloseActionSuccess() throws Exception {
         String fakeCommentResponse = fromFile("fake/actions/close/comment-success.json");
 
         mockGithub.expect(requestTo("https://api.github.com/repos/vmware/test-repo/pulls/99/reviews"))
@@ -428,7 +415,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testCloseActionNoReasonSuccess() throws Exception {
+    void testCloseActionNoReasonSuccess() throws Exception {
         String fakeResponse = fromFile("fake/actions/close/close-success-no-reason.json");
 
         mockGithub.expect(requestTo("https://api.github.com/repos/vmware/test-repo/pulls/99"))
@@ -446,7 +433,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testCloseActionCommentFailed() throws Exception {
+    void testCloseActionCommentFailed() throws Exception {
         String fakeResponse = fromFile("fake/actions/close/comment-failed.json");
 
         mockGithub.expect(requestTo("https://api.github.com/repos/vmware/test-repo/pulls/99/reviews"))
@@ -470,7 +457,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testCloseActionCloseFailed() throws Exception {
+    void testCloseActionCloseFailed() throws Exception {
         String fakeCommentResponse = fromFile("fake/actions/close/comment-success.json");
 
         mockGithub.expect(requestTo("https://api.github.com/repos/vmware/test-repo/pulls/99/reviews"))
@@ -507,7 +494,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    public void testCommentActionUnauthorized() throws Exception {
+    void testCommentActionUnauthorized() throws Exception {
         mockGithub.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
@@ -517,13 +504,13 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testCommentAuthHeaderMissing() throws Exception {
+    void testCommentAuthHeaderMissing() throws Exception {
         comment(null, "test-comment")
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testCommentActionSuccess() throws Exception {
+    void testCommentActionSuccess() throws Exception {
         String fakeResponse = fromFile("fake/actions/comment/success.json");
 
         String expected = fromFile("responses/actions/comment/success.json");
@@ -542,13 +529,13 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testCommentActionMissingComment() throws Exception {
+    void testCommentActionMissingComment() throws Exception {
         comment(GITHUB_AUTH_TOKEN, null)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testCommentActionFailed() throws Exception {
+    void testCommentActionFailed() throws Exception {
         String fakeResponse = fromFile("fake/actions/comment/failed.json");
 
         String expected = fromFile("responses/actions/comment/failed.json");
@@ -576,7 +563,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    public void testRequestChangesActionUnauthorized() throws Exception {
+    void testRequestChangesActionUnauthorized() throws Exception {
         mockGithub.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
@@ -586,13 +573,13 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestChangesAuthHeaderMissing() throws Exception {
+    void testRequestChangesAuthHeaderMissing() throws Exception {
         requestChanges(null, "test-request-changes")
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testRequestChangesActionSuccess() throws Exception {
+    void testRequestChangesActionSuccess() throws Exception {
         String fakeResponse = fromFile("fake/actions/request-changes/success.json");
 
         String expected = fromFile("responses/actions/request-changes/success.json");
@@ -611,13 +598,13 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestChangesActionMissingRequestChanges() throws Exception {
+    void testRequestChangesActionMissingRequestChanges() throws Exception {
         requestChanges(GITHUB_AUTH_TOKEN, null)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testRequestChangesActionFailed() throws Exception {
+    void testRequestChangesActionFailed() throws Exception {
         String fakeResponse = fromFile("fake/actions/request-changes/failed.json");
 
         String expected = fromFile("responses/actions/request-changes/failed.json");
@@ -645,7 +632,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    public void testMergeActionUnauthorized() throws Exception {
+    void testMergeActionUnauthorized() throws Exception {
         mockGithub.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
@@ -655,19 +642,19 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testMergeAuthHeaderMissing() throws Exception {
+    void testMergeAuthHeaderMissing() throws Exception {
         merge(null, "test-sha")
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testMergeActionMissingSha() throws Exception {
+    void testMergeActionMissingSha() throws Exception {
         merge(GITHUB_AUTH_TOKEN, null)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void testMergeActionSuccess() throws Exception {
+    void testMergeActionSuccess() throws Exception {
         String fakeResponse = fromFile("fake/actions/merge/success.json");
 
         String expected = fromFile("responses/actions/merge/success.json");
@@ -685,7 +672,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testMergeActionFailed() throws Exception {
+    void testMergeActionFailed() throws Exception {
         String fakeResponse = fromFile("fake/actions/merge/failed.json");
 
         String expected = fromFile("responses/actions/merge/failed.json");

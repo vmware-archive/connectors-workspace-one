@@ -8,6 +8,7 @@
       "env": "DEVICE_SYSTEM_NAME"
     },
     "app_keywords": {
+      "capture_group": 1,
       "regex": "(CONNECTOR_REGEX)"
     }
   }

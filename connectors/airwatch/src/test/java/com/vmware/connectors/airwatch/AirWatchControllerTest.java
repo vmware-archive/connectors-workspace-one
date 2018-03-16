@@ -8,8 +8,13 @@ package com.vmware.connectors.airwatch;
 import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -39,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Created by harshas on 9/20/17.
  */
 @TestPropertySource(locations = {"classpath:app.properties"})
-public class AirWatchControllerTests extends ControllerTestsBase {
+class AirWatchControllerTest extends ControllerTestsBase {
 
     @Value("classpath:airwatch/responses/awAppInstalled.json")
     private Resource awAppInstalled;
@@ -64,19 +69,22 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     private final static String AIRWATCH_BASE_URL = "https://air-watch.acme.com";
     private final static String GREENBOX_BASE_URL = "https://herocard.vmwareidentity.com";
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void init() throws Exception {
         super.setup();
         mockBackend = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
 
-    @Test
-    public void testProtectedResource() throws Exception {
-        testProtectedResource(POST, "/cards/requests");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/cards/requests",
+            "/mdm/app/install"})
+    void testProtectedResource(String uri) throws Exception {
+        testProtectedResource(POST, uri);
     }
 
     @Test
-    public void testDiscovery() throws Exception {
+    void testDiscovery() throws Exception {
         perform(request(GET, "/"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().json(fromFile("/connector/responses/discovery.json")));
@@ -85,28 +93,21 @@ public class AirWatchControllerTests extends ControllerTestsBase {
                 .andExpect(content().json(fromFile("/connector/responses/metadata.json")));
     }
 
-    @Test
-    public void testRequestCardsSuccess() throws Exception {
+    @DisplayName("Card request success cases")
+    @ParameterizedTest(name = "{index} ==> Language=''{0}''")
+    @CsvSource({
+            StringUtils.EMPTY + ", success.json",
+            "xx;q=1.0, success_xx.json"})
+    void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.android.boxer")
                 .andRespond(withSuccess(awAppNotInstalled, APPLICATION_JSON));
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.concur.breeze")
                 .andRespond(withSuccess(awAppInstalled, APPLICATION_JSON));
-        testRequestCards("request.json", "success.json", null);
-        mockBackend.verify();
+        testRequestCards("request.json", responseFile, acceptLanguage);
     }
 
     @Test
-    public void testRequestCardsSuccessI18n() throws Exception {
-        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.android.boxer")
-                .andRespond(withSuccess(awAppNotInstalled, APPLICATION_JSON));
-        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.concur.breeze")
-                .andRespond(withSuccess(awAppInstalled, APPLICATION_JSON));
-        testRequestCards("request.json", "success_xx.json", "xx;q=1.0");
-        mockBackend.verify();
-    }
-
-    @Test
-    public void testInstallAction() throws Exception {
+    void testInstallAction() throws Exception {
 
         expectGBSessionRequests();
 
@@ -135,7 +136,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testMissingRequestHeaders() throws Exception {
+    void testMissingRequestHeaders() throws Exception {
         perform(post("/cards/requests").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
@@ -145,24 +146,19 @@ public class AirWatchControllerTests extends ControllerTestsBase {
                 .andExpect(status().reason(containsString("Missing request header 'x-airwatch-base-url'")));
     }
 
-    @Test
-    public void testRequestEmptyAppName() throws Exception {
-        testRequestCards("emptyAppName.json", "emptyCard.json", null);
-    }
-
-    /*
-    No card is returned for client requesting for unmanaged apps.
-     */
-    @Test
-    public void testRequestBogusAppName() throws Exception {
-        testRequestCards("bogusAppName.json", "emptyCard.json", null);
+    @ParameterizedTest
+    @CsvSource({
+            "emptyAppName.json, emptyCard.json",
+            "bogusAppName.json, emptyCard.json"})
+    void testRequestInvalidAppName(String requestFile, String responseFile) throws Exception {
+        testRequestCards(requestFile, responseFile, null);
     }
 
     /*
      * User might try to check someone else's app status.
      */
     @Test
-    public void testRequestCardsForbidden() throws Exception {
+    void testRequestCardsForbidden() throws Exception {
         mockBackend.expect(times(1), requestTo(any(String.class)))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + accessToken()))
                 .andExpect(method(GET))
@@ -174,7 +170,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsOneServerError() throws Exception {
+    void testRequestCardsOneServerError() throws Exception {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.poison.pill")
                 .andRespond(withServerError());
         perform(requestCards("oneServerError.json"))
@@ -184,7 +180,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsInvalidUdid() throws Exception {
+    void testRequestCardsInvalidUdid() throws Exception {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=INVALID&BundleId=com.android.boxer")
                 .andRespond(withStatus(NOT_FOUND).body(fromFile("airwatch/responses/udidNotFound.json")));
         perform(requestCards("invalidUdid.json"))
@@ -193,7 +189,7 @@ public class AirWatchControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestForInvalidPlatform() throws Exception{
+    void testRequestForInvalidPlatform() throws Exception {
         perform(requestCards("invalidPlatform.json"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(fromFile("connector/responses/invalidPlatform.json")));

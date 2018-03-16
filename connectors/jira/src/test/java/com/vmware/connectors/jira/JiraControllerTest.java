@@ -6,60 +6,46 @@
 package com.vmware.connectors.jira;
 
 import com.google.common.collect.ImmutableList;
-import com.vmware.connectors.mock.MockClientHttpConnector;
 import com.vmware.connectors.mock.MockRestServiceServer;
-import com.vmware.connectors.mock.RequestHandler;
-import com.vmware.connectors.mock.RequestHandlerHolder;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientCodecCustomizer;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.http.client.reactive.ClientHttpResponse;
-import org.springframework.mock.http.client.reactive.MockClientHttpRequest;
-import org.springframework.mock.http.client.reactive.MockClientHttpResponse;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.client.AsyncRestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
-import java.util.function.Function;
 
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.http.HttpHeaders.*;
-import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.HEAD;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.ExpectedCount.times;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Created by Rob Worsnop on 12/9/16.
  */
-public class JiraControllerTests extends ControllerTestsBase {
+class JiraControllerTest extends ControllerTestsBase {
 
     @Value("classpath:jira/responses/APF-27.json")
     private Resource apf27;
@@ -72,26 +58,28 @@ public class JiraControllerTests extends ControllerTestsBase {
 
     private MockRestServiceServer mockJira;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void init() throws Exception {
         super.setup();
         mockJira = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
     }
 
-    @Test
-    public void testProtectedResource() throws Exception {
-        testProtectedResource(POST, "/cards/requests");
-        testProtectedResource(POST, "/api/v1/issues/1234/comment");
-        testProtectedResource(POST, "/api/v1/issues/1234/watchers");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/cards/requests",
+            "/api/v1/issues/1234/comment",
+            "/api/v1/issues/1234/watchers"})
+    void testProtectedResource(String uri) throws Exception {
+        testProtectedResource(POST, uri);
     }
 
     @Test
-    public void testDiscovery() throws Exception {
+    void testDiscovery() throws Exception {
         testConnectorDiscovery();
     }
 
     @Test
-    public void testRegex() throws Exception {
+    void testRegex() throws Exception {
         List<String> expected = ImmutableList.of(
                 "ABC-1",
                 "ABCDEFGHIJ-123",
@@ -127,30 +115,38 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestWithEmptyIssue() throws Exception {
+    void testRequestWithEmptyIssue() throws Exception {
         testRequestCards("emptyIssue.json", "emptyIssue.json", null);
     }
 
-    @Test
-    public void testRequestCardsWithEmptyToken() throws Exception {
-        testRequestCardsWithMissingParameter("emptyRequest.json", "emptyRequest.json");
+    @ParameterizedTest(name = "{index} ==> ''{0}''")
+    @DisplayName("Missing parameter cases")
+    @CsvSource({
+            "emptyRequest.json, emptyRequest.json",
+            "emptyToken.json, emptyToken.json"})
+    void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
+        MockHttpServletRequestBuilder builder = requestCards("abc", requestFile);
+
+        perform(builder)
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().json(fromFile("connector/responses/" + responseFile)));
     }
 
-    @Test
-    public void testRequestCardsEmpty() throws Exception {
-        testRequestCardsWithMissingParameter("emptyToken.json", "emptyToken.json");
-    }
-
-    @Test
-    public void testRequestCardsSuccess() throws Exception {
+    @DisplayName("Card request success cases")
+    @ParameterizedTest(name = "{index} ==> Language=''{0}''")
+    @CsvSource({
+            StringUtils.EMPTY + ", success.json",
+            "xx, success_xx.json"})
+    void testRequestCardsSuccess(String lang, String resFile) throws Exception {
         expect("APF-27").andRespond(withSuccess(apf27, APPLICATION_JSON));
         expect("APF-28").andRespond(withSuccess(apf28, APPLICATION_JSON));
-        testRequestCards("request.json", "success.json", null);
+        testRequestCards("request.json", resFile, lang);
         mockJira.verify();
     }
 
     @Test
-    public void testAuthSuccess() throws Exception {
+    void testAuthSuccess() throws Exception {
         mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
                 .andExpect(method(HEAD))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
@@ -165,7 +161,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testAuthFail() throws Exception {
+    void testAuthFail() throws Exception {
         mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
                 .andExpect(method(HEAD))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
@@ -184,7 +180,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     Give more priority to x-auth header if more than one request-headers are missing.
      */
     @Test
-    public void testMissingRequestHeaders() throws Exception {
+    void testMissingRequestHeaders() throws Exception {
         perform(post("/cards/requests").with(token(accessToken()))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
@@ -195,15 +191,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsSuccessI18n() throws Exception {
-        expect("APF-27").andRespond(withSuccess(apf27, APPLICATION_JSON));
-        expect("APF-28").andRespond(withSuccess(apf28, APPLICATION_JSON));
-        testRequestCards("request.json", "success_xx.json", "xx;q=1.0");
-        mockJira.verify();
-    }
-
-    @Test
-    public void testRequestCardsNotAuthorized() throws Exception {
+    void testRequestCardsNotAuthorized() throws Exception {
         mockJira.expect(times(1), requestTo(any(String.class)))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer bogus"))
                 .andExpect(method(GET))
@@ -217,7 +205,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsOneNotFound() throws Exception {
+    void testRequestCardsOneNotFound() throws Exception {
         expect("APF-27").andRespond(withSuccess(apf27, APPLICATION_JSON));
         expect("BOGUS-999").andRespond(withStatus(NOT_FOUND));
         perform(requestCards("abc", "oneCardNotFound.json"))
@@ -230,7 +218,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testRequestCardsOneServerError() throws Exception {
+    void testRequestCardsOneServerError() throws Exception {
         expect("POISON-PILL").andRespond(withServerError());
         perform(requestCards("abc", "oneServerError.json"))
                 .andExpect(status().is5xxServerError())
@@ -239,7 +227,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testAddComment() throws Exception {
+    void testAddComment() throws Exception {
         mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/issue/1234/comment"))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andExpect(method(POST))
@@ -256,7 +244,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testAddCommentWith401() throws Exception {
+    void testAddCommentWith401() throws Exception {
         perform(post("/api/v1/issues/1234/comment")
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header("x-jira-authorization", "Bearer abc")
@@ -268,7 +256,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testAddCommentWithMissingConnectorAuthorization() throws Exception {
+    void testAddCommentWithMissingConnectorAuthorization() throws Exception {
         perform(post("/api/v1/issues/1234/comment").with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header("x-jira-base-url", "https://jira.acme.com")
@@ -278,7 +266,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testAddCommentWithBackend401() throws Exception {
+    void testAddCommentWithBackend401() throws Exception {
         mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/issue/1234/comment"))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer bogus"))
                 .andExpect(method(POST))
@@ -296,7 +284,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testAddWatcher() throws Exception {
+    void testAddWatcher() throws Exception {
         mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andExpect(method(GET))
@@ -315,7 +303,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testAddWatcherWith401() throws Exception {
+    void testAddWatcherWith401() throws Exception {
         perform(post("/api/v1/issues/1234/watchers")
                 .header("x-jira-authorization", "Bearer abc")
                 .header("x-jira-base-url", "https://jira.acme.com"))
@@ -325,7 +313,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testAddWatcherWithMissingConnectorAuthorization() throws Exception {
+    void testAddWatcherWithMissingConnectorAuthorization() throws Exception {
         perform(post("/api/v1/issues/1234/watchers").with(token(accessToken()))
                 .header("x-jira-base-url", "https://jira.acme.com"))
                 .andExpect(status().isBadRequest());
@@ -333,7 +321,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testAddWatcherWithBackend401() throws Exception {
+    void testAddWatcherWithBackend401() throws Exception {
         mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer bogus"))
                 .andExpect(method(GET))
@@ -348,7 +336,7 @@ public class JiraControllerTests extends ControllerTestsBase {
     }
 
     @Test
-    public void testGetImage() throws Exception {
+    void testGetImage() throws Exception {
         perform(get("/images/connector.png"))
                 .andExpect(status().isOk())
                 .andExpect(header().longValue(CONTENT_LENGTH, 11851))
@@ -373,15 +361,6 @@ public class JiraControllerTests extends ControllerTestsBase {
                 .andExpect(content().string(isValidHeroCardConnectorResponse()))
                 .andExpect(content().string(JsonReplacementsBuilder.from(
                         fromFile("connector/responses/" + responseFile)).buildForCards()));
-    }
-
-    private void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("abc", requestFile);
-
-        perform(builder)
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("connector/responses/" + responseFile)));
     }
 
     private MockHttpServletRequestBuilder requestCards(String authToken, String requestfile) throws Exception {

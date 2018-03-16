@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.connectors.mock.MockClientHttpConnector;
 import com.vmware.connectors.mock.RequestHandlerHolder;
 import org.apache.commons.io.IOUtils;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientCodecCustomizer;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -35,12 +35,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.hamcrest.CoreMatchers.anything;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -53,7 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Created by Rob Worsnop on 12/1/16.
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-test.properties")
 @SpringBootTest
@@ -161,18 +162,19 @@ public class ControllerTestsBase {
             Map<String, Object> fields = (Map<String, Object>) results.get("fields");
             Map<String, Object> tokenDefinition = (Map<String, Object>) fields.get(tokenProperty);
             String regex = (String) tokenDefinition.get("regex");
-            verifyRegex(regex, emailInput, expected);
+            Integer captureGroup = (Integer) tokenDefinition.get("capture_group");
+            verifyRegex(regex, captureGroup, emailInput, expected);
         });
     }
 
-    private void verifyRegex(String regex, String emailInput, List<String> expected) throws Exception {
+    private void verifyRegex(String regex, Integer captureGroup, String emailInput, List<String> expected) throws Exception {
         Pattern pattern = Pattern.compile(regex);
 
         List<String> results = new ArrayList<>();
         for (String line : emailInput.split("\\n")) {
             Matcher matcher = pattern.matcher("\n" + line);
             while (matcher.find()) {
-                results.add(matcher.group(1));
+                results.add(matcher.group(Optional.ofNullable(captureGroup).orElse(0)));
             }
         }
 
