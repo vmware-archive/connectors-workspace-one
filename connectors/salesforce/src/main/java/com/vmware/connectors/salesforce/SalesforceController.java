@@ -16,6 +16,7 @@ import com.vmware.connectors.common.model.UserRecord;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
@@ -173,7 +175,8 @@ public class SalesforceController {
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
-            @Valid @RequestBody CardRequest cardRequest
+            @Valid @RequestBody CardRequest cardRequest,
+            final HttpServletRequest request
     ) {
         // Sender email and user email are required, and sender email has to at least have a non-final @ in it
         String sender = cardRequest.getTokenSingleValue("sender_email");
@@ -187,7 +190,8 @@ public class SalesforceController {
         }
 
          return retrieveContactInfos(auth, baseUrl, user, sender)
-                 .flatMap(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth, user, senderDomain, locale))
+                 .flatMap(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
+                         user, senderDomain, locale, request))
                  .map(this::toCards)
                  .map(ResponseEntity::ok)
                  .subscriberContext(Reactive.setupContext());
@@ -214,13 +218,15 @@ public class SalesforceController {
             String auth,
             String userEmail,
             String senderDomain,
-            Locale locale
+            Locale locale,
+            HttpServletRequest request
     ) {
         int contactsSize = contactDetails.read("$.totalSize");
         if (contactsSize > 0) {
             // Contact already exists in the salesforce account. Return a card to show the sender information.
             logger.debug("Returning contact info for email: {} ", senderEmail);
-            return makeCardFromContactDetails(auth, baseUrl, routingPrefix, userEmail, senderEmail, contactDetails, locale)
+            return makeCardFromContactDetails(auth, baseUrl, routingPrefix, userEmail,
+                    senderEmail, contactDetails, locale, request)
                     .map(ImmutableList::of);
         } else {
             // Contact doesn't exist in salesforce. Return a card to show accounts that are related to sender domain.
@@ -236,10 +242,11 @@ public class SalesforceController {
             String userEmail,
             String senderEmail,
             JsonDocument contactDetails,
-            Locale locale
+            Locale locale,
+            HttpServletRequest request
     ) {
         return retrieveOpportunities(auth, baseUrl, userEmail, senderEmail)
-                .map(body -> createUserDetailsCard(contactDetails, body, routingPrefix, locale));
+                .map(body -> createUserDetailsCard(contactDetails, body, routingPrefix, locale, request));
     }
 
     private Mono<JsonDocument> retrieveOpportunities(
@@ -261,7 +268,8 @@ public class SalesforceController {
             JsonDocument contactDetails,
             JsonDocument opportunityDetails,
             String routingPrefix,
-            Locale locale
+            Locale locale,
+            HttpServletRequest request
     ) {
         String contactName = contactDetails.read("$.records[0].Name");
         String contactPhNo = contactDetails.read("$.records[0].MobilePhone");
@@ -275,12 +283,16 @@ public class SalesforceController {
 
         addOpportunities(cardBodyBuilder, opportunityDetails, locale);
 
-        return new Card.Builder()
+        final Card.Builder card = new Card.Builder()
                 .setName("Salesforce") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(cardTextAccessor.getMessage("senderinfo.header", locale))
-                .setBody(cardBodyBuilder.build())
-                .build();
+                .setBody(cardBodyBuilder.build());
+
+        // Set image url.
+        CommonUtils.buildImageUrl(card, request);
+
+        return card.build();
     }
 
     private CardBodyField buildGeneralBodyField(

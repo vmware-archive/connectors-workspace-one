@@ -226,7 +226,10 @@
           "user_input": [],
           "completed_label": "Dismiss"
         }
-      ]
+      ],
+      "image": {
+        "href": "http://aws-cert-connector/images/connector.png"
+      }
     }
   ]
 }

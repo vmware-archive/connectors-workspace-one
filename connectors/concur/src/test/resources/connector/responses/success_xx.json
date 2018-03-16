@@ -138,7 +138,10 @@
           "completed_label": "OPEN",
           "allow_repeated":true
         }
-      ]
+      ],
+      "image": {
+        "href": "http://concur-connector/images/connector.png"
+      }
     }
   ]
 }

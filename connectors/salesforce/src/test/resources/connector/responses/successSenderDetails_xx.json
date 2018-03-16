@@ -68,6 +68,9 @@
             "description": "$100.0"
           }
         ]
+      },
+      "image": {
+        "href": "http://salesforce-connector/images/connector.png"
       }
     }
   ]

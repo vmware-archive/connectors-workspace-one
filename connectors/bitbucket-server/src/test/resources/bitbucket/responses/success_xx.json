@@ -176,7 +176,10 @@
           "user_input": [],
           "completed_label": "MERGED"
         }
-      ]
+      ],
+      "image": {
+        "href": "http://bitbucket-connector/images/connector.png"
+      }
     }
   ]
 }

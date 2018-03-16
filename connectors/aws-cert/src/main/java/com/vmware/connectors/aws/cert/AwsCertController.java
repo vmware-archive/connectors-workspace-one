@@ -8,6 +8,7 @@ package com.vmware.connectors.aws.cert;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
@@ -30,6 +31,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -75,18 +77,19 @@ public class AwsCertController {
     public Mono<Cards> getCards(
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             final Locale locale,
-            @Valid @RequestBody CardRequest request
-    ) {
-        logger.trace("getCards called, routingPrefix={}, request={}", routingPrefix, request);
+            @Valid @RequestBody CardRequest cardRequest,
+            final HttpServletRequest request
+            ) {
+        logger.trace("getCards called, routingPrefix={}, request={}", routingPrefix, cardRequest);
 
-         return Flux.fromStream(validateUrls(request.getTokens("approval_urls")))
+         return Flux.fromStream(validateUrls(cardRequest.getTokens("approval_urls")))
                  .sort()
                  .flatMap(this::callForCardInfo)
                  .filter(pair -> pair.getRight().getStatusCode().is2xxSuccessful())
                  .map(this::parseCardInfoOutOfResponse)
                  .reduce(
                          new Cards(),
-                         (cards, info) -> appendCard(cards, info, routingPrefix, locale)
+                         (cards, info) -> appendCard(cards, info, routingPrefix, locale, request)
                  )
                  .defaultIfEmpty(new Cards())
                  .subscriberContext(Reactive.setupContext());
@@ -216,11 +219,15 @@ public class AwsCertController {
         return formParams;
     }
 
-    private Cards appendCard(Cards cards, AwsCertCardInfo info, String routingPrefix, Locale locale) {
+    private Cards appendCard(Cards cards,
+                             AwsCertCardInfo info,
+                             String routingPrefix,
+                             Locale locale,
+                             HttpServletRequest request) {
         logger.trace("appendCard called: info={}, routingPrefix={}", info, routingPrefix);
 
         cards.getCards()
-                .add(makeCard(info, routingPrefix, locale));
+                .add(makeCard(info, routingPrefix, locale, request));
 
         return cards;
     }
@@ -228,7 +235,8 @@ public class AwsCertController {
     private Card makeCard(
             AwsCertCardInfo info,
             String routingPrefix,
-            Locale locale
+            Locale locale,
+            HttpServletRequest request
     ) {
         logger.trace("makeCard called: info={}, routingPrefix={}", info, routingPrefix);
 
@@ -248,7 +256,7 @@ public class AwsCertController {
 
         info.getFormParams().forEach(approveAction::addRequestParam);
 
-        return new Card.Builder()
+        final Card.Builder card = new Card.Builder()
                 .setName("AwsCert") // TODO - remove this in APF-536
                 .setCreationDate(OffsetDateTime.now())
                 /*
@@ -305,8 +313,12 @@ public class AwsCertController {
                                 .build()
                 )
                 .addAction(approveAction.build())
-                .addAction(dismissAction.build())
-                .build();
+                .addAction(dismissAction.build());
+
+        // Set Image url.
+        CommonUtils.buildImageUrl(card, request);
+
+        return card.build();
     }
 
     @PostMapping(

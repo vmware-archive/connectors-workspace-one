@@ -10,6 +10,7 @@ import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.ResultActions;
@@ -82,6 +83,7 @@ public class ServiceNowControllerTests extends ControllerTestsBase {
                 .accept(APPLICATION_JSON)
                 .header("x-servicenow-base-url", "https://snow.acme.com")
                 .header("x-routing-prefix", "https://hero/connectors/servicenow/")
+                .header(HttpHeaders.HOST, "servicenow-connector")
                 .content(fromFile("/servicenow/requests/" + requestFile));
 
         if (authToken != null) {

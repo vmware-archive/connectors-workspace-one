@@ -13,6 +13,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.List;
@@ -70,7 +72,8 @@ public class BitbucketServerController {
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
             final Locale locale,
-            @Valid @RequestBody final CardRequest cardRequest) {
+            @Valid @RequestBody final CardRequest cardRequest,
+            final HttpServletRequest request) {
 
         logger.trace("Cards requests for bitbucket server connector - baseUrlHeader: {}, routingPrefix: {}",
                 baseUrl,
@@ -82,7 +85,7 @@ public class BitbucketServerController {
         final Set<BitbucketServerPullRequest> pullRequests = convertToBitbucketServerPR(cardTokens);
 
         return Flux.fromIterable(pullRequests)
-                .flatMap(pullRequest -> getCardForBitbucketServerPR(authHeader, pullRequest, baseUrl, routingPrefix, locale))
+                .flatMap(pullRequest -> getCardForBitbucketServerPR(authHeader, pullRequest, baseUrl, routingPrefix, locale, request))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .defaultIfEmpty(new Cards())
                 .subscriberContext(Reactive.setupContext());
@@ -226,10 +229,11 @@ public class BitbucketServerController {
     }
 
     private Flux<Card> getCardForBitbucketServerPR(final String authHeader,
-                                                     final BitbucketServerPullRequest pullRequest,
-                                                     final String baseUrl,
-                                                     final String routingPrefix,
-                                                     final Locale locale) {
+                                                   final BitbucketServerPullRequest pullRequest,
+                                                   final String baseUrl,
+                                                   final String routingPrefix,
+                                                   final Locale locale,
+                                                   final HttpServletRequest request) {
         logger.debug("Requesting pull request info from bitbucket server base url: {} and pull request info: {}", baseUrl, pullRequest);
 
         final Mono<JsonDocument> bitBucketServerResponse = getPullRequestInfo(authHeader, pullRequest, baseUrl);
@@ -238,7 +242,7 @@ public class BitbucketServerController {
         return Mono.zip(bitBucketServerResponse, comments, Pair::of)
                 .flux()
                 .onErrorResume(Reactive::skipOnNotFound)
-                .map(pair -> convertResponseIntoCard(pair.getLeft(), pullRequest, routingPrefix, pair.getRight(), locale));
+                .map(pair -> convertResponseIntoCard(pair.getLeft(), pullRequest, routingPrefix, pair.getRight(), locale, request));
     }
 
     private Mono<JsonDocument> getPullRequestInfo(final String authHeader,
@@ -256,7 +260,8 @@ public class BitbucketServerController {
                                          final BitbucketServerPullRequest pullRequest,
                                          final String routingPrefix,
                                          final List<String> comments,
-                                         final Locale locale) {
+                                         final Locale locale,
+                                         final HttpServletRequest request) {
         final boolean isPROpen = OPEN.equalsIgnoreCase(bitBucketServerResponse.read("$.state"));
 
         final Card.Builder card = new Card.Builder()
@@ -269,6 +274,10 @@ public class BitbucketServerController {
                 )
                 .setBody(makeCardBody(bitBucketServerResponse, comments, locale));
 
+        // Set image url to card response.
+        CommonUtils.buildImageUrl(card, request);
+
+        // Add comment action.
         addCommentAction(card, routingPrefix, pullRequest, locale);
 
         // Add the following actions, only if the pull request state is open.

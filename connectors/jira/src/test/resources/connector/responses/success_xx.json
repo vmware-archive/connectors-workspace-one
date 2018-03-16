@@ -193,7 +193,10 @@
           "user_input": [],
           "completed_label": "WATCHING"
         }
-      ]
+      ],
+      "image": {
+        "href": "http://jira-connector/images/connector.png"
+      }
     }
   ]
 }

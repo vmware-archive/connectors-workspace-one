@@ -280,7 +280,10 @@
           ],
           "completed_label": "Commented"
         }
-      ]
+      ],
+      "image": {
+        "href": "http://gitlab-pr-connector/images/connector.png"
+      }
     }
   ]
 }

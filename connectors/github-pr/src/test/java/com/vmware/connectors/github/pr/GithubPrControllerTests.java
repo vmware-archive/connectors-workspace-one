@@ -13,6 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
@@ -117,6 +118,7 @@ public class GithubPrControllerTests extends ControllerTestsBase {
                 .accept(APPLICATION_JSON)
                 .header("x-github-pr-base-url", "https://api.github.com")
                 .header("x-routing-prefix", "https://hero/connectors/github-pr/")
+                .header(HttpHeaders.HOST, "github-pr-connector")
                 .content(content);
 
         if (authToken != null) {

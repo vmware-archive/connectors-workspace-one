@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
@@ -282,7 +283,9 @@ public class BitbucketServerControllerTest extends ControllerTestsBase {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header(AUTH_HEADER, "Basic " + authToken)
+                .param("scheme", "https")
                 .header(BASE_URL_HEADER, "https://stash.air-watch.com")
+                .header(HttpHeaders.HOST, "bitbucket-connector")
                 .header(ROUTING_PREFIX, "https://hero/connectors/stash/")
                 .content(fromFile("/bitbucket/requests/" + requestFile));
     }

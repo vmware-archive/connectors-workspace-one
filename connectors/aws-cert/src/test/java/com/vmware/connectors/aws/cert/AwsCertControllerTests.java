@@ -11,6 +11,7 @@ import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.ResultActions;
@@ -87,6 +88,7 @@ public class AwsCertControllerTests extends ControllerTestsBase {
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/aws-cert/")
+                .header(HttpHeaders.HOST, "aws-cert-connector")
                 .content(fromFile("/awscert/requests/" + requestFile));
 
         if (language != null) {

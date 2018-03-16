@@ -151,7 +151,10 @@
             }
           ]
         }
-      ]
+      ],
+      "image": {
+        "href": "http://servicenow-connector/images/connector.png"
+      }
     }
   ]
 }

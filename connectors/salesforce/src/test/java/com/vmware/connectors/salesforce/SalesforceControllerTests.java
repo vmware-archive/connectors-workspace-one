@@ -373,6 +373,7 @@ public class SalesforceControllerTests extends ControllerTestsBase {
                 .header("x-salesforce-authorization", "Bearer " + authToken)
                 .header("x-salesforce-base-url", SERVER_URL)
                 .header("x-routing-prefix", "https://hero/connectors/salesforce/")
+                .header(HttpHeaders.HOST, "salesforce-connector")
                 .content(fromFile(filePath));
     }
 

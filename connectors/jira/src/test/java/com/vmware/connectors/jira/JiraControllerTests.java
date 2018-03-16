@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ClientHttpRequest;
@@ -391,6 +392,7 @@ public class JiraControllerTests extends ControllerTestsBase {
                 .header("x-jira-authorization", "Bearer " + authToken)
                 .header("x-jira-base-url", "https://jira.acme.com")
                 .header("x-routing-prefix", "https://hero/connectors/jira/")
+                .header(HttpHeaders.HOST, "jira-connector")
                 .content(fromFile("/jira/requests/" + requestfile));
     }
 }

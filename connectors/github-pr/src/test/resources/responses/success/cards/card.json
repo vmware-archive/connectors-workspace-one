@@ -366,7 +366,10 @@
           ],
           "completed_label": "Commented"
         }
-      ]
+      ],
+      "image": {
+        "href": "http://github-pr-connector/images/connector.png"
+      }
     }
   ]
 }
