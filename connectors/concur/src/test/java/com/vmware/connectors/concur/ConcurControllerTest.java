@@ -22,15 +22,10 @@ import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
@@ -219,25 +214,13 @@ class ConcurControllerTest extends ControllerTestsBase {
 
     @Test
     void testConcurRegex() throws Exception {
-        final String concurRegex = "Report\\s*Id\\s*:\\s*([A-Za-z0-9]{20,})";
-        final Pattern pattern = Pattern.compile(concurRegex);
-
         final List<String> expectedList = Arrays.asList(
                 "523EEB33D8E548C1B90C",
                 "623EEB33D8E548C1B902",
                 "126EEB33D8E548C1B902",
                 "356EEB33D8E548C1B902",
                 "923EFB33D8E548C1B902");
-
-        final String regexInput = fromFile("concur/regex-input.txt");
-        final List<String> result = new ArrayList<>();
-        for (final String input : regexInput.split("\\n")) {
-            final Matcher matcher = pattern.matcher(input);
-            while (matcher.find()) {
-                result.add(matcher.group(1));
-            }
-        }
-        assertThat(expectedList, equalTo(result));
+        testRegex("expense_report_id", fromFile("concur/regex-input.txt"), expectedList);
     }
 
     private void testRequestCards(final String requestFile,
