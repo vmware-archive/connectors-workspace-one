@@ -172,22 +172,24 @@ public class ConcurController {
         final JsonDocument response = entity.getBody();
         final String approvalStatus = response.read("$.ApprovalStatusName");
 
-        final CardAction.Builder openActionBuilder = getOpenActionBuilder(baseUrl, locale);
         final Card.Builder cardBuilder = new Card.Builder()
                 .setName("Concur")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(cardTextAccessor.getMessage("concur.title", locale))
-                .setBody(buildCardBodyBuilder(response, locale))
-                .addAction(openActionBuilder.build());
+                .setBody(buildCardBodyBuilder(response, locale));
 
         // Add approve and reject actions only if the approval status is submitted and pending approval.
         if (SUBMITTED_AND_PENDING_APPROVAL.equalsIgnoreCase(approvalStatus)) {
             CardAction.Builder approveActionBuilder = getApproveActionBuilder(expenseReportId, routingPrefix, locale);
             CardAction.Builder rejectActionBuilder = getRejectActionBuilder(expenseReportId, routingPrefix, locale);
 
-            cardBuilder.addAction(rejectActionBuilder.build());
             cardBuilder.addAction(approveActionBuilder.build());
+            cardBuilder.addAction(rejectActionBuilder.build());
         }
+
+        final CardAction.Builder openActionBuilder = getOpenActionBuilder(baseUrl, locale);
+        cardBuilder.addAction(openActionBuilder.build());
+
         return cardBuilder.build();
     }
 
@@ -228,6 +230,7 @@ public class ConcurController {
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
                 .setUrl(routingPrefix + approveUrl)
+                .setPrimary(true)
                 .addUserInputField(
                         new CardActionInputField.Builder()
                                 .setId(REASON)
