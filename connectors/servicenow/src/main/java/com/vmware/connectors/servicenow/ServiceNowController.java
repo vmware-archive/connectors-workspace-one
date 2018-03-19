@@ -192,7 +192,7 @@ public class ServiceNowController {
                         .toUri())
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToFlux(JsonDocument.class)
+                .bodyToMono(JsonDocument.class)
                 /*
                  * I had trouble getting JsonPath to return me something more meaningful than a List<Map<>>.
                  *
@@ -204,7 +204,7 @@ public class ServiceNowController {
                  * what information I had, but I'm not sure it follows the way we've been doing our code for the other
                  * microservices.
                  */
-                .flatMap(approvalRequests -> Flux.fromIterable(approvalRequests.<List<Map<String, Object>>>read("$.result[*]")))
+                .flatMapMany(approvalRequests -> Flux.fromIterable(approvalRequests.<List<Map<String, Object>>>read("$.result[*]")))
                 .map(this::convertJsonDocToApprovalReq);
 
     }
@@ -321,8 +321,8 @@ public class ServiceNowController {
                                 .toUri())
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToFlux(JsonDocument.class)
-                .flatMap(items -> Flux.fromIterable(items.<List<Map<String, Object>>>read("$.result[*]")))
+                .bodyToMono(JsonDocument.class)
+                .flatMapMany(items -> Flux.fromIterable(items.<List<Map<String, Object>>>read("$.result[*]")))
                 .map(this::convertJsonDocToRequestedItem);
     }
 
