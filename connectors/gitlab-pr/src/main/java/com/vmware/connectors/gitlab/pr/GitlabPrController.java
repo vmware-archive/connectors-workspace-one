@@ -19,9 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -89,10 +87,9 @@ public class GitlabPrController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest httpServletRequest
+            final HttpServletRequest request
     ) {
         logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
-        final HttpRequest request = new ServletServerHttpRequest(httpServletRequest);
 
         Stream<MergeRequestId> mergeRequestIds = cardRequest.getTokens("merge_request_urls")
                 .stream()
@@ -205,7 +202,7 @@ public class GitlabPrController {
             String routingPrefix,
             Pair<MergeRequestId, MergeRequest> info,
             Locale locale,
-            HttpRequest request
+            HttpServletRequest request
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 

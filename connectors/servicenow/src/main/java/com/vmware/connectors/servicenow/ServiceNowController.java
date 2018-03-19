@@ -17,9 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -102,7 +100,7 @@ public class ServiceNowController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest httpServletRequest
+            final HttpServletRequest request
     ) {
         logger.trace("getCards called, baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
 
@@ -118,7 +116,6 @@ public class ServiceNowController {
             return Mono.just(new Cards());
         }
 
-        final HttpRequest request = new ServletServerHttpRequest(httpServletRequest);
         return callForUserSysId(baseUrl, email, auth)
                 .flux()
                 .flatMap(userSysId -> callForApprovalRequests(baseUrl, auth, userSysId))
@@ -349,7 +346,7 @@ public class ServiceNowController {
                              ApprovalRequestWithItems info,
                              String routingPrefix,
                              Locale locale,
-                             HttpRequest request) {
+                             HttpServletRequest request) {
         logger.trace("appendCard called: cards={}, info={}, routingPrefix={}", cards, info, routingPrefix);
 
         cards.getCards().add(
@@ -363,7 +360,7 @@ public class ServiceNowController {
             String routingPrefix,
             ApprovalRequestWithItems info,
             Locale locale,
-            HttpRequest request
+            HttpServletRequest request
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 

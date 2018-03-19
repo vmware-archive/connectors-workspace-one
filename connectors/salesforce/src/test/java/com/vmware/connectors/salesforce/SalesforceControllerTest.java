@@ -22,7 +22,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +29,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -233,7 +231,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andExpect(header().string("X-Backend-Status", "401"))
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(content().json(fromFile("/connector/responses/invalid_connector_token.json")));
-        ;
         mockSF.verify();
     }
 
@@ -282,7 +279,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess(sfResponseAttachmentCreated, APPLICATION_JSON));
-        ;
         perform(requestAddConversationAsAttcahment("abc", "/salesforce/request/conversations.txt"))
                 .andExpect(status().isOk());
         mockSF.verify();

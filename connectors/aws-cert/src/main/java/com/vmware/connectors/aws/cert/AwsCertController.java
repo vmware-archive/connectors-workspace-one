@@ -15,15 +15,14 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.FormElement;
 import org.jsoup.select.Elements;
+import org.junit.platform.commons.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -80,15 +79,15 @@ public class AwsCertController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             final Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest httpServletRequest
+            final HttpServletRequest request
     ) {
         logger.trace("getCards called, routingPrefix={}, request={}", routingPrefix, cardRequest);
-        final HttpRequest request = new ServletServerHttpRequest(httpServletRequest);
 
         return Flux.fromStream(validateUrls(cardRequest.getTokens("approval_urls")))
                 .sort()
                 .flatMap(this::callForCardInfo)
                 .filter(pair -> pair.getRight().getStatusCode().is2xxSuccessful())
+                .filter(pair -> StringUtils.isNotBlank(pair.getRight().getBody()))
                 .map(this::parseCardInfoOutOfResponse)
                 .reduce(
                         new Cards(),
@@ -118,14 +117,18 @@ public class AwsCertController {
     }
 
     private boolean verifyHost(UriComponents uriComponents) {
-        String host = uriComponents.getHost().toLowerCase(Locale.US);
+        String host = uriComponents.getHost();
+        if (host == null) {
+            return false;
+        }
+        host = host.toLowerCase(Locale.US);
         return host.equals(certificateApprovalHost)
                 || host.endsWith(certificateApprovalHost)
                 && host.charAt(host.lastIndexOf(certificateApprovalHost) - 1) == '.';
     }
 
     private boolean verifyPath(UriComponents uriComponents) {
-        return uriComponents.getPath().equals(certificateApprovalPath);
+        return certificateApprovalPath.equals(uriComponents.getPath());
     }
 
     private Flux<Pair<String, ResponseEntity<String>>> callForCardInfo(String approvalUrl) {
@@ -226,7 +229,7 @@ public class AwsCertController {
                              AwsCertCardInfo info,
                              String routingPrefix,
                              Locale locale,
-                             HttpRequest request) {
+                             HttpServletRequest request) {
         logger.trace("appendCard called: info={}, routingPrefix={}", info, routingPrefix);
 
         cards.getCards()
@@ -239,7 +242,7 @@ public class AwsCertController {
             AwsCertCardInfo info,
             String routingPrefix,
             Locale locale,
-            HttpRequest request
+            HttpServletRequest request
     ) {
         logger.trace("makeCard called: info={}, routingPrefix={}", info, routingPrefix);
 

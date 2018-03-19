@@ -24,9 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -178,7 +176,7 @@ public class SalesforceController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest httpServletRequest
+            final HttpServletRequest request
     ) {
         // Sender email and user email are required, and sender email has to at least have a non-final @ in it
         String sender = cardRequest.getTokenSingleValue("sender_email");
@@ -192,7 +190,6 @@ public class SalesforceController {
             return Mono.just(new ResponseEntity<>(BAD_REQUEST));
         }
 
-        final HttpRequest request = new ServletServerHttpRequest(httpServletRequest);
         return retrieveContactInfos(auth, baseUrl, user, sender)
                 .flatMap(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
                         user, senderDomain, locale, request))
@@ -223,7 +220,7 @@ public class SalesforceController {
             String userEmail,
             String senderDomain,
             Locale locale,
-            HttpRequest request
+            HttpServletRequest request
     ) {
         int contactsSize = contactDetails.read("$.totalSize");
         if (contactsSize > 0) {
@@ -247,7 +244,7 @@ public class SalesforceController {
             String senderEmail,
             JsonDocument contactDetails,
             Locale locale,
-            HttpRequest request
+            HttpServletRequest request
     ) {
         return retrieveOpportunities(auth, baseUrl, userEmail, senderEmail)
                 .map(body -> createUserDetailsCard(contactDetails, body, routingPrefix, locale, request));
@@ -273,7 +270,7 @@ public class SalesforceController {
             JsonDocument opportunityDetails,
             String routingPrefix,
             Locale locale,
-            HttpRequest request
+            HttpServletRequest request
     ) {
         String contactName = contactDetails.read("$.records[0].Name");
         String contactPhNo = contactDetails.read("$.records[0].MobilePhone");
@@ -473,7 +470,7 @@ public class SalesforceController {
                         new Card.Builder()
                                 .setName("Salesforce")
                                 .setTemplate(routingPrefix + "templates/generic.hbs")
-                                .setHeader(cardTextAccessor.getMessage("addcontact.header", locale), null)
+                                .setHeader(cardTextAccessor.getMessage("addcontact.header", locale))
                                 .setBody(cardTextAccessor.getMessage("addcontact.body", locale, contactEmail, acct.getName()))
                                 .addAction(createAddContactAction(routingPrefix, contactEmail, acct, locale))
                                 .build()

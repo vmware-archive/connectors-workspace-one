@@ -20,10 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -75,14 +73,13 @@ public class BitbucketServerController {
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
             final Locale locale,
             @Valid @RequestBody final CardRequest cardRequest,
-            final HttpServletRequest httpServletRequest) {
+            final HttpServletRequest request) {
 
         logger.trace("Cards requests for bitbucket server connector - baseUrlHeader: {}, routingPrefix: {}",
                 baseUrl,
                 routingPrefix);
 
         final Set<String> cardTokens = cardRequest.getTokens(BITBUCKET_PR_EMAIL_SUBJECT);
-        final HttpRequest request = new ServletServerHttpRequest(httpServletRequest);
 
         final Set<BitbucketServerPullRequest> pullRequests = convertToBitbucketServerPR(cardTokens);
 
@@ -98,8 +95,8 @@ public class BitbucketServerController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
     public Mono<String> approve(final BitbucketServerPullRequest pullRequest,
-                                                  @RequestHeader(AUTH_HEADER) final String authHeader,
-                                                  @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
+                                @RequestHeader(AUTH_HEADER) final String authHeader,
+                                @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
 
         logger.debug("Approve ACTION for bitbucket server pull request: {}, baseURL: {}",
                 pullRequest,
@@ -113,8 +110,8 @@ public class BitbucketServerController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
     public Mono<String> merge(final BitbucketServerPullRequest pullRequest,
-                                                @RequestHeader(AUTH_HEADER) final String authHeader,
-                                                @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
+                              @RequestHeader(AUTH_HEADER) final String authHeader,
+                              @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
 
         logger.debug("Merge ACTION for bitbucket server pull request: {}, baseURL: {}",
                 pullRequest,
@@ -128,8 +125,8 @@ public class BitbucketServerController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
     public Mono<String> decline(final BitbucketServerPullRequest pullRequest,
-                                                  @RequestHeader(AUTH_HEADER) final String authHeader,
-                                                  @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
+                                @RequestHeader(AUTH_HEADER) final String authHeader,
+                                @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
 
         logger.debug("Decline ACTION for bitbucket server pull request: {}, baseURL: {}",
                 pullRequest,
@@ -143,9 +140,9 @@ public class BitbucketServerController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
     public Mono<ResponseEntity<String>> comments(final BitbucketServerPullRequest pullRequest,
-                                                   @RequestParam(COMMENT_PARAM_KEY) final String comment,
-                                                   @RequestHeader(AUTH_HEADER) final String authHeader,
-                                                   @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
+                                                 @RequestParam(COMMENT_PARAM_KEY) final String comment,
+                                                 @RequestHeader(AUTH_HEADER) final String authHeader,
+                                                 @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
 
         logger.info("Comment ACTION for bitbucket server pull request: {}, baseURL: {}",
                 pullRequest,
@@ -165,7 +162,7 @@ public class BitbucketServerController {
 
     @GetMapping("/test-auth")
     public Mono<ResponseEntity<Void>> verifyAuth(@RequestHeader(AUTH_HEADER) final String authHeader,
-                                                   @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
+                                                 @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
         return rest.head()
                 .uri(baseUrl + "/rest/api/1.0/dashboard/pull-request-suggestions?limit=1")
                 .header(AUTHORIZATION, authHeader)
@@ -175,8 +172,8 @@ public class BitbucketServerController {
     }
 
     private Mono<List<String>> getComments(final String baseUrl,
-                                             final String authHeader,
-                                             final BitbucketServerPullRequest pullRequest) {
+                                           final String authHeader,
+                                           final BitbucketServerPullRequest pullRequest) {
 
          return rest.get()
                  .uri(baseUrl + "/rest/api/1.0/projects/{projectKey}/repos/{repostiorySlug}/pull-requests/{pullRequestId}/activities",
@@ -190,9 +187,9 @@ public class BitbucketServerController {
     }
 
     private Mono<String> performBitbucketServerAction(final String baseUrl,
-                                                                        final String authHeader,
-                                                                        final BitbucketServerPullRequest pullRequest,
-                                                                        final BitbucketServerAction bitBucketServerAction) {
+                                                      final String authHeader,
+                                                      final BitbucketServerPullRequest pullRequest,
+                                                      final BitbucketServerAction bitBucketServerAction) {
         // Get current version of the pull request. Pull request "version" changes when we do any actions on it.
         // When the pull request is raised, the current value will be 0.
         // For example, when we approve the pull request, then the version will change from 0 to 1.
@@ -207,7 +204,7 @@ public class BitbucketServerController {
                                                       final String authHeader,
                                                       final BitbucketServerPullRequest pullRequest,
                                                       final BitbucketServerAction bitBucketServerAction,
-                                                      String version) {
+                                                      final String version) {
         return rest.post()
                 .uri(baseUrl + "/rest/api/1.0/projects/{projectKey}/repos/{repositoryPlug}/pull-requests/{pullRequestId}/{action}?version={version}",
                         pullRequest.getProjectKey(),
@@ -222,8 +219,8 @@ public class BitbucketServerController {
     }
 
     private Mono<String> getVersion(final String authHeader,
-                                      final String baseUrl,
-                                      final BitbucketServerPullRequest pullRequest) {
+                                    final String baseUrl,
+                                    final BitbucketServerPullRequest pullRequest) {
 
         return getPullRequestInfo(authHeader, pullRequest, baseUrl)
                .map(jsonDocument -> Integer.toString(jsonDocument.read("$.version")));
@@ -235,7 +232,7 @@ public class BitbucketServerController {
                                                    final String baseUrl,
                                                    final String routingPrefix,
                                                    final Locale locale,
-                                                   final HttpRequest request) {
+                                                   final HttpServletRequest request) {
         logger.debug("Requesting pull request info from bitbucket server base url: {} and pull request info: {}", baseUrl, pullRequest);
 
         final Mono<JsonDocument> bitBucketServerResponse = getPullRequestInfo(authHeader, pullRequest, baseUrl);
@@ -263,7 +260,7 @@ public class BitbucketServerController {
                                          final String routingPrefix,
                                          final List<String> comments,
                                          final Locale locale,
-                                         final HttpRequest request) {
+                                         final HttpServletRequest request) {
         final boolean isPROpen = OPEN.equalsIgnoreCase(bitBucketServerResponse.read("$.state"));
 
         final Card.Builder card = new Card.Builder()

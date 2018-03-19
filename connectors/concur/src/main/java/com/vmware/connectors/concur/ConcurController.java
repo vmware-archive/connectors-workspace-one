@@ -19,9 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.HtmlUtils;
@@ -72,10 +70,9 @@ public class ConcurController {
             @RequestHeader(name = ROUTING_PREFIX) final String routingPrefix,
             final Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest httpServletRequest) {
+            final HttpServletRequest request) {
 
         final Set<String> expenseReportIds = cardRequest.getTokens(EXPENSE_REPORT_ID);
-        final HttpRequest request = new ServletServerHttpRequest(httpServletRequest);
 
         return Flux.fromIterable(expenseReportIds)
                 .flatMap(expenseReportId -> getCardsForExpenseReport(
@@ -113,10 +110,10 @@ public class ConcurController {
     }
 
     private Mono<String> makeConcurActionRequest(final String baseUrl,
-                                                                 final String reason,
-                                                                 final String reportID,
-                                                                 final String authHeader,
-                                                                 final String concurAction) throws IOException, ExecutionException, InterruptedException {
+                                                 final String reason,
+                                                 final String reportID,
+                                                 final String authHeader,
+                                                 final String concurAction) throws IOException, ExecutionException, InterruptedException {
         // Replace the placeholder in concur request template with appropriate action and comment.
         final String concurRequestTemplate = getConcurRequestTemplate(reason, concurAction);
 
@@ -145,7 +142,7 @@ public class ConcurController {
                                                 final String baseUrl,
                                                 final String routingPrefix,
                                                 final Locale locale,
-                                                final HttpRequest request) {
+                                                final HttpServletRequest request) {
         logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
         return getReportDetails(authHeader, id, baseUrl)
@@ -178,7 +175,7 @@ public class ConcurController {
                                          final String expenseReportId,
                                          final String routingPrefix,
                                          final Locale locale,
-                                         final HttpRequest request) {
+                                         final HttpServletRequest request) {
         final JsonDocument response = entity.getBody();
         final String approvalStatus = response.read("$.ApprovalStatusName");
 
