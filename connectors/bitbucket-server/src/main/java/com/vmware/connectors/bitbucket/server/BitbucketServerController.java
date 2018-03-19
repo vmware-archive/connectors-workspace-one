@@ -275,7 +275,7 @@ public class BitbucketServerController {
                 .setBody(makeCardBody(bitBucketServerResponse, comments, locale));
 
         // Set image url to card response.
-        CommonUtils.buildImageUrl(card, request);
+        CommonUtils.buildConnectorImageUrl(card, request);
 
         // Add comment action.
         addCommentAction(card, routingPrefix, pullRequest, locale);

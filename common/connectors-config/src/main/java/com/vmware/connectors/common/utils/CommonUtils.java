@@ -12,21 +12,33 @@ import javax.servlet.http.HttpServletRequest;
  */
 public final class CommonUtils {
 
-    public static final String IMAGE_PATH = "/images/connector.png";
+    public static final String DEFAULT_IMAGE_PATH = "/images/connector.png";
 
     private CommonUtils() {
-        // Singleton class.
+        // Utility class.
     }
 
-    public static void buildImageUrl(final Card.Builder card, final HttpServletRequest request) {
+    public static void buildConnectorImageUrl(final Card.Builder card, final HttpServletRequest request) {
+        final String uri = buildConnectorImageUrl(request);
+
+        if (StringUtils.isNotBlank(uri)) {
+            card.setImageUrl(uri);
+        }
+    }
+
+    public static String buildConnectorImageUrl(final HttpServletRequest request) {
+        return buildConnectorImageUrl(request, DEFAULT_IMAGE_PATH);
+    }
+
+    public static String buildConnectorImageUrl(final HttpServletRequest request, final String path) {
         if (StringUtils.isBlank(request.getHeader(HttpHeaders.HOST))) {
-            return;
+            return null;
         }
         final UriComponentsBuilder uriComponents = UriComponentsBuilder.newInstance();
         uriComponents.host(request.getHeader(HttpHeaders.HOST));
         uriComponents.scheme(request.getScheme());
-        uriComponents.path(IMAGE_PATH);
+        uriComponents.path(path);
 
-        card.setImageUrl(uriComponents.build().toString());
+        return uriComponents.build().toString();
     }
 }

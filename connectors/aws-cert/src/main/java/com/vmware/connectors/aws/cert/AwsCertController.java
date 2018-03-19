@@ -316,7 +316,7 @@ public class AwsCertController {
                 .addAction(dismissAction.build());
 
         // Set Image url.
-        CommonUtils.buildImageUrl(card, request);
+        CommonUtils.buildConnectorImageUrl(card, request);
 
         return card.build();
     }

@@ -235,7 +235,7 @@ public class AirWatchController {
                 .addAction(appInstallActionBuilder.build());
 
         // Set Image url.
-        CommonUtils.buildImageUrl(cardBuilder, request);
+        CommonUtils.buildConnectorImageUrl(cardBuilder, request);
 
         return Flux.just(cardBuilder.build());
     }

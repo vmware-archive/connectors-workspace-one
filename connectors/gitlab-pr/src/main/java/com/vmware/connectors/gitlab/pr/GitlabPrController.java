@@ -229,7 +229,7 @@ public class GitlabPrController {
         addCommentAction(card, routingPrefix, mergeRequestId, locale);
 
         // Set image url.
-        CommonUtils.buildImageUrl(card, request);
+        CommonUtils.buildConnectorImageUrl(card, request);
 
         return card.build();
     }

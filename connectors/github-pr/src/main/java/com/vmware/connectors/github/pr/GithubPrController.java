@@ -201,7 +201,7 @@ public class GithubPrController {
                 .setBody(createBody(pullRequestId, pullRequest, locale));
 
         // Set image url.
-        CommonUtils.buildImageUrl(card, request);
+        CommonUtils.buildConnectorImageUrl(card, request);
 
         addCloseAction(card, routingPrefix, pullRequestId, isOpen, locale);
         addMergeAction(card, routingPrefix, pullRequestId, pullRequest, isOpen, locale);

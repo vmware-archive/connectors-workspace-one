@@ -290,7 +290,7 @@ public class SalesforceController {
                 .setBody(cardBodyBuilder.build());
 
         // Set image url.
-        CommonUtils.buildImageUrl(card, request);
+        CommonUtils.buildConnectorImageUrl(card, request);
 
         return card.build();
     }

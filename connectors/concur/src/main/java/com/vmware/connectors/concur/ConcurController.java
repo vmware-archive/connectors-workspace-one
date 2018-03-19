@@ -188,7 +188,7 @@ public class ConcurController {
                 .addAction(openActionBuilder.build());
 
         // Set image url.
-        CommonUtils.buildImageUrl(cardBuilder, request);
+        CommonUtils.buildConnectorImageUrl(cardBuilder, request);
 
         // Add approve and reject actions only if the approval status is submitted and pending approval.
         if (SUBMITTED_AND_PENDING_APPROVAL.equalsIgnoreCase(approvalStatus)) {

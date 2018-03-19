@@ -197,7 +197,7 @@ public class JiraController {
                 .addAction(watchActionBuilder.build());
 
         // Set image url.
-        CommonUtils.buildImageUrl(card, request);
+        CommonUtils.buildConnectorImageUrl(card, request);
 
         return card.build();
     }
