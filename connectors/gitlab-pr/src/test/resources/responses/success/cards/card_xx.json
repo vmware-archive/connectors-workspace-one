@@ -282,7 +282,7 @@
         }
       ],
       "image": {
-        "href": "http://gitlab-pr-connector/images/connector.png"
+        "href": "https://my-connector/images/connector.png"
       }
     }
   ]

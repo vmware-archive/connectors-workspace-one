@@ -140,7 +140,7 @@
         }
       ],
       "image": {
-        "href": "http://concur-connector/images/connector.png"
+        "href": "https://my-connector/images/connector.png"
       }
     }
   ]

@@ -17,7 +17,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
@@ -271,7 +270,6 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .header("x-concur-authorization", "OAuth " + authToken)
                 .header("x-concur-base-url", "https://implementation.concursolutions.com")
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
-                .header(HttpHeaders.HOST, "concur-connector")
                 .content(fromFile("/concur/requests/" + requestFile));
     }
 }

@@ -18,7 +18,6 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +36,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -102,8 +100,7 @@ public class AirWatchController {
             @RequestHeader(name = AIRWATCH_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(name = ROUTING_PREFIX) String routingPrefix,
             Locale locale,
-            @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request) {
+            @Valid @RequestBody CardRequest cardRequest) {
 
         String udid = cardRequest.getTokenSingleValue(UDID_KEY);
         String clientPlatform = cardRequest.getTokenSingleValue(PLATFORM_KEY);
@@ -124,8 +121,7 @@ public class AirWatchController {
                 .map(keyword -> appConfig.findManagedApp(keyword, clientPlatform))
                 .filter(Optional::isPresent)
                .flatMap(app -> getCardForApp(awAuth, baseUrl, udid,
-                        app.get(), routingPrefix, clientPlatform,
-                       locale, request))
+                        app.get(), routingPrefix, clientPlatform, locale))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .map(ResponseEntity::ok)
                 .subscriberContext(Reactive.setupContext());
@@ -160,14 +156,8 @@ public class AirWatchController {
         return Collections.singletonMap("error", e.getMessage());
     }
 
-    private Flux<Card> getCardForApp(String awAuth,
-                                     String baseUrl,
-                                     String udid,
-                                     ManagedApp app,
-                                     String routingPrefix,
-                                     String platform,
-                                     Locale locale,
-                                     HttpServletRequest request) {
+    private Flux<Card> getCardForApp(String awAuth, String baseUrl, String udid,
+                                           ManagedApp app, String routingPrefix, String platform, Locale locale) {
         String appName = app.getName();
         String appBundle = app.getId();
         logger.debug("Getting app installation status for bundleId: {} with air-watch base url: {}",
@@ -178,8 +168,7 @@ public class AirWatchController {
                 .retrieve()
                 .onStatus(HttpStatus::isError, response -> handleClientError(response, udid))
                 .bodyToFlux(JsonDocument.class)
-                .flatMap(Reactive.wrapFlatMapper(body -> getCard(body, routingPrefix, appName, appBundle,
-                        udid, platform, locale, request)));
+                .flatMap(Reactive.wrapFlatMapper(body -> getCard(body, routingPrefix, appName, appBundle, udid, platform, locale)));
     }
 
     private static Mono<Throwable> handleClientError(ClientResponse response, String udid) {
@@ -204,14 +193,8 @@ public class AirWatchController {
                 });
     }
 
-    private Flux<Card> getCard(JsonDocument installStatus,
-                               String routingPrefix,
-                               String appName,
-                               String appBundle,
-                               String udid,
-                               String platform,
-                               Locale locale,
-                               HttpServletRequest request) {
+    private Flux<Card> getCard(JsonDocument installStatus, String routingPrefix,
+                                     String appName, String appBundle, String udid, String platform, Locale locale) {
 
         Boolean isAppInstalled = Optional.<Boolean>ofNullable(
                 installStatus.read("$.IsApplicationInstalled")).orElse(true);
@@ -233,10 +216,6 @@ public class AirWatchController {
                 .setHeader(cardTextAccessor.getHeader(locale, appName))
                 .setBody(cardBodyBuilder.build())
                 .addAction(appInstallActionBuilder.build());
-
-        // Set Image url.
-        CommonUtils.buildConnectorImageUrl(cardBuilder, request);
-
         return Flux.just(cardBuilder.build());
     }
 

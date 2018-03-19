@@ -20,8 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -73,14 +75,14 @@ public class BitbucketServerController {
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
             final Locale locale,
             @Valid @RequestBody final CardRequest cardRequest,
-            final HttpServletRequest request) {
+            final HttpServletRequest httpServletRequest) {
 
         logger.trace("Cards requests for bitbucket server connector - baseUrlHeader: {}, routingPrefix: {}",
                 baseUrl,
                 routingPrefix);
 
         final Set<String> cardTokens = cardRequest.getTokens(BITBUCKET_PR_EMAIL_SUBJECT);
-
+        final HttpRequest request = new ServletServerHttpRequest(httpServletRequest);
 
         final Set<BitbucketServerPullRequest> pullRequests = convertToBitbucketServerPR(cardTokens);
 
@@ -233,7 +235,7 @@ public class BitbucketServerController {
                                                    final String baseUrl,
                                                    final String routingPrefix,
                                                    final Locale locale,
-                                                   final HttpServletRequest request) {
+                                                   final HttpRequest request) {
         logger.debug("Requesting pull request info from bitbucket server base url: {} and pull request info: {}", baseUrl, pullRequest);
 
         final Mono<JsonDocument> bitBucketServerResponse = getPullRequestInfo(authHeader, pullRequest, baseUrl);
@@ -261,7 +263,7 @@ public class BitbucketServerController {
                                          final String routingPrefix,
                                          final List<String> comments,
                                          final Locale locale,
-                                         final HttpServletRequest request) {
+                                         final HttpRequest request) {
         final boolean isPROpen = OPEN.equalsIgnoreCase(bitBucketServerResponse.read("$.state"));
 
         final Card.Builder card = new Card.Builder()

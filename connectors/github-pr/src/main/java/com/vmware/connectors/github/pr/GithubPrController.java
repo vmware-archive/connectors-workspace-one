@@ -18,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -79,9 +81,10 @@ public class GithubPrController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request
+            final HttpServletRequest httpServletRequest
     ) {
         logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
+        final HttpRequest request = new ServletServerHttpRequest(httpServletRequest);
 
         Stream<PullRequestId> pullRequestIds = cardRequest.getTokens("pull_request_urls")
                 .stream()
@@ -178,7 +181,7 @@ public class GithubPrController {
             String routingPrefix,
             Pair<PullRequestId, PullRequest> info,
             Locale locale,
-            HttpServletRequest request
+            HttpRequest request
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 

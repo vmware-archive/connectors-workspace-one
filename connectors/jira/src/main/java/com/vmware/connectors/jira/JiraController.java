@@ -17,8 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -62,9 +64,10 @@ public class JiraController {
             @RequestHeader(name = ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request) {
+            final HttpServletRequest httpServletRequest) {
 
         Set<String> issueIds = cardRequest.getTokens("issue_id");
+        final HttpRequest request = new ServletServerHttpRequest(httpServletRequest);
 
         return Flux.fromIterable(issueIds)
                 .flatMap(issueId -> getCardForIssue(jiraAuth, baseUrl, issueId,
@@ -136,7 +139,7 @@ public class JiraController {
                                        String issueId,
                                        String routingPrefix,
                                        Locale locale,
-                                       HttpServletRequest request) {
+                                       HttpRequest request) {
         return Flux.from(getIssue(jiraAuth, baseUrl, issueId))
                 // if an issue is not found, we'll just not bother creating a card
                 .onErrorResume(Reactive::skipOnNotFound)
@@ -164,7 +167,7 @@ public class JiraController {
                                         String issueId,
                                         String routingPrefix,
                                         Locale locale,
-                                        HttpServletRequest request) {
+                                        HttpRequest request) {
         String issueKey = jiraResponse.read("$.key");
         String summary = jiraResponse.read("$.fields.summary");
         List<String> fixVersions = jiraResponse.read("$.fields.fixVersions[*].name");

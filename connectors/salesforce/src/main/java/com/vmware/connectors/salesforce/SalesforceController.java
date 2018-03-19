@@ -24,7 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -176,12 +178,13 @@ public class SalesforceController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request
+            final HttpServletRequest httpServletRequest
     ) {
         // Sender email and user email are required, and sender email has to at least have a non-final @ in it
         String sender = cardRequest.getTokenSingleValue("sender_email");
         String user = cardRequest.getTokenSingleValue("user_email");
         logger.debug("Sender email: {} and User email: {} for Salesforce server: {} ", sender, user, baseUrl);
+
         String senderDomain = '@' + StringUtils.substringAfterLast(sender, "@");
         // TODO: implement a better system of validating domain names than "yup, it's not empty"
         if (StringUtils.isBlank(senderDomain) || StringUtils.isBlank(user)) {
@@ -189,12 +192,13 @@ public class SalesforceController {
             return Mono.just(new ResponseEntity<>(BAD_REQUEST));
         }
 
-         return retrieveContactInfos(auth, baseUrl, user, sender)
-                 .flatMap(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
-                         user, senderDomain, locale, request))
-                 .map(this::toCards)
-                 .map(ResponseEntity::ok)
-                 .subscriberContext(Reactive.setupContext());
+        final HttpRequest request = new ServletServerHttpRequest(httpServletRequest);
+        return retrieveContactInfos(auth, baseUrl, user, sender)
+                .flatMap(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
+                        user, senderDomain, locale, request))
+                .map(this::toCards)
+                .map(ResponseEntity::ok)
+                .subscriberContext(Reactive.setupContext());
     }
 
     // Retrieve contact name, account name, and phone
@@ -219,7 +223,7 @@ public class SalesforceController {
             String userEmail,
             String senderDomain,
             Locale locale,
-            HttpServletRequest request
+            HttpRequest request
     ) {
         int contactsSize = contactDetails.read("$.totalSize");
         if (contactsSize > 0) {
@@ -243,7 +247,7 @@ public class SalesforceController {
             String senderEmail,
             JsonDocument contactDetails,
             Locale locale,
-            HttpServletRequest request
+            HttpRequest request
     ) {
         return retrieveOpportunities(auth, baseUrl, userEmail, senderEmail)
                 .map(body -> createUserDetailsCard(contactDetails, body, routingPrefix, locale, request));
@@ -269,7 +273,7 @@ public class SalesforceController {
             JsonDocument opportunityDetails,
             String routingPrefix,
             Locale locale,
-            HttpServletRequest request
+            HttpRequest request
     ) {
         String contactName = contactDetails.read("$.records[0].Name");
         String contactPhNo = contactDetails.read("$.records[0].MobilePhone");

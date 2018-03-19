@@ -30,10 +30,7 @@
           "user_input": [],
           "completed_label":"INSTALLED"
         }
-      ],
-      "image": {
-        "href": "http://airwatch-connector/images/connector.png"
-      }
+      ]
     }
   ]
 }

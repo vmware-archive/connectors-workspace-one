@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.ResultActions;
@@ -90,7 +89,6 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 .accept(APPLICATION_JSON)
                 .header("x-servicenow-base-url", "https://snow.acme.com")
                 .header("x-routing-prefix", "https://hero/connectors/servicenow/")
-                .header(HttpHeaders.HOST, "servicenow-connector")
                 .content(fromFile("/servicenow/requests/" + requestFile));
 
         if (authToken != null) {

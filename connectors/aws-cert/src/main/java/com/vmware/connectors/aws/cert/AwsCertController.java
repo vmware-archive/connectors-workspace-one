@@ -20,8 +20,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -78,21 +80,22 @@ public class AwsCertController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             final Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request
-            ) {
+            final HttpServletRequest httpServletRequest
+    ) {
         logger.trace("getCards called, routingPrefix={}, request={}", routingPrefix, cardRequest);
+        final HttpRequest request = new ServletServerHttpRequest(httpServletRequest);
 
-         return Flux.fromStream(validateUrls(cardRequest.getTokens("approval_urls")))
-                 .sort()
-                 .flatMap(this::callForCardInfo)
-                 .filter(pair -> pair.getRight().getStatusCode().is2xxSuccessful())
-                 .map(this::parseCardInfoOutOfResponse)
-                 .reduce(
-                         new Cards(),
-                         (cards, info) -> appendCard(cards, info, routingPrefix, locale, request)
-                 )
-                 .defaultIfEmpty(new Cards())
-                 .subscriberContext(Reactive.setupContext());
+        return Flux.fromStream(validateUrls(cardRequest.getTokens("approval_urls")))
+                .sort()
+                .flatMap(this::callForCardInfo)
+                .filter(pair -> pair.getRight().getStatusCode().is2xxSuccessful())
+                .map(this::parseCardInfoOutOfResponse)
+                .reduce(
+                        new Cards(),
+                        (cards, info) -> appendCard(cards, info, routingPrefix, locale, request)
+                )
+                .defaultIfEmpty(new Cards())
+                .subscriberContext(Reactive.setupContext());
     }
 
     private Stream<String> validateUrls(Set<String> approvalUrls) {
@@ -223,7 +226,7 @@ public class AwsCertController {
                              AwsCertCardInfo info,
                              String routingPrefix,
                              Locale locale,
-                             HttpServletRequest request) {
+                             HttpRequest request) {
         logger.trace("appendCard called: info={}, routingPrefix={}", info, routingPrefix);
 
         cards.getCards()
@@ -236,7 +239,7 @@ public class AwsCertController {
             AwsCertCardInfo info,
             String routingPrefix,
             Locale locale,
-            HttpServletRequest request
+            HttpRequest request
     ) {
         logger.trace("makeCard called: info={}, routingPrefix={}", info, routingPrefix);
 

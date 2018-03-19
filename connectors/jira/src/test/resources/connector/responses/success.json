@@ -195,7 +195,7 @@
         }
       ],
       "image": {
-        "href": "http://jira-connector/images/connector.png"
+        "href": "https://my-connector/images/connector.png"
       }
     }
   ]

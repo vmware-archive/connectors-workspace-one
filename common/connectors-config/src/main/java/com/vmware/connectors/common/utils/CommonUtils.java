@@ -2,10 +2,8 @@ package com.vmware.connectors.common.utils;
 
 import com.vmware.connectors.common.payloads.response.Card;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Common utility functions to be used across connectors parent.
@@ -18,7 +16,7 @@ public final class CommonUtils {
         // Utility class.
     }
 
-    public static void buildConnectorImageUrl(final Card.Builder card, final HttpServletRequest request) {
+    public static void buildConnectorImageUrl(final Card.Builder card, final HttpRequest request) {
         final String uri = buildConnectorImageUrl(request);
 
         if (StringUtils.isNotBlank(uri)) {
@@ -26,19 +24,11 @@ public final class CommonUtils {
         }
     }
 
-    public static String buildConnectorImageUrl(final HttpServletRequest request) {
+    public static String buildConnectorImageUrl(final HttpRequest request) {
         return buildConnectorImageUrl(request, DEFAULT_IMAGE_PATH);
     }
 
-    public static String buildConnectorImageUrl(final HttpServletRequest request, final String path) {
-        if (StringUtils.isBlank(request.getHeader(HttpHeaders.HOST))) {
-            return null;
-        }
-        final UriComponentsBuilder uriComponents = UriComponentsBuilder.newInstance();
-        uriComponents.host(request.getHeader(HttpHeaders.HOST));
-        uriComponents.scheme(request.getScheme());
-        uriComponents.path(path);
-
-        return uriComponents.build().toString();
+    public static String buildConnectorImageUrl(final HttpRequest request, final String path) {
+        return UriComponentsBuilder.fromHttpRequest(request).replacePath(path).build().toString();
     }
 }

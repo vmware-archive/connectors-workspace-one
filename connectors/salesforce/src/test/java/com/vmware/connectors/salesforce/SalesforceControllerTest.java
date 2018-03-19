@@ -22,6 +22,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +30,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -315,7 +317,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .header("x-salesforce-authorization", "Bearer " + authToken)
                 .header("x-salesforce-base-url", SERVER_URL)
                 .header("x-routing-prefix", "https://hero/connectors/salesforce/")
-                .header(HttpHeaders.HOST, "salesforce-connector")
                 .content(fromFile(filePath));
     }
 

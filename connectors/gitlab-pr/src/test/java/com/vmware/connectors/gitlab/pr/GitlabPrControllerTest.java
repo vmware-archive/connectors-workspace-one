@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
@@ -110,7 +109,6 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 .accept(APPLICATION_JSON)
                 .header("x-gitlab-pr-base-url", "https://gitlab.com")
                 .header("x-routing-prefix", "https://hero/connectors/gitlab-pr/")
-                .header(HttpHeaders.HOST, "gitlab-pr-connector")
                 .content(content);
 
         if (authToken != null) {

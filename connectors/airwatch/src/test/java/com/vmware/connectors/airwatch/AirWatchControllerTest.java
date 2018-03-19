@@ -215,7 +215,6 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .accept(APPLICATION_JSON)
                 .header("x-airwatch-base-url", AIRWATCH_BASE_URL)
                 .header("x-routing-prefix", "https://hero/connectors/airwatch/")
-                .header(HttpHeaders.HOST, "airwatch-connector")
                 .content(fromFile("/connector/requests/" + requestfile));
     }
 

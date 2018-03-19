@@ -70,7 +70,7 @@
         ]
       },
       "image": {
-        "href": "http://salesforce-connector/images/connector.png"
+        "href": "https://my-connector/images/connector.png"
       }
     }
   ]
