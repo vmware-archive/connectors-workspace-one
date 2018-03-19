@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.airwatch;
 
+import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
@@ -23,6 +24,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+
+import java.util.List;
 
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
@@ -91,6 +94,16 @@ class AirWatchControllerTest extends ControllerTestsBase {
         perform(request(GET, "/discovery/metadata.json"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().json(fromFile("/connector/responses/metadata.json")));
+    }
+
+    @Test
+    void testRegex() throws Exception {
+        List<String> expected = ImmutableList.of(
+                "BoXeR",
+                "POISON",
+                "concur"
+        );
+        testRegex("app_keywords", fromFile("/regex/email.txt"), expected);
     }
 
     @DisplayName("Card request success cases")

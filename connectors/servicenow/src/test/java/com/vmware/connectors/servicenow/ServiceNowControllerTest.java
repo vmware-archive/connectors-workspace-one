@@ -20,6 +20,9 @@ import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;
@@ -64,6 +67,35 @@ class ServiceNowControllerTest extends ControllerTestsBase {
     @Test
     void testDiscovery() throws Exception {
         testConnectorDiscovery();
+    }
+
+    @Test
+    void testRegex() throws Exception {
+        List<String> expected = Arrays.asList(
+                "REQ0010001",
+                "REQ0010003",
+                "REQ0010000", // not ideal
+                "REQ0010005",
+                "REQ0010007",
+                "REQ0010009",
+                "REQ0010010", // not ideal
+                "REQ0010011",
+                "REQ0010012", // not ideal
+                "REQ0010013",
+                "REQ0010014", // not ideal
+                "REQ0010015",
+                "REQ0010017",
+                "REQ0010019",
+                "REQ0010020", // not ideal
+                "REQ0010021",
+                "REQ0010023",
+                "REQ0010024", // not ideal
+                "REQ0010025",
+                "REQ0010027", // ideal (this is a sticking point in a more complicated regex)
+                "REQ0010029",
+                "REQ0010030" // not ideal
+        );
+        testRegex("ticket_id", fromFile("/regex/email.txt"), expected);
     }
 
     private MockHttpServletRequestBuilder setupPostRequest(

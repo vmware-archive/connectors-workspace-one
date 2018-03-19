@@ -1,0 +1,1 @@
+Will match BoXeR and POISON and concur because it is case insensitive
