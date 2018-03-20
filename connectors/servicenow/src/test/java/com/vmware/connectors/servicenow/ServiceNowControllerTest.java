@@ -78,18 +78,18 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 "REQ0010005",
                 "REQ0010007",
                 "REQ0010009",
-                "REQ0010010", // Should not match due to trailing "X"
+//                "REQ0010010", // Should not match due to trailing "X"
                 "REQ0010011",
-                "REQ0010012", // Should not match due to leading "X"
+//                "REQ0010012", // Should not match due to leading "X"
                 "REQ0010013",
-                "REQ0010014", // Should not match due to leading "1"
+//                "REQ0010014", // Should not match due to leading "1"
                 "REQ0010015",
                 "REQ0010017",
                 "REQ0010019",
-                "REQ0010020", // Should not match due to trailing "X"
+//                "REQ0010020", // Should not match due to trailing "X"
                 "REQ0010021",
                 "REQ0010023",
-                "REQ0010024", // Should not match due to trailing "x"
+//                "REQ0010024", // Should not match due to trailing "x"
                 "REQ0010025",
                 "REQ0010027",
                 "REQ0010029"
