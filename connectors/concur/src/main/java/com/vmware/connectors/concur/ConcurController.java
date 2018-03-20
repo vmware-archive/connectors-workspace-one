@@ -9,6 +9,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,7 @@ import org.springframework.web.util.HtmlUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -67,13 +69,15 @@ public class ConcurController {
             @RequestHeader(name = BACKEND_BASE_URL_HEADER) final String baseUrl,
             @RequestHeader(name = ROUTING_PREFIX) final String routingPrefix,
             final Locale locale,
-            @Valid @RequestBody CardRequest cardRequest) {
+            @Valid @RequestBody CardRequest cardRequest,
+            final HttpServletRequest request) {
 
         final Set<String> expenseReportIds = cardRequest.getTokens(EXPENSE_REPORT_ID);
 
         return Flux.fromIterable(expenseReportIds)
                 .flatMap(expenseReportId -> getCardForExpenseReport(
-                        authHeader, expenseReportId, baseUrl, routingPrefix, locale))
+                        authHeader, expenseReportId, baseUrl,
+                        routingPrefix, locale, request))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .defaultIfEmpty(new Cards())
                 .subscriberContext(Reactive.setupContext());
@@ -106,10 +110,10 @@ public class ConcurController {
     }
 
     private Mono<String> makeConcurActionRequest(final String baseUrl,
-                                                                 final String reason,
-                                                                 final String reportID,
-                                                                 final String authHeader,
-                                                                 final String concurAction) throws IOException, ExecutionException, InterruptedException {
+                                                 final String reason,
+                                                 final String reportID,
+                                                 final String authHeader,
+                                                 final String concurAction) throws IOException, ExecutionException, InterruptedException {
         // Replace the placeholder in concur request template with appropriate action and comment.
         final String concurRequestTemplate = getConcurRequestTemplate(reason, concurAction);
 
@@ -137,12 +141,14 @@ public class ConcurController {
                                                 final String id,
                                                 final String baseUrl,
                                                 final String routingPrefix,
-                                                final Locale locale) {
+                                                final Locale locale,
+                                                final HttpServletRequest request) {
         logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
         return getReportDetails(authHeader, id, baseUrl)
                 .onErrorResume(Reactive::skipOnNotFound)
-                .map(entity -> convertResponseIntoCard(entity, baseUrl, id, routingPrefix, locale));
+                .map(entity -> convertResponseIntoCard(entity, baseUrl, id,
+                        routingPrefix, locale, request));
     }
 
     private Mono<ResponseEntity<JsonDocument>> getReportDetails(String authHeader, String id, String baseUrl) {
@@ -167,7 +173,8 @@ public class ConcurController {
                                          final String baseUrl,
                                          final String expenseReportId,
                                          final String routingPrefix,
-                                         final Locale locale) {
+                                         final Locale locale,
+                                         final HttpServletRequest request) {
         final JsonDocument response = entity.getBody();
         final String approvalStatus = response.read("$.ApprovalStatusName");
 
@@ -176,6 +183,9 @@ public class ConcurController {
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(cardTextAccessor.getMessage("concur.title", locale))
                 .setBody(buildCardBodyBuilder(response, locale));
+
+        // Set image url.
+        CommonUtils.buildConnectorImageUrl(cardBuilder, request);
 
         // Add approve and reject actions only if the approval status is submitted and pending approval.
         if (SUBMITTED_AND_PENDING_APPROVAL.equalsIgnoreCase(approvalStatus)) {

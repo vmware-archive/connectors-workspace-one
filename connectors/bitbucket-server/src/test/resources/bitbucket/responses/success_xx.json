@@ -176,7 +176,10 @@
           "user_input": [],
           "completed_label": "MERGED"
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     }
   ]
 }

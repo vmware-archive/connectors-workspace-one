@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import com.vmware.connectors.github.pr.v3.PullRequest;
 import com.vmware.connectors.github.pr.v3.Review;
@@ -26,6 +27,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -76,11 +78,12 @@ public class GithubPrController {
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
-            @Valid @RequestBody CardRequest request
+            @Valid @RequestBody CardRequest cardRequest,
+            final HttpServletRequest request
     ) {
-        logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, request);
+        logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
 
-        Stream<PullRequestId> pullRequestIds = request.getTokens("pull_request_urls")
+        Stream<PullRequestId> pullRequestIds = cardRequest.getTokens("pull_request_urls")
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet()) // squash duplicates
@@ -94,7 +97,7 @@ public class GithubPrController {
 
         return Flux.fromStream(pullRequestIds)
                 .flatMap(pullRequestId -> fetchPullRequest(baseUrl, pullRequestId, auth))
-                .map(pair -> makeCard(routingPrefix, pair, locale))
+                .map(pair -> makeCard(routingPrefix, pair, locale, request))
                 .reduce(
                         new Cards(),
                         (cards, card) -> {
@@ -174,7 +177,8 @@ public class GithubPrController {
     private Card makeCard(
             String routingPrefix,
             Pair<PullRequestId, PullRequest> info,
-            Locale locale
+            Locale locale,
+            HttpServletRequest request
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 
@@ -195,6 +199,9 @@ public class GithubPrController {
                         )
                 )
                 .setBody(createBody(pullRequestId, pullRequest, locale));
+
+        // Set image url.
+        CommonUtils.buildConnectorImageUrl(card, request);
 
         addCloseAction(card, routingPrefix, pullRequestId, isOpen, locale);
         addMergeAction(card, routingPrefix, pullRequestId, pullRequest, isOpen, locale);

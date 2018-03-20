@@ -10,6 +10,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -97,22 +99,22 @@ public class ServiceNowController {
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
-            @Valid @RequestBody CardRequest request
+            @Valid @RequestBody CardRequest cardRequest,
+            final HttpServletRequest request
     ) {
-        logger.trace("getCards called, baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, request);
+        logger.trace("getCards called, baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
 
-        Set<String> requestNumbers = request.getTokens("ticket_id");
+        Set<String> requestNumbers = cardRequest.getTokens("ticket_id");
 
         if (CollectionUtils.isEmpty(requestNumbers)) {
             return Mono.just(new Cards());
         }
 
-        String email = request.getTokenSingleValue("email");
+        String email = cardRequest.getTokenSingleValue("email");
 
         if (email == null) {
             return Mono.just(new Cards());
         }
-
 
         return callForUserSysId(baseUrl, email, auth)
                 .flux()
@@ -122,7 +124,7 @@ public class ServiceNowController {
                 .flatMap(approvalRequestWithInfo -> callForAndAggregateRequestedItems(baseUrl, auth, approvalRequestWithInfo))
                 .reduce(
                         new Cards(),
-                        (cards, info) -> appendCard(cards, info, routingPrefix, locale)
+                        (cards, info) -> appendCard(cards, info, routingPrefix, locale, request)
                 )
                 .subscriberContext(Reactive.setupContext());
     }
@@ -340,11 +342,15 @@ public class ServiceNowController {
         );
     }
 
-    private Cards appendCard(Cards cards, ApprovalRequestWithItems info, String routingPrefix, Locale locale) {
+    private Cards appendCard(Cards cards,
+                             ApprovalRequestWithItems info,
+                             String routingPrefix,
+                             Locale locale,
+                             HttpServletRequest request) {
         logger.trace("appendCard called: cards={}, info={}, routingPrefix={}", cards, info, routingPrefix);
 
         cards.getCards().add(
-                makeCard(routingPrefix, info, locale)
+                makeCard(routingPrefix, info, locale, request)
         );
 
         return cards;
@@ -353,11 +359,12 @@ public class ServiceNowController {
     private Card makeCard(
             String routingPrefix,
             ApprovalRequestWithItems info,
-            Locale locale
+            Locale locale,
+            HttpServletRequest request
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 
-        return new Card.Builder()
+        final Card.Builder card = new Card.Builder()
                 .setName("ServiceNow") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(
@@ -392,8 +399,11 @@ public class ServiceNowController {
                                                 .build()
                                 )
                                 .build()
-                )
-                .build();
+                );
+        // Set image url.
+        CommonUtils.buildConnectorImageUrl(card, request);
+
+        return card.build();
     }
 
     private CardBody makeBody(

@@ -193,7 +193,10 @@
           "user_input": [],
           "completed_label": "WATCHING"
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     }
   ]
 }

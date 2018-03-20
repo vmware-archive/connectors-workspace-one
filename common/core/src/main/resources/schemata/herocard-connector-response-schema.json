@@ -20,6 +20,7 @@
         "expiration_date" :{"type": "string", "format": "date-time"},
         "importance": { "type": "integer" },
         "template":     {"$ref": "#/definitions/LINK"},
+        "image":        {"$ref": "#/definitions/LINK"},
         "header":       {"$ref": "#/definitions/CARD_HEADER"},
         "body":         {"$ref": "#/definitions/CARD_BODY"},
         "actions":      {"type": "array", "items": {"$ref": "#/definitions/CARD_ACTION"}}

@@ -7,6 +7,9 @@
   "template": {
     "href": "/connectors/salesforce/templates/generic.hbs"
   },
+  "image": {
+    "href": "https://hero/connectors/bitbucket/images/connector.png"
+  },
   "header": {
     "title": "Add a contact in Salesforce?"
   },

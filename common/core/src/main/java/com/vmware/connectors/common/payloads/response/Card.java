@@ -55,6 +55,9 @@ public class Card {
     @JsonProperty("actions")
     private final List<CardAction> actions;
 
+    @JsonProperty("image")
+    private Link image;
+
     // Don't instantiate directly -- use a Card.Builder
     private Card() {
         this.actions = new ArrayList<>();
@@ -114,6 +117,15 @@ public class Card {
      */
     public Link getTemplate() {
         return template;
+    }
+
+    /**
+     * Get connector image url link.
+     *
+     * @return Link for connector image.
+     */
+    public Link getImage() {
+        return image;
     }
 
     /**
@@ -236,6 +248,17 @@ public class Card {
          */
         public Builder setTemplate(String href) {
             card.template = new Link(href);
+            return this;
+        }
+
+        /**
+         * Set connector image link.
+         *
+         * @param href connector image url.
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setImageUrl(String href) {
+            card.image = new Link(href);
             return this;
         }
 

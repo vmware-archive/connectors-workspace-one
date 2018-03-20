@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.common.web;
 
+import com.vmware.connectors.common.utils.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -71,7 +72,7 @@ public class ConnectorRootController {
     private void addImage(ResourceSupport resource, HttpRequest request) {
         Resource imageResource = new ClassPathResource("/static/images/connector.png");
         if (imageResource.exists()) {
-            String image = UriComponentsBuilder.fromHttpRequest(request).path("/images/connector.png").build().toUriString();
+            String image = CommonUtils.buildConnectorImageUrl(request);
             resource.add(new Link(image, "image"));
         }
     }
