@@ -6,6 +6,7 @@
 package com.vmware.connectors.salesforce;
 
 
+import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.vmware.connectors.mock.MockRestServiceServer;
@@ -145,6 +146,47 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @Test
     void testDiscovery() throws Exception {
         testConnectorDiscovery();
+    }
+
+    @Test
+    void testRegex() throws Exception {
+        // https://blogs.msdn.microsoft.com/testing123/2009/02/06/email-address-test-cases/
+        List<String> expected = ImmutableList.of(
+                // VALID
+                "email001@domain.com",
+                "firstname.lastname002@domain.com",
+                "email003@subdomain.domain.com",
+                "firstname+lastname004@domain.com",
+                // TODO - the next 3 are valid apparently, but not worth fussing over
+//                "email005@123.123.123.123",
+//                "email006@[123.123.123.123]",
+//                "\"email007\"@domain.com",
+                "1234567890008@domain.com",
+                "email009@domain-one.com",
+                "_______010@domain.com",
+                "email011@domain.name",
+                "email012@domain.co.jp",
+                "firstname-lastname013@domain.com",
+
+                // INVALID? (in 2009 at least)
+//                "plainaddress014",
+//                "#@%^%#$@#$015@#.com",
+//                "@016domain.com",
+                "email017@domain.com",
+//                "email018.domain.com",
+                "domain019@domain.com",
+                ".email020@domain.com", // Not ideal, but not a big deal
+                "email021.@domain.com", // Not ideal, but not a big deal
+                "email..email022@domain.com", // Not ideal, but not a big deal
+//                "023あいうえお@domain.com",
+                "email024@domain.com",
+//                "email025@domain",
+                "email026@-domain.com", // Not ideal, but not a big deal
+                "email027@domain.web",
+//                "email028@111.222.333.44444",
+                "email029@domain..com" // Not ideal, but not a big deal
+        );
+        testRegex("sender_email", fromFile("/regex/email.txt"), expected);
     }
 
     @Test

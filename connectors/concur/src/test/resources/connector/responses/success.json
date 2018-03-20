@@ -38,19 +38,7 @@
       "actions": [
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Open",
-          "url": {
-            "href": "https://implementation.concursolutions.com"
-          },
-          "type": "GET",
-          "action_key": "OPEN_IN",
-          "request": {},
-          "user_input": [],
-          "completed_label":"Open",
-          "allow_repeated":true
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
           "label": "Approve",
           "url": {
             "href": "https://hero/connectors/concur/api/expense/approve/79D89435DAE94F53BF60"
@@ -84,6 +72,19 @@
             }
           ],
           "completed_label": "Rejected"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Open",
+          "url": {
+            "href": "https://implementation.concursolutions.com"
+          },
+          "type": "GET",
+          "action_key": "OPEN_IN",
+          "request": {},
+          "user_input": [],
+          "completed_label":"Open",
+          "allow_repeated":true
         }
       ]
     },

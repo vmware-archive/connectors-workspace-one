@@ -179,13 +179,11 @@ public class ConcurController {
         final JsonDocument response = entity.getBody();
         final String approvalStatus = response.read("$.ApprovalStatusName");
 
-        final CardAction.Builder openActionBuilder = getOpenActionBuilder(baseUrl, locale);
         final Card.Builder cardBuilder = new Card.Builder()
                 .setName("Concur")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(cardTextAccessor.getMessage("concur.title", locale))
-                .setBody(buildCardBodyBuilder(response, locale))
-                .addAction(openActionBuilder.build());
+                .setBody(buildCardBodyBuilder(response, locale));
 
         // Set image url.
         CommonUtils.buildConnectorImageUrl(cardBuilder, request);
@@ -198,6 +196,10 @@ public class ConcurController {
             cardBuilder.addAction(approveActionBuilder.build());
             cardBuilder.addAction(rejectActionBuilder.build());
         }
+
+        final CardAction.Builder openActionBuilder = getOpenActionBuilder(baseUrl, locale);
+        cardBuilder.addAction(openActionBuilder.build());
+
         return cardBuilder.build();
     }
 
@@ -238,6 +240,7 @@ public class ConcurController {
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
                 .setUrl(routingPrefix + approveUrl)
+                .setPrimary(true)
                 .addUserInputField(
                         new CardActionInputField.Builder()
                                 .setId(REASON)
