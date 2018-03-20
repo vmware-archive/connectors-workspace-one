@@ -97,13 +97,32 @@ class AirWatchControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testRegex() throws Exception {
+    void testRegex1() throws Exception {
         List<String> expected = ImmutableList.of(
                 "BoXeR",
                 "POISON",
                 "concur"
         );
-        testRegex("app_keywords", fromFile("/regex/email.txt"), expected);
+        testRegex("app_keywords", fromFile("/regex/email1.txt"), expected);
+    }
+
+    @Test
+    void testRegex2() throws Exception {
+        List<String> expected = ImmutableList.of(
+                "boxer",
+                "poison",
+                "concur"
+        );
+        testRegex("app_keywords", fromFile("/regex/email2.txt"), expected);
+    }
+
+    @Test
+    void testRegex3() throws Exception {
+        List<String> expected = ImmutableList.of(
+                "poison",
+                "concur"
+        );
+        testRegex("app_keywords", fromFile("/regex/email3.txt"), expected);
     }
 
     @DisplayName("Card request success cases")

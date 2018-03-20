@@ -591,7 +591,7 @@ public class SalesforceController {
                 .contentType(APPLICATION_JSON)
                 .exchange()
                 .flatMap(Reactive::checkStatus)
-                .flatMap(response -> Reactive.toResponseEntity(response, JsonDocument.class));
+                .flatMap(response -> response.toEntity(JsonDocument.class));
     }
 
     private Mono<ResponseEntity<Void>> linkOpportunitiesToContact(
@@ -776,7 +776,7 @@ public class SalesforceController {
                 .syncBody(body)
                 .exchange()
                 .flatMap(Reactive::checkStatus)
-                .flatMap(response -> Reactive.toResponseEntity(response, JsonDocument.class));
+                .flatMap(response -> response.toEntity(JsonDocument.class));
     }
 
     private Mono<String> linkAttachmentToTask(

@@ -75,7 +75,7 @@ public class ConcurController {
         final Set<String> expenseReportIds = cardRequest.getTokens(EXPENSE_REPORT_ID);
 
         return Flux.fromIterable(expenseReportIds)
-                .flatMap(expenseReportId -> getCardsForExpenseReport(
+                .flatMap(expenseReportId -> getCardForExpenseReport(
                         authHeader, expenseReportId, baseUrl,
                         routingPrefix, locale, request))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
@@ -137,7 +137,7 @@ public class ConcurController {
     }
 
 
-    private Flux<Card> getCardsForExpenseReport(final String authHeader,
+    private Mono<Card> getCardForExpenseReport(final String authHeader,
                                                 final String id,
                                                 final String baseUrl,
                                                 final String routingPrefix,
@@ -146,7 +146,6 @@ public class ConcurController {
         logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
         return getReportDetails(authHeader, id, baseUrl)
-                .flux()
                 .onErrorResume(Reactive::skipOnNotFound)
                 .map(entity -> convertResponseIntoCard(entity, baseUrl, id,
                         routingPrefix, locale, request));
@@ -159,7 +158,7 @@ public class ConcurController {
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .flatMap(Reactive::checkStatus)
-                .flatMap(response -> Reactive.toResponseEntity(response, JsonDocument.class));
+                .flatMap(response -> response.toEntity(JsonDocument.class));
     }
 
     private Mono<String> getWorkFlowActionUrl(final String authHeader,

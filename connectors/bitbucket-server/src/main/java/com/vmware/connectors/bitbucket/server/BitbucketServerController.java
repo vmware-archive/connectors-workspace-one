@@ -157,7 +157,7 @@ public class BitbucketServerController {
                 .syncBody(bitBucketServerComment)
                 .exchange()
                 .flatMap(Reactive::checkStatus)
-                .flatMap(response -> Reactive.toResponseEntity(response, String.class));
+                .flatMap(response -> response.toEntity(String.class));
     }
 
     @GetMapping("/test-auth")
@@ -180,8 +180,8 @@ public class BitbucketServerController {
                         pullRequest.getProjectKey(), pullRequest.getRepositorySlug(), pullRequest.getPullRequestId())
                  .header(AUTHORIZATION, authHeader)
                  .retrieve()
-                 .bodyToFlux(JsonDocument.class)
-                 .flatMap(body -> Flux.fromIterable(body.<List<String>>read("$.values[*].comment.text")))
+                 .bodyToMono(JsonDocument.class)
+                 .flatMapMany(body -> Flux.fromIterable(body.<List<String>>read("$.values[*].comment.text")))
                  .take(COMMENTS_SIZE)
                  .collectList();
     }
@@ -227,7 +227,7 @@ public class BitbucketServerController {
 
     }
 
-    private Flux<Card> getCardForBitbucketServerPR(final String authHeader,
+    private Mono<Card> getCardForBitbucketServerPR(final String authHeader,
                                                    final BitbucketServerPullRequest pullRequest,
                                                    final String baseUrl,
                                                    final String routingPrefix,
@@ -239,7 +239,6 @@ public class BitbucketServerController {
         final Mono<List<String>> comments = getComments(baseUrl, authHeader, pullRequest);
 
         return Mono.zip(bitBucketServerResponse, comments, Pair::of)
-                .flux()
                 .onErrorResume(Reactive::skipOnNotFound)
                 .map(pair -> convertResponseIntoCard(pair.getLeft(), pullRequest, routingPrefix, pair.getRight(), locale, request));
     }

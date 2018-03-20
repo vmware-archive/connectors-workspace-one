@@ -74,26 +74,26 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         List<String> expected = Arrays.asList(
                 "REQ0010001",
                 "REQ0010003",
-                "REQ0010000", // not ideal
+//                "REQ0010000", // Should not match due to too many numbers
                 "REQ0010005",
                 "REQ0010007",
                 "REQ0010009",
-                "REQ0010010", // not ideal
+                "REQ0010010", // Should not match due to trailing "X"
                 "REQ0010011",
-                "REQ0010012", // not ideal
+                "REQ0010012", // Should not match due to leading "X"
                 "REQ0010013",
-                "REQ0010014", // not ideal
+                "REQ0010014", // Should not match due to leading "1"
                 "REQ0010015",
                 "REQ0010017",
                 "REQ0010019",
-                "REQ0010020", // not ideal
+                "REQ0010020", // Should not match due to trailing "X"
                 "REQ0010021",
                 "REQ0010023",
-                "REQ0010024", // not ideal
+                "REQ0010024", // Should not match due to trailing "x"
                 "REQ0010025",
-                "REQ0010027", // ideal (this is a sticking point in a more complicated regex)
-                "REQ0010029",
-                "REQ0010030" // not ideal
+                "REQ0010027",
+                "REQ0010029"
+//                "REQ0010030" // Should not match due to trailing "x"
         );
         testRegex("ticket_id", fromFile("/regex/email.txt"), expected);
     }

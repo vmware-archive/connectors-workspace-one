@@ -140,7 +140,7 @@ public class GithubPrController {
         return pullRequestId;
     }
 
-    private Flux<Pair<PullRequestId, PullRequest>> fetchPullRequest(
+    private Mono<Pair<PullRequestId, PullRequest>> fetchPullRequest(
             String baseUrl,
             PullRequestId pullRequestId,
             String auth
@@ -150,7 +150,7 @@ public class GithubPrController {
                 .uri(makeGithubUri(baseUrl, pullRequestId))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToFlux(PullRequest.class)
+                .bodyToMono(PullRequest.class)
                 .onErrorResume(Reactive::skipOnNotFound)
                 .map(pullRequest -> Pair.of(pullRequestId, pullRequest));
         }
