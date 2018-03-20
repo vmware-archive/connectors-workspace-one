@@ -273,7 +273,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andExpect(header().string("X-Backend-Status", "401"))
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(content().json(fromFile("/connector/responses/invalid_connector_token.json")));
-        ;
         mockSF.verify();
     }
 
@@ -322,7 +321,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess(sfResponseAttachmentCreated, APPLICATION_JSON));
-        ;
         perform(requestAddConversationAsAttcahment("abc", "/salesforce/request/conversations.txt"))
                 .andExpect(status().isOk());
         mockSF.verify();

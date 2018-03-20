@@ -139,7 +139,10 @@
           "completed_label": "OPEN",
           "allow_repeated":true
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     }
   ]
 }

@@ -137,7 +137,10 @@
           "completed_label":"Open",
           "allow_repeated":true
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     }
   ]
 }

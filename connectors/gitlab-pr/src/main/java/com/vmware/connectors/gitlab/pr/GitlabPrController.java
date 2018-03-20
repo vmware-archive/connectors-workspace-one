@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import com.vmware.connectors.gitlab.pr.v4.MergeRequest;
 import com.vmware.connectors.gitlab.pr.v4.MergeRequestActionConstants;
@@ -27,6 +28,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -84,11 +86,12 @@ public class GitlabPrController {
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
-            @Valid @RequestBody CardRequest request
+            @Valid @RequestBody CardRequest cardRequest,
+            final HttpServletRequest request
     ) {
-        logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, request);
+        logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
 
-        Stream<MergeRequestId> mergeRequestIds = request.getTokens("merge_request_urls")
+        Stream<MergeRequestId> mergeRequestIds = cardRequest.getTokens("merge_request_urls")
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet()) // squash duplicates
@@ -102,7 +105,7 @@ public class GitlabPrController {
 
        return Flux.fromStream(mergeRequestIds)
                 .flatMap(mergeRequestId -> fetchMergeRequest(baseUrl, mergeRequestId, auth))
-                .map(pair -> makeCard(routingPrefix, pair, locale))
+                .map(pair -> makeCard(routingPrefix, pair, locale, request))
                 .reduce(
                         new Cards(),
                         (cards, card) -> {
@@ -148,7 +151,7 @@ public class GitlabPrController {
         return mergeRequestId;
     }
 
-    private Flux<Pair<MergeRequestId, MergeRequest>> fetchMergeRequest(
+    private Mono<Pair<MergeRequestId, MergeRequest>> fetchMergeRequest(
             String baseUrl,
             MergeRequestId mergeRequestId,
             String auth
@@ -159,7 +162,7 @@ public class GitlabPrController {
                 .uri(makeGitlabUri(baseUrl, mergeRequestId))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToFlux(MergeRequest.class)
+                .bodyToMono(MergeRequest.class)
                 .onErrorResume(Reactive::skipOnNotFound)
                 .map(mergeRequest -> Pair.of(mergeRequestId, mergeRequest));
    }
@@ -198,7 +201,8 @@ public class GitlabPrController {
     private Card makeCard(
             String routingPrefix,
             Pair<MergeRequestId, MergeRequest> info,
-            Locale locale
+            Locale locale,
+            HttpServletRequest request
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 
@@ -223,6 +227,9 @@ public class GitlabPrController {
         addMergeAction(card, routingPrefix, mergeRequestId, mergeRequest, locale);
         addApproveAction(card, routingPrefix, mergeRequestId, mergeRequest, locale);
         addCommentAction(card, routingPrefix, mergeRequestId, locale);
+
+        // Set image url.
+        CommonUtils.buildConnectorImageUrl(card, request);
 
         return card.build();
     }

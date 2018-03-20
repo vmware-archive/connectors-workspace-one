@@ -226,7 +226,10 @@
           "user_input": [],
           "completed_label": "Dismiss"
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     }
   ]
 }

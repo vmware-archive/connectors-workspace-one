@@ -10,6 +10,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
 
@@ -59,12 +61,14 @@ public class JiraController {
             @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(name = ROUTING_PREFIX) String routingPrefix,
             Locale locale,
-            @Valid @RequestBody CardRequest cardRequest) {
+            @Valid @RequestBody CardRequest cardRequest,
+            final HttpServletRequest request) {
 
         Set<String> issueIds = cardRequest.getTokens("issue_id");
 
         return Flux.fromIterable(issueIds)
-                .flatMap(issueId -> getCardForIssue(jiraAuth, baseUrl, issueId, routingPrefix, locale))
+                .flatMap(issueId -> getCardForIssue(jiraAuth, baseUrl, issueId,
+                        routingPrefix, locale, request))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .defaultIfEmpty(new Cards())
                 .subscriberContext(Reactive.setupContext());
@@ -127,11 +131,21 @@ public class JiraController {
                 .map(ClientResponse::statusCode);
     }
 
-    private Flux<Card> getCardForIssue(String jiraAuth, String baseUrl, String issueId, String routingPrefix, Locale locale) {
-        return Flux.from(getIssue(jiraAuth, baseUrl, issueId))
+    private Mono<Card> getCardForIssue(String jiraAuth,
+                                       String baseUrl,
+                                       String issueId,
+                                       String routingPrefix,
+                                       Locale locale,
+                                       HttpServletRequest request) {
+        return getIssue(jiraAuth, baseUrl, issueId)
                 // if an issue is not found, we'll just not bother creating a card
                 .onErrorResume(Reactive::skipOnNotFound)
-                .flatMap(Reactive.wrapMapper(jiraResponse -> transformIssueResponse(jiraResponse, baseUrl, issueId, routingPrefix, locale)))
+                .flatMap(Reactive.wrapMapper(jiraResponse -> transformIssueResponse(jiraResponse,
+                        baseUrl,
+                        issueId,
+                        routingPrefix,
+                        locale,
+                        request)))
                 .doOnEach(Reactive.wrapForItem(card -> logger.debug("Created card. {} -> {}", issueId, card.getHeader().getTitle())));
 
     }
@@ -145,8 +159,12 @@ public class JiraController {
                 .bodyToMono(JsonDocument.class);
     }
 
-    private Card transformIssueResponse(JsonDocument jiraResponse, String baseUrl, String issueId,
-                                        String routingPrefix, Locale locale) {
+    private Card transformIssueResponse(JsonDocument jiraResponse,
+                                        String baseUrl,
+                                        String issueId,
+                                        String routingPrefix,
+                                        Locale locale,
+                                        HttpServletRequest request) {
         String issueKey = jiraResponse.read("$.key");
         String summary = jiraResponse.read("$.fields.summary");
         List<String> fixVersions = jiraResponse.read("$.fields.fixVersions[*].name");
@@ -169,15 +187,19 @@ public class JiraController {
 
         addCommentsField(cardBodyBuilder, allComments, locale);
 
-        return new Card.Builder()
+        final Card.Builder card = new Card.Builder()
                 .setName("Jira")
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(cardTextAccessor.getHeader(locale, summary), cardTextAccessor.getMessage("subtitle", locale, issueKey))
                 .setBody(cardBodyBuilder.build())
                 .addAction(commentActionBuilder.build())
                 .addAction(openInActionBuilder.build())
-                .addAction(watchActionBuilder.build())
-                .build();
+                .addAction(watchActionBuilder.build());
+
+        // Set image url.
+        CommonUtils.buildConnectorImageUrl(card, request);
+
+        return card.build();
     }
 
     private CardBodyField buildGeneralBodyField(String titleMessageKey, String content, Locale locale) {

@@ -280,7 +280,10 @@
           ],
           "completed_label": "Commented"
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     }
   ]
 }
