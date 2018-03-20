@@ -5,6 +5,7 @@
 
 'use strict';
 
+const port = process.env.PORT || 4001;
 const express = require('express');
 const app = express();
 const discovery = require('./routes/discovery');
@@ -60,8 +61,8 @@ app.post('/mdm/app/install', airwatch.installApp);
 
 
 app.listen(
-    options.port,
+    port,
     () => {
-        console.log('AirWatch connector listening on port ', options.port);
+        console.log('AirWatch connector listening on port ', port);
     }
 );

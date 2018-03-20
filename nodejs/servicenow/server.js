@@ -5,6 +5,7 @@
 
 'use strict';
 
+const port = process.env.PORT || 4000;
 const express = require('express');
 const app = express();
 const commandLineArgs = require('command-line-args');
@@ -13,11 +14,6 @@ const servicenow = require('./routes/servicenow');
 const vIdm = require('./vidm');
 
 const optionDefinitions = [
-    {
-        name: 'port',
-        type: Number,
-        defaultValue: 4000
-    },
     {
         name: 'vIdmPubKeyUrl',
         type: String
@@ -76,8 +72,8 @@ app.post('/api/v1/tickets/:requestSysId/reject', servicenow.reject);
 
 
 app.listen(
-    options.port,
+    port,
     () => {
-        console.log('ServiceNow connector listening on port ', options.port);
+        console.log('ServiceNow connector listening on port ', port);
     }
 );

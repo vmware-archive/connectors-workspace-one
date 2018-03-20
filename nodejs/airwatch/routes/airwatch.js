@@ -17,6 +17,7 @@ function log(format, ...args) {
 }
 
 function handleError(res, data, err) {
+    log('Handling error: ', err);
     let errCode = 500;
     if (err.statusCode) {
         res.header('X-Backend-Status', err.statusCode);
@@ -95,8 +96,6 @@ function requestCards(req, res) {
 
     return Promise.all(promises).then(apps => {
 
-        console.log('apps is: ', apps);
-
         const cards = apps.filter(app => app.isInstalled === false)
             .map(app => makeCard(routingPrefix, clientPlatform, udid, app));
 
@@ -108,7 +107,9 @@ function requestCards(req, res) {
 function fetchAppInstallStatus(baseUrl, auth, clientPlatform, udid, app) {
     const appBundle = app[clientPlatform].id;
     const appName = app[clientPlatform].name;
+
     log('Getting app installation status for bundleId: %s with air-watch base url: %s', appBundle, baseUrl);
+
     const options = {
         json: true,
         headers: {
@@ -188,6 +189,7 @@ function installApp(req, res) {
     const app = managedApps.airwatch.apps.find(app => app[platform].name === appName);
 
     if (!app) {
+        log("Can't install %s. It is not a managed app.", appName);
         return res.statusCode(400).json({message: `Can't install ${appName}. It is not a managed app.`});
     }
 
@@ -203,10 +205,14 @@ function installApp(req, res) {
 }
 
 function fetchEucToken(authToken, udid, deviceType) {
+    log('fetchEucToken called: udid=%s, deviceType=%s', udid, deviceType);
+
     const options = {
         json: true,
         method: 'POST',
         headers: {
+            'User-Agent': 'Request-Promise ',
+            'Accept': 'application/hal+json',
             'Cookie': `HZN=${authToken}`
         },
         url: greenBoxUrl + '/catalog-portal/services/auth/eucTokens',
@@ -220,24 +226,31 @@ function fetchEucToken(authToken, udid, deviceType) {
 }
 
 function fetchCsrfToken(eucToken) {
+    log('fetchCsrfToken called');
+
     const options = {
         resolveWithFullResponse: true,
         method: 'OPTIONS',
         headers: {
+            'User-Agent': 'Request-Promise ',
             'Cookie': `USER_CATALOG_CONTEXT=${eucToken}`
         },
         url: greenBoxUrl + '/catalog-portal/'
     };
     return rp(options).then(response => ({
         eucToken,
-        csrfToken: response.headers['set-cookie'][0].replace('EUC_XSRF_TOKEN=', '')
+        csrfToken: response.headers['set-cookie'][0].replace('EUC_XSRF_TOKEN=', '').split(';')[0]
     }));
 }
 
 function fetchEntitlements(appName, tokens) {
+    log('fetchEntitlements called: appName=%s', appName);
+
     const options = {
         json: true,
         headers: {
+            'User-Agent': 'Request-Promise ',
+            'Accept': 'application/hal+json',
             'Cookie': `USER_CATALOG_CONTEXT=${tokens.eucToken}`
         },
         url: greenBoxUrl + '/catalog-portal/services/api/entitlements',
@@ -259,10 +272,14 @@ function fetchEntitlements(appName, tokens) {
 }
 
 function greenBoxInstall(data) {
+    log('greenBoxInstall called');
+
     const options = {
         json: true,
         method: 'POST',
         headers: {
+            'User-Agent': 'Request-Promise ',
+            'Accept': 'application/hal+json',
             'Cookie': `USER_CATALOG_CONTEXT=${data.tokens.eucToken};EUC_XSRF_TOKEN=${data.tokens.csrfToken}`,
             'X-XSRF-TOKEN': data.tokens.csrfToken
         },

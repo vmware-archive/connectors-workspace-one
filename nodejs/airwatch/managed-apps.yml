@@ -5,7 +5,7 @@
 # Platform app name is used to uniquely identify the app to install from GreenBox entitlements.
 airwatch:
   apps:
-    - application: Coupa
+    - app: Coupa
       android:
         name: Coupa Mobile
         id: com.coupa.android.coupamobile
@@ -18,13 +18,57 @@ airwatch:
         - travel
         - reimburse
 
-    - application: LinkedIn
+    - app: LinkedIn
       android:
         name: LinkedIn
         id: com.linkedin.android
       ios:
         name: LinkedIn
-        id: com.linkedin.ios
+        id: com.linkedin.LinkedIn
       keywords:
         - linkedin
         - professional network
+
+    - app: Salesforce
+      android:
+        name: Salesforce
+        id: com.salesforce.chatter
+      ios:
+        name: Salesforce
+        id: com.salesforce.chatter
+      keywords:
+        - salesforce
+        - crm
+
+    - app: Boxer
+      android:
+        name: VMware Boxer
+        id: com.boxer.email
+      ios:
+        name: VMware Boxer
+        id: com.air-watch.boxer
+      keywords:
+        - email
+        - calender
+
+    - app: Dropbox
+      android:
+        name: Dropbox
+        id: com.dropbox.android
+      ios:
+        name: Dropbox
+        id: com.getdropbox.Dropbox
+      keywords:
+        - file share
+        - dropbox
+
+    - app: Zoom
+      android:
+        name: ZOOM Cloud Meetings
+        id: us.zoom.videomeetings
+      ios:
+        name: ZOOM Cloud Meetings
+        id: us.zoom.videomeetings
+      keywords:
+        - meeting
+        - VMware.zoom.us

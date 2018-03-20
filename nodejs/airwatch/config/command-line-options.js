@@ -9,11 +9,6 @@ const commandLineArgs = require('command-line-args');
 
 const optionDefinitions = [
     {
-        name: 'port',
-        type: Number,
-        defaultValue: 4001
-    },
-    {
         name: 'configFile',
         type: String,
         defaultValue: '/usr/src/app/managed-apps.yml'
