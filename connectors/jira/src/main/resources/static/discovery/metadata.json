@@ -4,7 +4,7 @@
   "fields": {
     "issue_id": {
       "capture_group": 1,
-      "regex": "\\b([A-Z]{1,10}-\\d+)\\b"
+      "regex": "[\\W]([A-Z]{1,10}-\\d+)"
     }
   }
 }

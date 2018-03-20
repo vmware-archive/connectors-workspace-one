@@ -10,8 +10,6 @@ import com.vmware.connectors.mock.MockClientHttpConnector;
 import com.vmware.connectors.mock.RequestHandlerHolder;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientCodecCustomizer;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -63,8 +61,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(JwtUtils.class)
 @SuppressWarnings("PMD.SignatureDeclareThrowsException")
 public class ControllerTestsBase {
-
-    private static final Logger logger = LoggerFactory.getLogger(ControllerTestsBase.class);
 
     @Autowired
     protected RequestHandlerHolder requestHandlerHolder;
@@ -172,38 +168,16 @@ public class ControllerTestsBase {
     }
 
     private void verifyRegex(String regex, Integer captureGroup, String emailInput, List<String> expected) throws Exception {
-        List<String> results = new RegexMatcher().getMatches(regex, emailInput, Optional.ofNullable(captureGroup).orElse(0));
+        Pattern pattern = Pattern.compile(regex);
+
+        List<String> results = new ArrayList<>();
+        for (String line : emailInput.split("\\n")) {
+            Matcher matcher = pattern.matcher("\n" + line);
+            while (matcher.find()) {
+                results.add(matcher.group(Optional.ofNullable(captureGroup).orElse(0)));
+            }
+        }
+
         assertThat(results, equalTo(expected));
     }
-
-    /*
-     * Code ported from the Android project's code to match more closely what the client is doing:
-     * - https://stash.air-watch.com/projects/UFO/repos/android-roswell-framework/browse/roswellframework/src/main/java/com/vmware/roswell/framework/etc/RegexMatcher.java?at=403dfa349a17901ba3a888eb2e98ab14ddae5825#39
-     * - https://stash.air-watch.com/projects/UFO/repos/android-roswell-framework/browse/roswellframework/src/main/java/com/vmware/roswell/framework/json/HCSConnectorDeserializer.java?at=403dfa349a17901ba3a888eb2e98ab14ddae5825#114
-     */
-    private static class RegexMatcher {
-        List<String> getMatches(String regex, String text, int captureGroupIndex) {
-            List<String> allMatches = new ArrayList<>();
-
-            for (String line : text.split("\\n")) {
-                Matcher m = Pattern.compile(regex).matcher(line);
-                int totalGroupCount = m.groupCount() + 1; // +1 because group zero (the whole regex) isn't included in groupCount()
-                if (captureGroupIndex >= 0 && captureGroupIndex < totalGroupCount) {
-
-                    while (m.find()) {
-                        allMatches.add(m.group(captureGroupIndex));
-                    }
-                } else {
-                    logger.warn(
-                            "Connector has a regex field with capture_group_index ({}) greater than the number of groups ({}) in the regex << {} >>",
-                            captureGroupIndex, totalGroupCount, regex
-                    );
-                    break;
-                }
-            }
-
-            return allMatches;
-        }
-    }
-
 }

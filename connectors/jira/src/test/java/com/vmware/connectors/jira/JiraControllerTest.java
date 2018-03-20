@@ -84,7 +84,7 @@ class JiraControllerTest extends ControllerTestsBase {
                 "ABC-1",
                 "ABCDEFGHIJ-123",
 //                "ABCDEFGHIJK-456", // Should not match because too many letters
-//                "ABC-3", // Should not match due to trailing "A"
+                "ABC-3", // not ideal, but not worth fixing
                 "ABC-4",
                 "ABC-5",
 //                "ABC-6", // Should not match due to leading "x"
@@ -93,14 +93,14 @@ class JiraControllerTest extends ControllerTestsBase {
                 "ABC-9",
                 "ABC-10",
                 "ABC-11",
-//                "ABC-12", // Should not match due to trailing "X"
+                "ABC-12", // not ideal, but not worth fixing
                 "ABC-13",
                 "ABC-14",
-//                "ABC-15", // Should not match due to trailing "x"
+                "ABC-15", // not ideal, but not worth fixing
                 "ABC-16",
                 "ABC-17",
                 "ABC-18",
-//                "ABC-19", // Should not match due to trailing "x"
+                "ABC-19", // not ideal, but not worth fixing
 //                "ABC-20", // Should not match due to leading "x"
 //                "D-2", // should not match
 //                "MM-2", // should not match
