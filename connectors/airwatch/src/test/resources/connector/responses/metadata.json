@@ -9,7 +9,7 @@
     },
     "app_keywords": {
       "capture_group": 1,
-      "regex": "((?i)boxer|concur|poison)"
+      "regex": "((?i)\\bboxer\\b|\\bconcur\\b|\\bpoison\\b)"
     }
   }
 }
