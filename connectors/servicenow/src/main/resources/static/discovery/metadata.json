@@ -4,7 +4,7 @@
   "fields": {
     "ticket_id": {
       "capture_group": 1,
-      "regex": "(REQ[0-9]{7})"
+      "regex": "\\b(REQ[0-9]{7})\\b"
     },
     "email": {
       "env": "USER_EMAIL"

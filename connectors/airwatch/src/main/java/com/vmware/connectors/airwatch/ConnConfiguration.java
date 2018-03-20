@@ -57,7 +57,7 @@ public class ConnConfiguration {
 
         final String connectorRegex = "(?i)" + appConfigurations.getApps().stream()
                 .flatMap(appConfiguration -> appConfiguration.getKeywords().stream())
-                .collect(Collectors.joining("|"));
+                .collect(Collectors.joining("\\\\b|\\\\b", "\\\\b", "\\\\b"));
 
         String metaData = IOUtils.toString(metadataHalResource.getInputStream(), Charset.defaultCharset());
         return metaData.replace("CONNECTOR_REGEX", connectorRegex);
