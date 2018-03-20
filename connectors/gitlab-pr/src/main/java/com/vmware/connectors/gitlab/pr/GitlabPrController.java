@@ -148,7 +148,7 @@ public class GitlabPrController {
         return mergeRequestId;
     }
 
-    private Flux<Pair<MergeRequestId, MergeRequest>> fetchMergeRequest(
+    private Mono<Pair<MergeRequestId, MergeRequest>> fetchMergeRequest(
             String baseUrl,
             MergeRequestId mergeRequestId,
             String auth
@@ -159,7 +159,7 @@ public class GitlabPrController {
                 .uri(makeGitlabUri(baseUrl, mergeRequestId))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToFlux(MergeRequest.class)
+                .bodyToMono(MergeRequest.class)
                 .onErrorResume(Reactive::skipOnNotFound)
                 .map(mergeRequest -> Pair.of(mergeRequestId, mergeRequest));
    }

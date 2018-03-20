@@ -127,8 +127,8 @@ public class JiraController {
                 .map(ClientResponse::statusCode);
     }
 
-    private Flux<Card> getCardForIssue(String jiraAuth, String baseUrl, String issueId, String routingPrefix, Locale locale) {
-        return Flux.from(getIssue(jiraAuth, baseUrl, issueId))
+    private Mono<Card> getCardForIssue(String jiraAuth, String baseUrl, String issueId, String routingPrefix, Locale locale) {
+        return getIssue(jiraAuth, baseUrl, issueId)
                 // if an issue is not found, we'll just not bother creating a card
                 .onErrorResume(Reactive::skipOnNotFound)
                 .flatMap(Reactive.wrapMapper(jiraResponse -> transformIssueResponse(jiraResponse, baseUrl, issueId, routingPrefix, locale)))

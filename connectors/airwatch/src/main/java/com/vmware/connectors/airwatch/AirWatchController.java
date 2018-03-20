@@ -156,7 +156,7 @@ public class AirWatchController {
         return Collections.singletonMap("error", e.getMessage());
     }
 
-    private Flux<Card> getCardForApp(String awAuth, String baseUrl, String udid,
+    private Mono<Card> getCardForApp(String awAuth, String baseUrl, String udid,
                                            ManagedApp app, String routingPrefix, String platform, Locale locale) {
         String appName = app.getName();
         String appBundle = app.getId();
@@ -167,7 +167,7 @@ public class AirWatchController {
                 .header(AUTHORIZATION, awAuth)
                 .retrieve()
                 .onStatus(HttpStatus::isError, response -> handleClientError(response, udid))
-                .bodyToFlux(JsonDocument.class)
+                .bodyToMono(JsonDocument.class)
                 .flatMap(Reactive.wrapFlatMapper(body -> getCard(body, routingPrefix, appName, appBundle, udid, platform, locale)));
     }
 
@@ -193,14 +193,14 @@ public class AirWatchController {
                 });
     }
 
-    private Flux<Card> getCard(JsonDocument installStatus, String routingPrefix,
+    private Mono<Card> getCard(JsonDocument installStatus, String routingPrefix,
                                      String appName, String appBundle, String udid, String platform, Locale locale) {
 
         Boolean isAppInstalled = Optional.<Boolean>ofNullable(
                 installStatus.read("$.IsApplicationInstalled")).orElse(true);
         if (isAppInstalled) {
             logger.debug("App with bundleId: {} is already installed. No card is created.", appBundle);
-            return Flux.empty();
+            return Mono.empty();
         }
         // Create card for app install
         Card.Builder cardBuilder = new Card.Builder();
@@ -216,7 +216,7 @@ public class AirWatchController {
                 .setHeader(cardTextAccessor.getHeader(locale, appName))
                 .setBody(cardBodyBuilder.build())
                 .addAction(appInstallActionBuilder.build());
-        return Flux.just(cardBuilder.build());
+        return Mono.just(cardBuilder.build());
     }
 
     private CardAction.Builder getInstallActionBuilder(String routingPrefix,

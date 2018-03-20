@@ -122,7 +122,7 @@ public class AwsCertController {
         return uriComponents.getPath().equals(certificateApprovalPath);
     }
 
-    private Flux<Pair<String, ResponseEntity<String>>> callForCardInfo(String approvalUrl) {
+    private Mono<Pair<String, ResponseEntity<String>>> callForCardInfo(String approvalUrl) {
         logger.trace("callForCardInfo called: approvalUrl={}", approvalUrl);
 
         return rest.get()
@@ -131,11 +131,10 @@ public class AwsCertController {
                         .build()
                         .toUri())
                 .exchange()
-                .flux()
                 // Don't let a bad AWS token skip the rest
                 .onErrorResume(Reactive::skipOnBadRequest) // Expired requests will return 400 bad request
                 .onErrorResume(Reactive::skipOnNotFound) // Non-existent contexts will return 404 not found
-                .flatMap(response -> Reactive.toResponseEntity(response, String.class))
+                .flatMap(response -> response.toEntity(String.class))
                 .map(response -> Pair.of(approvalUrl, response));
     }
 
@@ -337,7 +336,7 @@ public class AwsCertController {
                 .syncBody(formParams)
                 .exchange()
                 .flatMap(Reactive::checkStatus)
-                .flatMap(response -> Reactive.toResponseEntity(response, String.class));
+                .flatMap(response -> response.toEntity(String.class));
     }
 
 }

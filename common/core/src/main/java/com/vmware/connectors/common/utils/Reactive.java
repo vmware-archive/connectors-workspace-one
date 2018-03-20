@@ -5,14 +5,11 @@
 
 package com.vmware.connectors.common.utils;
 
-import org.reactivestreams.Publisher;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeType;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Signal;
 import reactor.util.context.Context;
@@ -79,25 +76,18 @@ public final class Reactive {
      * @param <R> The type being transformed to
      * @return
      */
-    public static <T, R> Function<T, Publisher<R>> wrapMapper(Function<? super T, ? extends R> mapper) {
+    public static <T, R> Function<T, Mono<R>> wrapMapper(Function<T, R> mapper) {
         return item -> Mono.subscriberContext()
                 .map(context -> wrapCall(context, () -> mapper.apply(item)));
     }
 
-    public static <T, R> Function<T, Publisher<R>> wrapFlatMapper(Function<? super T, ? extends Publisher<? extends R>> mapper) {
-        return item -> Mono.subscriberContext().flux()
+    public static <T, R> Function<T, Mono<R>> wrapFlatMapper(Function<T, Mono<R>> mapper) {
+        return item -> Mono.subscriberContext()
                 .flatMap(context -> wrapCall(context, () -> mapper.apply(item)));
     }
 
     public static Mono<ClientResponse> checkStatus(ClientResponse response) {
         return checkStatus(response, httpStatus -> !httpStatus.isError());
-    }
-
-    public static <T> Mono<ResponseEntity<T>> toResponseEntity(ClientResponse response, Class<T> clazz) {
-        return response.bodyToMono(clazz)
-                .map(body -> ResponseEntity.status(response.statusCode())
-                        .headers(response.headers().asHttpHeaders())
-                        .body(body));
     }
 
     public static Mono<ClientResponse> checkStatus(ClientResponse response, Predicate<HttpStatus> statusPredicate) {
@@ -118,36 +108,36 @@ public final class Reactive {
                 )));
     }
 
-    public static <R> Flux<R> skipOnStatus(Throwable throwable, Predicate<HttpStatus> statusPredicate) {
+    public static <R> Mono<R> skipOnStatus(Throwable throwable, Predicate<HttpStatus> statusPredicate) {
         if (throwable instanceof WebClientResponseException
                 && statusPredicate.test(WebClientResponseException.class.cast(throwable).getStatusCode())) {
-            return Flux.empty();
+            return Mono.empty();
         } else {
-            return Flux.error(throwable);
+            return Mono.error(throwable);
         }
     }
 
-    public static <R> Flux<R> skipOnBadRequest(Throwable throwable) {
+    public static <R> Mono<R> skipOnBadRequest(Throwable throwable) {
         return skipOnStatus(throwable, HttpStatus.BAD_REQUEST);
     }
 
-    public static <R> Flux<R> skipOnNotFound(Throwable throwable) {
+    public static <R> Mono<R> skipOnNotFound(Throwable throwable) {
         return skipOnStatus(throwable, HttpStatus.NOT_FOUND);
     }
 
-    public static <R> Flux<R> skipOnStatus(Throwable throwable, HttpStatus httpStatus) {
+    public static <R> Mono<R> skipOnStatus(Throwable throwable, HttpStatus httpStatus) {
         return skipOnStatus(throwable, status -> status.equals(httpStatus));
     }
 
-    public static Flux<ClientResponse> skipOnStatus(ClientResponse clientResponse, Predicate<HttpStatus> statusPredicate) {
+    public static Mono<ClientResponse> skipOnStatus(ClientResponse clientResponse, Predicate<HttpStatus> statusPredicate) {
         if (statusPredicate.test(clientResponse.statusCode())) {
-            return Flux.empty();
+            return Mono.empty();
         } else {
-            return Flux.just(clientResponse);
+            return Mono.just(clientResponse);
         }
     }
 
-    public static Flux<ClientResponse> skipOnStatus(ClientResponse clientResponse, HttpStatus httpStatus) {
+    public static Mono<ClientResponse> skipOnStatus(ClientResponse clientResponse, HttpStatus httpStatus) {
         return skipOnStatus(clientResponse, status -> status.equals(httpStatus));
     }
 
