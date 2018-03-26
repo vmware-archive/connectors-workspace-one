@@ -20,10 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -156,6 +158,7 @@ public class BitbucketServerController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .syncBody(bitBucketServerComment)
                 .exchange()
+                .onErrorResume(BitbucketServerController::logUnauthorizedError)
                 .flatMap(Reactive::checkStatus)
                 .flatMap(response -> response.toEntity(String.class));
     }
@@ -168,6 +171,7 @@ public class BitbucketServerController {
                 .header(AUTHORIZATION, authHeader)
                 .retrieve()
                 .bodyToMono(Void.class)
+                .onErrorResume(BitbucketServerController::logUnauthorizedError)
                 .then(Mono.just(ResponseEntity.noContent().build()));
     }
 
@@ -181,6 +185,7 @@ public class BitbucketServerController {
                  .header(AUTHORIZATION, authHeader)
                  .retrieve()
                  .bodyToMono(JsonDocument.class)
+                 .onErrorResume(BitbucketServerController::logUnauthorizedError)
                  .flatMapMany(body -> Flux.fromIterable(body.<List<String>>read("$.values[*].comment.text")))
                  .take(COMMENTS_SIZE)
                  .collectList();
@@ -215,7 +220,8 @@ public class BitbucketServerController {
                 .header(AUTHORIZATION, authHeader)
                 .header(ATLASSIAN_TOKEN, "no-check")
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(String.class)
+                .onErrorResume(BitbucketServerController::logUnauthorizedError);
     }
 
     private Mono<String> getVersion(final String authHeader,
@@ -251,7 +257,16 @@ public class BitbucketServerController {
                         pullRequest.getProjectKey(), pullRequest.getRepositorySlug(), pullRequest.getPullRequestId())
                 .header(AUTHORIZATION, authHeader)
                 .retrieve()
-                .bodyToMono(JsonDocument.class);
+                .bodyToMono(JsonDocument.class)
+                .onErrorResume(BitbucketServerController::logUnauthorizedError);
+    }
+
+    private static <T> Mono<T> logUnauthorizedError(final Throwable throwable) {
+        if (throwable instanceof HttpClientErrorException &&
+                ((HttpClientErrorException)throwable).getStatusCode() == HttpStatus.UNAUTHORIZED) {
+            logger.error("Bitbucket server authorization failed.", throwable);
+        }
+        return Mono.error(throwable);
     }
 
     private Card convertResponseIntoCard(final JsonDocument bitBucketServerResponse,
