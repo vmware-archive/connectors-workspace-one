@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
@@ -33,6 +34,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.hateoas.MediaTypes.HAL_JSON_UTF8;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.ExpectedCount.times;
@@ -147,14 +149,14 @@ class AirWatchControllerTest extends ControllerTestsBase {
         expectGBRequest(
                 "/catalog-portal/services/api/entitlements?q=Concur",
                 GET, gbCatalogContextCookie("euc123", null))
-                .andRespond(withSuccess().body(gbSearchApp).contentType(APPLICATION_JSON));
+                .andRespond(withSuccess().body(gbSearchApp).contentType(HAL_JSON_UTF8));
 
         // Trigger install for "MDM-134-Native-Public".
         expectGBRequest(
                 "/catalog-portal/services/api/activate/MDM-134-Native-Public",
                 POST, gbCatalogContextCookie("euc123", "csrf123"))
                 .andExpect(MockRestRequestMatchers.header("X-XSRF-TOKEN", "csrf123"))
-                .andRespond(withSuccess().body(gbInstallApp).contentType(APPLICATION_JSON));
+                .andRespond(withSuccess().body(gbInstallApp).contentType(HAL_JSON_UTF8));
 
         perform(post("/mdm/app/install").with(token(accessToken()))
                 .contentType(APPLICATION_FORM_URLENCODED)
@@ -261,7 +263,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
         expectGBRequest(
                 "/catalog-portal/services/auth/eucTokens?deviceUdid=ABCD&deviceType=android",
                 POST, gbHZNCookie(accessToken()))
-                .andRespond(withStatus(CREATED).body(gbEucToken).contentType(APPLICATION_JSON));
+                .andRespond(withStatus(CREATED).body(gbEucToken).contentType(HAL_JSON_UTF8));
 
         // CSRF token
         HttpHeaders csrfHeaders = new HttpHeaders();
