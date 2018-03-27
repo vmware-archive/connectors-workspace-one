@@ -5,7 +5,6 @@
 
 package com.vmware.connectors.airwatch;
 
-import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.vmware.connectors.airwatch.config.ManagedApp;
 import com.vmware.connectors.airwatch.exceptions.GbAppMapException;
@@ -244,8 +243,8 @@ public class AirWatchController {
                 .uri(baseUri + "/catalog-portal/services/auth/eucTokens?deviceUdid={udid}&deviceType={deviceType}", udid, deviceType)
                 .cookie("HZN", hzn)
                 .retrieve()
-                .bodyToMono(Map.class)
-                .map(body -> body.get("eucToken"))
+                .bodyToMono(JsonDocument.class)
+                .map(body -> body.read("$.eucToken"))
                 .cast(String.class)
                 .doOnEach(Reactive.wrapForItem(token-> logger.trace("Install app. Got EUC token: {}", token)));
         }
@@ -273,9 +272,7 @@ public class AirWatchController {
                 .uri(gbSession.getBaseUrl() + "/catalog-portal/services/api/entitlements?q={appName}", appName)
                 .cookie("USER_CATALOG_CONTEXT", gbSession.getEucToken())
                 .retrieve()
-                .bodyToMono(String.class)
-                .map(s -> Configuration.defaultConfiguration().jsonProvider().parse(s))
-                .map(JsonDocument::new)
+                .bodyToMono(JsonDocument.class)
                 .map(document -> toGreenBoxApp(document, appName))
                 .doOnEach(Reactive.wrapForItem(gba -> logger.trace("Found GB app {} for {}", gba, appName)));
     }
@@ -303,8 +300,8 @@ public class AirWatchController {
                 .cookie("EUC_XSRF_TOKEN", gbSession.getCsrfToken())
                 .header("X-XSRF-TOKEN", gbSession.getCsrfToken())
                 .retrieve()
-                .bodyToMono(Map.class)
-                .map(body -> body.get("status"))
+                .bodyToMono(JsonDocument.class)
+                .map(body -> body.read("$.status"))
                 .cast(String.class)
                 .doOnEach(Reactive.wrapForItem(status ->
                         logger.trace("Install action status: {} for {}", status, gbApp)));
