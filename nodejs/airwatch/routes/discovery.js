@@ -37,8 +37,8 @@ function metadata(req, res) {
             }
         }
     };
-    const regexStr = managedApps.airwatch.apps.map(app => app.keywords.join('|')).join('|');
-    metadata.fields.app_keywords.regex = `((?i)${regexStr})`;
+    const regexStr = managedApps.airwatch.apps.map(app => app.keywords.join('\\b|\\b')).join('\\b|\\b');
+    metadata.fields.app_keywords.regex = `((?i)\\b${regexStr}\\b)`;
     // ex. ((?i)coupa|expense|travel|reimburse|linkedin|professional network)
     res.json(metadata);
 }
