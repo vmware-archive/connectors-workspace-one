@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.reactivestreams.Publisher;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.MediaType;
 import org.springframework.http.codec.HttpMessageDecoder;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -19,11 +20,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.springframework.hateoas.MediaTypes.HAL_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 public class JsonDocumentDecoder implements HttpMessageDecoder<JsonDocument> {
@@ -36,7 +39,8 @@ public class JsonDocumentDecoder implements HttpMessageDecoder<JsonDocument> {
 
     @Override
     public boolean canDecode(ResolvableType elementType, MimeType mimeType) {
-        return elementType.isAssignableFrom(JsonDocument.class) && APPLICATION_JSON.isCompatibleWith(mimeType);
+        return elementType.isAssignableFrom(JsonDocument.class)
+                && (APPLICATION_JSON.isCompatibleWith(mimeType) || new MediaType("application", "*+json").isCompatibleWith(mimeType));
     }
 
     @Override
@@ -61,6 +65,6 @@ public class JsonDocumentDecoder implements HttpMessageDecoder<JsonDocument> {
 
     @Override
     public List<MimeType> getDecodableMimeTypes() {
-        return Collections.singletonList(APPLICATION_JSON);
+        return Arrays.asList(APPLICATION_JSON, HAL_JSON);
     }
 }
