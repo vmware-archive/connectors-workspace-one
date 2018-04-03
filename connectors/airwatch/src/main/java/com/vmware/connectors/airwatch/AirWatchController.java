@@ -41,6 +41,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -117,11 +118,15 @@ public class AirWatchController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        return Flux.fromIterable(appKeywords)
+        Set<ManagedApp> managedApps = appKeywords.stream()
                 .map(keyword -> appConfig.findManagedApp(keyword, clientPlatform))
                 .filter(Optional::isPresent)
-               .flatMap(app -> getCardForApp(awAuth, baseUrl, udid,
-                        app.get(), routingPrefix, clientPlatform, locale))
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+
+        return Flux.fromIterable(managedApps)
+                .flatMap(app -> getCardForApp(awAuth, baseUrl, udid,
+                        app, routingPrefix, clientPlatform, locale))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .map(ResponseEntity::ok)
                 .subscriberContext(Reactive.setupContext());
@@ -157,7 +162,7 @@ public class AirWatchController {
     }
 
     private Mono<Card> getCardForApp(String awAuth, String baseUrl, String udid,
-                                           ManagedApp app, String routingPrefix, String platform, Locale locale) {
+                                     ManagedApp app, String routingPrefix, String platform, Locale locale) {
         String appName = app.getName();
         String appBundle = app.getId();
         logger.debug("Getting app installation status for bundleId: {} with air-watch base url: {}",
@@ -194,7 +199,7 @@ public class AirWatchController {
     }
 
     private Mono<Card> getCard(JsonDocument installStatus, String routingPrefix,
-                                     String appName, String appBundle, String udid, String platform, Locale locale) {
+                               String appName, String appBundle, String udid, String platform, Locale locale) {
 
         Boolean isAppInstalled = Optional.<Boolean>ofNullable(
                 installStatus.read("$.IsApplicationInstalled")).orElse(true);
@@ -246,11 +251,11 @@ public class AirWatchController {
                 .bodyToMono(JsonDocument.class)
                 .map(body -> body.read("$.eucToken"))
                 .cast(String.class)
-                .doOnEach(Reactive.wrapForItem(token-> logger.trace("Install app. Got EUC token: {}", token)));
-        }
+                .doOnEach(Reactive.wrapForItem(token -> logger.trace("Install app. Got EUC token: {}", token)));
+    }
 
     private Mono<GreenBoxConnection> getGbConnection(URI gbBaseUri, String eucToken) {
-         return getCsrfToken(gbBaseUri, eucToken)
+        return getCsrfToken(gbBaseUri, eucToken)
                 .map(csrfToken -> new GreenBoxConnection(gbBaseUri, eucToken, csrfToken))
                 .doOnEach(Reactive.wrapForItem(gbc -> logger.trace("Install app. Got GB connection: {}", gbc)));
     }
@@ -294,7 +299,7 @@ public class AirWatchController {
         /*
          * It triggers the native mdm app install.
          */
-         return rest.post()
+        return rest.post()
                 .uri(gbApp.getInstallLink())
                 .cookie("USER_CATALOG_CONTEXT", gbSession.getEucToken())
                 .cookie("EUC_XSRF_TOKEN", gbSession.getCsrfToken())
@@ -322,7 +327,7 @@ public class AirWatchController {
                     if (cookie == null) {
                         throw new IllegalStateException("No cookie found!");
                     }
-                        return cookie.getValue();
+                    return cookie.getValue();
                 });
     }
 }

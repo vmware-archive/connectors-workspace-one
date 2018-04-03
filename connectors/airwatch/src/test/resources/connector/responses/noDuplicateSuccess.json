@@ -1,0 +1,38 @@
+{
+  "cards": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "AirWatch",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/airwatch/templates/generic.hbs"
+      },
+      "header": {
+        "title": "[AirWatch] Concur",
+        "subtitle": []
+      },
+      "body": {
+        "description": "Please install this application for better interaction with the resource."
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Install",
+          "url": {
+            "href": "https://hero/connectors/airwatch/mdm/app/install"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {
+            "app_name": "Concur",
+            "udid": "ABCD",
+            "platform": "android"
+          },
+          "user_input": [],
+          "completed_label": "Installed",
+          "allow_repeated": false
+        }
+      ]
+    }
+  ]
+}

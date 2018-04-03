@@ -1,0 +1,7 @@
+{
+  "tokens": {
+    "udid": ["ABCD"],
+    "platform": ["android"],
+    "app_keywords": ["expense", "Concur"]
+  }
+}

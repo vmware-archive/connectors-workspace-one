@@ -141,6 +141,14 @@ class AirWatchControllerTest extends ControllerTestsBase {
     }
 
     @Test
+    void testProducesDuplicateCards() throws Exception {
+        // Expect Airwatch DS request only once.
+        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.concur.breeze")
+                .andRespond(withSuccess(awAppNotInstalled, APPLICATION_JSON));
+        testRequestCards("requestDuplicate.json", "noDuplicateSuccess.json", null);
+    }
+
+    @Test
     void testInstallAction() throws Exception {
 
         expectGBSessionRequests();
