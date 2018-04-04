@@ -451,7 +451,7 @@
 
                         <images>
                             <image>
-                                <name>connector</name>
+                                <name>${connector.name}</name>
                                 <build>
                                     <from>centos/systemd:latest</from>
                                     <assembly>
