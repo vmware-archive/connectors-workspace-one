@@ -443,7 +443,7 @@
                     <artifactId>docker-maven-plugin</artifactId>
                     <version>0.23.0</version>
                     <configuration>
-                        <registry>registry.hub.docker.com/appplatform</registry>
+                        <registry>registry.hub.docker.com/ws1connectors</registry>
                         <authConfig>
                             <username>appplatform</username>
                             <password>dockerhub_8976</password>
