@@ -443,6 +443,12 @@
                     <artifactId>docker-maven-plugin</artifactId>
                     <version>0.23.0</version>
                     <configuration>
+                        <registry>registry.hub.docker.com/appplatform</registry>
+                        <authConfig>
+                            <username>appplatform</username>
+                            <password>dockerhub_8976</password>
+                        </authConfig>
+
                         <images>
                             <image>
                                 <name>connector</name>
@@ -498,6 +504,14 @@
                                 <goal>start</goal>
                                 <goal>stop</goal>
                                 <goal>remove</goal>
+                            </goals>
+                        </execution>
+
+                        <execution>
+                            <id>deploy</id>
+                            <phase>deploy</phase>
+                            <goals>
+                                <goal>push</goal>
                             </goals>
                         </execution>
                     </executions>
