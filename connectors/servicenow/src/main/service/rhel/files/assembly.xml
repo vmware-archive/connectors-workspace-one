@@ -1,0 +1,39 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+    <id>rhel</id>
+
+    <formats>
+        <format>tar.gz</format>
+        <format>zip</format>
+    </formats>
+
+    <files>
+
+        <file>
+            <source>src/main/service/rhel/files/install.sh</source>
+        </file>
+
+        <file>
+            <source>src/main/service/rhel/files/README.txt</source>
+        </file>
+
+        <file>
+            <source>target/${project.build.finalName}.jar</source>
+            <outputDirectory>files</outputDirectory>
+            <destName>servicenow-connector.jar</destName>
+        </file>
+
+    </files>
+
+    <fileSets>
+
+        <fileSet>
+            <directory>src/main/service/rhel/files</directory>
+            <outputDirectory>files</outputDirectory>
+        </fileSet>
+
+    </fileSets>
+
+</assembly>

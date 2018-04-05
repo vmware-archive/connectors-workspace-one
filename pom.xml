@@ -18,6 +18,15 @@
 
     <properties>
         <connector.name>overrideme</connector.name>
+        <container.memory>512000000</container.memory>
+        <container.logging.level>DEBUG</container.logging.level>
+        <docker.wait.timeout>300000</docker.wait.timeout>
+        <docker.serviceName>${project.artifactId}</docker.serviceName>
+        <docker.javaImage>ws1devops/java8:u162</docker.javaImage>
+        <docker.consulImage>consul:1.0.6</docker.consulImage>
+        <docker.registrator>gliderlabs/registrator:v7</docker.registrator>
+        <docker.wait.timeout>300000</docker.wait.timeout>
+        <docker.bind.address>172.17.0.1</docker.bind.address>
     </properties>
 
     <name>Workspace One Connectors Parent</name>
@@ -117,8 +126,63 @@
                 <artifactId>json-schema-validator</artifactId>
                 <version>2.2.6</version>
             </dependency>
-        </dependencies>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>connectors</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>airwatch-connector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>aws-cert-connector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>bitbucket-server-connector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>concur-connector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>github-pr-connector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>gitlab-pr-connector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>jira-connector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>salesforce-connector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vmware.card-connectors</groupId>
+                <artifactId>servicenow-connector</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
+        </dependencies>
     </dependencyManagement>
 
     <modules>
@@ -441,14 +505,7 @@
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.23.0</version>
                     <configuration>
-                        <registry>registry.hub.docker.com/ws1connectors</registry>
-                        <authConfig>
-                            <username>appplatform</username>
-                            <password>dockerhub_8976</password>
-                        </authConfig>
-
                         <images>
                             <image>
                                 <name>${connector.name}</name>
@@ -505,14 +562,6 @@
                                 <goal>stop</goal>
                                 <goal>push</goal>
                                 <goal>remove</goal>
-                            </goals>
-                        </execution>
-
-                        <execution>
-                            <id>deploy</id>
-                            <phase>deploy</phase>
-                            <goals>
-                                <goal>push</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -615,6 +664,99 @@
                         </executions>
                     </plugin>
                 </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>push-docker-image</id>
+            <build>
+                <pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <configuration>
+                            <registry>registry.hub.docker.com/ws1connectors</registry>
+                            <authConfig>
+                                <username>appplatform</username>
+                                <password>dockerhub_8976</password>
+                            </authConfig>
+
+                            <images>
+                                <image>
+                                    <name>${project.artifactId}</name>
+                                    <alias>${project.artifactId}</alias>
+                                    <build>
+                                        <assembly>
+                                            <inline>
+                                                <dependencySets>
+                                                    <dependencySet>
+                                                        <useProjectArtifact>true</useProjectArtifact>
+                                                        <includes>
+                                                            <include>com.vmware.card-connectors:${project.artifactId}</include>
+                                                        </includes>
+                                                    </dependencySet>
+                                                </dependencySets>
+                                            </inline>
+                                            <targetDir>/opt/vmware/${project.artifactId}</targetDir>
+                                        </assembly>
+                                        <from>${docker.javaImage}</from>
+                                        <workdir>/opt/vmware/${project.artifactId}</workdir>
+                                        <entryPoint>
+                                            <shell>
+                                                java -server -XX:+UnlockExperimentalVMOptions \
+                                                -Xss256k \
+                                                -XX:+UseCGroupMemoryLimitForHeap \
+                                                -XX:MaxRAMFraction=1 \
+                                                -jar /opt/vmware/${project.artifactId}/${project.artifactId}-${project.version}.jar \
+                                                --logging.level.com.vmware=${container.logging.level} \
+                                                --spring.profiles.active=prod,external \
+                                                --tenant.publicKeyUrl="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \
+                                                --hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=10000
+                                            </shell>
+                                        </entryPoint>
+                                    </build>
+                                    <run>
+                                        <memory>${container.memory}</memory>
+                                        <ports>
+                                            <port>${docker.bind.address}:8831:8080</port>
+                                        </ports>
+                                        <env>
+                                            <SERVICE_8080_CHECK_HTTP>/health</SERVICE_8080_CHECK_HTTP>
+                                            <SERVICE_NAME>${project.artifactId}</SERVICE_NAME>
+                                        </env>
+                                        <wait>
+                                            <time>${docker.wait.timeout}</time>
+                                            <tcp>
+                                                <ports>
+                                                    <port>8080</port>
+                                                </ports>
+                                            </tcp>
+                                        </wait>
+                                    </run>
+                                </image>
+                            </images>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+
+                            <execution>
+                                <id>deploy</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>push</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+                </pluginManagement>
             </build>
         </profile>
     </profiles>
