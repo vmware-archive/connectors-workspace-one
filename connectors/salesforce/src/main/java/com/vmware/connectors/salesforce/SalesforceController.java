@@ -589,6 +589,7 @@ public class SalesforceController {
                 .uri(makeUri(baseUrl, sfAddContactPath))
                 .header(AUTHORIZATION, auth)
                 .contentType(APPLICATION_JSON)
+                .syncBody(body)
                 .exchange()
                 .flatMap(Reactive::checkStatus)
                 .flatMap(response -> response.toEntity(JsonDocument.class));
