@@ -560,7 +560,6 @@
                                 <goal>build</goal>
                                 <goal>start</goal>
                                 <goal>stop</goal>
-                                <goal>push</goal>
                                 <goal>remove</goal>
                             </goals>
                         </execution>
