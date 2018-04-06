@@ -23,11 +23,11 @@ Vagrant isn't necessary if you're using an RPM-based OS, such as CentOS or RHEL.
 ```
 yum install -y git rpm-build vim nmap-ncat java-1.8.0-openjdk-devel
 ```
-* Clone this repository or download as zip
-* Unzip the repo if needed 
 
-### Build
+### Building
 
+Clone this repository or download as zip.
+Unzip the repo if you downloaded a zip. 
 Use the below command from within the repository directory to build the RPMs :
     
     ./mvnw clean install -Pmake-rpm
