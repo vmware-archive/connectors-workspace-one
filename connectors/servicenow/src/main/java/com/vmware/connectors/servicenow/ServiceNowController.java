@@ -118,6 +118,13 @@ public class ServiceNowController {
 
         return callForUserSysId(baseUrl, email, auth)
                 .flux()
+                .doOnEach(Reactive.wrapForItem(userSysId -> {
+                    if (!userSysId.isPresent()) {
+                        logger.warn("sys_id for {} not found in {}, returning empty cards", email, baseUrl);
+                    }
+                }))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .flatMap(userSysId -> callForApprovalRequests(baseUrl, auth, userSysId))
                 .flatMap(approvalRequest -> callForAndAggregateRequestInfo(baseUrl, auth, approvalRequest))
                 .filter(info -> requestNumbers.contains(info.getInfo().getNumber()))
@@ -129,7 +136,7 @@ public class ServiceNowController {
                 .subscriberContext(Reactive.setupContext());
     }
 
-    private Mono<String> callForUserSysId(
+    private Mono<Optional<String>> callForUserSysId(
             String baseUrl,
             String email,
             String auth
@@ -159,7 +166,7 @@ public class ServiceNowController {
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(userInfoResponse -> userInfoResponse.read("$.result[0]." + SysUser.Fields.SYS_ID));
+                .map(userInfoResponse -> Optional.ofNullable(userInfoResponse.read("$.result[0]." + SysUser.Fields.SYS_ID)));
     }
 
     private Flux<ApprovalRequest> callForApprovalRequests(

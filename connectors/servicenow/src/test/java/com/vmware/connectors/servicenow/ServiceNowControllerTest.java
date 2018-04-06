@@ -9,6 +9,7 @@ import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,11 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         mockServiceNow = MockRestServiceServer.bindTo(requestHandlerHolder)
                 .ignoreExpectOrder(true)
                 .build();
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        mockServiceNow.verify();
     }
 
     @ParameterizedTest
@@ -184,14 +190,32 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json")
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("X-Backend-Status", "401"));
-
-        mockServiceNow.verify();
     }
 
     @Test
     void testRequestCardsAuthHeaderMissing() throws Exception {
         requestCards(null, "valid/cards/card.json")
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRequestCardsEmailNotFoundInServiceNow() throws Exception {
+        mockServiceNow.expect(requestTo("https://snow.acme.com/api/now/table/sys_user?sysparm_fields=sys_id&sysparm_limit=1&email=jbard@vmware.com"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("/servicenow/fake/user-not-found.json"), APPLICATION_JSON));
+
+        requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json")
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().string(isValidHeroCardConnectorResponse()))
+                .andExpect(
+                        content().string(
+                                JsonReplacementsBuilder
+                                        .from(fromFile("/servicenow/responses/success/cards/email-not-found.json"))
+                                        .buildForCards()
+                        )
+                );
     }
 
     @DisplayName("Card request success cases")
@@ -326,8 +350,6 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         approve(SNOW_AUTH_TOKEN, "valid/actions/approve.form")
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("X-Backend-Status", "401"));
-
-        mockServiceNow.verify();
     }
 
     @Test
@@ -352,8 +374,6 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         approve(SNOW_AUTH_TOKEN, "valid/actions/approve.form")
                 .andExpect(status().isOk())
                 .andExpect(content().json(expected, false));
-
-        mockServiceNow.verify();
     }
 
     /////////////////////////////
@@ -368,8 +388,6 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         reject(SNOW_AUTH_TOKEN, "valid/actions/reject.form")
                 .andExpect(status().isBadRequest())
                 .andExpect(header().string("X-Backend-Status", "401"));
-
-        mockServiceNow.verify();
     }
 
     @Test
@@ -395,8 +413,6 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         reject(SNOW_AUTH_TOKEN, "valid/actions/reject.form")
                 .andExpect(status().isOk())
                 .andExpect(content().json(expected, false));
-
-        mockServiceNow.verify();
     }
 
     @Test
