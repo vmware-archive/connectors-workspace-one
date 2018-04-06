@@ -15,23 +15,22 @@ This repository also includes common libraries. Please see their [README](https:
 
 ### Prerequisites
 
-* Java 8 / openjdk 8
-* CentOS / RPM based OS
-* [Vagrantfile](https://github.com/vmware/connectors-workspace-one/blob/master/Vagrantfile) can be used to build, or make sure the below pre-requs are run: 
+* Java 8
+* Vagrant (use [Vagrantfile](https://github.com/vmware/connectors-workspace-one/blob/master/Vagrantfile))
+
+Vagrant isn't necessary if you're using an RPM-based OS, such as CentOS or RHEL. You will need the following packages though:
 
 ```
 yum install -y git rpm-build vim nmap-ncat java-1.8.0-openjdk-devel
 ```
 * Clone this repository or download as zip
-* unzip the repo if needed 
+* Unzip the repo if needed 
 
 ### Build
 
-Use the below command to build the RPM's, from within the repository directory:
+Use the below command from within the repository directory to build the RPMs :
     
     ./mvnw clean install -Pmake-rpm
-
-Building the RPMs is possible only within an RPM-based system.   
 
 ### Installing
 
