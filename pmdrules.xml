@@ -31,6 +31,7 @@
     <rule ref="category/java/design.xml">
         <exclude name="DataClass"/>
         <exclude name="LawOfDemeter"/>
+        <exclude name="LoosePackageCoupling"/>
         <exclude name="DataClass"/>
         <exclude name="GodClass"/>
         <exclude name="ExcessiveImports"/>
