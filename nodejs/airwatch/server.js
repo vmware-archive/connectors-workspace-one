@@ -10,6 +10,7 @@ const express = require('express');
 const app = express();
 const discovery = require('./routes/discovery');
 const airwatch = require('./routes/airwatch');
+const {log} = require('./util');
 const vIdm = require('./vidm');
 const options = require('./config/command-line-options');
 
@@ -33,7 +34,7 @@ app.use(
                 res.locals.jwt = decoded;
                 next()
             }).catch(function (err) {
-                console.log('vIdm verification failed:', err);
+                log('vIdm verification failed:', err);
                 res.status(401).json({message: 'vIdm verification failed!'});
             });
         } else {
@@ -63,6 +64,6 @@ app.post('/mdm/app/install', airwatch.installApp);
 app.listen(
     port,
     () => {
-        console.log('AirWatch connector listening on port ', port);
+        log('AirWatch connector listening on port ', port);
     }
 );

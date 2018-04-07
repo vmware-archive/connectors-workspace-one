@@ -16,12 +16,9 @@ const {
     CardActionInputFieldBuilder
 } = require('../cards-builders');
 
+const {log} = require('../util');
 const uuid = require('uuid/v4');
 const rp = require('request-promise');
-
-function log(format, ...args) {
-    console.log('%s - ' + format, new Date().toISOString(), ...args);
-}
 
 function handleError(res, data, err) {
     let errCode = 500;

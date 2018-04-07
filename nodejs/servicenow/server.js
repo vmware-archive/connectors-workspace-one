@@ -11,6 +11,7 @@ const app = express();
 const commandLineArgs = require('command-line-args');
 const discovery = require('./routes/discovery');
 const servicenow = require('./routes/servicenow');
+const {log} = require('./util');
 const vIdm = require('./vidm');
 
 const optionDefinitions = [
@@ -44,7 +45,7 @@ app.use(
                 res.locals.jwt = decoded;
                 next()
             }).catch(function (err) {
-                console.log('vIdm verification failed:', err);
+                log('vIdm verification failed:', err);
                 res.status(401).json({message: 'vIdm verification failed!'});
             });
         } else {
@@ -74,6 +75,6 @@ app.post('/api/v1/tickets/:requestSysId/reject', servicenow.reject);
 app.listen(
     port,
     () => {
-        console.log('ServiceNow connector listening on port ', port);
+        log('ServiceNow connector listening on port ', port);
     }
 );

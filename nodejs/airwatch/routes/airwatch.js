@@ -9,12 +9,9 @@ const managedApps = require('../config/managed-apps');
 const _ = require('lodash');
 const uuid = require('uuid/v4');
 const rp = require('request-promise');
+const {log} = require('../util');
 const options = require('../config/command-line-options');
 const greenBoxUrl = options.greenBoxUrl;
-
-function log(format, ...args) {
-    console.log('%s - ' + format, new Date().toISOString(), ...args);
-}
 
 function handleError(res, data, err) {
     log('Handling error: ', err);
