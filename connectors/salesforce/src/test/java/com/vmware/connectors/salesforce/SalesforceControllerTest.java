@@ -43,6 +43,7 @@ import java.util.stream.Stream;
 import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
@@ -294,6 +295,11 @@ class SalesforceControllerTest extends ControllerTestsBase {
         UriComponentsBuilder addOppToContactReqBuilder = fromHttpUrl(SERVER_URL).path(LINK_OPPORTUNITY_PATH);
         mockSF.expect(requestTo(addContactReqBuilder.build().toUri()))
                 .andExpect(method(HttpMethod.POST))
+                .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
+                .andExpect(MockRestRequestMatchers.jsonPath("$.AccountId", is(TRAVIS_ACCOUNT_ID)))
+                .andExpect(MockRestRequestMatchers.jsonPath("$.Email", is("test@email.com")))
+                .andExpect(MockRestRequestMatchers.jsonPath("$.LastName", is("k")))
+                .andExpect(MockRestRequestMatchers.jsonPath("$.FirstName", is("prabhu")))
                 .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess(sfResponseContactCreated, APPLICATION_JSON));
         mockSF.expect(requestTo(addOppToContactReqBuilder.build().toUri()))

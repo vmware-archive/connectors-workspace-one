@@ -159,7 +159,13 @@ public class ServiceNowController {
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(userInfoResponse -> userInfoResponse.read("$.result[0]." + SysUser.Fields.SYS_ID));
+                .flatMap(Reactive.wrapFlatMapper(userInfoResponse -> {
+                    String userSysId = userInfoResponse.read("$.result[0]." + SysUser.Fields.SYS_ID);
+                    if (userSysId == null) {
+                        logger.warn("sys_id for {} not found in {}, returning empty cards", email, baseUrl);
+                    }
+                    return Mono.justOrEmpty(userSysId);
+                }));
     }
 
     private Flux<ApprovalRequest> callForApprovalRequests(
