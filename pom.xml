@@ -505,6 +505,8 @@
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
+                    <version>0.24.0</version>
+
                     <configuration>
                         <images>
                             <image>
@@ -674,6 +676,8 @@
                     <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.24.0</version>
+
                         <configuration>
                             <registry>registry.hub.docker.com/ws1connectors</registry>
                             <authConfig>
@@ -743,8 +747,6 @@
                                 <goals>
                                     <goal>build</goal>
                                     <goal>push</goal>
-                                    <goal>start</goal>
-                                    <goal>stop</goal>
                                     <goal>remove</goal>
                                 </goals>
                             </execution>
