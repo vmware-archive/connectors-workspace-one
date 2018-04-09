@@ -186,7 +186,7 @@
                                             </inline>
                                             <targetDir>/opt/vmware/airwatch-connector</targetDir>
                                         </assembly>
-                                        <from>centos/systemd:latest</from>
+                                        <from>${docker.javaImage}</from>
                                         <workdir>/opt/vmware/airwatch-connector</workdir>
                                         <entryPoint>
                                             <shell>java -server -XX:+UnlockExperimentalVMOptions \
