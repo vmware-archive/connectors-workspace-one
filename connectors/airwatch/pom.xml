@@ -188,6 +188,12 @@
                                         </assembly>
                                         <from>${docker.javaImage}</from>
                                         <workdir>/opt/vmware/airwatch-connector</workdir>
+                                        <healthCheck>
+                                            <interval>1s</interval>
+                                            <timeout>5s</timeout>
+                                            <retries>6</retries>
+                                            <cmd>curl -f http://localhost:8080/health || exit 1</cmd>
+                                        </healthCheck>
                                         <entryPoint>
                                             <shell>java -server -XX:+UnlockExperimentalVMOptions \
                                                 -Xss256k \
@@ -205,7 +211,7 @@
                                     <run>
                                         <memory>${container.memory}</memory>
                                         <ports>
-                                            <port>${docker.bind.address}:8830:8080</port>
+                                            <port>${docker.bind.address}:8080:8080</port>
                                         </ports>
                                         <env>
                                             <SERVICE_8080_CHECK_HTTP>/health</SERVICE_8080_CHECK_HTTP>
@@ -213,11 +219,7 @@
                                         </env>
                                         <wait>
                                             <time>${docker.wait.timeout}</time>
-                                            <tcp>
-                                                <ports>
-                                                    <port>8080</port>
-                                                </ports>
-                                            </tcp>
+                                            <healthy>true</healthy>
                                         </wait>
                                     </run>
                                 </image>

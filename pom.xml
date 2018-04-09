@@ -718,7 +718,7 @@
                                     <run>
                                         <memory>${container.memory}</memory>
                                         <ports>
-                                            <port>${docker.bind.address}:8831:8080</port>
+                                            <port>${docker.bind.address}:8080:8080</port>
                                         </ports>
                                         <env>
                                             <SERVICE_8080_CHECK_HTTP>/health</SERVICE_8080_CHECK_HTTP>
@@ -743,6 +743,7 @@
                                 <goals>
                                     <goal>build</goal>
                                     <goal>push</goal>
+                                    <goal>remove</goal>
                                 </goals>
                             </execution>
 
@@ -751,6 +752,7 @@
                                 <phase>deploy</phase>
                                 <goals>
                                     <goal>push</goal>
+                                    <goal>remove</goal>
                                 </goals>
                             </execution>
                         </executions>
