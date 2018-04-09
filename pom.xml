@@ -505,50 +505,65 @@
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.24.0</version>
+                    <version>0.25.0</version>
 
                     <configuration>
+                        <registry>registry.hub.docker.com/ws1connectors</registry>
+                        <authConfig>
+                            <username>appplatform</username>
+                            <password>dockerhub_8976</password>
+                        </authConfig>
+
                         <images>
                             <image>
-                                <name>${connector.name}</name>
+                                <name>${project.artifactId}</name>
+                                <alias>${project.artifactId}</alias>
                                 <build>
-                                    <from>centos/systemd:latest</from>
                                     <assembly>
                                         <inline>
-                                            <id>rpm</id>
-                                            <fileSets>
-                                                <fileSet>
+                                            <dependencySets>
+                                                <dependencySet>
+                                                    <useProjectArtifact>true</useProjectArtifact>
                                                     <includes>
-                                                        <include>target/**/*.rpm</include>
+                                                        <include>com.vmware.card-connectors:${project.artifactId}</include>
                                                     </includes>
-                                                </fileSet>
-                                            </fileSets>
+                                                </dependencySet>
+                                            </dependencySets>
                                         </inline>
+                                        <targetDir>/opt/vmware/${project.artifactId}</targetDir>
                                     </assembly>
-                                    <runCmds>
-                                        <run>yum -y install /maven/target/rpm/${connector.name}-connector/RPMS/noarch/*.rpm</run>
-                                        <run>
-                                            <![CDATA[
-                                                echo "security.oauth2.resource.jwt.key-value=foo" \
-                                                > /etc/opt/vmware/connectors/${connector.name}/application.properties
-                                                ]]>
-                                        </run>
-                                    </runCmds>
-                                    <cmd>
-                                        <shell>/usr/sbin/init</shell>
-                                    </cmd>
+                                    <from>centos/systemd:latest</from>
+                                    <workdir>/opt/vmware/${project.artifactId}</workdir>
+                                    <entryPoint>
+                                        <shell>
+                                            java -server -XX:+UnlockExperimentalVMOptions \
+                                            -Xss256k \
+                                            -XX:+UseCGroupMemoryLimitForHeap \
+                                            -XX:MaxRAMFraction=1 \
+                                            -jar /opt/vmware/${project.artifactId}/${project.artifactId}-${project.version}.jar \
+                                            --logging.level.com.vmware=${container.logging.level} \
+                                            --spring.profiles.active=prod,external \
+                                            --tenant.publicKeyUrl="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \
+                                            --hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=10000
+                                        </shell>
+                                    </entryPoint>
                                 </build>
                                 <run>
-                                    <privileged>true</privileged>
-                                    <ports>connector.port:8080</ports>
+                                    <memory>${container.memory}</memory>
+                                    <ports>
+                                        <port>${docker.bind.address}:8080:8080</port>
+                                    </ports>
+                                    <env>
+                                        <SERVICE_8080_CHECK_HTTP>/health</SERVICE_8080_CHECK_HTTP>
+                                        <SERVICE_NAME>${project.artifactId}</SERVICE_NAME>
+                                    </env>
                                     <wait>
-                                        <!-- Build will fail if not healthy within 60 seconds -->
-                                        <time>60000</time>
-                                        <http>
-                                            <url>http://localhost:${connector.port}/health</url>
-                                            <method>GET</method>
-                                            <status>200</status>
-                                        </http>
+                                        <time>${docker.wait.timeout}</time>
+                                        <tcp>
+                                            <ports>
+                                                <port>8080</port>
+                                            </ports>
+                                        </tcp>
                                     </wait>
                                 </run>
                             </image>
@@ -676,7 +691,7 @@
                     <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
-                        <version>0.24.0</version>
+                        <version>0.25.0</version>
 
                         <configuration>
                             <registry>registry.hub.docker.com/ws1connectors</registry>
