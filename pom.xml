@@ -699,7 +699,7 @@
                                             </inline>
                                             <targetDir>/opt/vmware/${project.artifactId}</targetDir>
                                         </assembly>
-                                        <from>${docker.javaImage}</from>
+                                        <from>centos/systemd:latest</from>
                                         <workdir>/opt/vmware/${project.artifactId}</workdir>
                                         <entryPoint>
                                             <shell>
@@ -743,6 +743,8 @@
                                 <goals>
                                     <goal>build</goal>
                                     <goal>push</goal>
+                                    <goal>start</goal>
+                                    <goal>stop</goal>
                                     <goal>remove</goal>
                                 </goals>
                             </execution>

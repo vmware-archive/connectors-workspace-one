@@ -186,7 +186,7 @@
                                             </inline>
                                             <targetDir>/opt/vmware/airwatch-connector</targetDir>
                                         </assembly>
-                                        <from>${docker.javaImage}</from>
+                                        <from>centos/systemd:latest</from>
                                         <workdir>/opt/vmware/airwatch-connector</workdir>
                                         <healthCheck>
                                             <interval>1s</interval>
