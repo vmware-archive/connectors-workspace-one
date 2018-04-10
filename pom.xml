@@ -697,7 +697,7 @@
                                             </inline>
                                             <targetDir>/opt/vmware/${connector.name}</targetDir>
                                         </assembly>
-                                        <from>centos/systemd:latest</from>
+                                        <from>openjdk:8u151-jre</from>
                                         <workdir>/opt/vmware/${connector.name}</workdir>
                                         <entryPoint>
                                             <shell>
@@ -709,6 +709,7 @@
                                                 --logging.level.com.vmware=${container.logging.level} \
                                                 --spring.profiles.active=prod,external \
                                                 --tenant.publicKeyUrl="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \
+                                                --security.oauth2.resource.jwt.key-uri="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \
                                                 --hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=10000
                                             </shell>
                                         </entryPoint>
@@ -740,6 +741,10 @@
                                 <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
+                                    <goal>start</goal>
+                                    <goal>stop</goal>
+                                    <goal>push</goal>
+                                    <goal>remove</goal>
                                 </goals>
                             </execution>
 
