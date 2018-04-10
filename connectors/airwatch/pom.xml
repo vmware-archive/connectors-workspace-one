@@ -184,11 +184,11 @@
                                                         <outputDirectory>./</outputDirectory>
                                                     </file>
                                                     <file>
-                                                        <source>${project.basedir}/src/main/service/rhel/files/default-conf/managed-apps.yml</source>
+                                                        <source>${project.basedir}/src/test/resources/docker/managed-apps.yml</source>
                                                         <outputDirectory>./</outputDirectory>
                                                     </file>
                                                     <file>
-                                                        <source>${project.basedir}/src/main/service/rhel/files/default-conf/application.properties</source>
+                                                        <source>${project.basedir}/src/test/resources/docker/application.properties</source>
                                                         <outputDirectory>./</outputDirectory>
                                                     </file>
 
