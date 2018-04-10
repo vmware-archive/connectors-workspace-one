@@ -128,11 +128,6 @@
             </dependency>
             <dependency>
                 <groupId>com.vmware.card-connectors</groupId>
-                <artifactId>core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.vmware.card-connectors</groupId>
                 <artifactId>connectors</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -685,61 +680,9 @@
                             </authConfig>
 
                             <images>
-                                <!--<image>-->
-                                    <!--<name>${project.artifactId}</name>-->
-                                    <!--<alias>${project.artifactId}</alias>-->
-                                    <!--<build>-->
-                                        <!--<assembly>-->
-                                            <!--<inline>-->
-                                                <!--<dependencySets>-->
-                                                    <!--<dependencySet>-->
-                                                        <!--<useProjectArtifact>true</useProjectArtifact>-->
-                                                        <!--<includes>-->
-                                                            <!--<include>com.vmware.card-connectors:${project.artifactId}</include>-->
-                                                        <!--</includes>-->
-                                                    <!--</dependencySet>-->
-                                                <!--</dependencySets>-->
-                                            <!--</inline>-->
-                                            <!--<targetDir>/opt/vmware/${project.artifactId}</targetDir>-->
-                                        <!--</assembly>-->
-                                        <!--<from>centos/systemd:latest</from>-->
-                                        <!--<workdir>/opt/vmware/${project.artifactId}</workdir>-->
-                                        <!--<entryPoint>-->
-                                            <!--<shell>-->
-                                                <!--java -server -XX:+UnlockExperimentalVMOptions \-->
-                                                <!-- -Xss256k \-->
-                                                <!-- -XX:+UseCGroupMemoryLimitForHeap \-->
-                                                <!-- -XX:MaxRAMFraction=1 \-->
-                                                <!-- -jar /opt/vmware/${project.artifactId}/${project.artifactId}-${project.version}.jar \-->
-                                                <!--&#45;&#45;logging.level.com.vmware=${container.logging.level} \-->
-                                                <!--&#45;&#45;spring.profiles.active=prod,external \-->
-                                                <!--&#45;&#45;tenant.publicKeyUrl="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \-->
-                                                <!--&#45;&#45;hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=10000-->
-                                            <!--</shell>-->
-                                        <!--</entryPoint>-->
-                                    <!--</build>-->
-                                    <!--<run>-->
-                                        <!--<memory>${container.memory}</memory>-->
-                                        <!--<ports>-->
-                                            <!--<port>${docker.bind.address}:8080:8080</port>-->
-                                        <!--</ports>-->
-                                        <!--<env>-->
-                                            <!--<SERVICE_8080_CHECK_HTTP>/health</SERVICE_8080_CHECK_HTTP>-->
-                                            <!--<SERVICE_NAME>${project.artifactId}</SERVICE_NAME>-->
-                                        <!--</env>-->
-                                        <!--<wait>-->
-                                            <!--<time>${docker.wait.timeout}</time>-->
-                                            <!--<tcp>-->
-                                                <!--<ports>-->
-                                                    <!--<port>8080</port>-->
-                                                <!--</ports>-->
-                                            <!--</tcp>-->
-                                        <!--</wait>-->
-                                    <!--</run>-->
-                                <!--</image>-->
                                 <image>
-                                    <name>airwatch-connector</name>
-                                    <alias>airwatch-connector</alias>
+                                    <name>${project.artifactId}</name>
+                                    <alias>${project.artifactId}</alias>
                                     <build>
                                         <assembly>
                                             <inline>
@@ -747,21 +690,22 @@
                                                     <dependencySet>
                                                         <useProjectArtifact>true</useProjectArtifact>
                                                         <includes>
-                                                            <include>com.vmware.card-connectors:airwatch-connector</include>
+                                                            <include>com.vmware.card-connectors:${project.artifactId}</include>
                                                         </includes>
                                                     </dependencySet>
                                                 </dependencySets>
                                             </inline>
-                                            <targetDir>/opt/vmware/airwatch-connector</targetDir>
+                                            <targetDir>/opt/vmware/${connector.name}</targetDir>
                                         </assembly>
                                         <from>centos/systemd:latest</from>
-                                        <workdir>/opt/vmware/airwatch-connector</workdir>
+                                        <workdir>/opt/vmware/${connector.name}</workdir>
                                         <entryPoint>
-                                            <shell>java -server -XX:+UnlockExperimentalVMOptions \
-                                                -Xss256k \
-                                                -XX:+UseCGroupMemoryLimitForHeap \
-                                                -XX:MaxRAMFraction=1 \
-                                                -jar /opt/vmware/airwatch-connector/airwatch-connector-${project.version}.jar \
+                                            <shell>
+                                                java -server -XX:+UnlockExperimentalVMOptions \
+                                                 -Xss256k \
+                                                 -XX:+UseCGroupMemoryLimitForHeap \
+                                                 -XX:MaxRAMFraction=1 \
+                                                 -jar /opt/vmware/${connector.name}/${project.artifactId}-${project.version}.jar \
                                                 --logging.level.com.vmware=${container.logging.level} \
                                                 --spring.profiles.active=prod,external \
                                                 --tenant.publicKeyUrl="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \
@@ -772,11 +716,11 @@
                                     <run>
                                         <memory>${container.memory}</memory>
                                         <ports>
-                                            <port>${docker.bind.address}:8829:8080</port>
+                                            <port>${docker.bind.address}:8080:8080</port>
                                         </ports>
                                         <env>
                                             <SERVICE_8080_CHECK_HTTP>/health</SERVICE_8080_CHECK_HTTP>
-                                            <SERVICE_NAME>airwatch-connector</SERVICE_NAME>
+                                            <SERVICE_NAME>${project.artifactId}</SERVICE_NAME>
                                         </env>
                                         <wait>
                                             <time>${docker.wait.timeout}</time>
@@ -796,10 +740,6 @@
                                 <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
-                                    <goal>push</goal>
-                                    <goal>start</goal>
-                                    <goal>stop</goal>
-                                    <goal>remove</goal>
                                 </goals>
                             </execution>
 
