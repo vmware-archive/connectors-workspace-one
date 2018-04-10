@@ -170,62 +170,62 @@
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
 
-                        <configuration>
-                            <images>
-                                <image>
-                                    <name>airwatch-connector</name>
-                                    <alias>airwatch-connector</alias>
-                                    <build>
-                                        <assembly>
-                                            <inline>
-                                                <files>
-                                                    <file>
-                                                        <source>${project.basedir}/src/main/resources/application.yml</source>
-                                                        <outputDirectory>./</outputDirectory>
-                                                    </file>
-                                                </files>
-                                            </inline>
-                                            <targetDir>/opt/vmware/airwatch-connector</targetDir>
-                                        </assembly>
-                                        <from>centos/systemd:latest</from>
-                                        <workdir>/opt/vmware/airwatch-connector</workdir>
-                                        <healthCheck>
-                                            <interval>1s</interval>
-                                            <timeout>5s</timeout>
-                                            <retries>6</retries>
-                                            <cmd>curl -f http://localhost:8080/health || exit 1</cmd>
-                                        </healthCheck>
-                                        <entryPoint>
-                                            <shell>java -server -XX:+UnlockExperimentalVMOptions \
-                                                -Xss256k \
-                                                -XX:+UseCGroupMemoryLimitForHeap \
-                                                -XX:MaxRAMFraction=1 \
-                                                -jar /opt/vmware/airwatch-connector/airwatch-connector-${project.version}.jar \
-                                                --logging.level.com.vmware=${container.logging.level} \
-                                                --spring.profiles.active=prod,external \
-                                                --tenant.publicKeyUrl="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \
-                                                --spring.config.location=/opt/vmware/airwatch-connector/managed-apps.yml \
-                                                --hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=10000
-                                            </shell>
-                                        </entryPoint>
-                                    </build>
-                                    <run>
-                                        <memory>${container.memory}</memory>
-                                        <ports>
-                                            <port>${docker.bind.address}:8080:8080</port>
-                                        </ports>
-                                        <env>
-                                            <SERVICE_8080_CHECK_HTTP>/health</SERVICE_8080_CHECK_HTTP>
-                                            <SERVICE_NAME>airwatch-connector</SERVICE_NAME>
-                                        </env>
-                                        <wait>
-                                            <time>${docker.wait.timeout}</time>
-                                            <healthy>true</healthy>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
-                        </configuration>
+                        <!--<configuration>-->
+                            <!--<images>-->
+                                <!--<image>-->
+                                    <!--<name>airwatch-connector</name>-->
+                                    <!--<alias>airwatch-connector</alias>-->
+                                    <!--<build>-->
+                                        <!--<assembly>-->
+                                            <!--<inline>-->
+                                                <!--<files>-->
+                                                    <!--<file>-->
+                                                        <!--<source>${project.basedir}/src/main/resources/application.yml</source>-->
+                                                        <!--<outputDirectory>./</outputDirectory>-->
+                                                    <!--</file>-->
+                                                <!--</files>-->
+                                            <!--</inline>-->
+                                            <!--<targetDir>/opt/vmware/airwatch-connector</targetDir>-->
+                                        <!--</assembly>-->
+                                        <!--<from>centos/systemd:latest</from>-->
+                                        <!--<workdir>/opt/vmware/airwatch-connector</workdir>-->
+                                        <!--<healthCheck>-->
+                                            <!--<interval>1s</interval>-->
+                                            <!--<timeout>5s</timeout>-->
+                                            <!--<retries>6</retries>-->
+                                            <!--<cmd>curl -f http://localhost:8080/health || exit 1</cmd>-->
+                                        <!--</healthCheck>-->
+                                        <!--<entryPoint>-->
+                                            <!--<shell>java -server -XX:+UnlockExperimentalVMOptions \-->
+                                                <!-- -Xss256k \-->
+                                                <!-- -XX:+UseCGroupMemoryLimitForHeap \-->
+                                                <!-- -XX:MaxRAMFraction=1 \-->
+                                                <!-- -jar /opt/vmware/airwatch-connector/airwatch-connector-${project.version}.jar \-->
+                                                <!--&#45;&#45;logging.level.com.vmware=${container.logging.level} \-->
+                                                <!--&#45;&#45;spring.profiles.active=prod,external \-->
+                                                <!--&#45;&#45;tenant.publicKeyUrl="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \-->
+                                                <!--&#45;&#45;spring.config.location=/opt/vmware/airwatch-connector/managed-apps.yml \-->
+                                                <!--&#45;&#45;hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=10000-->
+                                            <!--</shell>-->
+                                        <!--</entryPoint>-->
+                                    <!--</build>-->
+                                    <!--<run>-->
+                                        <!--<memory>${container.memory}</memory>-->
+                                        <!--<ports>-->
+                                            <!--<port>${docker.bind.address}:8080:8080</port>-->
+                                        <!--</ports>-->
+                                        <!--<env>-->
+                                            <!--<SERVICE_8080_CHECK_HTTP>/health</SERVICE_8080_CHECK_HTTP>-->
+                                            <!--<SERVICE_NAME>airwatch-connector</SERVICE_NAME>-->
+                                        <!--</env>-->
+                                        <!--<wait>-->
+                                            <!--<time>${docker.wait.timeout}</time>-->
+                                            <!--<healthy>true</healthy>-->
+                                        <!--</wait>-->
+                                    <!--</run>-->
+                                <!--</image>-->
+                            <!--</images>-->
+                        <!--</configuration>-->
 
                     </plugin>
                 </plugins>
