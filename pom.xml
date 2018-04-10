@@ -508,62 +508,47 @@
                     <version>0.25.0</version>
 
                     <configuration>
-                        <registry>registry.hub.docker.com/ws1connectors</registry>
-                        <authConfig>
-                            <username>appplatform</username>
-                            <password>dockerhub_8976</password>
-                        </authConfig>
-
                         <images>
                             <image>
-                                <name>${project.artifactId}</name>
-                                <alias>${project.artifactId}</alias>
+                                <name>${connector.name}</name>
                                 <build>
+                                    <from>centos/systemd:latest</from>
                                     <assembly>
                                         <inline>
-                                            <dependencySets>
-                                                <dependencySet>
-                                                    <useProjectArtifact>true</useProjectArtifact>
+                                            <id>rpm</id>
+                                            <fileSets>
+                                                <fileSet>
                                                     <includes>
-                                                        <include>com.vmware.card-connectors:${project.artifactId}</include>
+                                                        <include>target/**/*.rpm</include>
                                                     </includes>
-                                                </dependencySet>
-                                            </dependencySets>
+                                                </fileSet>
+                                            </fileSets>
                                         </inline>
-                                        <targetDir>/opt/vmware/${project.artifactId}</targetDir>
                                     </assembly>
-                                    <from>centos/systemd:latest</from>
-                                    <workdir>/opt/vmware/${project.artifactId}</workdir>
-                                    <entryPoint>
-                                        <shell>
-                                            java -server -XX:+UnlockExperimentalVMOptions \
-                                            -Xss256k \
-                                            -XX:+UseCGroupMemoryLimitForHeap \
-                                            -XX:MaxRAMFraction=1 \
-                                            -jar /opt/vmware/${project.artifactId}/${project.artifactId}-${project.version}.jar \
-                                            --logging.level.com.vmware=${container.logging.level} \
-                                            --spring.profiles.active=prod,external \
-                                            --tenant.publicKeyUrl="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \
-                                            --hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=10000
-                                        </shell>
-                                    </entryPoint>
+                                    <runCmds>
+                                        <run>yum -y install /maven/target/rpm/${connector.name}-connector/RPMS/noarch/*.rpm</run>
+                                        <run>
+                                            <![CDATA[
+                                                echo "security.oauth2.resource.jwt.key-value=foo" \
+                                                > /etc/opt/vmware/connectors/${connector.name}/application.properties
+                                                ]]>
+                                        </run>
+                                    </runCmds>
+                                    <cmd>
+                                        <shell>/usr/sbin/init</shell>
+                                    </cmd>
                                 </build>
                                 <run>
-                                    <memory>${container.memory}</memory>
-                                    <ports>
-                                        <port>${docker.bind.address}:8080:8080</port>
-                                    </ports>
-                                    <env>
-                                        <SERVICE_8080_CHECK_HTTP>/health</SERVICE_8080_CHECK_HTTP>
-                                        <SERVICE_NAME>${project.artifactId}</SERVICE_NAME>
-                                    </env>
+                                    <privileged>true</privileged>
+                                    <ports>connector.port:8080</ports>
                                     <wait>
-                                        <time>${docker.wait.timeout}</time>
-                                        <tcp>
-                                            <ports>
-                                                <port>8080</port>
-                                            </ports>
-                                        </tcp>
+                                        <!-- Build will fail if not healthy within 60 seconds -->
+                                        <time>60000</time>
+                                        <http>
+                                            <url>http://localhost:${connector.port}/health</url>
+                                            <method>GET</method>
+                                            <status>200</status>
+                                        </http>
                                     </wait>
                                 </run>
                             </image>
