@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=roswell
-ExecStart=/usr/bin/java -jar /opt/vmware/connectors/salesforce/salesforce-connector.jar --spring.config.additional-location=file:/opt/vmware/connectors/salesforce/application.properties,file:/etc/opt/vmware/connectors/salesforce/application.properties
+ExecStart=/bin/bash /opt/vmware/connectors/salesforce/start.sh
 Restart=on-abort
 
 [Install]
