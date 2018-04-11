@@ -20,11 +20,7 @@
         <connector.name>overrideme</connector.name>
         <container.memory>512000000</container.memory>
         <container.logging.level>DEBUG</container.logging.level>
-        <docker.wait.timeout>300000</docker.wait.timeout>
-        <docker.serviceName>${project.artifactId}</docker.serviceName>
         <docker.javaImage>ws1devops/java8:u162</docker.javaImage>
-        <docker.consulImage>consul:1.0.6</docker.consulImage>
-        <docker.registrator>gliderlabs/registrator:v7</docker.registrator>
         <docker.wait.timeout>300000</docker.wait.timeout>
         <docker.bind.address>172.17.0.1</docker.bind.address>
     </properties>
