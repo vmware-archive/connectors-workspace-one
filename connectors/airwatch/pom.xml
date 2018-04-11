@@ -204,13 +204,15 @@
                                                  -Xss256k \
                                                  -XX:+UseCGroupMemoryLimitForHeap \
                                                  -XX:MaxRAMFraction=1 \
+                                                 -XX:+HeapDumpOnOutOfMemoryError \
+                                                 -XX:HeapDumpPath=/tmp \
                                                  -jar /opt/vmware/airwatch-connector/airwatch-connector-${project.version}.jar \
-                                                --logging.level.com.vmware=${container.logging.level} \
-                                                --spring.profiles.active=prod,external \
-                                                --tenant.publicKeyUrl="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \
-                                                --security.oauth2.resource.jwt.key-uri="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \
-                                                --spring.config.location=/opt/vmware/airwatch-connector/managed-apps.yml,/opt/vmware/airwatch-connector/application.properties  \
-                                                --hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=10000
+                                                 --logging.level.com.vmware=${container.logging.level} \
+                                                 --spring.profiles.active=prod,external \
+                                                 --tenant.publicKeyUrl="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \
+                                                 --security.oauth2.resource.jwt.key-uri="https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&amp;format=pem" \
+                                                 --spring.config.location=/opt/vmware/airwatch-connector/managed-apps.yml,/opt/vmware/airwatch-connector/application.properties  \
+                                                 --hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=10000
                                             </shell>
                                         </entryPoint>
                                     </build>
