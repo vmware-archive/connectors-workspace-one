@@ -43,8 +43,8 @@
                             <configuration>
                                 <registry>registry.hub.docker.com/ws1connectors</registry>
                                 <authConfig>
-                                    <username>appplatform</username>
-                                    <password>x6V47JWwdygaWlU8</password>
+                                    <username>${docker.hub.username}</username>
+                                    <password>${docker.hub.password}</password>
                                 </authConfig>
 
                                 <images>
