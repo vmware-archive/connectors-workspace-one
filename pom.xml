@@ -118,7 +118,6 @@
                 <version>2.2.6</version>
             </dependency>
         </dependencies>
-
     </dependencyManagement>
 
     <modules>
@@ -441,11 +440,11 @@
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.23.0</version>
+                    <version>0.25.0</version>
                     <configuration>
                         <images>
                             <image>
-                                <name>connector</name>
+                                <name>${connector.name}</name>
                                 <build>
                                     <from>centos/systemd:latest</from>
                                     <assembly>

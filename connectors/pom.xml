@@ -13,6 +13,10 @@
         <version>2.1-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <docker.javaImage>ws1devops/java8:u162</docker.javaImage>
+    </properties>
+
     <modules>
         <module>airwatch</module>
         <module>aws-cert</module>
@@ -24,5 +28,89 @@
         <module>servicenow</module>
         <module>bitbucket-server</module>
     </modules>
-    
+
+    <profiles>
+        <profile>
+            <id>push-docker-image</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>io.fabric8</groupId>
+                            <artifactId>docker-maven-plugin</artifactId>
+                            <version>0.25.0</version>
+
+                            <configuration>
+                                <registry>registry.hub.docker.com/ws1connectors</registry>
+                                <authConfig>
+                                    <username>${docker.hub.username}</username>
+                                    <password>${docker.hub.password}</password>
+                                </authConfig>
+
+                                <images>
+                                    <image>
+                                        <name>${project.artifactId}</name>
+                                        <alias>${project.artifactId}</alias>
+                                        <build>
+                                            <assembly>
+                                                <inline>
+                                                    <dependencySets>
+                                                        <dependencySet>
+                                                            <useProjectArtifact>true</useProjectArtifact>
+                                                            <includes>
+                                                                <include>com.vmware.card-connectors:${project.artifactId}</include>
+                                                            </includes>
+                                                        </dependencySet>
+                                                    </dependencySets>
+                                                </inline>
+                                                <targetDir>/opt/vmware/${connector.name}</targetDir>
+                                            </assembly>
+                                            <from>${docker.javaImage}</from>
+                                            <workdir>/opt/vmware/${connector.name}</workdir>
+                                            <healthCheck>
+                                                <interval>20s</interval>
+                                                <timeout>5s</timeout>
+                                                <retries>6</retries>
+                                                <cmd>curl -f http://localhost:8080/health || exit 1</cmd>
+                                            </healthCheck>
+                                            <entryPoint>
+                                                <arg>java</arg>
+                                                <arg>-server</arg>
+                                                <arg>-XX:+UnlockExperimentalVMOptions</arg>
+                                                <arg>-XX:+UseCGroupMemoryLimitForHeap</arg>
+                                                <arg>-XX:MaxRAMFraction=1</arg>
+                                                <arg>-XX:+HeapDumpOnOutOfMemoryError</arg>
+                                                <arg>-XX:HeapDumpPath=/tmp</arg>
+                                                <arg>-jar</arg>
+                                                <arg>/opt/vmware/${connector.name}/${project.artifactId}-${project.version}.jar</arg>
+                                                <arg>--spring.profiles.active=prod</arg>
+                                            </entryPoint>
+                                        </build>
+                                    </image>
+                                </images>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>build</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>build</goal>
+                                    </goals>
+                                </execution>
+
+                                <execution>
+                                    <id>deploy</id>
+                                    <phase>deploy</phase>
+                                    <goals>
+                                        <goal>push</goal>
+                                        <goal>remove</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
 </project>
