@@ -164,6 +164,13 @@
 
         <profile>
             <id>push-docker-image</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>bamboo.planRepository.branchName</name>
+                    <value>master</value>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
