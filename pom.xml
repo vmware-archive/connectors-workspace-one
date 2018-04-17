@@ -18,6 +18,7 @@
 
     <properties>
         <connector.name>overrideme</connector.name>
+        <nexus.staging.skip>false</nexus.staging.skip>
     </properties>
 
     <name>Workspace One Connectors Parent</name>
@@ -435,6 +436,7 @@
                         <serverId>ossrhvmw</serverId>
                         <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                         <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        <skipRemoteStaging>${nexus.staging.skip}</skipRemoteStaging>
                     </configuration>
                 </plugin>
 
