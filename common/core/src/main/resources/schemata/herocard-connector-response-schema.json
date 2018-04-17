@@ -79,7 +79,8 @@
         "request":    {"type": "object"},
         "allow_repeated" : {"type": "boolean"},
         "remove_card_on_completion": {"type": "boolean"},
-        "primary": {"type": "boolean"}
+        "primary": {"type": "boolean"},
+        "mutually_exclusive_set_id": {"type": "string"}
       },
       "required": ["id", "completed_label", "url", "action_key", "label", "type"],
       "additionalProperties": false

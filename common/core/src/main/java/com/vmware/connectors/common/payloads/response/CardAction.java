@@ -64,6 +64,9 @@ public class CardAction {
     @JsonProperty("allow_repeated")
     private boolean allowRepeated;
 
+    @JsonProperty("mutually_exclusive_set_id")
+    private String mutuallyExclusiveSetId;
+
     // Don't instantiate directly - use the Builder class below
     private CardAction() {
         this.type = HttpMethod.GET;
@@ -186,6 +189,16 @@ public class CardAction {
      */
     public boolean isAllowRepeated() {
         return allowRepeated;
+    }
+
+    /**
+     * Returns "mutuallyExclusiveSetId" property. If set, performing a card action
+     * will disable other card actions.
+     *
+     * @return the mutually exclusive id.
+     */
+    public String getMutuallyExclusiveSetId() {
+        return mutuallyExclusiveSetId;
     }
 
     /**
@@ -361,6 +374,19 @@ public class CardAction {
          */
         public Builder setAllowRepeated(final boolean allowRepeated) {
             action.allowRepeated = allowRepeated;
+            return this;
+        }
+
+        /**
+         * Set "mutuallyExclusiveSetId" value. It is applicable for cards having only two actions.
+         * If an action is performed, the other action also gets disabled.
+         * Only one card action can be performed at any point of time.
+         *
+         * @param mutuallyExclusiveSetId
+         * @return
+         */
+        public Builder setMutuallyExclusiveSetId(final String mutuallyExclusiveSetId) {
+            action.mutuallyExclusiveSetId = mutuallyExclusiveSetId;
             return this;
         }
 
