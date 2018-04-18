@@ -48,7 +48,7 @@
                             <version>0.25.0</version>
 
                             <configuration>
-                                <registry>registry.hub.docker.com/ws1connectors</registry>
+                                <registry>registry.hub.docker.com</registry>
                                 <authConfig>
                                     <username>${docker.hub.username}</username>
                                     <password>${docker.hub.password}</password>
@@ -56,7 +56,7 @@
 
                                 <images>
                                     <image>
-                                        <name>${project.artifactId}</name>
+                                        <name>ws1connectors/${project.artifactId}</name>
                                         <alias>${project.artifactId}</alias>
                                         <build>
                                             <assembly>
