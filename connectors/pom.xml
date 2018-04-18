@@ -90,7 +90,6 @@
                                                 <arg>-XX:HeapDumpPath=/tmp</arg>
                                                 <arg>-jar</arg>
                                                 <arg>/opt/vmware/${connector.name}/${project.artifactId}-${project.version}.jar</arg>
-                                                <arg>--spring.profiles.active=prod</arg>
                                             </entryPoint>
                                         </build>
                                     </image>
