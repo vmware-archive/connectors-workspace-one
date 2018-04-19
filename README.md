@@ -150,10 +150,6 @@ After building the JAR(s), you can run them with `java -jar`.  For example, here
 
 ```
 java -server \
-     -XX:+UnlockExperimentalVMOptions \
-     -XX:MaxRAMFraction=2 \
-     -XX:+HeapDumpOnOutOfMemoryError \
-     -XX:HeapDumpPath=/tmp \
      -jar \
      connectors/jira/target/jira-connector-2.1-SNAPSHOT.jar \
      --server.port=8080 \

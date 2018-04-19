@@ -52,6 +52,50 @@ docker: Error response from daemon: driver failed programming external connectiv
 
 You already have another program running on that port.  Double check that you aren't already running your connector by another container name on that port.  If you aren't, then you have to figure out what program is binding to that port and decide whether to stop the other program or just choose another port for your connector.
 
+### Maybe Incorrect Host Port
+
+I get a connection refused when making requests to my connector:
+
+```
+$ curl -v http://localhost:8080/
+*   Trying ::1...
+* TCP_NODELAY set
+* Connection failed
+* connect to ::1 port 8080 failed: Connection refused
+*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connection failed
+* connect to 127.0.0.1 port 8080 failed: Connection refused
+* Failed to connect to localhost port 8080: Connection refused
+* Closing connection 0
+curl: (7) Failed to connect to localhost port 8080: Connection refused
+```
+
+After verifying that your connector is actually running, verify the port you are trying to connect to matches the HostPort in `-p HostPort:ContainerPort`.  You can also see the status of the container and what addresses and ports it is bound to with `docker ps`.
+
+
+
+### Maybe Incorrect Container Port
+
+I don't receive a response when making requests to my connector:
+
+```
+$ curl -v http://localhost:8080/
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 8080 (#0)
+> GET / HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.54.0
+> Accept: */*
+>
+* Empty reply from server
+* Connection #0 to host localhost left intact
+curl: (52) Empty reply from server
+```
+
+The container port in your docker run commands' port binding probably isn't specifying the correct `server.port` that your connector is binding to.  Double check that the ContainerPort in `-p HostPort:ContainerPort` agrees with your `--server.port`.
+
 
 
 ## RPM
