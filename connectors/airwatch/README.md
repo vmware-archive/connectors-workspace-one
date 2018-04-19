@@ -20,8 +20,23 @@ Informal application keywords are resolved to bundle IDs using mappings specifie
 ```
 In the above example, "expense" maps to "com.coupa.android.coupamobile" for the Android platform, whereas "expense" maps to "com.coupa.push" for the iOS platform.
 
-Platform specific application names helps connector to uniquely identify an app to trigger MDM install.  
+Platform specific application names helps connector to uniquely identify an app to trigger MDM install.
 
 For generic details on how to build, install, and configure connectors, please see the [README](https://github.com/vmware/connectors-workspace-one/blob/master/README.md) at the root of this repository.
 
+## Docker
 
+The AirWatch App Discovery Connector requires a configuration file.  This requires an additional parameter to the docker command mentioned in [README](https://github.com/vmware/connectors-workspace-one/blob/master/README.md#docker).
+
+Assuming you have a `managed-apps.yml` in `/my/config/dir`:
+
+```
+docker run --name airwatch-connector \
+           -p 8080:8080 \
+           -d \
+           --mount type=bind,source=/my/config/dir,target=/mnt \
+           ws1connectors/airwatch-connector \
+           --spring.config.additional-location=file:/mnt/managed-apps.yml \
+           --server.port=8080 \
+           --security.oauth2.resource.jwt.key-uri="https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem"
+```
