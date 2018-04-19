@@ -378,8 +378,8 @@ public class CardAction {
         }
 
         /**
-         * Set "mutuallyExclusiveSetId" value. It is applicable for cards having only two actions.
-         * If an action is performed, the other action also gets disabled.
+         * Set "mutuallyExclusiveSetId" value. If set, performing a card action will disable other card actions.
+         *
          * Only one card action can be performed at any point of time.
          *
          * @param mutuallyExclusiveSetId
