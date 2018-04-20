@@ -59,7 +59,7 @@
   "EverSentBack": "N",
   "ReportImageURL": "https://imagingupload.concursolutions.com/file/t0030425xl9t/3732540C30564EF1D35C82D295560E5AF7C31732811EBF58C288F4A53AE103FB53C2EEA3D1ADE5C8542E06C8A76B8D7069B877F8A76A36B64D84076942DD2264H27BEDF2B4C52E1ADC070817870105FF6?id=7BCBC522BBF94102B368&e=t0030425xl9t&t=AN",
   "HasException": "N",
-  "WorkflowActionURL": "https://implementation.concursolutions.com/api/expense/expensereport/v1.1/report/gWujNPAb67r9IgBSjNrBNbeHbgDcmoJIs2kyBQX8YzEoS/WorkFlowAction",
+  "WorkflowActionURL": "${concur_host}/api/expense/expensereport/v1.1/report/gWujNPAb67r9IgBSjNrBNbeHbgDcmoJIs2kyBQX8YzEoS/WorkFlowAction",
   "ExpenseEntriesList": [
     {
       "ReportEntryID": "gWunHZmfLtXFXTCVH4T2KfO9mKZByBSz4IQ",

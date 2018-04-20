@@ -189,7 +189,7 @@ public class GitlabPrController {
          */
         try {
             return new URI(
-                    baseUrl + "/api/v4/projects/" + mergeRequestId.getProjectId()
+                    baseUrl.replaceAll("/$", "") + "/api/v4/projects/" + mergeRequestId.getProjectId()
                             + "/" + MERGE_REQUESTS + "/" + mergeRequestId.getNumber()
                             + action
             );

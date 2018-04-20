@@ -41,7 +41,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -118,13 +118,13 @@ public class AirWatchController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        Set<ManagedApp> managedApps = appKeywords.stream()
+        Stream<ManagedApp> managedApps = appKeywords.stream()
                 .map(keyword -> appConfig.findManagedApp(keyword, clientPlatform))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toSet());
+                .distinct();
 
-        return Flux.fromIterable(managedApps)
+        return Flux.fromStream(managedApps)
                 .flatMap(app -> getCardForApp(awAuth, baseUrl, udid,
                         app, routingPrefix, clientPlatform, locale))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
@@ -148,7 +148,7 @@ public class AirWatchController {
         return getEucToken(gbBaseUri, udid, platform, hznToken)
                 .flatMap(eucToken -> getGbConnection(gbBaseUri, eucToken))
                 .flatMap(greenBoxConnection -> installGbAppByName(appName, greenBoxConnection))
-                .map(status -> ResponseEntity.status(OK).<Void>build())
+                .then(Mono.just(ResponseEntity.status(OK).<Void>build()))
                 .subscriberContext(Reactive.setupContext());
     }
 
@@ -177,6 +177,9 @@ public class AirWatchController {
     }
 
     private static Mono<Throwable> handleClientError(ClientResponse response, String udid) {
+        Charset charset = response.headers().contentType()
+                .map(MimeType::getCharset)
+                .orElse(StandardCharsets.ISO_8859_1);
         return response.bodyToMono(String.class)
                 .map(body -> {
                     if (!body.isEmpty()) {
@@ -187,15 +190,17 @@ public class AirWatchController {
                             return new UdidException("Unable to resolve the UDID : " + udid);
                         }
                     }
-                    Charset charset = response.headers().contentType()
-                            .map(MimeType::getCharset)
-                            .orElse(StandardCharsets.ISO_8859_1);
                     return new WebClientResponseException("Status error",
                             response.statusCode().value(),
                             response.statusCode().getReasonPhrase(),
                             response.headers().asHttpHeaders(), body.getBytes(), charset);
 
-                });
+                })
+                .defaultIfEmpty(new WebClientResponseException("Status error",
+                        response.statusCode().value(),
+                        response.statusCode().getReasonPhrase(),
+                        response.headers().asHttpHeaders(), null, charset))
+                .cast(Throwable.class);
     }
 
     private Mono<Card> getCard(JsonDocument installStatus, String routingPrefix,
