@@ -9,7 +9,7 @@
     },
     "app_keywords": {
       "capture_group": 1,
-      "regex": "((?i)\\bboxer\\b|\\bemail app\\b|\\bconcur\\b|\\bpoison\\b)"
+      "regex": "((?i)\\bboxer\\b|\\bemail app\\b|\\bconcur\\b|\\bpoison\\b|\\bbrowser\\b|\\bunassignedMdmApp\\b)"
     }
   }
 }

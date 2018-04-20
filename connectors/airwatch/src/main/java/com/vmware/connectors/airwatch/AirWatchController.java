@@ -286,10 +286,17 @@ public class AirWatchController {
         int RIGHT_APP_COUNT = 1;
 
         JSONArray jsonArray = document.read("$._embedded.entitlements");
+
+        if (jsonArray == null) {
+            throw new GbAppMapException(
+                    "vIDM catalog doesn't contain " + appName);
+        }
+
         if (jsonArray.size() != RIGHT_APP_COUNT) {
             throw new GbAppMapException(
                     "Unable to map " + appName + " to a single GreenBox app");
         }
+
         return new GreenBoxApp(
                 document.read("$._embedded.entitlements[0].name"),
                 document.read("$._embedded.entitlements[0]._links.install.href"));

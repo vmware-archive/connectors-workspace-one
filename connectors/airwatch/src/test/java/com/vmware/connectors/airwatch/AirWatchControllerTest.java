@@ -171,6 +171,31 @@ class AirWatchControllerTest extends ControllerTestsBase {
         mockBackend.verify();
     }
 
+    @ParameterizedTest(name = "{index} ==> GB Response=''{1}''")
+    @CsvSource({
+            "Browser, searchAppMultipleFound.json",
+            "unassignedMdmApp, searchAppNotFound.json"})
+    void testInstallActionBadRequest(String appName, String gbResponseFile) throws Exception {
+
+        expectGBSessionRequests();
+
+        expectGBRequest(
+                "/catalog-portal/services/api/entitlements?q=" + appName,
+                GET, gbCatalogContextCookie("euc123", null))
+                .andRespond(withSuccess().body(fromFile("greenbox/responses/" + gbResponseFile))
+                        .contentType(HAL_JSON_UTF8));
+
+        perform(post("/mdm/app/install").with(token(accessToken()))
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .header("x-airwatch-base-url", AIRWATCH_BASE_URL)
+                .param("app_name", appName)
+                .param("udid", "ABCD")
+                .param("platform", "android"))
+                .andExpect(status().isBadRequest());
+
+        mockBackend.verify();
+    }
+
     @Test
     void testMissingRequestHeaders() throws Exception {
         perform(post("/cards/requests").with(token(accessToken()))
