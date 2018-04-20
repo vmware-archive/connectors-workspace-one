@@ -100,9 +100,13 @@
               "min_length": 1
             }
           ],
-          "completed_label": "COMMENTED"
+          "completed_label": "COMMENTED",
+          "allow_repeated": false
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -198,7 +202,8 @@
               "label": "REASON"
             }
           ],
-          "completed_label": "REJECTED"
+          "completed_label": "REJECTED",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -212,7 +217,8 @@
             "sha": "cf1586350f0e6730fc3d1b3b386f824c2051b32d"
           },
           "user_input": [],
-          "completed_label": "MERGED"
+          "completed_label": "MERGED",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -224,7 +230,8 @@
           "action_key": "DIRECT",
           "request": {},
           "user_input": [],
-          "completed_label": "APPROVED"
+          "completed_label": "APPROVED",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -242,7 +249,8 @@
               "min_length": 1
             }
           ],
-          "completed_label": "COMMENTED"
+          "completed_label": "COMMENTED",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -260,9 +268,13 @@
               "min_length": 1
             }
           ],
-          "completed_label": "CHANGES REQUESTED"
+          "completed_label": "CHANGES REQUESTED",
+          "allow_repeated": false
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -364,7 +376,8 @@
               "min_length": 1
             }
           ],
-          "completed_label": "COMMENTED"
+          "completed_label": "COMMENTED",
+          "allow_repeated": false
         }
       ],
       "image": {

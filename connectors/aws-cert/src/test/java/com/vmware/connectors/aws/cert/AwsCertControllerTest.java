@@ -7,8 +7,6 @@ package com.vmware.connectors.aws.cert;
 
 import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.mock.MockRestServiceServer;
-import com.vmware.connectors.test.ControllerTestsBase;
-import com.vmware.connectors.test.JsonReplacementsBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,16 +25,15 @@ import org.springframework.util.MultiValueMap;
 
 import java.util.List;
 
-import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
+import static com.vmware.connectors.aws.cert.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.TEXT_HTML;
+import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

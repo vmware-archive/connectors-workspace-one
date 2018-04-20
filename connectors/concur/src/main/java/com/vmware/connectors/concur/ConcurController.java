@@ -117,15 +117,15 @@ public class ConcurController {
         // Replace the placeholder in concur request template with appropriate action and comment.
         final String concurRequestTemplate = getConcurRequestTemplate(reason, concurAction);
 
-        Mono<String> workFlowActionUrl = getWorkFlowActionUrl(authHeader, reportID, baseUrl);
-        return workFlowActionUrl.flatMap(url -> rest.post()
-                .uri(url)
-                .header(AUTHORIZATION, authHeader)
-                .contentType(APPLICATION_XML)
-                .accept(APPLICATION_JSON)
-                .syncBody(concurRequestTemplate)
-                .retrieve()
-                .bodyToMono(String.class));
+        return getWorkFlowActionUrl(authHeader, reportID, baseUrl)
+                .flatMap(url -> rest.post()
+                    .uri(url)
+                    .header(AUTHORIZATION, authHeader)
+                    .contentType(APPLICATION_XML)
+                    .accept(APPLICATION_JSON)
+                    .syncBody(concurRequestTemplate)
+                    .retrieve()
+                    .bodyToMono(String.class));
     }
 
     private String getConcurRequestTemplate(final String reason,

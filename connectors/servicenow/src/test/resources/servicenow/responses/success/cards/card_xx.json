@@ -16,23 +16,23 @@
       "body": {
         "fields": [
           {
-            "title": "TOTAL PRICE",
             "type": "GENERAL",
+            "title": "TOTAL PRICE",
             "description": "$401.98"
           },
           {
-            "title": "REQUESTER",
             "type": "GENERAL",
+            "title": "REQUESTER",
             "description": "test-request-user-2"
           },
           {
-            "title": "DUE BY",
             "type": "GENERAL",
+            "title": "DUE BY",
             "description": "test-due-date-2"
           },
           {
-            "title": "ITEMS",
             "type": "COMMENT",
+            "title": "ITEMS",
             "content": [
               {
                 "text": "Apple iPhone 6 - 2 @ $200.99"
@@ -46,26 +46,26 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "primary": true,
           "label": "APPROVE",
-          "completed_label": "APPROVED",
-          "remove_card_on_completion": true,
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-2/approve"
           },
           "type": "POST",
           "action_key": "DIRECT",
+          "remove_card_on_completion": true,
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "completed_label": "APPROVED",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "REJECT",
-          "completed_label": "REJECTED",
-          "remove_card_on_completion": true,
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-2/reject"
           },
           "type": "POST",
           "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
           "request": {},
           "user_input": [
             {
@@ -73,9 +73,14 @@
               "label": "REASON FOR REJECTION",
               "min_length": 1
             }
-          ]
+          ],
+          "completed_label": "REJECTED",
+          "allow_repeated": false
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -93,23 +98,23 @@
       "body": {
         "fields": [
           {
-            "title": "TOTAL PRICE",
             "type": "GENERAL",
+            "title": "TOTAL PRICE",
             "description": "$902.97"
           },
           {
-            "title": "REQUESTER",
             "type": "GENERAL",
+            "title": "REQUESTER",
             "description": "test-request-user-3"
           },
           {
-            "title": "DUE BY",
             "type": "GENERAL",
+            "title": "DUE BY",
             "description": "test-due-date-3"
           },
           {
-            "title": "ITEMS",
             "type": "COMMENT",
+            "title": "ITEMS",
             "content": [
               {
                 "text": "Samsung Galaxy S7 Edge - 3 @ $300.99"
@@ -121,27 +126,28 @@
       "actions": [
         {
           "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
           "label": "APPROVE",
-          "completed_label": "APPROVED",
-          "remove_card_on_completion": true,
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-3/approve"
           },
           "type": "POST",
           "action_key": "DIRECT",
+          "remove_card_on_completion": true,
           "request": {},
-          "user_input": []
+          "user_input": [],
+          "completed_label": "APPROVED",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "REJECT",
-          "completed_label": "REJECTED",
-          "remove_card_on_completion": true,
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-3/reject"
           },
           "type": "POST",
           "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
           "request": {},
           "user_input": [
             {
@@ -149,7 +155,9 @@
               "label": "REASON FOR REJECTION",
               "min_length": 1
             }
-          ]
+          ],
+          "completed_label": "REJECTED",
+          "allow_repeated": false
         }
       ],
       "image": {

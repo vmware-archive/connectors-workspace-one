@@ -87,7 +87,7 @@ public class JiraController {
                 .syncBody(Collections.singletonMap("body", body))
                 .retrieve()
                 .bodyToMono(String.class)
-                .map(response -> ResponseEntity.status(CREATED).build())
+                .then(Mono.just(ResponseEntity.status(CREATED).build()))
                 .subscriberContext(Reactive.setupContext());
     }
 
@@ -115,7 +115,7 @@ public class JiraController {
                 .header(AUTHORIZATION, jiraAuth)
                 .retrieve()
                 .bodyToMono(String.class)
-                .map(ignored -> ResponseEntity.noContent().<Void>build())
+                .then(Mono.just(ResponseEntity.noContent().<Void>build()))
                 .subscriberContext(Reactive.setupContext());
     }
 

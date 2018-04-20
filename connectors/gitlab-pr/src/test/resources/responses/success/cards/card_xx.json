@@ -75,9 +75,13 @@
               "min_length": 1
             }
           ],
-          "completed_label": "COMMENTED"
+          "completed_label": "COMMENTED",
+          "allow_repeated": false
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -153,7 +157,8 @@
               "label": "REASON"
             }
           ],
-          "completed_label": "REJECTED"
+          "completed_label": "REJECTED",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -167,7 +172,8 @@
             "sha": "d6dc43f74ee70a7390f02d779164eb4face2c8c6"
           },
           "user_input": [],
-          "completed_label": "MERGED"
+          "completed_label": "MERGED",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -181,7 +187,8 @@
             "sha": "d6dc43f74ee70a7390f02d779164eb4face2c8c6"
           },
           "user_input": [],
-          "completed_label": "APPROVED"
+          "completed_label": "APPROVED",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -199,9 +206,13 @@
               "min_length": 1
             }
           ],
-          "completed_label": "COMMENTED"
+          "completed_label": "COMMENTED",
+          "allow_repeated": false
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -278,7 +289,8 @@
               "min_length": 1
             }
           ],
-          "completed_label": "COMMENTED"
+          "completed_label": "COMMENTED",
+          "allow_repeated": false
         }
       ],
       "image": {

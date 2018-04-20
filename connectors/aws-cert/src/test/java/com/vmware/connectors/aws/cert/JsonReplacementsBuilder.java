@@ -1,9 +1,9 @@
 /*
- * Copyright © 2017 VMware, Inc. All Rights Reserved.
+ * Copyright © 2018 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package com.vmware.connectors.test;
+package com.vmware.connectors.aws.cert;
 
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;

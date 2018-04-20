@@ -54,7 +54,8 @@
               "min_length": 1
             }
           ],
-          "completed_label": "APPROVED"
+          "completed_label": "APPROVED",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -72,22 +73,26 @@
               "min_length": 1
             }
           ],
-          "completed_label": "REJECTED"
+          "completed_label": "REJECTED",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "OPEN",
           "url": {
-            "href": "https://implementation.concursolutions.com"
+            "href": "${concur_host}"
           },
           "type": "GET",
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
           "completed_label": "OPEN",
-          "allow_repeated":true
+          "allow_repeated": true
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -130,14 +135,14 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "OPEN",
           "url": {
-            "href": "https://implementation.concursolutions.com"
+            "href": "${concur_host}"
           },
           "type": "GET",
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
           "completed_label": "OPEN",
-          "allow_repeated":true
+          "allow_repeated": true
         }
       ],
       "image": {

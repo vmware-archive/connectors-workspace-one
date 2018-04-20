@@ -6,10 +6,13 @@
 package com.vmware.connectors.airwatch;
 
 import com.google.common.collect.ImmutableList;
-import com.vmware.connectors.mock.MockRestServiceServer;
+import com.vmware.connectors.mock.MockWebServerWrapper;
 import com.vmware.connectors.test.ControllerTestsBase;
-import com.vmware.connectors.test.JsonReplacementsBuilder;
+import com.vmware.connectors.test.JsonNormalizer;
+import okhttp3.mockwebserver.MockWebServer;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,38 +20,43 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.support.TestPropertySourceUtils;
 import org.springframework.test.web.client.ResponseActions;
-import org.springframework.test.web.client.match.MockRestRequestMatchers;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.springframework.hateoas.MediaTypes.HAL_JSON_UTF8;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
-import static org.springframework.hateoas.MediaTypes.HAL_JSON_UTF8;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.ExpectedCount.times;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 /**
  * Created by harshas on 9/20/17.
  */
 @TestPropertySource(locations = {"classpath:app.properties"})
+@ContextConfiguration(initializers = AirWatchControllerTest.CustomInitializer.class)
 class AirWatchControllerTest extends ControllerTestsBase {
 
     @Value("classpath:airwatch/responses/awAppInstalled.json")
@@ -69,15 +77,16 @@ class AirWatchControllerTest extends ControllerTestsBase {
     @Value("classpath:greenbox/responses/installApp.json")
     private Resource gbInstallApp;
 
-    private com.vmware.connectors.mock.MockRestServiceServer mockBackend;
+    private static MockWebServerWrapper mockGreenbox;
 
-    private final static String AIRWATCH_BASE_URL = "https://air-watch.acme.com";
-    private final static String GREENBOX_BASE_URL = "https://herocard.vmwareidentity.com";
+    @BeforeAll
+    static void createMock() {
+        mockGreenbox = new MockWebServerWrapper(new MockWebServer());
+    }
 
     @BeforeEach
-    void init() throws Exception {
-        super.setup();
-        mockBackend = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
+    void resetGreenbox() {
+        mockGreenbox.reset();
     }
 
     @ParameterizedTest
@@ -89,13 +98,19 @@ class AirWatchControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testDiscovery() throws Exception {
-        perform(request(GET, "/"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(content().json(fromFile("/connector/responses/discovery.json")));
-        perform(request(GET, "/discovery/metadata.json"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(content().json(fromFile("/connector/responses/metadata.json")));
+    void testDiscovery() throws IOException {
+        webClient.get()
+                .uri("/")
+                .headers(ControllerTestsBase::headers)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody().json(fromFile("/connector/responses/discovery.json"));
+        webClient.get()
+                .uri("/discovery/metadata.json")
+                .headers(ControllerTestsBase::headers)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody().json(fromFile("/connector/responses/metadata.json"));
     }
 
     @Test
@@ -143,43 +158,54 @@ class AirWatchControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testInstallAction() throws Exception {
+    void testInstallAction() throws IOException{
 
         expectGBSessionRequests();
 
         // Search for app "Concur"
-        expectGBRequest(
-                "/catalog-portal/services/api/entitlements?q=Concur",
-                GET, gbCatalogContextCookie("euc123", null))
-                .andRespond(withSuccess().body(gbSearchApp).contentType(HAL_JSON_UTF8));
+        String searchApp = IOUtils.toString(gbSearchApp.getInputStream(), Charset.defaultCharset())
+                .replaceAll("\\$\\{greenbox.url}", mockGreenbox.url(""));
+        mockGreenbox.expect(requestTo("/catalog-portal/services/api/entitlements?q=Concur"))
+                .andExpect(method(GET))
+                .andExpect(header(COOKIE, gbCatalogContextCookies("euc123", null)))
+                .andRespond(withSuccess().body(searchApp).contentType(HAL_JSON_UTF8));
 
         // Trigger install for "MDM-134-Native-Public".
-        expectGBRequest(
-                "/catalog-portal/services/api/activate/MDM-134-Native-Public",
-                POST, gbCatalogContextCookie("euc123", "csrf123"))
-                .andExpect(MockRestRequestMatchers.header("X-XSRF-TOKEN", "csrf123"))
+        mockGreenbox.expect(requestTo("/catalog-portal/services/api/activate/MDM-134-Native-Public"))
+                .andExpect(method(POST))
+                .andExpect(header(COOKIE, gbCatalogContextCookies("euc123", "csrf123")))
+                .andExpect(header("X-XSRF-TOKEN", "csrf123"))
                 .andRespond(withSuccess().body(gbInstallApp).contentType(HAL_JSON_UTF8));
 
-        perform(post("/mdm/app/install").with(token(accessToken()))
+        webClient.post()
+                .uri("/mdm/app/install")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header("x-airwatch-base-url", AIRWATCH_BASE_URL)
-                .param("app_name", "Concur")
-                .param("udid", "ABCD")
-                .param("platform", "android"))
-                .andExpect(status().isOk());
+                .header("x-airwatch-base-url", mockBackend.url(""))
+                .body(BodyInserters.fromFormData("app_name", "Concur")
+                        .with("udid", "ABCD")
+                        .with("platform", "android"))
+                .exchange()
+                .expectStatus().isOk();
 
         mockBackend.verify();
+        mockGreenbox.verify();
     }
 
     @Test
     void testMissingRequestHeaders() throws Exception {
-        perform(post("/cards/requests").with(token(accessToken()))
+        webClient.post()
+                .uri("/cards/requests")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/airwatch/")
-                .content(fromFile("/connector/requests/request.json")))
-                .andExpect(status().isBadRequest())
-                .andExpect(status().reason(containsString("Missing request header 'x-airwatch-base-url'")));
+                .syncBody(fromFile("/connector/requests/request.json"))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.message")
+                    .isEqualTo("Missing request header 'x-airwatch-base-url' for method parameter of type String");
+
     }
 
     @ParameterizedTest
@@ -196,12 +222,13 @@ class AirWatchControllerTest extends ControllerTestsBase {
     @Test
     void testRequestCardsForbidden() throws Exception {
         mockBackend.expect(times(1), requestTo(any(String.class)))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + accessToken()))
+                .andExpect(header(AUTHORIZATION, "Bearer " + accessToken()))
                 .andExpect(method(GET))
                 .andRespond(withStatus(FORBIDDEN).body(awUserForbidden));
-        perform(requestCards("request.json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(fromFile("connector/responses/forbiddenUdid.json")));
+        requestCards("request.json")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().json(fromFile("connector/responses/forbiddenUdid.json"));
         mockBackend.verify();
     }
 
@@ -209,9 +236,12 @@ class AirWatchControllerTest extends ControllerTestsBase {
     void testRequestCardsOneServerError() throws Exception {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.poison.pill")
                 .andRespond(withServerError());
-        perform(requestCards("oneServerError.json"))
-                .andExpect(status().is5xxServerError())
-                .andExpect(header().string("X-Backend-Status", "500"));
+        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.android.boxer")
+                .andRespond(withSuccess(awAppNotInstalled, APPLICATION_JSON));
+        requestCards("oneServerError.json")
+                .exchange()
+                .expectStatus().is5xxServerError()
+                .expectHeader().valueEquals("X-Backend-Status", "500");
         mockBackend.verify();
     }
 
@@ -219,78 +249,83 @@ class AirWatchControllerTest extends ControllerTestsBase {
     void testRequestCardsInvalidUdid() throws Exception {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=INVALID&BundleId=com.android.boxer")
                 .andRespond(withStatus(NOT_FOUND).body(fromFile("airwatch/responses/udidNotFound.json")));
-        perform(requestCards("invalidUdid.json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(fromFile("connector/responses/invalidUdid.json")));
+        requestCards("invalidUdid.json")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().json(fromFile("connector/responses/invalidUdid.json"));
     }
 
     @Test
     void testRequestForInvalidPlatform() throws Exception {
-        perform(requestCards("invalidPlatform.json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json(fromFile("connector/responses/invalidPlatform.json")));
+        requestCards("invalidPlatform.json")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().json(fromFile("connector/responses/invalidPlatform.json"));
 
     }
 
     private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards(requestFile);
+        WebTestClient.RequestHeadersSpec<?> spec = requestCards(requestFile);
         if (acceptLanguage != null) {
-            builder = builder.header(ACCEPT_LANGUAGE, acceptLanguage);
+            spec = spec.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
-        perform(builder)
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(content().string(JsonReplacementsBuilder.from(
-                        fromFile("connector/responses/" + responseFile)).buildForCards()));
-    }
+        String body = spec.exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(JsonNormalizer::forCards)
+                .block();
+        assertThat(body,  sameJSONAs(fromFile("connector/responses/" + responseFile)).allowingAnyArrayOrdering());
+     }
 
-    private MockHttpServletRequestBuilder requestCards(String requestfile) throws Exception {
-        return post("/cards/requests").with(token(accessToken()))
+    private WebTestClient.RequestHeadersSpec<?> requestCards(String requestfile) throws IOException {
+        return webClient.post()
+                .uri("/cards/requests")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header("x-airwatch-base-url", AIRWATCH_BASE_URL)
+                .header("x-airwatch-base-url", mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/airwatch/")
-                .content(fromFile("/connector/requests/" + requestfile));
+                .syncBody(fromFile("/connector/requests/" + requestfile));
     }
 
     private ResponseActions expectAWRequest(String uri) {
-        return mockBackend.expect(requestTo(AIRWATCH_BASE_URL + uri))
+        return mockBackend.expect(requestTo(uri))
                 .andExpect(method(GET))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + accessToken()));
+                .andExpect(header(AUTHORIZATION, "Bearer " + accessToken()));
     }
 
     private void expectGBSessionRequests() {
         // eucToken
-        expectGBRequest(
-                "/catalog-portal/services/auth/eucTokens?deviceUdid=ABCD&deviceType=android",
-                POST, gbHZNCookie(accessToken()))
+        mockGreenbox.expect(requestTo("/catalog-portal/services/auth/eucTokens?deviceUdid=ABCD&deviceType=android"))
+                .andExpect(method(POST))
+                .andExpect(header(COOKIE, "HZN=" + accessToken()))
                 .andRespond(withStatus(CREATED).body(gbEucToken).contentType(HAL_JSON_UTF8));
 
         // CSRF token
         HttpHeaders csrfHeaders = new HttpHeaders();
         csrfHeaders.set(SET_COOKIE, "EUC_XSRF_TOKEN=csrf123;Path=/catalog-portal;Secure");
-        expectGBRequest(
-                "/catalog-portal/", OPTIONS,
-                gbCatalogContextCookie("euc123", null))
+        mockGreenbox.expect(requestTo("/catalog-portal/"))
+                .andExpect(method(OPTIONS))
+                .andExpect(header(COOKIE, gbCatalogContextCookies("euc123", null)))
                 .andRespond(withSuccess().headers(csrfHeaders));
     }
 
-    private ResponseActions expectGBRequest(String uri, HttpMethod reqMethod, String cookie) {
-        return mockBackend.expect(requestTo(GREENBOX_BASE_URL + uri))
-                .andExpect(method(reqMethod))
-                .andExpect(MockRestRequestMatchers.header(COOKIE, cookie));
+    private String[] gbCatalogContextCookies(String euc, String csrf) {
+        String eucCookie = "USER_CATALOG_CONTEXT=" + euc;
+        String csrfCookie = Optional.ofNullable(csrf).map(cookie -> "EUC_XSRF_TOKEN=" + cookie).orElse(null);
+        return Stream.of(eucCookie, csrfCookie)
+                .filter(Objects::nonNull)
+                .toArray(String[]::new);
     }
 
-    private String gbHZNCookie(String hzn) {
-        return "HZN=" + hzn;
-    }
-
-    private String gbCatalogContextCookie(String euc, String csrf) {
-        String contextCookie = "USER_CATALOG_CONTEXT=" + euc;
-        if (csrf != null) {
-            return contextCookie + "; EUC_XSRF_TOKEN=" + csrf;
+    public static class CustomInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @Override
+        public void initialize(ConfigurableApplicationContext applicationContext) {
+            String gbUrl = AirWatchControllerTest.mockGreenbox.url("");
+            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(applicationContext, "greenbox.url=" + gbUrl);
         }
-        return contextCookie;
     }
 }

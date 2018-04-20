@@ -8,10 +8,11 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "[Concur] Expense Report Pending Your Approval"
+        "title": "[Concur] Expense Report Pending Your Approval",
+        "subtitle": []
       },
       "body": {
-        "description":"Test Concur connector-1",
+        "description": "Test Concur connector-1",
         "fields": [
           {
             "type": "GENERAL",
@@ -53,7 +54,8 @@
               "min_length": 1
             }
           ],
-          "completed_label": "Approved"
+          "completed_label": "Approved",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -71,22 +73,26 @@
               "min_length": 1
             }
           ],
-          "completed_label": "Rejected"
+          "completed_label": "Rejected",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Open",
           "url": {
-            "href": "https://implementation.concursolutions.com"
+            "href": "${concur_host}"
           },
           "type": "GET",
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
-          "completed_label":"Open",
-          "allow_repeated":true
+          "completed_label": "Open",
+          "allow_repeated": true
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -96,10 +102,11 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "[Concur] Expense Report Pending Your Approval"
+        "title": "[Concur] Expense Report Pending Your Approval",
+        "subtitle": []
       },
       "body": {
-        "description":"Test Concur connector-2",
+        "description": "Test Concur connector-2",
         "fields": [
           {
             "type": "GENERAL",
@@ -128,14 +135,14 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Open",
           "url": {
-            "href": "https://implementation.concursolutions.com"
+            "href": "${concur_host}"
           },
           "type": "GET",
           "action_key": "OPEN_IN",
           "request": {},
           "user_input": [],
-          "completed_label":"Open",
-          "allow_repeated":true
+          "completed_label": "Open",
+          "allow_repeated": true
         }
       ],
       "image": {
