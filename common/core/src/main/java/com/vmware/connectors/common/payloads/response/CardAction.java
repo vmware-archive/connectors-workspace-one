@@ -64,6 +64,9 @@ public class CardAction {
     @JsonProperty("allow_repeated")
     private boolean allowRepeated;
 
+    @JsonProperty("mutually_exclusive_set_id")
+    private String mutuallyExclusiveSetId;
+
     // Don't instantiate directly - use the Builder class below
     private CardAction() {
         this.type = HttpMethod.GET;
@@ -189,9 +192,19 @@ public class CardAction {
     }
 
     /**
+     * Returns "mutuallyExclusiveSetId" property. If set, performing a card action
+     * will disable other card actions.
+     *
+     * @return the mutually exclusive id.
+     */
+    public String getMutuallyExclusiveSetId() {
+        return mutuallyExclusiveSetId;
+    }
+
+    /**
      * This class allows the construction of {@link CardAction} objects. To use, create a Builder instance, call its methods
      * to populate the {@link CardAction}, and call build() to receive the completed {@link CardAction} and reset the builder.
-     * <p>
+     *
      * A {@link CardAction} can be discarded during creation, returning the Builder to its initial state, by calling reset().
      * The build() method calls reset() internally.
      */
@@ -361,6 +374,19 @@ public class CardAction {
          */
         public Builder setAllowRepeated(final boolean allowRepeated) {
             action.allowRepeated = allowRepeated;
+            return this;
+        }
+
+        /**
+         * Set "mutuallyExclusiveSetId" value. If set, performing a card action will disable other card actions.
+         *
+         * Only one card action can be performed at any point of time.
+         *
+         * @param mutuallyExclusiveSetId
+         * @return
+         */
+        public Builder setMutuallyExclusiveSetId(final String mutuallyExclusiveSetId) {
+            action.mutuallyExclusiveSetId = mutuallyExclusiveSetId;
             return this;
         }
 

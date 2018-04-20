@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
 import static com.vmware.connectors.concur.ConcurConstants.ConcurRequestActions.*;
 import static com.vmware.connectors.concur.ConcurConstants.ConcurResponseActions.SUBMITTED_AND_PENDING_APPROVAL;
 import static com.vmware.connectors.concur.ConcurConstants.Fields.EXPENSE_REPORT_ID;
@@ -147,8 +148,11 @@ public class ConcurController {
 
         return getReportDetails(authHeader, id, baseUrl)
                 .onErrorResume(Reactive::skipOnNotFound)
-                .map(entity -> convertResponseIntoCard(entity, baseUrl, id,
-                        routingPrefix, locale, request));
+                .map(entity -> convertResponseIntoCard(entity,
+                        id,
+                        routingPrefix,
+                        locale,
+                        request));
     }
 
     private Mono<ResponseEntity<JsonDocument>> getReportDetails(String authHeader, String id, String baseUrl) {
@@ -170,7 +174,6 @@ public class ConcurController {
     }
 
     private Card convertResponseIntoCard(final ResponseEntity<JsonDocument> entity,
-                                         final String baseUrl,
                                          final String expenseReportId,
                                          final String routingPrefix,
                                          final Locale locale,
@@ -195,9 +198,6 @@ public class ConcurController {
             cardBuilder.addAction(approveActionBuilder.build());
             cardBuilder.addAction(rejectActionBuilder.build());
         }
-
-        final CardAction.Builder openActionBuilder = getOpenActionBuilder(baseUrl, locale);
-        cardBuilder.addAction(openActionBuilder.build());
 
         return cardBuilder.build();
     }
@@ -240,6 +240,7 @@ public class ConcurController {
                 .setType(HttpMethod.POST)
                 .setUrl(routingPrefix + approveUrl)
                 .setPrimary(true)
+                .setMutuallyExclusiveSetId(APPROVAL_ACTIONS)
                 .addUserInputField(
                         new CardActionInputField.Builder()
                                 .setId(REASON)
@@ -260,6 +261,7 @@ public class ConcurController {
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
                 .setUrl(routingPrefix + rejectUrl)
+                .setMutuallyExclusiveSetId(APPROVAL_ACTIONS)
                 .addUserInputField(
                         new CardActionInputField.Builder()
                                 .setId(REASON)
@@ -267,16 +269,5 @@ public class ConcurController {
                                 .setMinLength(1)
                                 .build()
                 );
-    }
-
-    private CardAction.Builder getOpenActionBuilder(final String baseUrl, final Locale locale) {
-        // Did not find any concur API to open the concur page with report directly. Only baseUrl is added.
-        return new CardAction.Builder()
-                .setLabel(this.cardTextAccessor.getActionLabel("concur.open", locale))
-                .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("concur.open", locale))
-                .setActionKey(CardActionKey.OPEN_IN)
-                .setAllowRepeated(true)
-                .setType(HttpMethod.GET)
-                .setUrl(baseUrl);
     }
 }

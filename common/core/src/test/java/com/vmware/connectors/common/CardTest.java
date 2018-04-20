@@ -259,6 +259,4 @@ public class CardTest {
 
         return result;
     }
-
-
 }
