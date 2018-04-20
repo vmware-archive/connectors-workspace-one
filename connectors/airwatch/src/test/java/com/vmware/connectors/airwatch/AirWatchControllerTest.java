@@ -142,10 +142,24 @@ class AirWatchControllerTest extends ControllerTestsBase {
         testRequestCards(requestFile, responseFile, acceptLanguage);
     }
 
+    /*
+     * Boxer - Not installed.
+     * Concur - Installed
+     * customer support - Zendesk is not configured for iOS.
+     */
+    @Test
+    void testRequestCardsSuccessiOS() throws Exception {
+        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.air-watch.boxer")
+                .andRespond(withSuccess(awAppNotInstalled, APPLICATION_JSON));
+        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.concur.concurmobile")
+                .andRespond(withSuccess(awAppInstalled, APPLICATION_JSON));
+        testRequestCards("requestiOS.json", "successiOS.json", null);
+    }
+
     @Test
     void testInstallAction() throws Exception {
 
-        expectGBSessionRequests();
+        expectGBSessionRequests("android");
 
         // Search for app "Concur"
         expectGBRequest(
@@ -167,6 +181,31 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .param("udid", "ABCD")
                 .param("platform", "android"))
                 .andExpect(status().isOk());
+
+        mockBackend.verify();
+    }
+
+    @ParameterizedTest(name = "{index} ==> GB Response=''{1}''")
+    @CsvSource({
+            "Browser, searchAppMultipleFound.json",
+            "unassignedMdmApp, searchAppNotFound.json"})
+    void testInstallActionBadRequest(String appName, String gbResponseFile) throws Exception {
+
+        expectGBSessionRequests("Apple");
+
+        expectGBRequest(
+                "/catalog-portal/services/api/entitlements?q=" + appName,
+                GET, gbCatalogContextCookie("euc123", null))
+                .andRespond(withSuccess().body(fromFile("greenbox/responses/" + gbResponseFile))
+                        .contentType(HAL_JSON_UTF8));
+
+        perform(post("/mdm/app/install").with(token(accessToken()))
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .header("x-airwatch-base-url", AIRWATCH_BASE_URL)
+                .param("app_name", appName)
+                .param("udid", "ABCD")
+                .param("platform", "ios"))
+                .andExpect(status().isBadRequest());
 
         mockBackend.verify();
     }
@@ -260,10 +299,10 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + accessToken()));
     }
 
-    private void expectGBSessionRequests() {
+    private void expectGBSessionRequests(String deviceType) {
         // eucToken
         expectGBRequest(
-                "/catalog-portal/services/auth/eucTokens?deviceUdid=ABCD&deviceType=android",
+                "/catalog-portal/services/auth/eucTokens?deviceUdid=ABCD&deviceType=" + deviceType,
                 POST, gbHZNCookie(accessToken()))
                 .andRespond(withStatus(CREATED).body(gbEucToken).contentType(HAL_JSON_UTF8));
 

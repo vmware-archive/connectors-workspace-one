@@ -2,6 +2,6 @@
   "tokens": {
     "udid": ["ABCD"],
     "platform": ["android"],
-    "app_keywords": ["Boxer", "Concur"]
+    "app_keywords": ["Boxer", "Concur", "browser"]
   }
 }

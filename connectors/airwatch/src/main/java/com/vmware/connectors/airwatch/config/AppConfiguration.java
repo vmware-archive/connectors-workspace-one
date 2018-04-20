@@ -23,11 +23,11 @@ public class AppConfiguration {
 
     private List<String> keywords;
 
-    public String getApplication() {
+    public String getApp() {
         return app;
     }
 
-    public void setApplication(String application) {
+    public void setApp(String application) {
         this.app = application;
     }
 

@@ -4,6 +4,7 @@ The AirWatch connector presents cards inviting the user to install apps that are
 
 Informal application keywords are resolved to bundle IDs using mappings specified in `/etc/opt/vmware/connectors/airwatch/managed-apps.yml`. For example:
 ```
+airwatch:
   apps:
     - app: Coupa
       android:
