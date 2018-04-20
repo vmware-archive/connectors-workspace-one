@@ -145,7 +145,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
     @Test
     void testInstallAction() throws Exception {
 
-        expectGBSessionRequests();
+        expectGBSessionRequests("android");
 
         // Search for app "Concur"
         expectGBRequest(
@@ -177,7 +177,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
             "unassignedMdmApp, searchAppNotFound.json"})
     void testInstallActionBadRequest(String appName, String gbResponseFile) throws Exception {
 
-        expectGBSessionRequests();
+        expectGBSessionRequests("Apple");
 
         expectGBRequest(
                 "/catalog-portal/services/api/entitlements?q=" + appName,
@@ -190,7 +190,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .header("x-airwatch-base-url", AIRWATCH_BASE_URL)
                 .param("app_name", appName)
                 .param("udid", "ABCD")
-                .param("platform", "android"))
+                .param("platform", "ios"))
                 .andExpect(status().isBadRequest());
 
         mockBackend.verify();
@@ -285,10 +285,10 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer " + accessToken()));
     }
 
-    private void expectGBSessionRequests() {
+    private void expectGBSessionRequests(String deviceType) {
         // eucToken
         expectGBRequest(
-                "/catalog-portal/services/auth/eucTokens?deviceUdid=ABCD&deviceType=android",
+                "/catalog-portal/services/auth/eucTokens?deviceUdid=ABCD&deviceType=" + deviceType,
                 POST, gbHZNCookie(accessToken()))
                 .andRespond(withStatus(CREATED).body(gbEucToken).contentType(HAL_JSON_UTF8));
 
