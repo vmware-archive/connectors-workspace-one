@@ -142,6 +142,20 @@ class AirWatchControllerTest extends ControllerTestsBase {
         testRequestCards(requestFile, responseFile, acceptLanguage);
     }
 
+    /*
+     * Boxer - Not installed.
+     * Concur - Installed
+     * customer support - Zendesk is not configured for iOS.
+     */
+    @Test
+    void testRequestCardsSuccessiOS() throws Exception {
+        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.air-watch.boxer")
+                .andRespond(withSuccess(awAppNotInstalled, APPLICATION_JSON));
+        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.concur.concurmobile")
+                .andRespond(withSuccess(awAppInstalled, APPLICATION_JSON));
+        testRequestCards("requestiOS.json", "successiOS.json", null);
+    }
+
     @Test
     void testInstallAction() throws Exception {
 
