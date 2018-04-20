@@ -283,7 +283,6 @@ public class AirWatchController {
     }
 
     private GreenBoxApp toGreenBoxApp(JsonDocument document, String appName) {
-        int RIGHT_APP_COUNT = 1;
 
         JSONArray jsonArray = document.read("$._embedded.entitlements");
 
@@ -292,6 +291,7 @@ public class AirWatchController {
                     "vIDM catalog doesn't contain " + appName);
         }
 
+        int RIGHT_APP_COUNT = 1;
         if (jsonArray.size() != RIGHT_APP_COUNT) {
             throw new GbAppMapException(
                     "Unable to map " + appName + " to a single GreenBox app");
