@@ -41,6 +41,6 @@
     ],
     "allow_repeated":true,
     "completed_label": "Completed",
-    "mutually_exclusive_set_id": "HCA_Approve_ServiceNow_1"
+    "mutually_exclusive_set_id": "approval_actions"
   }]
 }

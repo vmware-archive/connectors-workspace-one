@@ -30,6 +30,7 @@ import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -383,9 +384,9 @@ public class ServiceNowController {
                                 .setPrimary(true)
                                 .setLabel(cardTextAccessor.getActionLabel("approve", locale))
                                 .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("approve", locale))
-                                .setRemoveCardOnCompletion(true)
                                 .setActionKey(CardActionKey.DIRECT)
                                 .setUrl(getServiceNowUrl(routingPrefix, info.getRequestSysId()) + "/approve")
+                                .setMutuallyExclusiveSetId(APPROVAL_ACTIONS)
                                 .setType(HttpMethod.POST)
                                 .build()
                 )
@@ -393,9 +394,9 @@ public class ServiceNowController {
                         new CardAction.Builder()
                                 .setLabel(cardTextAccessor.getActionLabel("reject", locale))
                                 .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("reject", locale))
-                                .setRemoveCardOnCompletion(true)
                                 .setActionKey(CardActionKey.USER_INPUT)
                                 .setUrl(getServiceNowUrl(routingPrefix, info.getRequestSysId()) + "/reject")
+                                .setMutuallyExclusiveSetId(APPROVAL_ACTIONS)
                                 .setType(HttpMethod.POST)
                                 .addUserInputField(
                                         new CardActionInputField.Builder()

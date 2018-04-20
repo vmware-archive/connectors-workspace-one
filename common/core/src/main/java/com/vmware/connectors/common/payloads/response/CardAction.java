@@ -204,7 +204,7 @@ public class CardAction {
     /**
      * This class allows the construction of {@link CardAction} objects. To use, create a Builder instance, call its methods
      * to populate the {@link CardAction}, and call build() to receive the completed {@link CardAction} and reset the builder.
-     * <p>
+     *
      * A {@link CardAction} can be discarded during creation, returning the Builder to its initial state, by calling reset().
      * The build() method calls reset() internally.
      */

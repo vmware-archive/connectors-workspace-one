@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 public final class CommonUtils {
 
+    public static final String APPROVAL_ACTIONS = "approval-actions";
+
     private static final String DEFAULT_IMAGE_PATH = "/images/connector.png";
 
     private CommonUtils() {
