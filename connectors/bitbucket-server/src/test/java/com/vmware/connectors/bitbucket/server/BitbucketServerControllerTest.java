@@ -130,8 +130,6 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
         buildRequestForCards();
 
         testCardRequests("request.json", resFile, lang);
-
-        mockBackend.verify();
     }
 
     private void buildRequestForCards() {
@@ -184,8 +182,6 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .header(ROUTING_PREFIX, "https://hero/connectors/stash/")
                 .exchange()
                 .expectStatus().isOk();
-
-        mockBackend.verify();
     }
 
     private Stream<Arguments> actionProvider() {
@@ -216,8 +212,6 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .body(BodyInserters.fromFormData(COMMENT_PARAM_KEY, "Pull request comment"))
                 .exchange()
                 .expectStatus().isOk();
-
-        mockBackend.verify();
     }
 
     @Test

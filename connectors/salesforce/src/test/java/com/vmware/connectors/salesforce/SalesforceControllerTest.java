@@ -215,8 +215,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess(contactOppResponse, APPLICATION_JSON));
 
         testRequestCards(requestFile, resFile, lang);
-        mockBackend.verify();
-    }
+     }
 
     private Stream<Arguments> contactCardTestArgProvider() {
         return Stream.of(
@@ -250,8 +249,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess(sfResponseWordHowardOpportunities, APPLICATION_JSON));
 
         testRequestCards(requestFile, resFile, lang);
-        mockBackend.verify();
-    }
+     }
 
     @Test
     void testRequestCardNotAuthorized() throws Exception {
@@ -266,7 +264,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .expectHeader().valueEquals("X-Backend-Status", "401")
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
                 .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
-        mockBackend.verify();
     }
 
     @Test
@@ -279,7 +276,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .exchange()
                 .expectStatus().isEqualTo(INTERNAL_SERVER_ERROR)
                 .expectHeader().valueEquals("X-Backend-Status", "500");
-        mockBackend.verify();
     }
 
     @Test
@@ -299,7 +295,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess());
         requestAddContact("abc", TRAVIS_ACCOUNT_ID, "/salesforce/request/contact.txt")
                 .expectStatus().isOk();
-        mockBackend.verify();
     }
 
     @Test
@@ -318,7 +313,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess(sfResponseAttachmentCreated, APPLICATION_JSON));
         requestAddConversationAsAttcahment("abc", "/salesforce/request/conversations.txt")
                 .expectStatus().isOk();
-        mockBackend.verify();
     }
 
     @Test

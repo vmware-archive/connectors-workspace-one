@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,10 +39,6 @@ class GitlabPrControllerTest extends ControllerTestsBase {
 
     private static final String GITLAB_AUTH_TOKEN = "test-auth-token";
 
-    @AfterEach
-    void teardown() {
-        mockBackend.verify();
-    }
 
     @ParameterizedTest
     @ValueSource(strings = {

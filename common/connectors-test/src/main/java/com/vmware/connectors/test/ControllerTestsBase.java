@@ -75,6 +75,7 @@ public class ControllerTestsBase {
 
     @AfterEach
     void shutdown() throws IOException {
+        mockBackend.verify();
         mockBackend.shutdown();
     }
 

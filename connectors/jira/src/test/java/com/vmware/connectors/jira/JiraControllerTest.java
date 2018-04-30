@@ -128,7 +128,6 @@ class JiraControllerTest extends ControllerTestsBase {
         expect("APF-27").andRespond(withSuccess(apf27, APPLICATION_JSON));
         expect("APF-28").andRespond(withSuccess(apf28, APPLICATION_JSON));
         testRequestCards("request.json", resFile, lang);
-        mockBackend.verify();
     }
 
     @Test
@@ -145,8 +144,6 @@ class JiraControllerTest extends ControllerTestsBase {
                 .header("x-jira-base-url", mockBackend.url(""))
                 .exchange()
                 .expectStatus().isNoContent();
-
-        mockBackend.verify();
     }
 
     @Test
@@ -164,8 +161,6 @@ class JiraControllerTest extends ControllerTestsBase {
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectHeader().valueEquals("x-backend-status", "401");
-
-        mockBackend.verify();
     }
 
     /*
@@ -197,7 +192,6 @@ class JiraControllerTest extends ControllerTestsBase {
                 .expectHeader().valueEquals("X-Backend-Status", "401")
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
                 .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
-        mockBackend.verify();
     }
 
     @Test
@@ -216,8 +210,6 @@ class JiraControllerTest extends ControllerTestsBase {
                 .map(json -> json.replaceAll("http://localhost:\\d+/", "https://jira.acme.com"))
                 .block();
         assertThat(body,  sameJSONAs(fromFile("connector/responses/APF-27.json")));
-
-        mockBackend.verify();
     }
 
     @Test
@@ -227,8 +219,7 @@ class JiraControllerTest extends ControllerTestsBase {
                 .exchange()
                 .expectStatus().is5xxServerError()
                 .expectHeader().valueEquals("X-Backend-Status", "500");
-        mockBackend.verify();
-    }
+     }
 
     @Test
     void testAddComment() {
@@ -247,7 +238,6 @@ class JiraControllerTest extends ControllerTestsBase {
                 .syncBody("body=Hello")
                 .exchange()
                 .expectStatus().isCreated();
-        mockBackend.verify();
     }
 
     @Test
@@ -292,7 +282,6 @@ class JiraControllerTest extends ControllerTestsBase {
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
-        mockBackend.verify();
     }
 
     @Test
@@ -315,8 +304,7 @@ class JiraControllerTest extends ControllerTestsBase {
                 .header("x-jira-base-url", mockBackend.url(""))
                 .exchange()
                 .expectStatus().isNoContent();
-        mockBackend.verify();
-    }
+     }
 
     @Test
     void testAddWatcherWith401() {
@@ -356,8 +344,6 @@ class JiraControllerTest extends ControllerTestsBase {
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
-
-        mockBackend.verify();
     }
 
     @Test

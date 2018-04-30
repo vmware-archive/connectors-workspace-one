@@ -108,8 +108,6 @@ class ConcurControllerTest extends ControllerTestsBase {
                         .replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
 
         testRequestCards("request.json", resFile, lang);
-
-        mockBackend.verify();
     }
 
     @Test
@@ -155,7 +153,6 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .body(BodyInserters.fromFormData(REASON, "Approval Done"))
                 .exchange()
                 .expectStatus().isOk();
-        mockBackend.verify();
     }
 
     @Test
@@ -186,7 +183,6 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .exchange()
                 .expectStatus().isOk();
 
-        mockBackend.verify();
     }
 
     @ParameterizedTest
@@ -212,8 +208,6 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
-
-        mockBackend.verify();
     }
 
     @Test

@@ -12,10 +12,7 @@ import com.vmware.connectors.test.JsonNormalizer;
 import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -87,6 +84,11 @@ class AirWatchControllerTest extends ControllerTestsBase {
     @BeforeEach
     void resetGreenbox() {
         mockGreenbox.reset();
+    }
+
+    @AfterEach
+    void verifyMock() {
+        mockGreenbox.verify();
     }
 
     @ParameterizedTest
@@ -201,9 +203,6 @@ class AirWatchControllerTest extends ControllerTestsBase {
                         .with("platform", "android"))
                 .exchange()
                 .expectStatus().isOk();
-
-        mockBackend.verify();
-        mockGreenbox.verify();
     }
 
     @ParameterizedTest(name = "{index} ==> GB Response=''{1}''")
@@ -230,8 +229,6 @@ class AirWatchControllerTest extends ControllerTestsBase {
                         .with("platform", "ios"))
                 .exchange()
                 .expectStatus().isBadRequest();
-
-        mockBackend.verify();
     }
 
     @Test
@@ -270,9 +267,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
         requestCards("request.json")
                 .exchange()
                 .expectStatus().isBadRequest()
-                .expectBody().json(fromFile("connector/responses/forbiddenUdid.json"));
-        mockBackend.verify();
-    }
+                .expectBody().json(fromFile("connector/responses/forbiddenUdid.json")); }
 
     @Test
     void testRequestCardsOneServerError() throws Exception {
@@ -284,7 +279,6 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .exchange()
                 .expectStatus().is5xxServerError()
                 .expectHeader().valueEquals("X-Backend-Status", "500");
-        mockBackend.verify();
     }
 
     @Test

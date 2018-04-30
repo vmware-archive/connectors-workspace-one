@@ -8,7 +8,6 @@ package com.vmware.connectors.servicenow;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -37,12 +36,6 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 class ServiceNowControllerTest extends ControllerTestsBase {
 
     private static final String SNOW_AUTH_TOKEN = "test-GOOD-auth-token";
-
- 
-    @AfterEach
-    void tearDown() {
-        mockBackend.verify();
-    }
 
     @ParameterizedTest
     @ValueSource(strings = {
