@@ -177,16 +177,10 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/user-not-found.json"), APPLICATION_JSON));
 
-        String body = requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json")
+        requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json")
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .returnResult(String.class)
-                .getResponseBody()
-                .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
-                .block();
-        assertThat(body, sameJSONAs(fromFile(
-                "/servicenow/responses/success/cards/email-not-found.json")).allowingAnyArrayOrdering());
+                .expectBody().json(fromFile("/servicenow/responses/success/cards/email-not-found.json"));
      }
 
     @DisplayName("Card request success cases")
@@ -248,16 +242,10 @@ class ServiceNowControllerTest extends ControllerTestsBase {
 
     @Test
     void testRequestCardsEmptyTicketsSuccess() throws Exception {
-        String body = requestCards(SNOW_AUTH_TOKEN, "valid/cards/empty-tickets.json")
+        requestCards(SNOW_AUTH_TOKEN, "valid/cards/empty-tickets.json")
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .returnResult(String.class)
-                .getResponseBody()
-                .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
-                .block();
-        assertThat(body, sameJSONAs(fromFile(
-                "/servicenow/responses/success/cards/empty-tickets.json")).allowingAnyArrayOrdering());
+                .expectBody().json(fromFile("/servicenow/responses/success/cards/empty-tickets.json"));
     }
 
     @DisplayName("Card request invalid token cases")
@@ -265,29 +253,18 @@ class ServiceNowControllerTest extends ControllerTestsBase {
     @CsvSource({"valid/cards/missing-tickets.json, /servicenow/responses/success/cards/missing-tickets.json",
             "valid/cards/empty-email.json, /servicenow/responses/success/cards/empty-email.json"})
     void testRequestCardsInvalidTokens(String reqFile, String resFile) throws Exception {
-        String body = requestCards(SNOW_AUTH_TOKEN, reqFile)
+       requestCards(SNOW_AUTH_TOKEN, reqFile)
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .returnResult(String.class)
-                .getResponseBody()
-                .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
-                .block();
-        assertThat(body, sameJSONAs(fromFile(resFile)).allowingAnyArrayOrdering());
+                .expectBody().json(fromFile(resFile));
     }
 
     @Test
     void testRequestCardsMissingEmailSuccess() throws Exception {
-        String body = requestCards(SNOW_AUTH_TOKEN, "valid/cards/missing-email.json")
+        requestCards(SNOW_AUTH_TOKEN, "valid/cards/missing-email.json")
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .returnResult(String.class)
-                .getResponseBody()
-                .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
-                .block();
-        assertThat(body, sameJSONAs(fromFile(
-                "/servicenow/responses/success/cards/missing-email.json")).allowingAnyArrayOrdering());
+                .expectBody().json(fromFile("/servicenow/responses/success/cards/missing-email.json"));
     }
 
     @Test
