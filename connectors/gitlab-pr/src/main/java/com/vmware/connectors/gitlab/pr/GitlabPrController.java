@@ -189,6 +189,7 @@ public class GitlabPrController {
          */
         try {
             return new URI(
+                    // Since we're not using UriComponentsBuilder, ensure we're not repeating "/" after base URL.
                     baseUrl.replaceAll("/$", "") + "/api/v4/projects/" + mergeRequestId.getProjectId()
                             + "/" + MERGE_REQUESTS + "/" + mergeRequestId.getNumber()
                             + action
