@@ -21,6 +21,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -37,6 +38,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.client.ExpectedCount.between;
+import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
@@ -139,11 +142,11 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
 
         expect(pr236Url).andRespond(withSuccess(pr236, APPLICATION_JSON));
         expect(pr246Url).andRespond(withSuccess(pr246, APPLICATION_JSON));
-        expect(notFoundUrl).andRespond(withStatus(HttpStatus.NOT_FOUND));
+        expect(between(0, 1), notFoundUrl).andRespond(withStatus(HttpStatus.NOT_FOUND));
 
         expect(pr236Url + "/activities").andRespond(withSuccess(pr236Activities, APPLICATION_JSON));
         expect(pr246Url + "/activities").andRespond(withSuccess(pr246Activities, APPLICATION_JSON));
-        expect(notFoundUrl + "/activities").andRespond(withStatus(HttpStatus.NOT_FOUND));
+        expect(between(0, 1), notFoundUrl + "/activities").andRespond(withStatus(HttpStatus.NOT_FOUND));
     }
 
     @ParameterizedTest(name = "{index} ==> ''{0}''")
@@ -279,7 +282,11 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     private ResponseActions expect(final String url) {
-        return mockBackend.expect(requestTo(url))
+        return expect(once(), url);
+    }
+
+    private ResponseActions expect(ExpectedCount count, final String url) {
+        return mockBackend.expect(count, requestTo(url))
                 .andExpect(method(GET))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic bitbucket-token"));
     }
