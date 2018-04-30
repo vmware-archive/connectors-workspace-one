@@ -6,11 +6,9 @@
 package com.vmware.connectors.jira;
 
 import com.google.common.collect.ImmutableList;
-import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
-import com.vmware.connectors.test.JsonReplacementsBuilder;
+import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,27 +18,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.springframework.http.HttpHeaders.*;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.HEAD;
-import static org.springframework.http.HttpMethod.POST;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.ExpectedCount.times;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 /**
  * Created by Rob Worsnop on 12/9/16.
@@ -55,14 +50,6 @@ class JiraControllerTest extends ControllerTestsBase {
 
     @Value("classpath:jira/responses/myself.json")
     private Resource myself;
-
-    private MockRestServiceServer mockJira;
-
-    @BeforeEach
-    void init() throws Exception {
-        super.setup();
-        mockJira = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
-    }
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -125,12 +112,11 @@ class JiraControllerTest extends ControllerTestsBase {
             "emptyRequest.json, emptyRequest.json",
             "emptyToken.json, emptyToken.json"})
     void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("abc", requestFile);
-
-        perform(builder)
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("connector/responses/" + responseFile)));
+        requestCards("abc", requestFile)
+            .exchange()
+            .expectStatus().isBadRequest()
+            .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+            .expectBody().json(fromFile("connector/responses/" + responseFile));
     }
 
     @DisplayName("Card request success cases")
@@ -142,38 +128,39 @@ class JiraControllerTest extends ControllerTestsBase {
         expect("APF-27").andRespond(withSuccess(apf27, APPLICATION_JSON));
         expect("APF-28").andRespond(withSuccess(apf28, APPLICATION_JSON));
         testRequestCards("request.json", resFile, lang);
-        mockJira.verify();
     }
 
     @Test
-    void testAuthSuccess() throws Exception {
-        mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
+    void testAuthSuccess() {
+        mockBackend.expect(requestTo("/rest/api/2/myself"))
                 .andExpect(method(HEAD))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
-                .andRespond(withSuccess());
+                .andRespond(withSuccess("foo", TEXT_HTML));
 
-        perform(head("/test-auth").with(token(accessToken()))
+        webClient.head()
+                .uri("/test-auth")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header("x-jira-authorization", "Bearer abc")
-                .header("x-jira-base-url", "https://jira.acme.com"))
-                .andExpect(status().isNoContent());
-
-        mockJira.verify();
+                .header("x-jira-base-url", mockBackend.url(""))
+                .exchange()
+                .expectStatus().isNoContent();
     }
 
     @Test
-    void testAuthFail() throws Exception {
-        mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
+    void testAuthFail() {
+        mockBackend.expect(requestTo("/rest/api/2/myself"))
                 .andExpect(method(HEAD))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andRespond(withUnauthorizedRequest());
 
-        perform(head("/test-auth").with(token(accessToken()))
+        webClient.head()
+                .uri("/test-auth")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header("x-jira-authorization", "Bearer abc")
-                .header("x-jira-base-url", "https://jira.acme.com"))
-                .andExpect(status().isBadRequest())
-                .andExpect(header().string("x-backend-status", "401"));
-
-        mockJira.verify();
+                .header("x-jira-base-url", mockBackend.url(""))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("x-backend-status", "401");
     }
 
     /*
@@ -181,195 +168,230 @@ class JiraControllerTest extends ControllerTestsBase {
      */
     @Test
     void testMissingRequestHeaders() throws Exception {
-        perform(post("/cards/requests").with(token(accessToken()))
+        webClient.post()
+                .uri("/cards/requests")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/jira/")
-                .content(fromFile("/jira/requests/request.json")))
-                .andExpect(status().isBadRequest())
-                .andExpect(status().reason(containsString("Missing request header 'x-jira-authorization'")));
+                .syncBody(fromFile("/jira/requests/request.json"))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.message").isEqualTo("Missing request header 'x-jira-authorization' for method parameter of type String");
     }
 
     @Test
     void testRequestCardsNotAuthorized() throws Exception {
-        mockJira.expect(times(1), requestTo(any(String.class)))
+        mockBackend.expect(times(1), requestTo(any(String.class)))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer bogus"))
                 .andExpect(method(GET))
                 .andRespond(withUnauthorizedRequest());
-        perform(requestCards("bogus", "request.json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(header().string("X-Backend-Status", "401"))
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("/connector/responses/invalid_connector_token.json")));
-        mockJira.verify();
+        requestCards("bogus", "request.json")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("X-Backend-Status", "401")
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
     }
 
     @Test
     void testRequestCardsOneNotFound() throws Exception {
         expect("APF-27").andRespond(withSuccess(apf27, APPLICATION_JSON));
         expect("BOGUS-999").andRespond(withStatus(NOT_FOUND));
-        perform(requestCards("abc", "oneCardNotFound.json"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(content().string(JsonReplacementsBuilder.from(
-                        fromFile("connector/responses/APF-27.json")).buildForCards()));
-        mockJira.verify();
+
+        String body = requestCards("abc", "oneCardNotFound.json")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(JsonNormalizer::forCards)
+                .map(json -> json.replaceAll("http://localhost:\\d+/", "https://jira.acme.com"))
+                .block();
+        assertThat(body,  sameJSONAs(fromFile("connector/responses/APF-27.json")));
     }
 
     @Test
     void testRequestCardsOneServerError() throws Exception {
         expect("POISON-PILL").andRespond(withServerError());
-        perform(requestCards("abc", "oneServerError.json"))
-                .andExpect(status().is5xxServerError())
-                .andExpect(header().string("X-Backend-Status", "500"));
-        mockJira.verify();
-    }
+        requestCards("abc", "oneServerError.json")
+                .exchange()
+                .expectStatus().is5xxServerError()
+                .expectHeader().valueEquals("X-Backend-Status", "500");
+     }
 
     @Test
-    void testAddComment() throws Exception {
-        mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/issue/1234/comment"))
+    void testAddComment() {
+        mockBackend.expect(requestTo("/rest/api/2/issue/1234/comment"))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().string("{\"body\":\"Hello\"}"))
                 .andRespond(withStatus(CREATED));
 
-        perform(post("/api/v1/issues/1234/comment").with(token(accessToken()))
+        webClient.post()
+                .uri("/api/v1/issues/1234/comment")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header("x-jira-authorization", "Bearer abc")
-                .header("x-jira-base-url", "https://jira.acme.com")
-                .content("body=Hello"))
-                .andExpect(status().isCreated());
-        mockJira.verify();
+                .header("x-jira-base-url", mockBackend.url(""))
+                .syncBody("body=Hello")
+                .exchange()
+                .expectStatus().isCreated();
     }
 
     @Test
-    void testAddCommentWith401() throws Exception {
-        perform(post("/api/v1/issues/1234/comment")
+    void testAddCommentWith401() {
+        webClient.post()
+                .uri("/api/v1/issues/1234/comment")
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header("x-jira-authorization", "Bearer abc")
-                .header("x-jira-base-url", "https://jira.acme.com")
-                .content("body=Hello"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(content().json("{\"error\":\"unauthorized\"}"));
-        mockJira.verify();
+                .header("x-jira-base-url", mockBackend.url(""))
+                .syncBody("body=Hello")
+                .exchange()
+                .expectStatus().isUnauthorized()
+                .expectBody().json("{\"error\":\"unauthorized\"}");
     }
 
     @Test
     void testAddCommentWithMissingConnectorAuthorization() throws Exception {
-        perform(post("/api/v1/issues/1234/comment").with(token(accessToken()))
+        webClient.post()
+                .uri("/api/v1/issues/1234/comment")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header("x-jira-base-url", "https://jira.acme.com")
-                .content("body=Hello"))
-                .andExpect(status().isBadRequest());
-        mockJira.verify();
+                .syncBody("body=Hello")
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
     void testAddCommentWithBackend401() throws Exception {
-        mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/issue/1234/comment"))
+        mockBackend.expect(requestTo("/rest/api/2/issue/1234/comment"))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer bogus"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().string("{\"body\":\"Hello\"}"))
                 .andRespond(withStatus(UNAUTHORIZED));
-
-        perform(post("/api/v1/issues/1234/comment").with(token(accessToken()))
+        webClient.post()
+                .uri("/api/v1/issues/1234/comment")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header("x-jira-authorization", "Bearer bogus")
-                .header("x-jira-base-url", "https://jira.acme.com")
-                .content("body=Hello"))
-                .andExpect(status().isBadRequest())
-                .andExpect((content().json(fromFile("/connector/responses/invalid_connector_token.json"))));
-        mockJira.verify();
+                .header("x-jira-base-url", mockBackend.url(""))
+                .syncBody("body=Hello")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
     }
 
     @Test
-    void testAddWatcher() throws Exception {
-        mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
+    void testAddWatcher() {
+        mockBackend.expect(requestTo("/rest/api/2/myself"))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(myself, APPLICATION_JSON));
-        mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/issue/1234/watchers"))
+        mockBackend.expect(requestTo("/rest/api/2/issue/1234/watchers"))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().string("\"harshas\""))
                 .andRespond(withStatus(NO_CONTENT));
 
-        perform(post("/api/v1/issues/1234/watchers").with(token(accessToken()))
+
+        webClient.post()
+                .uri("/api/v1/issues/1234/watchers")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header("x-jira-authorization", "Bearer abc")
-                .header("x-jira-base-url", "https://jira.acme.com"))
-                .andExpect(status().isNoContent());
-        mockJira.verify();
-    }
+                .header("x-jira-base-url", mockBackend.url(""))
+                .exchange()
+                .expectStatus().isNoContent();
+     }
 
     @Test
-    void testAddWatcherWith401() throws Exception {
-        perform(post("/api/v1/issues/1234/watchers")
+    void testAddWatcherWith401() {
+        webClient.post()
+                .uri("/api/v1/issues/1234/watchers")
+                .header(AUTHORIZATION, "Bearer invalid")
                 .header("x-jira-authorization", "Bearer abc")
-                .header("x-jira-base-url", "https://jira.acme.com"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(content().json("{\"error\":\"unauthorized\"}"));
-        mockJira.verify();
+                .header("x-jira-base-url", mockBackend.url(""))
+                .exchange()
+                .expectStatus().isUnauthorized()
+                .expectBody().json("{\"error\":\"invalid_token\"}");
     }
 
     @Test
     void testAddWatcherWithMissingConnectorAuthorization() throws Exception {
-        perform(post("/api/v1/issues/1234/watchers").with(token(accessToken()))
-                .header("x-jira-base-url", "https://jira.acme.com"))
-                .andExpect(status().isBadRequest());
-        mockJira.verify();
+        webClient.post()
+                .uri("/api/v1/issues/1234/watchers")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                 .header("x-jira-base-url", mockBackend.url(""))
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
     void testAddWatcherWithBackend401() throws Exception {
-        mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/myself"))
+        mockBackend.expect(requestTo("/rest/api/2/myself"))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer bogus"))
                 .andExpect(method(GET))
                 .andRespond(withStatus(UNAUTHORIZED));
 
-        perform(post("/api/v1/issues/1234/watchers").with(token(accessToken()))
+
+        webClient.post()
+                .uri("/api/v1/issues/1234/watchers")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header("x-jira-authorization", "Bearer bogus")
-                .header("x-jira-base-url", "https://jira.acme.com"))
-                .andExpect(status().isBadRequest())
-                .andExpect((content().json(fromFile("/connector/responses/invalid_connector_token.json"))));
-        mockJira.verify();
+                .header("x-jira-base-url", mockBackend.url(""))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
     }
 
     @Test
     void testGetImage() throws Exception {
-        perform(get("/images/connector.png"))
-                .andExpect(status().isOk())
-                .andExpect(header().longValue(CONTENT_LENGTH, 11851))
-                .andExpect(header().string(CONTENT_TYPE, IMAGE_PNG_VALUE))
-                .andExpect((content().bytes(bytesFromFile("/static/images/connector.png"))));
+        webClient.get()
+                .uri("/images/connector.png")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentLength(11851)
+                .expectHeader().contentType(IMAGE_PNG_VALUE)
+                .expectBody(byte[].class).isEqualTo(bytesFromFile("/static/images/connector.png"));
     }
 
     private ResponseActions expect(String issue) {
-        return mockJira.expect(requestTo("https://jira.acme.com/rest/api/2/issue/" + issue))
+        return mockBackend.expect(requestTo("/rest/api/2/issue/" + issue))
                 .andExpect(method(GET))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"));
     }
 
     private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("abc", requestFile);
+        WebTestClient.RequestHeadersSpec<?> spec = requestCards("abc", requestFile);
         if (acceptLanguage != null) {
-            builder = builder.header(ACCEPT_LANGUAGE, acceptLanguage);
+            spec = spec.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
-        perform(builder)
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(content().string(JsonReplacementsBuilder.from(
-                        fromFile("connector/responses/" + responseFile)).buildForCards()));
+        String body = spec.exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(JsonNormalizer::forCards)
+                .map(json -> json.replaceAll("http://localhost:\\d+/", "https://jira.acme.com"))
+                .block();
+        assertThat(body,  sameJSONAs(fromFile("connector/responses/" + responseFile)).allowingAnyArrayOrdering());
+
     }
 
-    private MockHttpServletRequestBuilder requestCards(String authToken, String requestfile) throws Exception {
-        return post("/cards/requests").with(token(accessToken()))
+    private WebTestClient.RequestHeadersSpec<?> requestCards(String authToken, String requestfile) throws IOException {
+        return webClient.post()
+                .uri("/cards/requests")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
+                .headers(ControllerTestsBase::headers)
                 .header("x-jira-authorization", "Bearer " + authToken)
-                .header("x-jira-base-url", "https://jira.acme.com")
+                .header("x-jira-base-url", mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/jira/")
-                .content(fromFile("/jira/requests/" + requestfile));
+                .syncBody(fromFile("/jira/requests/" + requestfile));
     }
+
 }

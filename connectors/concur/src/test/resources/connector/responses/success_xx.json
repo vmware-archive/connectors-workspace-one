@@ -44,7 +44,6 @@
           "url": {
             "href": "https://hero/connectors/concur/api/expense/approve/79D89435DAE94F53BF60"
           },
-          "mutually_exclusive_set_id": "approval-actions",
           "type": "POST",
           "action_key": "USER_INPUT",
           "request": {},
@@ -55,7 +54,9 @@
               "min_length": 1
             }
           ],
-          "completed_label": "APPROVED"
+          "completed_label": "APPROVED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -63,7 +64,6 @@
           "url": {
             "href": "https://hero/connectors/concur/api/expense/reject/79D89435DAE94F53BF60"
           },
-          "mutually_exclusive_set_id": "approval-actions",
           "type": "POST",
           "action_key": "USER_INPUT",
           "request": {},
@@ -74,9 +74,14 @@
               "min_length": 1
             }
           ],
-          "completed_label": "REJECTED"
+          "completed_label": "REJECTED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",

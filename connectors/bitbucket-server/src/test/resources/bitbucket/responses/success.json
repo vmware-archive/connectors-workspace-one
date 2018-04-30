@@ -5,7 +5,9 @@
       "creation_date": "1970-01-01T00:00:00Z",
       "header": {
         "title": "[Bitbucket Server] Pull Request",
-        "subtitle":["UFO/app-platform-server #236"]
+        "subtitle": [
+          "UFO/app-platform-server #236"
+        ]
       },
       "body": {
         "description": "* APF-651-Added integration test for getImage and getAuthKey\r\n* APF-651-Added integration test for test auth for connectors",
@@ -69,14 +71,19 @@
           "completed_label": "Commented",
           "allow_repeated": true
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "creation_date": "1970-01-01T00:00:00Z",
       "header": {
         "title": "[Bitbucket Server] Pull Request",
-        "subtitle":["UFO/app-platform-server #246"]
+        "subtitle": [
+          "UFO/app-platform-server #246"
+        ]
       },
       "body": {
         "description": "Please do not merge this branch.",
@@ -150,7 +157,8 @@
           "action_key": "DIRECT",
           "request": {},
           "user_input": [],
-          "completed_label": "Approved"
+          "completed_label": "Approved",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -162,7 +170,8 @@
           "action_key": "DIRECT",
           "request": {},
           "user_input": [],
-          "completed_label": "Declined"
+          "completed_label": "Declined",
+          "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -174,7 +183,8 @@
           "action_key": "DIRECT",
           "request": {},
           "user_input": [],
-          "completed_label": "Merged"
+          "completed_label": "Merged",
+          "allow_repeated": false
         }
       ],
       "image": {

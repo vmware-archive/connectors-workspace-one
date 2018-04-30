@@ -6,12 +6,9 @@
 package com.vmware.connectors.gitlab.pr;
 
 import com.google.common.collect.ImmutableList;
-import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
-import com.vmware.connectors.test.JsonReplacementsBuilder;
+import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,12 +17,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
@@ -34,33 +31,14 @@ import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 class GitlabPrControllerTest extends ControllerTestsBase {
 
     private static final String GITLAB_AUTH_TOKEN = "test-auth-token";
 
-    private MockRestServiceServer mockGitlab;
-
-    @BeforeEach
-    void init() throws Exception {
-        super.setup();
-
-        mockGitlab = MockRestServiceServer.bindTo(requestHandlerHolder)
-                .ignoreExpectOrder(true)
-                .build();
-    }
-
-    @AfterEach
-    void teardown() throws Exception {
-        mockGitlab.verify();
-    }
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -86,100 +64,92 @@ class GitlabPrControllerTest extends ControllerTestsBase {
         testRegex("merge_request_urls", fromFile("fake/regex/pr-email.txt"), expected);
     }
 
-    private MockHttpServletRequestBuilder setupPostRequest(
+    private WebTestClient.ResponseSpec doPost(
             String path,
             MediaType contentType,
             String authToken,
             String content
-    ) throws Exception {
-        return setupPostRequest(path, contentType, authToken, content, null);
+    ) {
+        return doPost(path, contentType, authToken, content, null);
     }
 
-    private MockHttpServletRequestBuilder setupPostRequest(
+    private WebTestClient.ResponseSpec doPost(
             String path,
             MediaType contentType,
             String authToken,
             String content,
             String language
-    ) throws Exception {
+    )  {
 
-        MockHttpServletRequestBuilder builder = post(path)
-                .with(token(accessToken()))
+        WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
+                .uri(path)
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
-                .header("x-gitlab-pr-base-url", "https://gitlab.com")
+                .header("x-gitlab-pr-base-url", mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/gitlab-pr/")
-                .content(content);
+                .headers(ControllerTestsBase::headers)
+                .syncBody(content);
 
         if (authToken != null) {
-            builder = builder.header("x-gitlab-pr-authorization", "Bearer " + authToken);
+            spec = spec.header("x-gitlab-pr-authorization", "Bearer " + authToken);
         }
 
         if (language != null) {
-            builder = builder.header(ACCEPT_LANGUAGE, language);
+            spec = spec.header(ACCEPT_LANGUAGE, language);
         }
 
-        return builder;
+        return spec.exchange();
     }
 
-    private ResultActions requestCards(String authToken, String content) throws Exception {
+    private WebTestClient.ResponseSpec requestCards(String authToken, String content) {
         return requestCards(authToken, content, null);
     }
 
-    private ResultActions requestCards(String authToken, String content, String language) throws Exception {
-        return perform(
-                setupPostRequest(
+    private WebTestClient.ResponseSpec requestCards(String authToken, String content, String language) {
+        return doPost(
                         "/cards/requests",
                         APPLICATION_JSON,
                         authToken,
                         content,
                         language
-                )
-        );
+                );
     }
 
-    private ResultActions close(String authToken, String reason) throws Exception {
-        return perform(
-                setupPostRequest(
+    private WebTestClient.ResponseSpec close(String authToken, String reason) {
+        return doPost(
                         "/api/v1/vmware/test-repo/99/close",
                         APPLICATION_FORM_URLENCODED,
                         authToken,
                         reason == null ? "" : String.format("reason=%s", reason)
-                )
-        );
+                );
     }
 
-    private ResultActions merge(String authToken, String sha) throws Exception {
-        return perform(
-                setupPostRequest(
+    private WebTestClient.ResponseSpec merge(String authToken, String sha) {
+        return doPost(
                         "/api/v1/vmware/test-repo/99/merge",
                         APPLICATION_FORM_URLENCODED,
                         authToken,
                         sha == null ? "" : String.format("sha=%s", sha)
-                )
-        );
+                );
     }
 
-    private ResultActions approve(String authToken, String sha) throws Exception {
-        return perform(
-                setupPostRequest(
+    private WebTestClient.ResponseSpec approve(String authToken, String sha) {
+        return doPost(
                         "/api/v1/vmware/test-repo/99/approve",
                         APPLICATION_FORM_URLENCODED,
                         authToken,
                         sha == null ? "" : String.format("sha=%s", sha)
-                )
-        );
+                );
     }
 
-    private ResultActions comment(String authToken, String message) throws Exception {
-        return perform(
-                setupPostRequest(
+    private WebTestClient.ResponseSpec comment(String authToken, String message) {
+        return doPost(
                         "/api/v1/vmware/test-repo/99/comment",
                         APPLICATION_FORM_URLENCODED,
                         authToken,
                         message == null ? "" : String.format("message=%s", message)
-                )
-        );
+                );
     }
 
     /////////////////////////////
@@ -188,18 +158,18 @@ class GitlabPrControllerTest extends ControllerTestsBase {
 
     @Test
     void testRequestCardsUnauthorized() throws Exception {
-        mockGitlab.expect(ExpectedCount.manyTimes(), requestTo(any(String.class)))
+        mockBackend.expect(ExpectedCount.manyTimes(), requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
         requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(header().string("X-Backend-Status", "401"));
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("X-Backend-Status", "401");
     }
 
     @Test
     void testRequestCardsAuthHeaderMissing() throws Exception {
         requestCards(null, fromFile("requests/valid/cards/card.json"))
-                .andExpect(status().isBadRequest());
+                .expectStatus().isBadRequest();
     }
 
     @DisplayName("Card request success cases")
@@ -210,36 +180,34 @@ class GitlabPrControllerTest extends ControllerTestsBase {
     void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         trainGitlabForCards();
 
-        requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"), acceptLanguage)
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(
-                        content().string(
-                                JsonReplacementsBuilder
-                                        .from(fromFile(responseFile))
-                                        .buildForCards()
-                        )
-                );
+        String body = requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"), acceptLanguage)
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(JsonNormalizer::forCards)
+                .block();
+        assertThat(body, sameJSONAs(fromFile(responseFile)).allowingAnyArrayOrdering());
     }
 
     private void trainGitlabForCards() throws Exception {
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/1"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/1"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("fake/cards/small-merged-pr.json"), APPLICATION_JSON));
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/2"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/2"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("fake/cards/small-open-pr.json"), APPLICATION_JSON));
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/3"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/3"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("fake/cards/big-closed-pr.json"), APPLICATION_JSON));
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/0-not-found"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/0-not-found"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withStatus(NOT_FOUND));
@@ -248,22 +216,15 @@ class GitlabPrControllerTest extends ControllerTestsBase {
     @Test
     void testRequestCardsEmptyPrUrlsSuccess() throws Exception {
         requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/empty-pr-urls.json"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(
-                        content().string(
-                                JsonReplacementsBuilder
-                                        .from(fromFile("responses/success/cards/empty-pr-urls.json"))
-                                        .buildForCards()
-                        )
-                );
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .expectBody().json(fromFile("responses/success/cards/empty-pr-urls.json"));
     }
 
     @Test
     void testRequestCardsMissingPrUrlsSuccess() throws Exception {
         requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/missing-pr-urls.json"))
-                .andExpect(status().isBadRequest());
+                .expectStatus().isBadRequest();
     }
 
     @DisplayName("Card request invalid token cases")
@@ -272,9 +233,9 @@ class GitlabPrControllerTest extends ControllerTestsBase {
             "requests/invalid/cards/missing-tokens.json, responses/error/cards/missing-tokens.json"})
     void testRequestCardsInvalidTokens(String reqFile, String resFile) throws Exception {
         requestCards(GITLAB_AUTH_TOKEN, fromFile(reqFile))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile(resFile), false));
+                .expectStatus().isBadRequest()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .expectBody().json(fromFile(resFile));
     }
 
     /////////////////////////////
@@ -282,25 +243,25 @@ class GitlabPrControllerTest extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    void testApproveActionUnauthorized() throws Exception {
-        mockGitlab.expect(requestTo(any(String.class)))
+    void testApproveActionUnauthorized() {
+        mockBackend.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
         approve(GITLAB_AUTH_TOKEN, "test-sha")
-                .andExpect(status().isBadRequest())
-                .andExpect(header().string("X-Backend-Status", "401"));
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("X-Backend-Status", "401");
     }
 
     @Test
-    void testApproveAuthHeaderMissing() throws Exception {
+    void testApproveAuthHeaderMissing() {
         approve(null, "test-sha")
-                .andExpect(status().isBadRequest());
+                .expectStatus().isBadRequest();
     }
 
     @Test
-    void testApproveActionMissingSha() throws Exception {
+    void testApproveActionMissingSha() {
         approve(GITLAB_AUTH_TOKEN, null)
-                .andExpect(status().isBadRequest());
+                .expectStatus().isBadRequest();
     }
 
     @Test
@@ -309,7 +270,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
 
         String expected = fromFile("responses/actions/approve/success.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/approve"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/approve"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -317,8 +278,8 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess(fakeResponse, APPLICATION_JSON));
 
         approve(GITLAB_AUTH_TOKEN, "test-sha")
-                .andExpect(status().isOk())
-                .andExpect(content().json(expected, false));
+                .expectStatus().isOk()
+                .expectBody().json(expected);
     }
 
     @Test
@@ -327,7 +288,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
 
         String expected = fromFile("responses/actions/approve/failed.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/approve"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/approve"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -345,9 +306,9 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 );
 
         approve(GITLAB_AUTH_TOKEN, "test-sha")
-                .andExpect(status().isBadRequest())
-                .andExpect(header().string("x-backend-status", "401"))
-                .andExpect(content().json(expected, false));
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("x-backend-status", "401")
+                .expectBody().json(expected);
     }
 
     /////////////////////////////
@@ -355,26 +316,26 @@ class GitlabPrControllerTest extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    void testCloseActionUnauthorized() throws Exception {
-        mockGitlab.expect(requestTo(any(String.class)))
+    void testCloseActionUnauthorized() {
+        mockBackend.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
         close(GITLAB_AUTH_TOKEN, "test-close-reason")
-                .andExpect(status().isBadRequest())
-                .andExpect(header().string("X-Backend-Status", "401"));
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("X-Backend-Status", "401");
     }
 
     @Test
-    void testCloseAuthHeaderMissing() throws Exception {
+    void testCloseAuthHeaderMissing() {
         close(null, "test-close-reason")
-                .andExpect(status().isBadRequest());
+                .expectStatus().isBadRequest();
     }
 
     @Test
     void testCloseActionSuccess() throws Exception {
         String fakeCommentResponse = fromFile("fake/actions/close/comment-success.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/notes"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/notes"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -383,7 +344,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
 
         String fakeCloseResponse = fromFile("fake/actions/close/close-success.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(PUT))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -393,15 +354,15 @@ class GitlabPrControllerTest extends ControllerTestsBase {
         String expected = fromFile("responses/actions/close/close-success.json");
 
         close(GITLAB_AUTH_TOKEN, "test-close-reason")
-                .andExpect(status().isOk())
-                .andExpect(content().json(expected, false));
+                .expectStatus().isOk()
+                .expectBody().json(expected);
     }
 
     @Test
     void testCloseActionNoReasonSuccess() throws Exception {
         String fakeResponse = fromFile("fake/actions/close/close-success-no-reason.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(PUT))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -411,15 +372,15 @@ class GitlabPrControllerTest extends ControllerTestsBase {
         String expected = fromFile("responses/actions/close/close-success-no-reason.json");
 
         close(GITLAB_AUTH_TOKEN, null)
-                .andExpect(status().isOk())
-                .andExpect(content().json(expected, false));
+                .expectStatus().isOk()
+                .expectBody().json(expected);
     }
 
     @Test
     void testCloseActionCommentFailed() throws Exception {
         String fakeResponse = fromFile("fake/actions/close/comment-failed.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/notes"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/notes"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -433,16 +394,16 @@ class GitlabPrControllerTest extends ControllerTestsBase {
         String expected = fromFile("responses/actions/close/comment-failed.json");
 
         close(GITLAB_AUTH_TOKEN, "test-close-reason")
-                .andExpect(status().is5xxServerError())
-                .andExpect(header().string("x-backend-status", "404"))
-                .andExpect(content().json(expected, false));
+                .expectStatus().is5xxServerError()
+                .expectHeader().valueEquals("x-backend-status", "404")
+                .expectBody().json(expected);
     }
 
     @Test
     void testCloseActionCloseFailed() throws Exception {
         String fakeCommentResponse = fromFile("fake/actions/close/comment-success.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/notes"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/notes"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -451,7 +412,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
 
         String fakeCloseResponse = fromFile("fake/actions/close/close-failed.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(PUT))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -465,9 +426,9 @@ class GitlabPrControllerTest extends ControllerTestsBase {
         String expected = fromFile("responses/actions/close/close-failed.json");
 
         close(GITLAB_AUTH_TOKEN, "test-close-reason")
-                .andExpect(status().is5xxServerError())
-                .andExpect(header().string("x-backend-status", "503"))
-                .andExpect(content().json(expected, false));
+                .expectStatus().is5xxServerError()
+                .expectHeader().valueEquals("x-backend-status", "503")
+                .expectBody().json(expected);
     }
 
     /////////////////////////////
@@ -475,19 +436,19 @@ class GitlabPrControllerTest extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    void testCommentActionUnauthorized() throws Exception {
-        mockGitlab.expect(requestTo(any(String.class)))
+    void testCommentActionUnauthorized() {
+        mockBackend.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
         comment(GITLAB_AUTH_TOKEN, "test-comment")
-                .andExpect(status().isBadRequest())
-                .andExpect(header().string("X-Backend-Status", "401"));
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("X-Backend-Status", "401");
     }
 
     @Test
-    void testCommentAuthHeaderMissing() throws Exception {
+    void testCommentAuthHeaderMissing() {
         comment(null, "test-comment")
-                .andExpect(status().isBadRequest());
+                .expectStatus().isBadRequest();
     }
 
     @Test
@@ -496,7 +457,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
 
         String expected = fromFile("responses/actions/comment/success.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/notes"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/notes"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -504,14 +465,14 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess(fakeResponse, APPLICATION_JSON));
 
         comment(GITLAB_AUTH_TOKEN, "test-comment")
-                .andExpect(status().isOk())
-                .andExpect(content().json(expected, false));
+                .expectStatus().isOk()
+                .expectBody().json(expected);
     }
 
     @Test
-    void testCommentActionMissingComment() throws Exception {
+    void testCommentActionMissingComment() {
         comment(GITLAB_AUTH_TOKEN, null)
-                .andExpect(status().isBadRequest());
+                .expectStatus().isBadRequest();
     }
 
     @Test
@@ -520,7 +481,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
 
         String expected = fromFile("responses/actions/comment/failed.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/notes"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/notes"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -532,9 +493,9 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 );
 
         comment(GITLAB_AUTH_TOKEN, "test-comment")
-                .andExpect(status().is5xxServerError())
-                .andExpect(header().string("x-backend-status", "404"))
-                .andExpect(content().json(expected, false));
+                .expectStatus().is5xxServerError()
+                .expectHeader().valueEquals("x-backend-status", "404")
+                .expectBody().json(expected);
     }
 
     /////////////////////////////
@@ -542,25 +503,25 @@ class GitlabPrControllerTest extends ControllerTestsBase {
     /////////////////////////////
 
     @Test
-    void testMergeActionUnauthorized() throws Exception {
-        mockGitlab.expect(requestTo(any(String.class)))
+    void testMergeActionUnauthorized() {
+        mockBackend.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
         merge(GITLAB_AUTH_TOKEN, "test-sha")
-                .andExpect(status().isBadRequest())
-                .andExpect(header().string("X-Backend-Status", "401"));
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("X-Backend-Status", "401");
     }
 
     @Test
-    void testMergeAuthHeaderMissing() throws Exception {
+    void testMergeAuthHeaderMissing() {
         merge(null, "test-sha")
-                .andExpect(status().isBadRequest());
+                .expectStatus().isBadRequest();
     }
 
     @Test
-    void testMergeActionMissingSha() throws Exception {
+    void testMergeActionMissingSha() {
         merge(GITLAB_AUTH_TOKEN, null)
-                .andExpect(status().isBadRequest());
+                .expectStatus().isBadRequest();
     }
 
     @Test
@@ -569,7 +530,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
 
         String expected = fromFile("responses/actions/merge/success.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/merge"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/merge"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(PUT))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -577,8 +538,8 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess(fakeResponse, APPLICATION_JSON));
 
         merge(GITLAB_AUTH_TOKEN, "test-sha")
-                .andExpect(status().isOk())
-                .andExpect(content().json(expected, false));
+                .expectStatus().isOk()
+                .expectBody().json(expected);
     }
 
     @Test
@@ -587,7 +548,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
 
         String expected = fromFile("responses/actions/merge/failed.json");
 
-        mockGitlab.expect(requestTo("https://gitlab.com/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/merge"))
+        mockBackend.expect(requestTo("/api/v4/projects/vmware%2Ftest-repo/merge_requests/99/merge"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + GITLAB_AUTH_TOKEN))
                 .andExpect(method(PUT))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
@@ -599,9 +560,9 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 );
 
         merge(GITLAB_AUTH_TOKEN, "test-sha")
-                .andExpect(status().is5xxServerError())
-                .andExpect(header().string("x-backend-status", "405"))
-                .andExpect(content().json(expected, false));
+                .expectStatus().is5xxServerError()
+                .expectHeader().valueEquals("x-backend-status", "405")
+                .expectBody().json(expected);
     }
 
 }

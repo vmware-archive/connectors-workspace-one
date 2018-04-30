@@ -6,29 +6,23 @@
 package com.vmware.connectors.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vmware.connectors.mock.MockClientHttpConnector;
-import com.vmware.connectors.mock.RequestHandlerHolder;
+import com.vmware.connectors.mock.MockWebServerWrapper;
+import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientCodecCustomizer;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,25 +35,17 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.hamcrest.CoreMatchers.anything;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Created by Rob Worsnop on 12/1/16.
  */
 @ExtendWith(SpringExtension.class)
-@AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-test.properties")
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(JwtUtils.class)
 @SuppressWarnings("PMD.SignatureDeclareThrowsException")
 public class ControllerTestsBase {
@@ -67,37 +53,30 @@ public class ControllerTestsBase {
     private static final Logger logger = LoggerFactory.getLogger(ControllerTestsBase.class);
 
     @Autowired
-    protected RequestHandlerHolder requestHandlerHolder;
-
-    @Autowired
     protected JwtUtils jwt;
-
-    @Autowired
-    protected MockMvc mvc;
 
     @Autowired
     protected ObjectMapper mapper;
 
+    @Autowired
+    protected WebTestClient webClient;
+
     private String auth;
 
-    @TestConfiguration
-    static class ControllerTestConfiguration {
-        @Bean
-        public RequestHandlerHolder requestHandler() {
-            return new RequestHandlerHolder();
-        }
+    protected MockWebServerWrapper mockBackend;
 
-        @Bean
-        public WebClient.Builder webClientBuilder(WebClientCodecCustomizer codecCustomizer) {
-            WebClient.Builder builder = WebClient.builder();
-            codecCustomizer.customize(builder);
-            builder.clientConnector(new MockClientHttpConnector(requestHandler()));
-            return builder;
-        }
+
+
+    @BeforeEach
+    void setup() throws Exception {
+        auth = jwt.createAccessToken();
+        mockBackend = new MockWebServerWrapper(new MockWebServer());
     }
 
-    protected void setup() throws Exception {
-        auth = jwt.createAccessToken();
+    @AfterEach
+    void shutdown() throws IOException {
+        mockBackend.verify();
+        mockBackend.shutdown();
     }
 
     protected String accessToken() {
@@ -106,32 +85,17 @@ public class ControllerTestsBase {
 
     protected void testProtectedResource(HttpMethod method, String uri) throws Exception {
         // Try without authorization; should never work
-        perform(request(method, uri))
-                .andExpect(status().isUnauthorized());
+        webClient.method(method)
+                .uri(uri)
+                .exchange()
+                .expectStatus().isUnauthorized();
 
         // Try with expired token
-        perform(request(method, uri).with(token(jwt.createAccessToken(Instant.now()))))
-                .andExpect(status().isUnauthorized());
-    }
-
-    protected ResultActions perform(MockHttpServletRequestBuilder builder) throws Exception {
-        ResultActions resultActions = mvc.perform(builder
-                .header("x-forwarded-host", "my-connector")
-                .header("x-forwarded-proto", "https")
-                .header("x-forwarded-port", "443"));
-        if (resultActions.andReturn().getRequest().isAsyncStarted()) {
-            return mvc.perform(asyncDispatch(resultActions
-                    .andExpect(MockMvcResultMatchers.request().asyncResult(anything()))
-                    .andReturn()));
-        }
-        return resultActions;
-    }
-
-    protected static RequestPostProcessor token(String accessToken) {
-        return request -> {
-            request.addHeader(AUTHORIZATION, "Bearer " + accessToken);
-            return request;
-        };
+        webClient.method(method)
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + jwt.createAccessToken(Instant.now()))
+                .exchange()
+                .expectStatus().isUnauthorized();
     }
 
     public static String fromFile(String fileName) throws IOException {
@@ -140,35 +104,51 @@ public class ControllerTestsBase {
         }
     }
 
-    public static byte[] bytesFromFile(String fileName) throws IOException {
+    public static byte[] bytesFromFile(String fileName) {
         try (InputStream stream = new ClassPathResource(fileName).getInputStream()) {
             return IOUtils.toByteArray(stream);
+        } catch (IOException e) {
+            throw new RuntimeException(e); //NOPMD allows method to be called from lambda
         }
     }
 
-    protected void testConnectorDiscovery() throws Exception {
-        perform(request(GET, "/"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(content().json(fromFile("/connector/responses/discovery.json")));
-        perform(request(GET, "/discovery/metadata.json"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(content().json(fromFile("/static/discovery/metadata.json")));
+    protected void testConnectorDiscovery() throws IOException {
+        webClient.get()
+                .uri("/")
+                .headers(ControllerTestsBase::headers)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody().json(fromFile("/connector/responses/discovery.json"));
+
+        webClient.get()
+                .uri("/discovery/metadata.json")
+                .headers(ControllerTestsBase::headers)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody().json(fromFile("/static/discovery/metadata.json"));
+    }
+
+    protected static void headers(HttpHeaders headers) {
+        headers.add("x-forwarded-host", "my-connector");
+        headers.add("x-forwarded-proto", "https");
+        headers.add("x-forwarded-port", "443");
     }
 
     protected void testRegex(String tokenProperty, String emailInput, List<String> expected) throws Exception {
-        mvc.perform(
-                get("/discovery/metadata.json")
-                        .with(token(accessToken()))
-                        .accept(APPLICATION_JSON)
-        ).andExpect(mvcResult -> {
-            String json = mvcResult.getResponse().getContentAsString();
-            Map<String, Object> results = mapper.readValue(json, Map.class);
+        byte[] body = webClient.get()
+                .uri("/discovery/metadata.json")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(byte[].class).getResponseBodyContent();
+
+            Map<String, Object> results = mapper.readValue(body, Map.class);
             Map<String, Object> fields = (Map<String, Object>) results.get("fields");
             Map<String, Object> tokenDefinition = (Map<String, Object>) fields.get(tokenProperty);
             String regex = (String) tokenDefinition.get("regex");
             Integer captureGroup = (Integer) tokenDefinition.get("capture_group");
             verifyRegex(regex, captureGroup, emailInput, expected);
-        });
     }
 
     private void verifyRegex(String regex, Integer captureGroup, String emailInput, List<String> expected) throws Exception {

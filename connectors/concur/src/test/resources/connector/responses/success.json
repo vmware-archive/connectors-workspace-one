@@ -8,10 +8,11 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "[Concur] Expense Report Pending Your Approval"
+        "title": "[Concur] Expense Report Pending Your Approval",
+        "subtitle": []
       },
       "body": {
-        "description":"Test Concur connector-1",
+        "description": "Test Concur connector-1",
         "fields": [
           {
             "type": "GENERAL",
@@ -43,7 +44,6 @@
           "url": {
             "href": "https://hero/connectors/concur/api/expense/approve/79D89435DAE94F53BF60"
           },
-          "mutually_exclusive_set_id": "approval-actions",
           "type": "POST",
           "action_key": "USER_INPUT",
           "request": {},
@@ -54,7 +54,9 @@
               "min_length": 1
             }
           ],
-          "completed_label": "Approved"
+          "completed_label": "Approved",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -62,7 +64,6 @@
           "url": {
             "href": "https://hero/connectors/concur/api/expense/reject/79D89435DAE94F53BF60"
           },
-          "mutually_exclusive_set_id": "approval-actions",
           "type": "POST",
           "action_key": "USER_INPUT",
           "request": {},
@@ -73,9 +74,14 @@
               "min_length": 1
             }
           ],
-          "completed_label": "Rejected"
+          "completed_label": "Rejected",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         }
-      ]
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      }
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -85,10 +91,11 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "[Concur] Expense Report Pending Your Approval"
+        "title": "[Concur] Expense Report Pending Your Approval",
+        "subtitle": []
       },
       "body": {
-        "description":"Test Concur connector-2",
+        "description": "Test Concur connector-2",
         "fields": [
           {
             "type": "GENERAL",

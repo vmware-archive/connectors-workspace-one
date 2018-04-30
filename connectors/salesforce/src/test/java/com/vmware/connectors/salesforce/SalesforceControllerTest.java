@@ -9,12 +9,10 @@ package com.vmware.connectors.salesforce;
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import com.vmware.connectors.mock.MockRestServiceServer;
 import com.vmware.connectors.test.ControllerTestsBase;
-import com.vmware.connectors.test.JsonReplacementsBuilder;
+import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -29,7 +27,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -40,22 +38,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.vmware.connectors.test.JsonSchemaValidator.isValidHeroCardConnectorResponse;
 import static org.hamcrest.CoreMatchers.any;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.http.HttpHeaders.*;
+import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.ExpectedCount.manyTimes;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
+import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -73,17 +70,15 @@ class SalesforceControllerTest extends ControllerTestsBase {
     private static final String QUERY_FMT_CONTACT_ID =
             "SELECT id FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
 
-
-    private static final String SERVER_URL = "https://acme.salesforce.com";
-
+    
     private static final String TRAVIS_ACCOUNT_ID = "0014100000Vc2iPAAR";
 
-    private static final String ACCOUNT_SEARCH_PATH = "services/data/v20.0/query";
+    private static final String ACCOUNT_SEARCH_PATH = "/services/data/v20.0/query";
 
-    private static final String ADD_CONTACT_PATH = "services/data/v20.0/sobjects/Contact";
-    private static final String LINK_OPPORTUNITY_TASK_PATH = "services/data/v20.0/sobjects/Task";
-    private static final String LINK_ATTACHMENT_TASK_PATH = "services/data/v20.0/sobjects/Attachment";
-    private static final String LINK_OPPORTUNITY_PATH = "services/data/v20.0/sobjects/OpportunityContactRole";
+    private static final String ADD_CONTACT_PATH = "/services/data/v20.0/sobjects/Contact";
+    private static final String LINK_OPPORTUNITY_TASK_PATH = "/services/data/v20.0/sobjects/Task";
+    private static final String LINK_ATTACHMENT_TASK_PATH = "/services/data/v20.0/sobjects/Attachment";
+    private static final String LINK_OPPORTUNITY_PATH = "/services/data/v20.0/sobjects/OpportunityContactRole";
 
     @Value("classpath:salesforce/response/successContact.json")
     private Resource sfResponseContactExists;
@@ -127,14 +122,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @Value("classpath:salesforce/response/existingContactId.json")
     private Resource sfExistingContactId;
 
-
-    private MockRestServiceServer mockSF;
-
-    @BeforeEach
-    void init() throws Exception {
-        super.setup();
-        mockSF = MockRestServiceServer.bindTo(requestHandlerHolder).ignoreExpectOrder(true).build();
-    }
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -192,13 +179,16 @@ class SalesforceControllerTest extends ControllerTestsBase {
 
     @Test
     void testMissingRequestHeaders() throws Exception {
-        perform(post("/cards/requests").with(token(accessToken()))
+        webClient.post()
+                .uri("/cards/requests")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/salesforce/")
-                .content(fromFile("/connector/requests/request.json")))
-                .andExpect(status().isBadRequest())
-                .andExpect(status().reason(containsString("Missing request header 'x-salesforce-authorization'")));
+                .syncBody(fromFile("/connector/requests/request.json"))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.message").isEqualTo("Missing request header 'x-salesforce-authorization' for method parameter of type String");
     }
 
     @DisplayName("Card request invalid token cases")
@@ -206,10 +196,11 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @CsvSource({"/connector/requests/emptyRequest.json, connector/responses/emptyRequest.json",
             "/connector/requests/emptyToken.json, connector/responses/emptyToken.json"})
     void testRequestCardsInvalidTokens(String reqFile, String resFile) throws Exception {
-        perform(requestCards("abc", reqFile))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON_UTF8))
-                .andExpect(content().json(fromFile(resFile)));
+       requestCards("abc", reqFile)
+               .exchange()
+               .expectStatus().isBadRequest()
+               .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON_UTF8)
+               .expectBody().json(fromFile(resFile));
     }
 
     @DisplayName("Card request contact details cases")
@@ -224,8 +215,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess(contactOppResponse, APPLICATION_JSON));
 
         testRequestCards(requestFile, resFile, lang);
-        mockSF.verify();
-    }
+     }
 
     private Stream<Arguments> contactCardTestArgProvider() {
         return Stream.of(
@@ -259,41 +249,38 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess(sfResponseWordHowardOpportunities, APPLICATION_JSON));
 
         testRequestCards(requestFile, resFile, lang);
-        mockSF.verify();
-    }
+     }
 
     @Test
     void testRequestCardNotAuthorized() throws Exception {
-        mockSF.expect(manyTimes(), requestTo(any(String.class)))
+        mockBackend.expect(manyTimes(), requestTo(any(String.class)))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer bogus"))
                 .andExpect(method(GET))
                 .andRespond(withUnauthorizedRequest());
 
-        perform(requestCards("bogus", "/connector/requests/request.json"))
-                .andExpect(status().isBadRequest())
-                .andExpect(header().string("X-Backend-Status", "401"))
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json(fromFile("/connector/responses/invalid_connector_token.json")));
-        mockSF.verify();
+        requestCards("bogus", "/connector/requests/request.json")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("X-Backend-Status", "401")
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
     }
 
     @Test
     void testRequestCardInternalServerError() throws Exception {
         final String requestFile = "/connector/requests/request.json";
-        mockSF.expect(manyTimes(), requestTo(any(String.class)))
+        mockBackend.expect(manyTimes(), requestTo(any(String.class)))
                 .andExpect(method(GET))
                 .andRespond(withServerError());
-        perform(requestCards("abc", requestFile))
-                .andExpect(status().isInternalServerError())
-                .andExpect(header().string("X-Backend-Status", "500"));
-        mockSF.verify();
+        requestCards("abc", requestFile)
+                .exchange()
+                .expectStatus().isEqualTo(INTERNAL_SERVER_ERROR)
+                .expectHeader().valueEquals("X-Backend-Status", "500");
     }
 
     @Test
     void testAddContact() throws Exception {
-        UriComponentsBuilder addContactReqBuilder = fromHttpUrl(SERVER_URL).path(ADD_CONTACT_PATH);
-        UriComponentsBuilder addOppToContactReqBuilder = fromHttpUrl(SERVER_URL).path(LINK_OPPORTUNITY_PATH);
-        mockSF.expect(requestTo(addContactReqBuilder.build().toUri()))
+        mockBackend.expect(requestTo(ADD_CONTACT_PATH))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_JSON))
                 .andExpect(MockRestRequestMatchers.jsonPath("$.AccountId", is(TRAVIS_ACCOUNT_ID)))
@@ -302,88 +289,101 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.jsonPath("$.FirstName", is("prabhu")))
                 .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess(sfResponseContactCreated, APPLICATION_JSON));
-        mockSF.expect(requestTo(addOppToContactReqBuilder.build().toUri()))
+        mockBackend.expect(requestTo(LINK_OPPORTUNITY_PATH))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess());
-        perform(requestAddContact("abc", TRAVIS_ACCOUNT_ID, "/salesforce/request/contact.txt"))
-                .andExpect(status().isOk());
-        mockSF.verify();
+        requestAddContact("abc", TRAVIS_ACCOUNT_ID, "/salesforce/request/contact.txt")
+                .expectStatus().isOk();
     }
 
     @Test
     void testAddConversations() throws Exception {
-        UriComponentsBuilder addTaskReqBuilder = fromHttpUrl(SERVER_URL).path(LINK_OPPORTUNITY_TASK_PATH);
-        UriComponentsBuilder addAttachmentReqBuilder = fromHttpUrl(SERVER_URL).path(LINK_ATTACHMENT_TASK_PATH);
         Map<String, String> userContactDetailMap = getUserContactDetails("/salesforce/request/conversations.txt");
         expectSalesforceRequest(String.format(QUERY_FMT_CONTACT_ID, userContactDetailMap.get("contact_email"),
                 userContactDetailMap.get("user_email")))
                 .andRespond(withSuccess(sfExistingContactId, APPLICATION_JSON));
-        mockSF.expect(requestTo(addTaskReqBuilder.build().toUri()))
+        mockBackend.expect(requestTo(LINK_OPPORTUNITY_TASK_PATH))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess(sfResponseTaskCreated, APPLICATION_JSON));
-        mockSF.expect(requestTo(addAttachmentReqBuilder.build().toUri()))
+        mockBackend.expect(requestTo(LINK_ATTACHMENT_TASK_PATH))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess(sfResponseAttachmentCreated, APPLICATION_JSON));
-        perform(requestAddConversationAsAttcahment("abc", "/salesforce/request/conversations.txt"))
-                .andExpect(status().isOk());
-        mockSF.verify();
+        requestAddConversationAsAttcahment("abc", "/salesforce/request/conversations.txt")
+                .expectStatus().isOk();
     }
 
     @Test
-    void testGetImage() throws Exception {
-        perform(get("/images/connector.png"))
-                .andExpect(status().isOk())
-                .andExpect(header().longValue(CONTENT_LENGTH, 7314))
-                .andExpect(header().string(CONTENT_TYPE, IMAGE_PNG_VALUE))
-                .andExpect((content().bytes(bytesFromFile("/static/images/connector.png"))));
+    void testGetImage() {
+        webClient.get()
+                .uri("/images/connector.png")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentLength(7314)
+                .expectHeader().contentType(IMAGE_PNG)
+                .expectBody().consumeWith(result -> assertThat(
+                        result.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
     }
 
     private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
-        MockHttpServletRequestBuilder builder = requestCards("abc", requestFile);
+        WebTestClient.RequestHeadersSpec<?> spec = requestCards("abc", requestFile);
         if (acceptLanguage != null) {
-            builder = builder.header(ACCEPT_LANGUAGE, acceptLanguage);
+            spec = spec.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
-        perform(builder)
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().string(isValidHeroCardConnectorResponse()))
-                .andExpect(content().string(JsonReplacementsBuilder.from(
-                        fromFile("connector/responses/" + responseFile)).buildForCards()));
+        String body = spec.exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(JsonNormalizer::forCards)
+                .block();
+        assertThat(body, sameJSONAs(fromFile("connector/responses/" + responseFile)).allowingAnyArrayOrdering());
     }
 
-    private MockHttpServletRequestBuilder requestCards(String authToken, String filePath) throws Exception {
-        return post("/cards/requests").with(token(accessToken()))
+    private WebTestClient.RequestHeadersSpec<?> requestCards(String authToken, String filePath) throws Exception {
+        return webClient.post()
+                .uri("/cards/requests")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-salesforce-authorization", "Bearer " + authToken)
-                .header("x-salesforce-base-url", SERVER_URL)
+                .header("x-salesforce-base-url", mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/salesforce/")
-                .content(fromFile(filePath));
+                .headers(ControllerTestsBase::headers)
+                .syncBody(fromFile(filePath));
     }
 
-    private MockHttpServletRequestBuilder requestAddContact(String authToken, String accountId, String filePath) throws Exception {
-        return post(String.format("/accounts/%s/contacts", accountId)).with(token(accessToken()))
+    private WebTestClient.ResponseSpec requestAddContact(String authToken, String accountId, String filePath) throws Exception {
+        return webClient.post()
+                .uri(String.format("/accounts/%s/contacts", accountId))
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .accept(APPLICATION_JSON)
                 .header("x-salesforce-authorization", "Bearer " + authToken)
-                .header("x-salesforce-base-url", SERVER_URL).content(fromFile(filePath));
+                .header("x-salesforce-base-url", mockBackend.url(""))
+                .syncBody(fromFile(filePath))
+                .exchange();
     }
 
-    private MockHttpServletRequestBuilder requestAddConversationAsAttcahment(String authToken, String filePath) throws Exception {
-        return post("/conversations").with(token(accessToken()))
+    private WebTestClient.ResponseSpec requestAddConversationAsAttcahment(String authToken, String filePath) throws Exception {
+        return webClient.post()
+                .uri("/conversations")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .accept(APPLICATION_JSON)
                 .header("x-salesforce-authorization", "Bearer " + authToken)
-                .header("x-salesforce-base-url", SERVER_URL).content(fromFile(filePath));
+                .header("x-salesforce-base-url", mockBackend.url(""))
+                .syncBody(fromFile(filePath))
+                .exchange();
     }
 
-    private ResponseActions expectSalesforceRequest(String soqlQuery) throws IOException {
-        UriComponentsBuilder builder = fromHttpUrl(SERVER_URL).path(ACCOUNT_SEARCH_PATH).queryParam("q", soqlQuery);
+    private ResponseActions expectSalesforceRequest(String soqlQuery) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(ACCOUNT_SEARCH_PATH).queryParam("q", soqlQuery);
         URI tmp = builder.build().toUri();
-        return mockSF.expect(requestTo(tmp))
+        return mockBackend.expect(requestTo(tmp))
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"));
     }
