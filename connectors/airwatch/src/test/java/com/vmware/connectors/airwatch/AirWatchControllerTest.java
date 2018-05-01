@@ -24,6 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.support.TestPropertySourceUtils;
+import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -44,7 +45,7 @@ import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.client.ExpectedCount.times;
+import static org.springframework.test.web.client.ExpectedCount.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
@@ -273,7 +274,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
     void testRequestCardsOneServerError() throws Exception {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.poison.pill")
                 .andRespond(withServerError());
-        expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.android.boxer")
+        expectAWRequest(between(0, 1), "/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.android.boxer")
                 .andRespond(withSuccess(awAppNotInstalled, APPLICATION_JSON));
         requestCards("oneServerError.json")
                 .exchange()
@@ -327,10 +328,14 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .syncBody(fromFile("/connector/requests/" + requestfile));
     }
 
-    private ResponseActions expectAWRequest(String uri) {
-        return mockBackend.expect(requestTo(uri))
+    private ResponseActions expectAWRequest(ExpectedCount count, String uri) {
+        return mockBackend.expect(count, requestTo(uri))
                 .andExpect(method(GET))
                 .andExpect(header(AUTHORIZATION, "Bearer " + accessToken()));
+    }
+
+    private ResponseActions expectAWRequest(String uri) {
+        return expectAWRequest(once(), uri);
     }
 
     private void expectGBSessionRequests(String deviceType) {
