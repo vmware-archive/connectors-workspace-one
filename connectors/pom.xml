@@ -14,7 +14,7 @@
     </parent>
 
     <properties>
-        <docker.javaImage>ws1devops/java8:u162</docker.javaImage>
+        <docker.javaImage>ws1devops/java8:u172</docker.javaImage>
     </properties>
 
     <modules>
