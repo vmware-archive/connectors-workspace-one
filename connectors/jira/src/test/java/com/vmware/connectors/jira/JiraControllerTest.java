@@ -182,7 +182,7 @@ class JiraControllerTest extends ControllerTestsBase {
 
     @Test
     void testRequestCardsNotAuthorized() throws Exception {
-        mockBackend.expect(times(1), requestTo(any(String.class)))
+        mockBackend.expect(times(2), requestTo(any(String.class)))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer bogus"))
                 .andExpect(method(GET))
                 .andRespond(withUnauthorizedRequest());
@@ -215,6 +215,7 @@ class JiraControllerTest extends ControllerTestsBase {
     @Test
     void testRequestCardsOneServerError() throws Exception {
         expect("POISON-PILL").andRespond(withServerError());
+        expect("APF-27").andRespond(withSuccess(apf27, APPLICATION_JSON));
         requestCards("abc", "oneServerError.json")
                 .exchange()
                 .expectStatus().is5xxServerError()
