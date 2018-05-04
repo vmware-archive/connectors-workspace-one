@@ -15,7 +15,6 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -238,9 +237,9 @@ public class BitbucketServerController {
         final Mono<JsonDocument> bitBucketServerResponse = getPullRequestInfo(authHeader, pullRequest, baseUrl);
         final Mono<List<String>> comments = getComments(baseUrl, authHeader, pullRequest);
 
-        return Mono.zip(bitBucketServerResponse, comments, Pair::of)
+        return Mono.zip(bitBucketServerResponse, comments)
                 .onErrorResume(Reactive::skipOnNotFound)
-                .map(pair -> convertResponseIntoCard(pair.getLeft(), pullRequest, routingPrefix, pair.getRight(), locale, request));
+                .map(pair -> convertResponseIntoCard(pair.getT1(), pullRequest, routingPrefix, pair.getT2(), locale, request));
     }
 
     private Mono<JsonDocument> getPullRequestInfo(final String authHeader,
