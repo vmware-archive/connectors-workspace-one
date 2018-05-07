@@ -28,46 +28,6 @@
             "type": "GENERAL",
             "title": "Telefonnummer",
             "description": "(707) 070-7070"
-          },
-          {
-            "type": "GENERAL",
-            "title": "oportunidad",
-            "description": "Hero selling opportunity"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Papel",
-            "description": "Evaluator"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Probabilidad",
-            "description": "50.0%"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Cantidad",
-            "description": "$10.0"
-          },
-          {
-            "type": "GENERAL",
-            "title": "oportunidad",
-            "description": "MEM selling opp"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Papel",
-            "description": "Decision Maker"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Probabilidad",
-            "description": "60.0%"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Cantidad",
-            "description": "$100.0"
           }
         ]
       },
