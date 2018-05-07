@@ -5,7 +5,6 @@
 
 package com.vmware.connectors.salesforce;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -186,8 +185,9 @@ public class SalesforceController {
         }
 
         return retrieveContactInfos(auth, baseUrl, user, sender)
-                .flatMap(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
+                .flatMapMany(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
                         user, senderDomain, locale, request))
+                .collectList()
                 .map(this::toCards)
                 .map(ResponseEntity::ok)
                 .subscriberContext(Reactive.setupContext());
@@ -206,7 +206,7 @@ public class SalesforceController {
     }
 
 
-    private Mono<List<Card>> getCards(
+    private Flux<Card> getCards(
             JsonDocument contactDetails,
             String senderEmail,
             String baseUrl,
@@ -221,9 +221,7 @@ public class SalesforceController {
         if (contactsSize > 0) {
             // Contact already exists in the salesforce account. Return a card to show the sender information.
             logger.debug("Returning contact info for email: {} ", senderEmail);
-            return Mono.just(
-                    ImmutableList.of(
-                            createUserDetailsCard(contactDetails, routingPrefix, locale, request)));
+            return Flux.just(createUserDetailsCard(contactDetails, routingPrefix, locale, request));
         } else {
             // Contact doesn't exist in salesforce. Return a card to show accounts that are related to sender domain.
             logger.debug("Returning accounts info for domain: {} ", senderDomain);
@@ -275,7 +273,7 @@ public class SalesforceController {
                 .build();
     }
 
-    private Mono<List<Card>> makeCardsFromSenderDomain(
+    private Flux<Card> makeCardsFromSenderDomain(
             String auth,
             String baseUrl,
             String routingPrefix,
@@ -288,7 +286,7 @@ public class SalesforceController {
                 .map(body -> body.<List<Map<String, Object>>>read("$.records"))
                 .map(contactRecords -> getUniqueAccounts(contactRecords, senderEmail))
                 .flatMap(accounts -> addRelatedOpportunities(accounts, baseUrl, auth))
-                .map(list -> createRelatedAccountsCards(list, senderEmail, routingPrefix, locale));
+                .flatMapMany(list -> createRelatedAccountsCards(list, senderEmail, routingPrefix, locale));
     }
 
     private Mono<JsonDocument> retrieveAccountDetails(
@@ -395,13 +393,13 @@ public class SalesforceController {
 
 
     // Create a Card for each unique account, account related opportunities
-    private List<Card> createRelatedAccountsCards(
+    private Flux<Card> createRelatedAccountsCards(
             List<SFAccount> accounts,
             String contactEmail,
             String routingPrefix,
             Locale locale
     ) {
-        return accounts
+        return Flux.fromStream(accounts
                 .stream()
                 .map(acct ->
                         new Card.Builder()
@@ -411,8 +409,7 @@ public class SalesforceController {
                                 .setBody(cardTextAccessor.getMessage("addcontact.body", locale, contactEmail, acct.getName()))
                                 .addAction(createAddContactAction(routingPrefix, contactEmail, acct, locale))
                                 .build()
-                )
-                .collect(Collectors.toList());
+                ));
     }
 
     private CardAction createAddContactAction(
