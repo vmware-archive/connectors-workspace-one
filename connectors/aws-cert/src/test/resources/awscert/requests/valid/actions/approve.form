@@ -1,1 +1,1 @@
-utf8=%E2%9C%93&authenticity_token=test-csrf-token&authenticity_token=test-csrf-token&validation_token=test-validation-token&context=test-context&commit=I%20Approve&hero_aws_cert_approval_url=https%3A%2F%2Ftest-aws-region.certificates.fake-amazon.com%2Fapprovals%3Fcode%3Dtest-auth-code%26context%3Dtest-context
+utf8=%E2%9C%93&authenticity_token=test-csrf-token&authenticity_token=test-csrf-token&validation_token=test-validation-token&context=test-context&commit=I%20Approve&hero_aws_cert_approval_url=${backend_host}%2Fapprovals%3Fcode%3Dtest-auth-code%26context%3Dtest-context
