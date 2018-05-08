@@ -94,6 +94,8 @@ public class SalesforceController {
 
     private final String sfAttachmentTasklinkPath;
 
+    private final String sfOpportunityFieldsUpdatePath;
+
     private final WebClient rest;
 
     private final CardTextAccessor cardTextAccessor;
@@ -106,7 +108,8 @@ public class SalesforceController {
             @Value("${sf.addContactPath}") String sfAddContactPath,
             @Value("${sf.opportunityContactLinkPath}") String sfOpportunityContactLinkPath,
             @Value("${sf.opportunityTaskLinkPath}") String sfOpportunityTaskLinkPath,
-            @Value("${sf.attachmentTasklinkPath}") String sfAttachmentTasklinkPath
+            @Value("${sf.attachmentTasklinkPath}") String sfAttachmentTasklinkPath,
+            @Value("${sf.opportunityFieldsUpdatePath}") final String sfOpportunityFieldsUpdatePath
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
@@ -115,6 +118,7 @@ public class SalesforceController {
         this.sfOpportunityContactLinkPath = sfOpportunityContactLinkPath;
         this.sfOpportunityTaskLinkPath = sfOpportunityTaskLinkPath;
         this.sfAttachmentTasklinkPath = sfAttachmentTasklinkPath;
+        this.sfOpportunityFieldsUpdatePath = sfOpportunityFieldsUpdatePath;
     }
 
     ///////////////////////////////////////////////////////////////////
@@ -778,7 +782,7 @@ public class SalesforceController {
                                               final String opportunityId,
                                               final Object body) {
         return rest.patch()
-                .uri(baseUrl + "/services/data/v39.0/sobjects/Opportunity/{opportunityId}", opportunityId)
+                .uri(baseUrl + sfOpportunityFieldsUpdatePath, opportunityId)
                 .header(AUTHORIZATION, auth)
                 .contentType(APPLICATION_JSON)
                 .syncBody(body)
