@@ -5,7 +5,6 @@
 
 package com.vmware.connectors.salesforce;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -69,11 +68,6 @@ public class SalesforceController {
     // Query format to get contact details of email sender, from contact list owned by the user.
     private static final String QUERY_FMT_CONTACT =
             "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
-
-    // Query format to get list of all opportunity details that are related to the email sender.
-    private static final String QUERY_FMT_CONTACT_OPPORTUNITY =
-            "SELECT Opportunity.name, role, FORMAT(Opportunity.amount), Opportunity.probability from " +
-                    "OpportunityContactRole WHERE contact.email='%s' AND opportunity.owner.email='%s'";
 
     // Query format to get list of all opportunities that are related to an account.
     private static final String QUERY_FMT_ACCOUNT_OPPORTUNITY =
@@ -195,8 +189,9 @@ public class SalesforceController {
         }
 
         return retrieveContactInfos(auth, baseUrl, user, sender)
-                .flatMap(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
+                .flatMapMany(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
                         user, senderDomain, locale, request))
+                .collectList()
                 .map(this::toCards)
                 .map(ResponseEntity::ok)
                 .subscriberContext(Reactive.setupContext());
@@ -215,7 +210,7 @@ public class SalesforceController {
     }
 
 
-    private Mono<List<Card>> getCards(
+    private Flux<Card> getCards(
             JsonDocument contactDetails,
             String senderEmail,
             String baseUrl,
@@ -230,9 +225,7 @@ public class SalesforceController {
         if (contactsSize > 0) {
             // Contact already exists in the salesforce account. Return a card to show the sender information.
             logger.debug("Returning contact info for email: {} ", senderEmail);
-            return makeCardFromContactDetails(auth, baseUrl, routingPrefix, userEmail,
-                    senderEmail, contactDetails, locale, request)
-                    .map(ImmutableList::of);
+            return Flux.just(createUserDetailsCard(contactDetails, routingPrefix, locale, request));
         } else {
             // Contact doesn't exist in salesforce. Return a card to show accounts that are related to sender domain.
             logger.debug("Returning accounts info for domain: {} ", senderDomain);
@@ -240,38 +233,9 @@ public class SalesforceController {
         }
     }
 
-    private Mono<Card> makeCardFromContactDetails(
-            String auth,
-            String baseUrl,
-            String routingPrefix,
-            String userEmail,
-            String senderEmail,
-            JsonDocument contactDetails,
-            Locale locale,
-            HttpServletRequest request
-    ) {
-        return retrieveOpportunities(auth, baseUrl, userEmail, senderEmail)
-                .map(body -> createUserDetailsCard(contactDetails, body, routingPrefix, locale, request));
-    }
-
-    private Mono<JsonDocument> retrieveOpportunities(
-            String auth,
-            String baseUrl,
-            String userEmail,
-            String senderEmail
-    ) {
-        String soql = String.format(QUERY_FMT_CONTACT_OPPORTUNITY, senderEmail, userEmail);
-        return rest.get()
-                .uri(makeSearchAccountUri(baseUrl, soql))
-                .header(AUTHORIZATION, auth)
-                .retrieve()
-                .bodyToMono(JsonDocument.class);
-    }
-
     // Create card for showing information about the email sender, related opportunities.
     private Card createUserDetailsCard(
             JsonDocument contactDetails,
-            JsonDocument opportunityDetails,
             String routingPrefix,
             Locale locale,
             HttpServletRequest request
@@ -285,8 +249,6 @@ public class SalesforceController {
                 .addField(buildGeneralBodyField("senderinfo.name", contactName, locale))
                 .addField(buildGeneralBodyField("senderinfo.account", contactAccountName, locale))
                 .addField(buildGeneralBodyField("senderinfo.phone", contactPhNo, locale));
-
-        addOpportunities(cardBodyBuilder, opportunityDetails, locale);
 
         final Card.Builder card = new Card.Builder()
                 .setName("Salesforce") // TODO - remove this in APF-536
@@ -315,34 +277,7 @@ public class SalesforceController {
                 .build();
     }
 
-    private void addOpportunities(
-            CardBody.Builder cardBodyBuilder,
-            JsonDocument opportunityDetails,
-            Locale locale
-    ) {
-        // Fill in the opportunity details.
-        int totalOpportunities = opportunityDetails.read("$.totalSize");
-
-        for (int oppIndex = 0; oppIndex < totalOpportunities; oppIndex++) {
-
-            String oppJsonPathPrefix = String.format("$.records[%d].", oppIndex);
-
-            String oppName = opportunityDetails.read(oppJsonPathPrefix + "Opportunity.Name");
-            String oppRole = opportunityDetails.read(oppJsonPathPrefix + "Role");
-            String oppProbability = Double.toString(
-                    opportunityDetails.read(oppJsonPathPrefix + "Opportunity.Probability")
-            ) + "%";
-            String oppAmount = opportunityDetails.read(oppJsonPathPrefix + "Opportunity.Amount");
-
-            cardBodyBuilder
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.title", oppName, locale))
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.role", oppRole, locale))
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.probability", oppProbability, locale))
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.amount", oppAmount, locale));
-        }
-    }
-
-    private Mono<List<Card>> makeCardsFromSenderDomain(
+    private Flux<Card> makeCardsFromSenderDomain(
             String auth,
             String baseUrl,
             String routingPrefix,
@@ -355,7 +290,7 @@ public class SalesforceController {
                 .map(body -> body.<List<Map<String, Object>>>read("$.records"))
                 .map(contactRecords -> getUniqueAccounts(contactRecords, senderEmail))
                 .flatMap(accounts -> addRelatedOpportunities(accounts, baseUrl, auth))
-                .map(list -> createRelatedAccountsCards(list, senderEmail, routingPrefix, locale));
+                .flatMapMany(list -> createRelatedAccountsCards(list, senderEmail, routingPrefix, locale));
     }
 
     private Mono<JsonDocument> retrieveAccountDetails(
@@ -432,7 +367,7 @@ public class SalesforceController {
                 .map(body -> setAccOpportunities(body, account));
     }
 
-    private  Mono<JsonDocument> retrieveAccountOpportunities(
+    private Mono<JsonDocument> retrieveAccountOpportunities(
             String auth,
             String baseUrl,
             String accountId
@@ -462,13 +397,13 @@ public class SalesforceController {
 
 
     // Create a Card for each unique account, account related opportunities
-    private List<Card> createRelatedAccountsCards(
+    private Flux<Card> createRelatedAccountsCards(
             List<SFAccount> accounts,
             String contactEmail,
             String routingPrefix,
             Locale locale
     ) {
-        return accounts
+        return Flux.fromStream(accounts
                 .stream()
                 .map(acct ->
                         new Card.Builder()
@@ -478,8 +413,7 @@ public class SalesforceController {
                                 .setBody(cardTextAccessor.getMessage("addcontact.body", locale, contactEmail, acct.getName()))
                                 .addAction(createAddContactAction(routingPrefix, contactEmail, acct, locale))
                                 .build()
-                )
-                .collect(Collectors.toList());
+                ));
     }
 
     private CardAction createAddContactAction(
@@ -738,14 +672,14 @@ public class SalesforceController {
     ) {
         return Flux.fromIterable(opportunityIds)
                 .flatMap(opportunityId ->
-                                addEmailConversationToOpportunity(
-                                        contactId,
-                                        opportunityId,
-                                        conversations,
-                                        attachmentName,
-                                        auth,
-                                        baseUrl
-                                )
+                        addEmailConversationToOpportunity(
+                                contactId,
+                                opportunityId,
+                                conversations,
+                                attachmentName,
+                                auth,
+                                baseUrl
+                        )
                 ).then(Mono.empty());
     }
 

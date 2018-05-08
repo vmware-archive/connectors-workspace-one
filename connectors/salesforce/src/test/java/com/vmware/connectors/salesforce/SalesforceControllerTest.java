@@ -65,9 +65,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
             "SELECT email, account.id, account.name FROM contact WHERE email LIKE '%%%s' AND account.owner.email = '%s'";
     private static final String QUERY_FMT_CONTACT =
             "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
-    private static final String QUERY_FMT_OPPORTUNITY =
-            "SELECT Opportunity.name, role, FORMAT(Opportunity.amount), Opportunity.probability from OpportunityContactRole" +
-                    " WHERE contact.email='%s' AND opportunity.owner.email='%s'";
+
     private static final String QUERY_FMT_ACCOUNT_OPPORTUNITY = "SELECT id, name FROM opportunity WHERE account.id = '%s'";
 
     private static final String QUERY_FMT_CONTACT_ID =
@@ -92,17 +90,8 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @Value("classpath:salesforce/response/zeroRecords.json")
     private Resource sfResponseContactDoesNotExist;
 
-    @Value("classpath:salesforce/response/successOpportunity.json")
-    private Resource sfResponseContactOpportunities;
-
     @Value("classpath:salesforce/response/successAccount.json")
     private Resource sfResponseAccounts;
-
-    @Value("classpath:salesforce/response/successWithoutAmount.json")
-    private Resource sfResponseWithoutAmount;
-
-    @Value("classpath:salesforce/response/successWithoutRole.json")
-    private Resource sfResponseWithoutRole;
 
     @Value("classpath:salesforce/response/newContactCreated.json")
     private Resource sfResponseContactCreated;
@@ -209,23 +198,19 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @DisplayName("Card request contact details cases")
     @ParameterizedTest(name = "{index} ==> Response=''{2}'', Language=''{3}''")
     @MethodSource("contactCardTestArgProvider")
-    void testRequestCardContactDetailsSuccess(Resource contactResponse, Resource contactOppResponse,
-                                              String resFile, String lang) throws Exception {
+    void testRequestCardContactDetailsSuccess(Resource contactResponse, String resFile, String lang) throws Exception {
         final String requestFile = "/connector/requests/request.json";
         expectSalesforceRequest(getContactRequestSoql(requestFile))
                 .andRespond(withSuccess(contactResponse, APPLICATION_JSON));
-        expectSalesforceRequest(getContactOpportunitySoql(requestFile))
-                .andRespond(withSuccess(contactOppResponse, APPLICATION_JSON));
 
         testRequestCards(requestFile, resFile, lang);
      }
 
     private Stream<Arguments> contactCardTestArgProvider() {
         return Stream.of(
-                Arguments.of(sfResponseContactExists, sfResponseWithoutAmount, "successWithoutAmount.json", null),
-                Arguments.of(sfResponseContactWithoutPhone, sfResponseWithoutRole, "successWithoutPhoneAndRole.json", null),
-                Arguments.of(sfResponseContactExists, sfResponseContactOpportunities, "successSenderDetails.json", null),
-                Arguments.of(sfResponseContactExists, sfResponseContactOpportunities, "successSenderDetails_xx.json", "xx")
+                Arguments.of(sfResponseContactWithoutPhone, "successWithoutPhone.json", null),
+                Arguments.of(sfResponseContactExists, "successSenderDetails.json", null),
+                Arguments.of(sfResponseContactExists, "successSenderDetails_xx.json", "xx")
         );
     }
 
@@ -428,12 +413,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
         DocumentContext ctx = JsonPath.parse(fromFile(filePath));
         final String senderDomain = '@' + StringUtils.substringAfterLast(senderEmail(ctx), "@");
         return String.format(QUERY_FMT_ACCOUNT, senderDomain, userEmail(ctx));
-    }
-
-    // SOQL for finding all opportunities related to the sender contact.
-    private String getContactOpportunitySoql(String filePath) throws IOException {
-        DocumentContext ctx = JsonPath.parse(fromFile(filePath));
-        return String.format(QUERY_FMT_OPPORTUNITY, senderEmail(ctx), userEmail(ctx));
     }
 
     private String senderEmail(DocumentContext ctx) {
