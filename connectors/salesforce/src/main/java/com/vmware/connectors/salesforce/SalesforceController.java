@@ -76,9 +76,13 @@ public class SalesforceController {
     private static final String QUERY_FMT_CONTACT_ID =
             "SELECT id FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
 
-
     private static final String ADD_CONTACT_PATH = "accounts/{accountId}/contacts";
 
+    private static final String UPDATE_CLOSE_DATE = "/opportunity/{opportunityId}/closedate";
+
+    private static final String UPDATE_NEXT_STEP = "/opportunity/{opportunityId}/nextstep";
+
+    private static final String OPPORTUNITY_ID = "opportunityId";
 
     private final String sfSearchAccountPath;
 
@@ -89,6 +93,8 @@ public class SalesforceController {
     private final String sfOpportunityTaskLinkPath;
 
     private final String sfAttachmentTasklinkPath;
+
+    private final String sfOpportunityFieldsUpdatePath;
 
     private final WebClient rest;
 
@@ -102,7 +108,8 @@ public class SalesforceController {
             @Value("${sf.addContactPath}") String sfAddContactPath,
             @Value("${sf.opportunityContactLinkPath}") String sfOpportunityContactLinkPath,
             @Value("${sf.opportunityTaskLinkPath}") String sfOpportunityTaskLinkPath,
-            @Value("${sf.attachmentTasklinkPath}") String sfAttachmentTasklinkPath
+            @Value("${sf.attachmentTasklinkPath}") String sfAttachmentTasklinkPath,
+            @Value("${sf.opportunityFieldsUpdatePath}") final String sfOpportunityFieldsUpdatePath
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
@@ -111,6 +118,7 @@ public class SalesforceController {
         this.sfOpportunityContactLinkPath = sfOpportunityContactLinkPath;
         this.sfOpportunityTaskLinkPath = sfOpportunityTaskLinkPath;
         this.sfAttachmentTasklinkPath = sfAttachmentTasklinkPath;
+        this.sfOpportunityFieldsUpdatePath = sfOpportunityFieldsUpdatePath;
     }
 
     ///////////////////////////////////////////////////////////////////
@@ -737,4 +745,48 @@ public class SalesforceController {
                 .bodyToMono(String.class);
     }
 
+    @PostMapping(
+            path = UPDATE_CLOSE_DATE,
+            consumes = APPLICATION_FORM_URLENCODED_VALUE
+    )
+    public Mono<Void> updateCloseDate(
+            @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
+            @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
+            @PathVariable(OPPORTUNITY_ID) final String opportunityId,
+            @RequestParam("closedate") final String closeDate) {
+
+        // CloseDate should in the format "YYYY-MM-DD".
+        final Map<String, String> body = ImmutableMap.of("CloseDate", closeDate);
+
+        return updateOpportunityField(baseUrl, auth, opportunityId, body);
+    }
+
+    @PostMapping(
+            path = UPDATE_NEXT_STEP,
+            consumes = APPLICATION_FORM_URLENCODED_VALUE
+    )
+    public Mono<Void> updateNextStep(
+            @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
+            @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
+            @PathVariable(OPPORTUNITY_ID) final String opportunityId,
+            @RequestParam("nextstep") final String nextStep
+    ) {
+
+        final Map<String, String> body = ImmutableMap.of("NextStep", nextStep);
+
+        return updateOpportunityField(baseUrl, auth, opportunityId, body);
+    }
+
+    private Mono<Void> updateOpportunityField(final String baseUrl,
+                                              final String auth,
+                                              final String opportunityId,
+                                              final Object body) {
+        return rest.patch()
+                .uri(baseUrl + sfOpportunityFieldsUpdatePath, opportunityId)
+                .header(AUTHORIZATION, auth)
+                .contentType(APPLICATION_JSON)
+                .syncBody(body)
+                .retrieve()
+                .bodyToMono(Void.class);
+    }
 }
