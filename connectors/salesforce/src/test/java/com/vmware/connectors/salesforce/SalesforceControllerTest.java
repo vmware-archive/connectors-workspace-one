@@ -28,6 +28,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -44,11 +45,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.ExpectedCount.manyTimes;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
@@ -275,7 +278,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @Test
     void testRequestCardNotAuthorized() throws Exception {
         mockBackend.expect(manyTimes(), requestTo(any(String.class)))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer bogus"))
+                .andExpect(header(AUTHORIZATION, "Bearer bogus"))
                 .andExpect(method(GET))
                 .andRespond(withUnauthorizedRequest());
 
@@ -308,11 +311,11 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.jsonPath("$.Email", is("test@email.com")))
                 .andExpect(MockRestRequestMatchers.jsonPath("$.LastName", is("k")))
                 .andExpect(MockRestRequestMatchers.jsonPath("$.FirstName", is("prabhu")))
-                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
+                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess(sfResponseContactCreated, APPLICATION_JSON));
         mockBackend.expect(requestTo(LINK_OPPORTUNITY_PATH))
                 .andExpect(method(HttpMethod.POST))
-                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
+                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess());
         requestAddContact("abc", TRAVIS_ACCOUNT_ID, "/salesforce/request/contact.txt")
                 .expectStatus().isOk();
@@ -326,11 +329,11 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess(sfExistingContactId, APPLICATION_JSON));
         mockBackend.expect(requestTo(LINK_OPPORTUNITY_TASK_PATH))
                 .andExpect(method(HttpMethod.POST))
-                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
+                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess(sfResponseTaskCreated, APPLICATION_JSON));
         mockBackend.expect(requestTo(LINK_ATTACHMENT_TASK_PATH))
                 .andExpect(method(HttpMethod.POST))
-                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
+                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess(sfResponseAttachmentCreated, APPLICATION_JSON));
         requestAddConversationAsAttcahment("abc", "/salesforce/request/conversations.txt")
                 .expectStatus().isOk();
@@ -346,6 +349,34 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .expectHeader().contentType(IMAGE_PNG)
                 .expectBody().consumeWith(result -> assertThat(
                         result.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
+    }
+
+    @DisplayName("Update Salesforce opportunity fields")
+    @ParameterizedTest(name = "{index} => uri={0}, body={1}")
+    @CsvSource({
+            "/opportunity/0067F00000BplCHQAZ/closedate, closedate=2017-06-03",
+            "/opportunity/0067F00000BplCHQAZ/nextstep, nextstep=3/31 - Customer was shown the roadmap for ABC product"
+    })
+    void updateOpportunityFields(final String uri, final String body) {
+        mockSalesforceOpportunityAPI();
+
+        webClient.post()
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .header("x-salesforce-authorization", "Bearer abc")
+                .header("x-salesforce-base-url", mockBackend.url(""))
+                .syncBody(body)
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    private void mockSalesforceOpportunityAPI() {
+        mockBackend.expect(requestTo("/services/data/v39.0/sobjects/Opportunity/0067F00000BplCHQAZ"))
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
+                .andExpect(header(CONTENT_TYPE, APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess());
     }
 
     private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
@@ -406,7 +437,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
         URI tmp = builder.build().toUri();
         return mockBackend.expect(requestTo(tmp))
                 .andExpect(method(HttpMethod.GET))
-                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, "Bearer abc"));
+                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer abc"));
     }
 
     private String getContactRequestSoql(String filePath) throws IOException {

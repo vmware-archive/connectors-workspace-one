@@ -45,8 +45,13 @@ public final class Reactive {
      * @return the reactive context
      */
     public static Context setupContext() {
-        return Context.empty().put("mdc", MDC.getCopyOfContextMap());
-    }
+        Map<String, String> contextMap = MDC.getCopyOfContextMap();
+        Context context = Context.empty();
+        if (contextMap != null) {
+            context.put("mdc", contextMap);
+        }
+        return context;
+     }
 
     /**
      * Intended for use with Flux.doOnEach, this method allows processing
@@ -143,7 +148,9 @@ public final class Reactive {
 
     private static <R> R wrapCall(Context context, Supplier<R> supplier) {
         Map<String, String> savedContextMap = MDC.getCopyOfContextMap();
-        MDC.setContextMap(context.get("mdc"));
+        if (context.hasKey("mdc")) {
+            MDC.setContextMap(context. get("mdc"));
+        }
 
         try {
             return supplier.get();

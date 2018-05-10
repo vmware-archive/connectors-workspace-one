@@ -10,6 +10,7 @@ sf:
    opportunityContactLinkPath: services/data/v20.0/sobjects/OpportunityContactRole
    opportunityTaskLinkPath: services/data/v20.0/sobjects/Task
    attachmentTasklinkPath: services/data/v20.0/sobjects/Attachment
+   opportunityFieldsUpdatePath: services/data/v39.0/sobjects/Opportunity/{opportunityId}
 
 management:
   endpoints:
