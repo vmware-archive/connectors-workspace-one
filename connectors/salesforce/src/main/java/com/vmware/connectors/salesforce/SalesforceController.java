@@ -55,6 +55,8 @@ public class SalesforceController {
     private static final String ADD_CONVERSATIONS_PATH = "/conversations";
     private static final String CONVERSATION_TYPE = "email";
 
+    private static final int COMMENTS_SIZE = 2;
+
     // TODO: concatenating strings into a SOQL query like this may provide an avenue for a SOQL-injection attack
 
     // Get all Accounts owned by the user that have an existing Contact with the same domain as the sender's email
@@ -69,6 +71,15 @@ public class SalesforceController {
     private static final String QUERY_FMT_CONTACT =
             "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
 
+    // Find all Opportunity Ids related to sender email, based on condition.
+    private static final String QUERY_FMT_CONTACT_OPPORTUNITY = "SELECT Opportunity.Id FROM OpportunityContactRole " +
+            "WHERE contact.email = '%s' AND Opportunity.StageName <> 'Closed Won'";
+
+    // Query everything needed for making Opportunity cards.
+    private static final String QUERY_FMT_OPPORTUNITY_INFO = "SELECT id, name, CloseDate, NextStep, StageName, " +
+            "Account.name, Account.Owner.Name, FORMAT(Opportunity.amount), (SELECT User.Email from OpportunityTeamMembers), " +
+            "(SELECT InsertedBy.Name, Body from Feeds) FROM opportunity WHERE opportunity.id IN ('%s')";
+
     // Query format to get list of all opportunities that are related to an account.
     private static final String QUERY_FMT_ACCOUNT_OPPORTUNITY =
             "SELECT id, name FROM opportunity WHERE account.id = '%s'";
@@ -80,7 +91,7 @@ public class SalesforceController {
     private static final String ADD_CONTACT_PATH = "accounts/{accountId}/contacts";
 
 
-    private final String sfSearchAccountPath;
+    private final String sfSoqlQueryPath;
 
     private final String sfAddContactPath;
 
@@ -98,7 +109,7 @@ public class SalesforceController {
     public SalesforceController(
             WebClient rest,
             CardTextAccessor cardTextAccessor,
-            @Value("${sf.searchAccountsPath}") String sfSearchAccountPath,
+            @Value("${sf.soqlQueryPath}") String sfSoqlQueryPath,
             @Value("${sf.addContactPath}") String sfAddContactPath,
             @Value("${sf.opportunityContactLinkPath}") String sfOpportunityContactLinkPath,
             @Value("${sf.opportunityTaskLinkPath}") String sfOpportunityTaskLinkPath,
@@ -106,7 +117,7 @@ public class SalesforceController {
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
-        this.sfSearchAccountPath = sfSearchAccountPath;
+        this.sfSoqlQueryPath = sfSoqlQueryPath;
         this.sfAddContactPath = sfAddContactPath;
         this.sfOpportunityContactLinkPath = sfOpportunityContactLinkPath;
         this.sfOpportunityTaskLinkPath = sfOpportunityTaskLinkPath;
@@ -128,18 +139,18 @@ public class SalesforceController {
             String contactSoql
     ) {
         return rest.get()
-                .uri(makeSearchAccountUri(baseUrl, contactSoql))
+                .uri(makeSoqlQueryUri(baseUrl, contactSoql))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class);
     }
 
-    private URI makeSearchAccountUri(
+    private URI makeSoqlQueryUri(
             String baseUrl,
             String soql
     ) {
         return fromHttpUrl(baseUrl)
-                .path(sfSearchAccountPath)
+                .path(sfSoqlQueryPath)
                 .queryParam("q", soql)
                 .build()
                 .toUri();
@@ -219,13 +230,124 @@ public class SalesforceController {
     ) {
         int contactsSize = contactDetails.read("$.totalSize");
         if (contactsSize > 0) {
-            // Contact already exists in the salesforce account. Return a card to show the sender information.
-            logger.debug("Returning contact info for email: {} ", senderEmail);
-            return Flux.just(createUserDetailsCard(contactDetails, routingPrefix, locale, request));
+            // Contact already exists in the salesforce account. Cards to show are sender info and Opportunities.
+            logger.debug("Salesforce account already has a contact for the email: {} ", senderEmail);
+            return retrieveOppIds(senderEmail, baseUrl, auth)
+                    .flatMapMany(oppIds -> getCardsForSender(contactDetails, oppIds, baseUrl, auth, routingPrefix, locale, request));
+
         } else {
             // Contact doesn't exist in salesforce. Return a card to show accounts that are related to sender domain.
             logger.debug("Returning accounts info for domain: {} ", senderDomain);
             return makeCardsFromSenderDomain(auth, baseUrl, routingPrefix, userEmail, senderEmail, senderDomain, locale);
+        }
+    }
+
+    // Contact details card and Opportunity cards.
+    private Flux<Card> getCardsForSender(JsonDocument contactDetails,
+                                         JsonDocument oppIds,
+                                         String baseUrl,
+                                         String auth,
+                                         String routingPrefix,
+                                         Locale locale,
+                                         HttpServletRequest request) {
+
+        Flux<Card> userDetailCard = Flux.just(createUserDetailsCard(contactDetails, routingPrefix, locale, request));
+
+        int count = oppIds.read("$.totalSize");
+        if (count > 0) {
+
+            List<String> Ids = oppIds.read("$.records[*].Opportunity.Id");
+
+            Flux<Card> opportunityCards = retrieveOpportunities(Ids, baseUrl, auth)
+                    .flatMapMany(document -> createOpportunityCards(document, routingPrefix, locale, request));
+
+            return Flux.concat(userDetailCard, opportunityCards);
+        }
+
+        return userDetailCard;
+    }
+
+    private Mono<JsonDocument> retrieveOppIds(String senderEmail,
+                                              String baseUrl,
+                                              String auth) {
+        String soql = String.format(QUERY_FMT_CONTACT_OPPORTUNITY, senderEmail);
+        return rest.get()
+                .uri(makeSoqlQueryUri(baseUrl, soql))
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class);
+    }
+
+    private Mono<JsonDocument> retrieveOpportunities(List<String> oppIds, String baseUrl, String auth) {
+        String idsFormat = oppIds.stream().collect(Collectors.joining("', '"));
+
+        String soql = String.format(QUERY_FMT_OPPORTUNITY_INFO, idsFormat);
+        return rest.get()
+                .uri(makeSoqlQueryUri(baseUrl, soql))
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class);
+    }
+
+    private Flux<Card> createOpportunityCards(JsonDocument opportunities,
+                                              String routingPrefix,
+                                              Locale locale,
+                                              HttpServletRequest request) {
+
+        int oppCount = opportunities.read("$.totalSize");
+
+        List<Card> oppCards = new ArrayList<>();
+        for (int oppIndex = 0; oppIndex < oppCount; oppIndex++) {
+
+            String name = opportunities.read(String.format("$.records[%d].Name", oppIndex));
+
+            List<Object> feedComments = opportunities.read(
+                    String.format("$.records[%d].Feeds.records[*]", oppIndex));
+
+            CardBody.Builder cardBodyBuilder = new CardBody.Builder()
+                    .setDescription(cardTextAccessor.getMessage("opportunity.description", locale))
+                    .addField(buildGeneralBodyField("opportunity.account",
+                            opportunities.read(String.format("$.records[%d].Account.Name", oppIndex)), locale))
+                    .addField(buildGeneralBodyField("opportunity.account.owner",
+                            opportunities.read(String.format("$.records[%d].Account.Owner.Name", oppIndex)), locale))
+                    .addField(buildGeneralBodyField("opportunity.closedate",
+                            opportunities.read(String.format("$.records[%d].CloseDate", oppIndex)), locale))
+                    .addField(buildGeneralBodyField("opportunity.stage",
+                            opportunities.read(String.format("$.records[%d].StageName", oppIndex)), locale))
+                    .addField(buildGeneralBodyField("opportunity.amount",
+                            opportunities.read(String.format("$.records[%d].Amount", oppIndex)), locale));
+
+            addCommentsField(cardBodyBuilder, feedComments, locale);
+
+            Card.Builder card = new Card.Builder()
+                    .setName("Salesforce")
+                    .setTemplate(routingPrefix + "templates/generic.hbs")
+                    .setHeader(cardTextAccessor.getMessage("opportunity.header", locale, name))
+                    .setBody(cardBodyBuilder.build());
+
+            // Set image url.
+            CommonUtils.buildConnectorImageUrl(card, request);
+            oppCards.add(card.build());
+        }
+
+        return Flux.fromIterable(oppCards);
+    }
+
+    private void addCommentsField(CardBody.Builder cardBodyBuilder, List<Object> feedComments, Locale locale) {
+
+        CardBodyField.Builder cardFieldBuilder = new CardBodyField.Builder();
+        if (!feedComments.isEmpty()) {
+            cardFieldBuilder.setTitle(cardTextAccessor.getMessage("opportunity.comments", locale))
+                    .setType(CardBodyFieldType.COMMENT);
+
+            feedComments.stream()
+                    .map(JsonDocument::new)
+                    .filter(feed -> Objects.nonNull(feed.read("$.Body")))  // Some feed items don't have a body.
+                    .limit(COMMENTS_SIZE)
+                    .map(feed -> feed.read("$.InsertedBy.Name") + " - " + feed.read("$.Body"))
+                    .forEach(comment -> cardFieldBuilder.addContent(ImmutableMap.of("text", comment)));
+
+            cardBodyBuilder.addField(cardFieldBuilder.build());
         }
     }
 
@@ -297,7 +419,7 @@ public class SalesforceController {
     ) {
         String soql = String.format(QUERY_FMT_ACCOUNT, senderDomain, userEmail);
         return rest.get()
-                .uri(makeSearchAccountUri(baseUrl, soql))
+                .uri(makeSoqlQueryUri(baseUrl, soql))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class);
@@ -370,7 +492,7 @@ public class SalesforceController {
     ) {
         String soql = String.format(QUERY_FMT_ACCOUNT_OPPORTUNITY, accountId);
         return rest.get()
-                .uri(makeSearchAccountUri(baseUrl, soql))
+                .uri(makeSoqlQueryUri(baseUrl, soql))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class);

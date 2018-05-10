@@ -5,7 +5,7 @@ server:
   server-header: salesforce-connector
 
 sf:
-   searchAccountsPath: services/data/v20.0/query
+   soqlQueryPath: services/data/v21.0/query
    addContactPath: services/data/v20.0/sobjects/Contact
    opportunityContactLinkPath: services/data/v20.0/sobjects/OpportunityContactRole
    opportunityTaskLinkPath: services/data/v20.0/sobjects/Task

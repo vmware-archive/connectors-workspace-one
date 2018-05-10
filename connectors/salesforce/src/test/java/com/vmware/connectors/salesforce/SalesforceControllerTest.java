@@ -65,13 +65,20 @@ class SalesforceControllerTest extends ControllerTestsBase {
 
     private static final String QUERY_FMT_ACCOUNT_OPPORTUNITY = "SELECT id, name FROM opportunity WHERE account.id = '%s'";
 
+    private static final String QUERY_FMT_CONTACT_OPPORTUNITY = "SELECT Opportunity.Id FROM OpportunityContactRole " +
+            "WHERE contact.email = '%s' AND Opportunity.StageName <> 'Closed Won'";
+
+    private static final String QUERY_FMT_OPPORTUNITY_INFO = "SELECT id, name, CloseDate, NextStep, StageName, " +
+            "Account.name, Account.Owner.Name, FORMAT(Opportunity.amount), (SELECT User.Email from OpportunityTeamMembers), " +
+            "(SELECT InsertedBy.Name, Body from Feeds) FROM opportunity WHERE opportunity.id IN ('%s')";
+
     private static final String QUERY_FMT_CONTACT_ID =
             "SELECT id FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
 
     
     private static final String TRAVIS_ACCOUNT_ID = "0014100000Vc2iPAAR";
 
-    private static final String ACCOUNT_SEARCH_PATH = "/services/data/v20.0/query";
+    private static final String SOQL_QUERY_PATH = "/services/data/v21.0/query";
 
     private static final String ADD_CONTACT_PATH = "/services/data/v20.0/sobjects/Contact";
     private static final String LINK_OPPORTUNITY_TASK_PATH = "/services/data/v20.0/sobjects/Task";
@@ -81,11 +88,17 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @Value("classpath:salesforce/response/successContact.json")
     private Resource sfResponseContactExists;
 
+    @Value("classpath:salesforce/response/successContactOpportunityIds.json")
+    private Resource sfResponseContactOppIds;
+
+    @Value("classpath:salesforce/response/successContactOpportunityInfo.json")
+    private Resource sfResponseContactOppInfo;
+
     @Value("classpath:salesforce/response/successContactWithoutPhone.json")
     private Resource sfResponseContactWithoutPhone;
 
     @Value("classpath:salesforce/response/zeroRecords.json")
-    private Resource sfResponseContactDoesNotExist;
+    private Resource sfResponseZeroRecords;
 
     @Value("classpath:salesforce/response/successAccount.json")
     private Resource sfResponseAccounts;
@@ -192,13 +205,17 @@ class SalesforceControllerTest extends ControllerTestsBase {
                .expectBody().json(fromFile(resFile));
     }
 
-    @DisplayName("Card request contact details cases")
+    // Assuming no opportunities found related to the email sender.
+    @DisplayName("Card request contact found without Opportunities.")
     @ParameterizedTest(name = "{index} ==> Response=''{2}'', Language=''{3}''")
     @MethodSource("contactCardTestArgProvider")
-    void testRequestCardContactDetailsSuccess(Resource contactResponse, String resFile, String lang) throws Exception {
+    void testRequestCardSuccess(Resource contactResponse, String resFile, String lang) throws Exception {
         final String requestFile = "/connector/requests/request.json";
         expectSalesforceRequest(getContactRequestSoql(requestFile))
                 .andRespond(withSuccess(contactResponse, APPLICATION_JSON));
+
+        expectSalesforceRequest(String.format(QUERY_FMT_CONTACT_OPPORTUNITY, "john.doe@abc.com"))
+                .andRespond(withSuccess(sfResponseZeroRecords, APPLICATION_JSON));
 
         testRequestCards(requestFile, resFile, lang);
      }
@@ -211,6 +228,25 @@ class SalesforceControllerTest extends ControllerTestsBase {
         );
     }
 
+    // There are multiple opportunities found related to the email sender.
+    @DisplayName("Card request contact found with Opportunities.")
+    @Test
+    void testRequestCardSuccess() throws Exception {
+        final String requestFile = "/connector/requests/requestUber.json";
+        final String resFile = "successCardsForSender.json";
+
+        expectSalesforceRequest(getContactRequestSoql(requestFile))
+                .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
+
+        expectSalesforceRequest(String.format(QUERY_FMT_CONTACT_OPPORTUNITY, "travis@uber.com"))
+                .andRespond(withSuccess(sfResponseContactOppIds, APPLICATION_JSON));
+
+        expectSalesforceRequest(String.format(QUERY_FMT_OPPORTUNITY_INFO, "0064100000BU5dOAAT\', \'0064100000O93EVAAZ"))
+                .andRespond(withSuccess(sfResponseContactOppInfo, APPLICATION_JSON));
+
+        testRequestCards(requestFile, resFile, null);
+    }
+
     @DisplayName("Card request sender related accounts cases")
     @ParameterizedTest(name = "{index} ==> Language=''{1}''")
     @CsvSource({
@@ -221,7 +257,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
         Collect info about the accounts related to the sender's domain. */
         final String requestFile = "/connector/requests/request.json";
         expectSalesforceRequest(getContactRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactDoesNotExist, APPLICATION_JSON));
+                .andRespond(withSuccess(sfResponseZeroRecords, APPLICATION_JSON));
         expectSalesforceRequest(getAccountRequestSoql(requestFile))
                 .andRespond(withSuccess(sfResponseAccounts, APPLICATION_JSON));
 
@@ -366,7 +402,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
     }
 
     private ResponseActions expectSalesforceRequest(String soqlQuery) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(ACCOUNT_SEARCH_PATH).queryParam("q", soqlQuery);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(SOQL_QUERY_PATH).queryParam("q", soqlQuery);
         URI tmp = builder.build().toUri();
         return mockBackend.expect(requestTo(tmp))
                 .andExpect(method(HttpMethod.GET))
