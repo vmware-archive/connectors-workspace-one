@@ -73,7 +73,7 @@ public class SalesforceController {
 
     // Find all Opportunity Ids related to sender email, based on condition.
     private static final String QUERY_FMT_CONTACT_OPPORTUNITY = "SELECT Opportunity.Id FROM OpportunityContactRole " +
-            "WHERE contact.email = '%s' AND Opportunity.StageName <> 'Closed Won'";
+            "WHERE contact.email = '%s' AND Opportunity.StageName NOT IN ('Closed Lost', 'Closed Won')";
 
     // Query everything needed for making Opportunity cards.
     private static final String QUERY_FMT_OPPORTUNITY_INFO = "SELECT id, name, CloseDate, NextStep, StageName, " +
@@ -307,23 +307,24 @@ public class SalesforceController {
         List<Card> oppCards = new ArrayList<>();
         for (int oppIndex = 0; oppIndex < oppCount; oppIndex++) {
 
-            String name = opportunities.read(String.format("$.records[%d].Name", oppIndex));
+            String prefix = String.format("$.records[%d]", oppIndex);
 
-            List<Object> feedComments = opportunities.read(
-                    String.format("$.records[%d].Feeds.records[*]", oppIndex));
+            String name = opportunities.read(prefix + ".Name");
+
+            List<Object> feedComments = opportunities.read(prefix + ".Feeds.records[*]");
 
             CardBody.Builder cardBodyBuilder = new CardBody.Builder()
                     .setDescription(cardTextAccessor.getMessage("opportunity.description", locale))
                     .addField(buildGeneralBodyField("opportunity.account",
-                            opportunities.read(String.format("$.records[%d].Account.Name", oppIndex)), locale))
+                            opportunities.read(prefix + ".Account.Name"), locale))
                     .addField(buildGeneralBodyField("opportunity.account.owner",
-                            opportunities.read(String.format("$.records[%d].Account.Owner.Name", oppIndex)), locale))
+                            opportunities.read(prefix + ".Account.Owner.Name"), locale))
                     .addField(buildGeneralBodyField("opportunity.closedate",
-                            opportunities.read(String.format("$.records[%d].CloseDate", oppIndex)), locale))
+                            opportunities.read(prefix + ".CloseDate"), locale))
                     .addField(buildGeneralBodyField("opportunity.stage",
-                            opportunities.read(String.format("$.records[%d].StageName", oppIndex)), locale))
+                            opportunities.read(prefix + ".StageName"), locale))
                     .addField(buildGeneralBodyField("opportunity.amount",
-                            opportunities.read(String.format("$.records[%d].Amount", oppIndex)), locale));
+                            opportunities.read(prefix + ".Amount"), locale));
 
             addCommentsField(cardBodyBuilder, feedComments, locale);
 

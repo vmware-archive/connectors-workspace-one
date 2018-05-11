@@ -8,25 +8,25 @@
         "href": "https://hero/connectors/salesforce/templates/generic.hbs"
       },
       "header": {
-        "title": "[SALESFORCE] Absender anzeigen",
+        "title": "[SALESFORCE] CONTACT DETAIL",
         "subtitle": []
       },
       "body": {
-        "description": "Absenderdetails aus Ihrem Salesforce-Konto",
+        "description": "CONTACT DETAILS FROM YOUR SALESFORCE ACCOUNT",
         "fields": [
           {
             "type": "GENERAL",
-            "title": "Abcd",
+            "title": "NAME",
             "description": "Travis Kalanick"
           },
           {
             "type": "GENERAL",
-            "title": "Konto",
+            "title": "ACCOUNT",
             "description": "Uber IT Account"
           },
           {
             "type": "GENERAL",
-            "title": "Telefonnummer",
+            "title": "PHONE NUMBER",
             "description": "(707) 070-7070"
           }
         ]
