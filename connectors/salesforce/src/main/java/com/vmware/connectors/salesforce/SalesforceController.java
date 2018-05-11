@@ -203,7 +203,7 @@ public class SalesforceController {
             return Mono.just(new ResponseEntity<>(BAD_REQUEST));
         }
 
-        return retrieveContactInfos(auth, baseUrl, user, sender)
+        return retrieveContactInfos(auth, baseUrl, sender)
                 .flatMapMany(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
                         user, senderDomain, locale, request))
                 .collectList()
@@ -216,10 +216,9 @@ public class SalesforceController {
     private Mono<JsonDocument> retrieveContactInfos(
             String auth,
             String baseUrl,
-            String userEmail,
             String senderEmail
     ) {
-        String contactSoql = String.format(QUERY_FMT_CONTACT, senderEmail, userEmail);
+        String contactSoql = String.format(QUERY_FMT_CONTACT, senderEmail);
 
         return retrieveContacts(auth, baseUrl, contactSoql);
     }
