@@ -1,0 +1,32 @@
+{
+  "totalSize": 2,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "OpportunityContactRole",
+        "url": "/services/data/v21.0/sobjects/OpportunityContactRole/00K4100000Ca4wCEAR"
+      },
+      "Opportunity": {
+        "attributes": {
+          "type": "Opportunity",
+          "url": "/services/data/v21.0/sobjects/Opportunity/0064100000BU5dOAAT"
+        },
+        "Id": "0064100000BU5dOAAT"
+      }
+    },
+    {
+      "attributes": {
+        "type": "OpportunityContactRole",
+        "url": "/services/data/v21.0/sobjects/OpportunityContactRole/00K4100000Ca4wHEAR"
+      },
+      "Opportunity": {
+        "attributes": {
+          "type": "Opportunity",
+          "url": "/services/data/v21.0/sobjects/Opportunity/0064100000O93EVAAZ"
+        },
+        "Id": "0064100000O93EVAAZ"
+      }
+    }
+  ]
+}
