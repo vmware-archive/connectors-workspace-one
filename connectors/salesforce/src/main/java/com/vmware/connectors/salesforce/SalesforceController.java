@@ -69,7 +69,7 @@ public class SalesforceController {
 
     // Query format to get contact details of email sender, from contact list owned by the user.
     private static final String QUERY_FMT_CONTACT =
-            "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
+            "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s'";
 
     // Find all Opportunity Ids related to sender email, based on condition.
     private static final String QUERY_FMT_CONTACT_OPPORTUNITY = "SELECT Opportunity.Id FROM OpportunityContactRole " +

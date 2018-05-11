@@ -64,7 +64,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
     private static final String QUERY_FMT_ACCOUNT =
             "SELECT email, account.id, account.name FROM contact WHERE email LIKE '%%%s' AND account.owner.email = '%s'";
     private static final String QUERY_FMT_CONTACT =
-            "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
+            "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s'";
 
     private static final String QUERY_FMT_ACCOUNT_OPPORTUNITY = "SELECT id, name FROM opportunity WHERE account.id = '%s'";
 
@@ -444,7 +444,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
 
     private String getContactRequestSoql(String filePath) throws IOException {
         DocumentContext ctx = JsonPath.parse(fromFile(filePath));
-        return String.format(QUERY_FMT_CONTACT, senderEmail(ctx), userEmail(ctx));
+        return String.format(QUERY_FMT_CONTACT, senderEmail(ctx));
     }
 
     private String getAccountRequestSoql(String filePath) throws IOException {
