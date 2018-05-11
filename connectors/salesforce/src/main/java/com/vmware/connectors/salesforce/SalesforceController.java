@@ -241,7 +241,7 @@ public class SalesforceController {
             // Contact already exists in the salesforce account. Cards to show are sender info and Opportunities.
             logger.debug("Salesforce account already has a contact for the email: {} ", senderEmail);
             return retrieveOppIds(senderEmail, baseUrl, auth)
-                    .flatMapMany(oppIds -> getCardsForSender(contactDetails, oppIds, baseUrl, auth, routingPrefix, locale, request));
+                    .flatMapMany(oppIds -> getCardsForSender(contactDetails, oppIds, baseUrl, auth, routingPrefix, locale, request, userEmail));
 
         } else {
             // Contact doesn't exist in salesforce. Return a card to show accounts that are related to sender domain.
@@ -257,7 +257,8 @@ public class SalesforceController {
                                          String auth,
                                          String routingPrefix,
                                          Locale locale,
-                                         HttpServletRequest request) {
+                                         HttpServletRequest request,
+                                         String userEmail) {
 
         Flux<Card> userDetailCard = Flux.just(createUserDetailsCard(contactDetails, routingPrefix, locale, request));
 
@@ -267,7 +268,7 @@ public class SalesforceController {
             List<String> Ids = oppIds.read("$.records[*].Opportunity.Id");
 
             Flux<Card> opportunityCards = retrieveOpportunities(Ids, baseUrl, auth)
-                    .flatMapMany(document -> createOpportunityCards(document, routingPrefix, locale, request));
+                    .flatMapMany(document -> createOpportunityCards(document, routingPrefix, locale, request, userEmail));
 
             return Flux.concat(userDetailCard, opportunityCards);
         }
@@ -300,19 +301,22 @@ public class SalesforceController {
     private Flux<Card> createOpportunityCards(JsonDocument opportunities,
                                               String routingPrefix,
                                               Locale locale,
-                                              HttpServletRequest request) {
+                                              HttpServletRequest request,
+                                              String userEmail) {
 
-        int oppCount = opportunities.read("$.totalSize");
+        final int oppCount = opportunities.read("$.totalSize");
 
         List<Card> oppCards = new ArrayList<>();
         for (int oppIndex = 0; oppIndex < oppCount; oppIndex++) {
 
-            String name = opportunities.read(String.format("$.records[%d].Name", oppIndex));
+            final String prefix = String.format("$.records[%d]", oppIndex);
 
-            List<Object> feedComments = opportunities.read(
+            final String name = opportunities.read(String.format("$.records[%d].Name", oppIndex));
+
+            final List<Object> feedComments = opportunities.read(
                     String.format("$.records[%d].Feeds.records[*]", oppIndex));
 
-            CardBody.Builder cardBodyBuilder = new CardBody.Builder()
+            final CardBody.Builder cardBodyBuilder = new CardBody.Builder()
                     .setDescription(cardTextAccessor.getMessage("opportunity.description", locale))
                     .addField(buildGeneralBodyField("opportunity.account",
                             opportunities.read(String.format("$.records[%d].Account.Name", oppIndex)), locale))
@@ -327,11 +331,14 @@ public class SalesforceController {
 
             addCommentsField(cardBodyBuilder, feedComments, locale);
 
-            Card.Builder card = new Card.Builder()
+            final Card.Builder card = new Card.Builder()
                     .setName("Salesforce")
                     .setTemplate(routingPrefix + "templates/generic.hbs")
                     .setHeader(cardTextAccessor.getMessage("opportunity.header", locale, name))
                     .setBody(cardBodyBuilder.build());
+
+            // Add card action for updating next steps and close date if user email is a part of opportunity team.
+            buildCardAction(opportunities, userEmail, prefix, routingPrefix, locale, card);
 
             // Set image url.
             CommonUtils.buildConnectorImageUrl(card, request);
@@ -339,6 +346,63 @@ public class SalesforceController {
         }
 
         return Flux.fromIterable(oppCards);
+    }
+
+    private void buildCardAction(final JsonDocument opportunities,
+                                 final String userEmail,
+                                 final String prefix,
+                                 final String routingPrefix,
+                                 final Locale locale,
+                                 final Card.Builder card) {
+        final String opportunityId = opportunities.read(prefix + ".Id");
+        if (StringUtils.isNotBlank(opportunityId)) {
+            logger.debug("Opportunity id is empty.");
+            return;
+        }
+
+        // Retrieve all the opportunity team members email id.
+        final List<String> opportunityTeamEmailIds = opportunities.read(prefix + ".OpportunityTeamMembers.records[*].User.Email");
+        if (CollectionUtils.isEmpty(opportunityTeamEmailIds)) {
+            logger.debug("Opportunity team member email ids are empty for the opportunity with ID: {}", opportunityId);
+            return;
+        }
+
+        // Check if the user email is part of the opportunity team.
+        if (!opportunityTeamEmailIds.contains(userEmail)) {
+            logger.debug("User email : {} is not part of opportunity team members email id: {}", userEmail, opportunityTeamEmailIds);
+            return;
+        }
+
+        final String updateNextDateUrl = String.format("opportunity/%s/nextstep", opportunityId);
+        final CardAction.Builder nextStepAction = new CardAction.Builder()
+                .setLabel(this.cardTextAccessor.getActionLabel("opportunity.update.nextstep", locale))
+                .setActionKey(CardActionKey.USER_INPUT)
+                .setType(HttpMethod.POST)
+                .setUrl(routingPrefix + updateNextDateUrl)
+                .addUserInputField(
+                        new CardActionInputField.Builder()
+                                .setId("nextstep")
+                                .setLabel(this.cardTextAccessor.getMessage("opportunity.update.nextstep", locale))
+                                .setMinLength(1)
+                                .build()
+                );
+
+        final String closeDateUrl = String.format("opportunity/%s/closedate", opportunityId);
+        final CardAction.Builder closeDateAction = new CardAction.Builder()
+                .setLabel(this.cardTextAccessor.getActionLabel("opportunity.update.closedate", locale))
+                .setActionKey(CardActionKey.USER_INPUT)
+                .setType(HttpMethod.POST)
+                .setUrl(routingPrefix + closeDateUrl)
+                .addUserInputField(
+                        new CardActionInputField.Builder()
+                                .setId("closedate")
+                                .setLabel(this.cardTextAccessor.getMessage("opportunity.update.closedate", locale))
+                                .setMinLength(10)
+                                .build()
+                );
+
+        card.addAction(nextStepAction.build());
+        card.addAction(closeDateAction.build());
     }
 
     private void addCommentsField(CardBody.Builder cardBodyBuilder, List<Object> feedComments, Locale locale) {
