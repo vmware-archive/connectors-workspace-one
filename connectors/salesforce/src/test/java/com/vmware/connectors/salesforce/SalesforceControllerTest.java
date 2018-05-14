@@ -64,12 +64,12 @@ class SalesforceControllerTest extends ControllerTestsBase {
     private static final String QUERY_FMT_ACCOUNT =
             "SELECT email, account.id, account.name FROM contact WHERE email LIKE '%%%s' AND account.owner.email = '%s'";
     private static final String QUERY_FMT_CONTACT =
-            "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
+            "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s'";
 
     private static final String QUERY_FMT_ACCOUNT_OPPORTUNITY = "SELECT id, name FROM opportunity WHERE account.id = '%s'";
 
     private static final String QUERY_FMT_CONTACT_OPPORTUNITY = "SELECT Opportunity.Id FROM OpportunityContactRole " +
-            "WHERE contact.email = '%s' AND Opportunity.StageName <> 'Closed Won'";
+            "WHERE contact.email = '%s' AND Opportunity.StageName NOT IN ('Closed Lost', 'Closed Won')";
 
     private static final String QUERY_FMT_OPPORTUNITY_INFO = "SELECT id, name, CloseDate, NextStep, StageName, " +
             "Account.name, Account.Owner.Name, FORMAT(Opportunity.amount), (SELECT User.Email from OpportunityTeamMembers), " +
@@ -233,10 +233,12 @@ class SalesforceControllerTest extends ControllerTestsBase {
 
     // There are multiple opportunities found related to the email sender.
     @DisplayName("Card request contact found with Opportunities.")
-    @Test
-    void testRequestCardSuccess() throws Exception {
+    @ParameterizedTest
+    @CsvSource({
+            "successCardsForSender.json, " + StringUtils.EMPTY,
+            "successCardsForSender_xx.json, xx"})
+    void testRequestCardSuccess(String resFile, String lang) throws Exception {
         final String requestFile = "/connector/requests/requestUber.json";
-        final String resFile = "successCardsForSender.json";
 
         expectSalesforceRequest(getContactRequestSoql(requestFile))
                 .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
@@ -247,7 +249,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
         expectSalesforceRequest(String.format(QUERY_FMT_OPPORTUNITY_INFO, "0064100000BU5dOAAT\', \'0064100000O93EVAAZ"))
                 .andRespond(withSuccess(sfResponseContactOppInfo, APPLICATION_JSON));
 
-        testRequestCards(requestFile, resFile, null);
+        testRequestCards(requestFile, resFile, lang);
     }
 
     @DisplayName("Card request sender related accounts cases")
@@ -442,7 +444,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
 
     private String getContactRequestSoql(String filePath) throws IOException {
         DocumentContext ctx = JsonPath.parse(fromFile(filePath));
-        return String.format(QUERY_FMT_CONTACT, senderEmail(ctx), userEmail(ctx));
+        return String.format(QUERY_FMT_CONTACT, senderEmail(ctx));
     }
 
     private String getAccountRequestSoql(String filePath) throws IOException {

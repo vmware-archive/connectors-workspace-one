@@ -69,11 +69,11 @@ public class SalesforceController {
 
     // Query format to get contact details of email sender, from contact list owned by the user.
     private static final String QUERY_FMT_CONTACT =
-            "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
+            "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s'";
 
     // Find all Opportunity Ids related to sender email, based on condition.
     private static final String QUERY_FMT_CONTACT_OPPORTUNITY = "SELECT Opportunity.Id FROM OpportunityContactRole " +
-            "WHERE contact.email = '%s' AND Opportunity.StageName <> 'Closed Won'";
+            "WHERE contact.email = '%s' AND Opportunity.StageName NOT IN ('Closed Lost', 'Closed Won')";
 
     // Query everything needed for making Opportunity cards.
     private static final String QUERY_FMT_OPPORTUNITY_INFO = "SELECT id, name, CloseDate, NextStep, StageName, " +
@@ -203,7 +203,7 @@ public class SalesforceController {
             return Mono.just(new ResponseEntity<>(BAD_REQUEST));
         }
 
-        return retrieveContactInfos(auth, baseUrl, user, sender)
+        return retrieveContactInfos(auth, baseUrl, sender)
                 .flatMapMany(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
                         user, senderDomain, locale, request))
                 .collectList()
@@ -216,10 +216,9 @@ public class SalesforceController {
     private Mono<JsonDocument> retrieveContactInfos(
             String auth,
             String baseUrl,
-            String userEmail,
             String senderEmail
     ) {
-        String contactSoql = String.format(QUERY_FMT_CONTACT, senderEmail, userEmail);
+        String contactSoql = String.format(QUERY_FMT_CONTACT, senderEmail);
 
         return retrieveContacts(auth, baseUrl, contactSoql);
     }
@@ -309,25 +308,24 @@ public class SalesforceController {
         List<Card> oppCards = new ArrayList<>();
         for (int oppIndex = 0; oppIndex < oppCount; oppIndex++) {
 
-            final String prefix = String.format("$.records[%d]", oppIndex);
+            String prefix = String.format("$.records[%d]", oppIndex);
 
-            final String name = opportunities.read(String.format("$.records[%d].Name", oppIndex));
+            String name = opportunities.read(prefix + ".Name");
 
-            final List<Object> feedComments = opportunities.read(
-                    String.format("$.records[%d].Feeds.records[*]", oppIndex));
+            List<Object> feedComments = opportunities.read(prefix + ".Feeds.records[*]");
 
             final CardBody.Builder cardBodyBuilder = new CardBody.Builder()
                     .setDescription(cardTextAccessor.getMessage("opportunity.description", locale))
                     .addField(buildGeneralBodyField("opportunity.account",
-                            opportunities.read(String.format("$.records[%d].Account.Name", oppIndex)), locale))
+                            opportunities.read(prefix + ".Account.Name"), locale))
                     .addField(buildGeneralBodyField("opportunity.account.owner",
-                            opportunities.read(String.format("$.records[%d].Account.Owner.Name", oppIndex)), locale))
+                            opportunities.read(prefix + ".Account.Owner.Name"), locale))
                     .addField(buildGeneralBodyField("opportunity.closedate",
-                            opportunities.read(String.format("$.records[%d].CloseDate", oppIndex)), locale))
+                            opportunities.read(prefix + ".CloseDate"), locale))
                     .addField(buildGeneralBodyField("opportunity.stage",
-                            opportunities.read(String.format("$.records[%d].StageName", oppIndex)), locale))
+                            opportunities.read(prefix + ".StageName"), locale))
                     .addField(buildGeneralBodyField("opportunity.amount",
-                            opportunities.read(String.format("$.records[%d].Amount", oppIndex)), locale));
+                            opportunities.read(prefix + ".Amount"), locale));
 
             addCommentsField(cardBodyBuilder, feedComments, locale);
 
@@ -373,6 +371,11 @@ public class SalesforceController {
             return;
         }
 
+        // Add card actions for updating the next step and close date fields.
+        addCardAction(routingPrefix, locale, card, opportunityId);
+    }
+
+    private void addCardAction(String routingPrefix, Locale locale, Card.Builder card, String opportunityId) {
         final String updateNextDateUrl = String.format("opportunity/%s/nextstep", opportunityId);
         final CardAction.Builder nextStepAction = new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getActionLabel("opportunity.update.nextstep", locale))
