@@ -308,11 +308,11 @@ public class SalesforceController {
         List<Card> oppCards = new ArrayList<>();
         for (int oppIndex = 0; oppIndex < oppCount; oppIndex++) {
 
-            String prefix = String.format("$.records[%d]", oppIndex);
+            final String prefix = String.format("$.records[%d]", oppIndex);
 
-            String name = opportunities.read(prefix + ".Name");
+            final String name = opportunities.read(prefix + ".Name");
 
-            List<Object> feedComments = opportunities.read(prefix + ".Feeds.records[*]");
+            final List<Object> feedComments = opportunities.read(prefix + ".Feeds.records[*]");
 
             final CardBody.Builder cardBodyBuilder = new CardBody.Builder()
                     .setDescription(cardTextAccessor.getMessage("opportunity.description", locale))
@@ -336,7 +336,7 @@ public class SalesforceController {
                     .setBody(cardBodyBuilder.build());
 
             // Add card action for updating next steps and close date if user email is a part of opportunity team.
-            buildCardAction(opportunities, userEmail, prefix, routingPrefix, locale, card);
+            buildCardActions(opportunities, userEmail, prefix, routingPrefix, locale, card);
 
             // Set image url.
             CommonUtils.buildConnectorImageUrl(card, request);
@@ -346,15 +346,15 @@ public class SalesforceController {
         return Flux.fromIterable(oppCards);
     }
 
-    private void buildCardAction(final JsonDocument opportunities,
-                                 final String userEmail,
-                                 final String prefix,
-                                 final String routingPrefix,
-                                 final Locale locale,
-                                 final Card.Builder card) {
+    private void buildCardActions(final JsonDocument opportunities,
+                                  final String userEmail,
+                                  final String prefix,
+                                  final String routingPrefix,
+                                  final Locale locale,
+                                  final Card.Builder card) {
         final String opportunityId = opportunities.read(prefix + ".Id");
-        if (StringUtils.isNotBlank(opportunityId)) {
-            logger.debug("Opportunity id is empty.");
+        if (StringUtils.isBlank(opportunityId)) {
+            logger.debug("Opportunity id is empty for the user with email: {}.", userEmail);
             return;
         }
 
@@ -372,10 +372,10 @@ public class SalesforceController {
         }
 
         // Add card actions for updating the next step and close date fields.
-        addCardAction(routingPrefix, locale, card, opportunityId);
+        addCardActions(routingPrefix, locale, card, opportunityId);
     }
 
-    private void addCardAction(String routingPrefix, Locale locale, Card.Builder card, String opportunityId) {
+    private void addCardActions(String routingPrefix, Locale locale, Card.Builder card, String opportunityId) {
         final String updateNextDateUrl = String.format("opportunity/%s/nextstep", opportunityId);
         final CardAction.Builder nextStepAction = new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getActionLabel("opportunity.update.nextstep", locale))

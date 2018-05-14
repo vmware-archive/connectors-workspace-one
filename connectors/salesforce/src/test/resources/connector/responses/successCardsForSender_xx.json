@@ -133,6 +133,48 @@
           }
         ]
       },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE NEXTSTEP",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/0064100000O93EVAAZ/nextstep"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {
+          },
+          "user_input": [
+            {
+              "id": "nextstep",
+              "label": "UPDATE NEXTSTEP",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": false
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE CLOSEDATE",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/0064100000O93EVAAZ/closedate"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {
+          },
+          "user_input": [
+            {
+              "id": "closedate",
+              "label": "UPDATE CLOSEDATE",
+              "min_length": 10
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": false
+        }
+      ],
       "image": {
         "href": "https://my-connector/images/connector.png"
       }
