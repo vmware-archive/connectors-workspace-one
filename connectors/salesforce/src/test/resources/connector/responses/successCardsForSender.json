@@ -9,7 +9,9 @@
       },
       "header": {
         "title": "[Salesforce] Contact Detail",
-        "subtitle": []
+        "subtitle": [
+
+        ]
       },
       "body": {
         "description": "Contact Details from your Salesforce account",
@@ -44,7 +46,9 @@
       },
       "header": {
         "title": "[Salesforce] MEM selling opp",
-        "subtitle": []
+        "subtitle": [
+
+        ]
       },
       "body": {
         "description": "Opportunity is related to the email sender.",
@@ -73,6 +77,11 @@
             "type": "GENERAL",
             "title": "Amount",
             "description": "$55.00"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Expected Revenue",
+            "description": "$100.00"
           }
         ]
       },
@@ -89,7 +98,9 @@
       },
       "header": {
         "title": "[Salesforce] Shree Test Opportunity1",
-        "subtitle": []
+        "subtitle": [
+
+        ]
       },
       "body": {
         "description": "Opportunity is related to the email sender.",
@@ -118,6 +129,11 @@
             "type": "GENERAL",
             "title": "Amount",
             "description": "$100.00"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Expected Revenue",
+            "description": "$200.00"
           },
           {
             "type": "COMMENT",

@@ -9,7 +9,9 @@
       },
       "header": {
         "title": "[SALESFORCE] CONTACT DETAIL",
-        "subtitle": []
+        "subtitle": [
+
+        ]
       },
       "body": {
         "description": "CONTACT DETAILS FROM YOUR SALESFORCE ACCOUNT",
@@ -44,7 +46,9 @@
       },
       "header": {
         "title": "[SALESFORCE] MEM selling opp",
-        "subtitle": []
+        "subtitle": [
+
+        ]
       },
       "body": {
         "description": "OPPORTUNITY IS RELATED TO THE EMAIL SENDER.",
@@ -73,6 +77,11 @@
             "type": "GENERAL",
             "title": "AMOUNT",
             "description": "$55.00"
+          },
+          {
+            "type": "GENERAL",
+            "title": "EXPECTED REVENUE",
+            "description": "$100.00"
           }
         ]
       },
@@ -89,7 +98,9 @@
       },
       "header": {
         "title": "[SALESFORCE] Shree Test Opportunity1",
-        "subtitle": []
+        "subtitle": [
+
+        ]
       },
       "body": {
         "description": "OPPORTUNITY IS RELATED TO THE EMAIL SENDER.",
@@ -118,6 +129,11 @@
             "type": "GENERAL",
             "title": "AMOUNT",
             "description": "$100.00"
+          },
+          {
+            "type": "GENERAL",
+            "title": "EXPECTED REVENUE",
+            "description": "$200.00"
           },
           {
             "type": "COMMENT",
