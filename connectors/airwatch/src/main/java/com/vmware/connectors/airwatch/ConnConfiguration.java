@@ -6,8 +6,11 @@
 package com.vmware.connectors.airwatch;
 
 import com.vmware.connectors.airwatch.config.AppConfigurations;
+import com.vmware.connectors.airwatch.exceptions.AppConfigException;
 import com.vmware.connectors.airwatch.service.AppConfigService;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,9 +18,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 
+import javax.validation.Validator;
+import javax.validation.Validation;
+import javax.validation.ConstraintViolation;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
@@ -27,6 +34,8 @@ import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
  */
 @Configuration
 public class ConnConfiguration {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConnConfiguration.class);
 
     private final AppConfigurations appConfigurations;
 
@@ -38,6 +47,16 @@ public class ConnConfiguration {
     public ConnConfiguration(AppConfigurations appConfigurations,
                              Environment environment,
                              @Value("classpath:static/discovery/metadata.json") Resource metadataHalResource) {
+
+        // Validate managed-apps.yml configurations.
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<AppConfigurations>> violations = validator.validate(appConfigurations);
+        violations
+                .forEach(v -> logger.error("{} Check {} in managed-apps configuration.", v.getMessage(), v.getPropertyPath().toString()));
+        if (!violations.isEmpty()) {
+            throw new AppConfigException("Invalid configurations for managed-apps.");
+        }
+
         this.appConfigurations = appConfigurations;
         this.environment = environment;
         this.metadataHalResource = metadataHalResource;
@@ -65,7 +84,11 @@ public class ConnConfiguration {
 
     @Bean
     public URI gbBaseUrl() {
-        String gbUrl = environment.getProperty("greenbox.url");
-        return fromHttpUrl(gbUrl).build().toUri();
+        try {
+            return fromHttpUrl(environment.getProperty("greenbox.url")).build().toUri();
+        } catch (IllegalArgumentException ex) {
+            logger.error("Greenbox URL config is invalid. ", ex);
+            return null;
+        }
     }
 }

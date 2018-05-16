@@ -8,14 +8,18 @@ package com.vmware.connectors.airwatch.config;
 import org.pojomatic.Pojomatic;
 import org.pojomatic.annotations.AutoProperty;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * Created by harshas on 01/31/18.
  */
 @AutoProperty
 public class ManagedApp {
 
+    @NotNull(message = "App name should be provided for the platform.")
     private String name;
 
+    @NotNull(message = "App id should be provided for the platform.")
     private String id;
 
     public String getName() {

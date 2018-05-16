@@ -7,6 +7,7 @@ package com.vmware.connectors.airwatch.config;
 
 import com.vmware.connectors.airwatch.exceptions.UnsupportedPlatform;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -17,8 +18,10 @@ public class AppConfiguration {
 
     private String app;
 
+    @Valid
     private ManagedApp android;
 
+    @Valid
     private ManagedApp ios;
 
     private List<String> keywords;
