@@ -152,7 +152,7 @@
       "actions": [
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Update NextStep",
+          "label": "Update Next Steps",
           "url": {
             "href": "https://hero/connectors/salesforce/opportunity/0064100000O93EVAAZ/nextstep"
           },
@@ -163,16 +163,16 @@
           "user_input": [
             {
               "id": "nextstep",
-              "label": "Update NextStep",
+              "label": "Update Next Steps",
               "min_length": 1
             }
           ],
           "completed_label": "Completed",
-          "allow_repeated": false
+          "allow_repeated": true
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Update CloseDate",
+          "label": "Update Close Date",
           "url": {
             "href": "https://hero/connectors/salesforce/opportunity/0064100000O93EVAAZ/closedate"
           },
@@ -183,12 +183,12 @@
           "user_input": [
             {
               "id": "closedate",
-              "label": "Update CloseDate",
+              "label": "Update Close Date",
               "min_length": 10
             }
           ],
           "completed_label": "Completed",
-          "allow_repeated": false
+          "allow_repeated": true
         }
       ],
       "image": {
