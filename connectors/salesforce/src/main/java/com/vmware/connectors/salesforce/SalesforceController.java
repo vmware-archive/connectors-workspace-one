@@ -382,6 +382,7 @@ public class SalesforceController {
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
                 .setUrl(routingPrefix + updateNextDateUrl)
+                .setAllowRepeated(true)
                 .addUserInputField(
                         new CardActionInputField.Builder()
                                 .setId("nextstep")
@@ -396,6 +397,7 @@ public class SalesforceController {
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
                 .setUrl(routingPrefix + closeDateUrl)
+                .setAllowRepeated(true)
                 .addUserInputField(
                         new CardActionInputField.Builder()
                                 .setId("closedate")
