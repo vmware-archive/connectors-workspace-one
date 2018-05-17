@@ -28,7 +28,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -43,17 +42,13 @@ import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.ExpectedCount.manyTimes;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
@@ -72,7 +67,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
             "WHERE contact.email = '%s' AND Opportunity.StageName NOT IN ('Closed Lost', 'Closed Won')";
 
     private static final String QUERY_FMT_OPPORTUNITY_INFO = "SELECT id, name, CloseDate, NextStep, StageName, " +
-            "Account.name, Account.Owner.Name, FORMAT(Opportunity.amount), (SELECT User.Email from OpportunityTeamMembers), " +
+            "Account.name, Account.Owner.Name, FORMAT(Opportunity.amount), FORMAT(Opportunity.ExpectedRevenue), (SELECT User.Email from OpportunityTeamMembers), " +
             "(SELECT InsertedBy.Name, Body from Feeds) FROM opportunity WHERE opportunity.id IN ('%s')";
 
     private static final String QUERY_FMT_CONTACT_ID =
@@ -87,6 +82,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
     private static final String LINK_OPPORTUNITY_TASK_PATH = "/services/data/v20.0/sobjects/Task";
     private static final String LINK_ATTACHMENT_TASK_PATH = "/services/data/v20.0/sobjects/Attachment";
     private static final String LINK_OPPORTUNITY_PATH = "/services/data/v20.0/sobjects/OpportunityContactRole";
+    private static final String UPDATE_OPPORTUNITY_PATH = "/services/data/v39.0/sobjects/Opportunity/0067F00000BplCHQAZ";
 
     @Value("classpath:salesforce/response/successContact.json")
     private Resource sfResponseContactExists;
@@ -374,7 +370,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
     }
 
     private void mockSalesforceOpportunityAPI() {
-        mockBackend.expect(requestTo("/services/data/v39.0/sobjects/Opportunity/0067F00000BplCHQAZ"))
+        mockBackend.expect(requestTo(UPDATE_OPPORTUNITY_PATH))
                 .andExpect(method(HttpMethod.PATCH))
                 .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
                 .andExpect(header(CONTENT_TYPE, APPLICATION_JSON_VALUE))

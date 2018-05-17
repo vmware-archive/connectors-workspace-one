@@ -77,7 +77,7 @@ public class SalesforceController {
 
     // Query everything needed for making Opportunity cards.
     private static final String QUERY_FMT_OPPORTUNITY_INFO = "SELECT id, name, CloseDate, NextStep, StageName, " +
-            "Account.name, Account.Owner.Name, FORMAT(Opportunity.amount), (SELECT User.Email from OpportunityTeamMembers), " +
+            "Account.name, Account.Owner.Name, FORMAT(Opportunity.amount), FORMAT(Opportunity.ExpectedRevenue), (SELECT User.Email from OpportunityTeamMembers), " +
             "(SELECT InsertedBy.Name, Body from Feeds) FROM opportunity WHERE opportunity.id IN ('%s')";
 
     // Query format to get list of all opportunities that are related to an account.
@@ -335,7 +335,9 @@ public class SalesforceController {
                     .addField(buildGeneralBodyField("opportunity.stage",
                             opportunities.read(prefix + ".StageName"), locale))
                     .addField(buildGeneralBodyField("opportunity.amount",
-                            opportunities.read(prefix + ".Amount"), locale));
+                            opportunities.read(prefix + ".Amount"), locale))
+                    .addField(buildGeneralBodyField("opportunity.expected.revenue",
+                            opportunities.read(prefix + ".ExpectedRevenue"), locale));
 
             addCommentsField(cardBodyBuilder, feedComments, locale);
 
