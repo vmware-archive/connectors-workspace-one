@@ -202,7 +202,7 @@ class AwsCertControllerTest extends ControllerTestsBase {
 
         mockBackend.expect(requestTo("/approvals?code=test-auth-code&context=test-context"))
                 .andExpect(method(POST))
-                .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_FORM_URLENCODED))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
                 .andExpect(MockRestRequestMatchers.content().formData(expectedFormData))
                 .andRespond(withSuccess(fakeResponse, TEXT_HTML));
 
