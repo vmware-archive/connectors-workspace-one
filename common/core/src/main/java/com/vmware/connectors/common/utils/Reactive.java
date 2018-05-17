@@ -46,11 +46,7 @@ public final class Reactive {
      */
     public static Context setupContext() {
         Map<String, String> contextMap = MDC.getCopyOfContextMap();
-        Context context = Context.empty();
-        if (contextMap != null) {
-            context.put("mdc", contextMap);
-        }
-        return context;
+        return contextMap == null ? Context.empty() : Context.of("mdc", contextMap);
      }
 
     /**
