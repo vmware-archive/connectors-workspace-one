@@ -174,6 +174,16 @@ public class SalesforceController {
                 .toUri();
     }
 
+    private URI buildUri(final String baseUrl,
+                         final String path,
+                         final String opportunityId) {
+        return fromHttpUrl(baseUrl)
+                .path(path)
+                .path(opportunityId)
+                .build()
+                .toUri();
+    }
+
     ///////////////////////////////////////////////////////////////////
     // Cards request methods
     ///////////////////////////////////////////////////////////////////
@@ -973,7 +983,7 @@ public class SalesforceController {
                                               final String opportunityId,
                                               final Object body) {
         return rest.patch()
-                .uri(baseUrl + sfOpportunityFieldsUpdatePath, opportunityId)
+                .uri(buildUri(baseUrl, sfOpportunityFieldsUpdatePath, opportunityId))
                 .header(AUTHORIZATION, auth)
                 .contentType(APPLICATION_JSON)
                 .syncBody(body)
