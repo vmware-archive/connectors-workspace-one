@@ -8,9 +8,13 @@ package com.vmware.connectors.airwatch.exceptions;
 /**
  * Created by harshas on 05/16/18.
  */
-public class AppConfigException extends RuntimeException {
+public class ConfigException extends RuntimeException {
 
-    public AppConfigException(String message) {
+    public ConfigException(String message) {
         super(message);
+    }
+
+    public ConfigException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

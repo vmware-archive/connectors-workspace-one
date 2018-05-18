@@ -6,7 +6,7 @@
 package com.vmware.connectors.airwatch;
 
 import com.vmware.connectors.airwatch.config.AppConfigurations;
-import com.vmware.connectors.airwatch.exceptions.AppConfigException;
+import com.vmware.connectors.airwatch.exceptions.ConfigException;
 import com.vmware.connectors.airwatch.service.AppConfigService;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -54,7 +54,7 @@ public class ConnConfiguration {
         violations
                 .forEach(v -> logger.error("{} Check {} in managed-apps configuration.", v.getMessage(), v.getPropertyPath().toString()));
         if (!violations.isEmpty()) {
-            throw new AppConfigException("Invalid configurations for managed-apps.");
+            throw new ConfigException("Invalid configurations for managed-apps.");
         }
 
         this.appConfigurations = appConfigurations;
@@ -88,7 +88,7 @@ public class ConnConfiguration {
             return fromHttpUrl(environment.getProperty("greenbox.url")).build().toUri();
         } catch (IllegalArgumentException ex) {
             logger.error("Greenbox URL config is invalid. ", ex);
-            return null;
+            throw new ConfigException("Greenbox URL config is invalid.", ex);
         }
     }
 }
