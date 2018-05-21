@@ -76,12 +76,12 @@ class SalesforceControllerTest extends ControllerTestsBase {
     
     private static final String TRAVIS_ACCOUNT_ID = "0014100000Vc2iPAAR";
 
-    private static final String SOQL_QUERY_PATH = "/services/data/v21.0/query";
+    private static final String SOQL_QUERY_PATH = "/services/data/v39.0/query";
 
-    private static final String ADD_CONTACT_PATH = "/services/data/v20.0/sobjects/Contact";
-    private static final String LINK_OPPORTUNITY_TASK_PATH = "/services/data/v20.0/sobjects/Task";
-    private static final String LINK_ATTACHMENT_TASK_PATH = "/services/data/v20.0/sobjects/Attachment";
-    private static final String LINK_OPPORTUNITY_PATH = "/services/data/v20.0/sobjects/OpportunityContactRole";
+    private static final String ADD_CONTACT_PATH = "/services/data/v39.0/sobjects/Contact";
+    private static final String LINK_OPPORTUNITY_TASK_PATH = "/services/data/v39.0/sobjects/Task";
+    private static final String LINK_ATTACHMENT_TASK_PATH = "/services/data/v39.0/sobjects/Attachment";
+    private static final String LINK_OPPORTUNITY_PATH = "/services/data/v39.0/sobjects/OpportunityContactRole";
     private static final String UPDATE_OPPORTUNITY_PATH = "/services/data/v39.0/sobjects/Opportunity/0067F00000BplCHQAZ";
 
     @Value("classpath:salesforce/response/successContact.json")
