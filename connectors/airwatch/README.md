@@ -56,6 +56,11 @@ Provide a copy of the file for the service to read.
 cp /my/config/dir/managed-apps.yml /etc/opt/vmware/connectors/airwatch/managed-apps.yml
 
 ```
+The configuration file copied above must be part of the `roswell` user and group.
+```
+chown roswell:roswell /etc/opt/vmware/connectors/airwatch/managed-apps.yml
+```
+
 Let connector know the base url of Greenbox. This is needed to trigger the native install action for managed apps.
 ```
 echo "greenbox.url=https://acme.vmwareidentity.com" >> /etc/opt/vmware/connectors/airwatch/application.properties
