@@ -318,7 +318,6 @@ public class SalesforceController {
 
         CardAction.Builder openActionBuilder = new CardAction.Builder();
         openActionBuilder.setLabel(cardTextAccessor.getActionLabel("opportunity.se.open.opportunity", locale))
-                .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("opportunity.se.open.opportunity", locale))
                 .setActionKey(CardActionKey.OPEN_IN)
                 .setAllowRepeated(true)
                 .setUrl(baseUrl + opportunityId)

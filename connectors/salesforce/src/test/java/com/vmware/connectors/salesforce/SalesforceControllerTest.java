@@ -350,7 +350,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
             "successCardsForSender.json, " + StringUtils.EMPTY,
             "successCardsForSender_xx.json, xx"})
     void cardRequestWithOpportunityIds(String resFile, String lang) throws Exception {
-        final String requestFile = "/connector/requests/requestUber.json";
+        final String requestFile = "/connector/requests/requestCustomFields.json";
 
         expectSalesforceRequest(getContactRequestSoql(requestFile))
                 .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
@@ -361,10 +361,10 @@ class SalesforceControllerTest extends ControllerTestsBase {
         expectSalesforceRequest(String.format(QUERY_FMT_OPPORTUNITY_INFO, "0064100000BU5dOAAT\', \'0064100000O93EVAAZ"))
                 .andRespond(withSuccess(sfResponseContactOppInfo, APPLICATION_JSON));
 
-//        expectSalesforceRequest(String.format(QUERY_FMT_SE_ACTIVITY, "jjeff@vmware.com", "0064100000O9DnXAAV\', \'0064100000O93EVAAZ"))
-//                .andRespond(withSuccess(sfOpportunitiesWithCustomFields, APPLICATION_JSON));
+        expectSalesforceRequest(String.format(QUERY_FMT_SE_ACTIVITY, "jjeff@vmware.com", "0064100000O9DnXAAV\', \'0064100000O93EVAAZ"))
+                .andRespond(withSuccess(sfOpportunitiesWithCustomFields, APPLICATION_JSON));
 
-        testRequestCards("/connector/requests/requestUber.json", resFile, lang);
+        testRequestCards("/connector/requests/requestCustomFields.json", resFile, lang);
     }
 
     private void testCardRequestSuccess(String resFile, String lang) throws Exception {
