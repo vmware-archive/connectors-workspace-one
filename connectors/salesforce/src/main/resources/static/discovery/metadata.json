@@ -8,6 +8,10 @@
     "sender_email": {
       "capture_group": 1,
       "regex": "([A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6})"
+    },
+    "opportunity_ids": {
+      "capture_group": 1,
+      "regex": "https:\/\/[a-zA-Z0-8.-]+.salesforce.com\/(00[a-zA-Z0-9]{13})"
     }
   }
 }

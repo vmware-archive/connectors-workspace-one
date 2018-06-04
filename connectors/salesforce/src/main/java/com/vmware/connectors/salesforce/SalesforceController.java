@@ -40,11 +40,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 @RestController
+@SuppressWarnings({"PMD.ExcessiveClassLength", "PMD.NcssCount"})
 public class SalesforceController {
 
     private static final Logger logger = LoggerFactory.getLogger(SalesforceController.class);
@@ -84,6 +86,11 @@ public class SalesforceController {
     private static final String QUERY_FMT_ACCOUNT_OPPORTUNITY =
             "SELECT id, name FROM opportunity WHERE account.id = '%s'";
 
+    // Query format for retrieving AW Sales Engineer activities in Opportunity.
+    private static final String QUERY_FMT_SE_ACTIVITY = "SELECT AW_Account_Issues__c, AW_Product_Issues__c, AW_Sales_Engineer_Description__c," +
+            "  AW_SE_Manual_Override__c, AW_SE_Stage__c, AW_SE_Status__c, Id, Name, Account.Name, Account.Owner.Name," +
+            " (SELECT User.Email from OpportunityTeamMembers WHERE User.Email = '%s') FROM Opportunity WHERE StageName NOT IN  ('Closed Lost', 'Closed Won') AND Id IN ('%s')";
+
     private static final String QUERY_FMT_CONTACT_ID =
             "SELECT id FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
 
@@ -93,7 +100,21 @@ public class SalesforceController {
 
     private static final String UPDATE_NEXT_STEP = "/opportunity/{opportunityId}/nextstep";
 
+    private static final String UPDATE_CUSTOM_SE_FIELD = "/opportunity/vmw/{customFieldName}/{opportunityId}";
+
     private static final String OPPORTUNITY_ID = "opportunityId";
+
+    private static final String CUSTOM_FIELD_NAME = "customFieldName";
+
+    private static final String CUSTOM_FIELD_PARAM_NAME = "custom_field_value";
+
+    private static final String SALESFORCE = "Salesforce";
+
+    private static final String TOTAL_SIZE = "$.totalSize";
+
+    private static final String OPPORTUNITY_IDS = "opportunity_ids";
+
+    private static final String TEMPLATE = "templates/generic.hbs";
 
     private final String sfSoqlQueryPath;
 
@@ -110,6 +131,17 @@ public class SalesforceController {
     private final WebClient rest;
 
     private final CardTextAccessor cardTextAccessor;
+
+    // Custom fields for SE Activity. Below fields are specific for VmWare.
+    private static final String AW_ACCOUNT_ISSUES = " AW_Account_Issues__c";
+
+    private static final String AW_PRODUCT_ISSUES = " AW_Product_Issues__c";
+
+    private static final String AW_SALES_ENGINEERING_DESCRIPTION = " AW_Sales_Engineer_Description__c";
+
+    private static final String AW_SE_STAGE = " AW_SE_Stage__c";
+
+    private static final String AW_SE_STATUS = " AW_SE_Status__c";
 
     @Autowired
     public SalesforceController(
@@ -202,8 +234,9 @@ public class SalesforceController {
             final HttpServletRequest request
     ) {
         // Sender email and user email are required, and sender email has to at least have a non-final @ in it
-        String sender = cardRequest.getTokenSingleValue("sender_email");
-        String user = cardRequest.getTokenSingleValue("user_email");
+        final String sender = cardRequest.getTokenSingleValue("sender_email");
+        final String user = cardRequest.getTokenSingleValue("user_email");
+
         logger.debug("Sender email: {} and User email: {} for Salesforce server: {} ", sender, user, baseUrl);
 
         String senderDomain = '@' + StringUtils.substringAfterLast(sender, "@");
@@ -213,13 +246,129 @@ public class SalesforceController {
             return Mono.just(new ResponseEntity<>(BAD_REQUEST));
         }
 
+        final Set<String> opportunityIds = cardRequest.getTokens(OPPORTUNITY_IDS);
         return retrieveContactInfos(auth, baseUrl, sender)
                 .flatMapMany(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
                         user, senderDomain, locale, request))
+                .concatWith(getSEOpportunityCards(opportunityIds, auth, baseUrl, routingPrefix, user, locale))
                 .collectList()
                 .map(this::toCards)
                 .map(ResponseEntity::ok)
                 .subscriberContext(Reactive.setupContext());
+    }
+
+    private Flux<Card> getSEOpportunityCards(final Set<String> opportunityIds,
+                                          final String auth,
+                                          final String baseUrl,
+                                          final String routingPrefix,
+                                          final String userEmail,
+                                          final Locale locale) {
+        if (CollectionUtils.isEmpty(opportunityIds)) {
+            return Flux.empty();
+        }
+
+        final String opportunityFormat = opportunityIds.stream().collect(Collectors.joining("', '"));
+        final String opportunitiesSoql = String.format(QUERY_FMT_SE_ACTIVITY, userEmail, opportunityFormat);
+
+        return retrieveContacts(auth, baseUrl, opportunitiesSoql)
+                .flatMapMany(jsonDocument -> buildCardsForSEActivity(jsonDocument, baseUrl, routingPrefix, locale));
+    }
+
+    private Flux<Card> buildCardsForSEActivity(final JsonDocument opportunities,
+                                                final String baseUrl,
+                                                final String routingPrefix,
+                                                final Locale locale) {
+
+        final int totalSize = opportunities.read(TOTAL_SIZE);
+        if (totalSize == 0) {
+            return Flux.empty();
+        }
+
+        final List<Card> cards = new ArrayList<>();
+        for (int i = 0; i < totalSize;i++) {
+            final String prefix = String.format("$.records[%d].", i);
+            final String accountName = opportunities.read(prefix + "Account.Name");
+            final String opportunityId = opportunities.read(prefix + "Id");
+
+            final Card.Builder cardBuilder = new Card.Builder()
+                    .setName(SALESFORCE)
+                    .setTemplate(routingPrefix + TEMPLATE)
+                    .setHeader(accountName, "Add activity")
+                    .setBody(buildCardBodyForSEFields(opportunities, prefix, locale));
+
+            // Add card actions for updating opportunity custom SE fields.
+            buildCardActionForSEFields(baseUrl, routingPrefix, locale, opportunityId, cardBuilder);
+
+            cards.add(cardBuilder.build());
+
+        }
+        return Flux.fromIterable(cards);
+    }
+
+    private void buildCardActionForSEFields(final String baseUrl,
+                                                  final String routingPrefix,
+                                                  final Locale locale,
+                                                  final String opportunityId,
+                                                  final Card.Builder cardBuilder) {
+        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SE_STAGE, "stage"));
+        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SE_STATUS, "status"));
+        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_ACCOUNT_ISSUES, "account.issues"));
+        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_PRODUCT_ISSUES, "product.issues"));
+        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SALES_ENGINEERING_DESCRIPTION, "sales.description"));
+
+        CardAction.Builder openActionBuilder = new CardAction.Builder();
+        openActionBuilder.setLabel(cardTextAccessor.getActionLabel("opportunity.se.open.opportunity", locale))
+                .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("opportunity.se.open.opportunity", locale))
+                .setActionKey(CardActionKey.OPEN_IN)
+                .setAllowRepeated(true)
+                .setUrl(baseUrl + opportunityId)
+                .setType(GET);
+        cardBuilder.addAction(openActionBuilder.build());
+    }
+
+    private CardAction buildCardActionForSEFields(final String routingPrefix,
+                                                  final Locale locale,
+                                                  final String opportunityId,
+                                                  final String fieldName,
+                                                  final String label) {
+        final String updateUrl = String.format("opportunity/vmw/%s/%s", fieldName, opportunityId);
+
+        final CardAction.Builder cardActionBuilder = new CardAction.Builder()
+                .setLabel(this.cardTextAccessor.getActionLabel("opportunity.se.update." + label, locale))
+                .setActionKey(CardActionKey.USER_INPUT)
+                .setType(HttpMethod.POST)
+                .setUrl(routingPrefix + updateUrl)
+                .setAllowRepeated(true)
+                .addUserInputField(
+                        new CardActionInputField.Builder()
+                                .setId(CUSTOM_FIELD_PARAM_NAME)
+                                .setLabel(this.cardTextAccessor.getMessage("opportunity.se.update." + label, locale))
+                                .setMinLength(1)
+                                .build()
+                );
+        return cardActionBuilder.build();
+    }
+
+    private CardBody buildCardBodyForSEFields(final JsonDocument opportunities,
+                                              final String prefix,
+                                              final Locale locale) {
+
+        final String accountOwnerName = opportunities.read(prefix + "Account.Owner.Name");
+        final String seStage = opportunities.read(prefix + AW_SE_STAGE);
+        final String seStatus = opportunities.read(prefix + AW_SE_STATUS);
+        final String accountIssues = opportunities.read(prefix + AW_ACCOUNT_ISSUES);
+        final String productIssues = opportunities.read(prefix + AW_PRODUCT_ISSUES);
+        final String salesDescription = opportunities.read(prefix + AW_SALES_ENGINEERING_DESCRIPTION);
+
+        final CardBody.Builder cardBuilder = new CardBody.Builder()
+                .addField(buildGeneralBodyField("opportunity.se.account.owner", accountOwnerName, locale))
+                .addField(buildGeneralBodyField("opportunity.se.stage", seStage, locale))
+                .addField(buildGeneralBodyField("opportunity.se.status", seStatus, locale))
+                .addField(buildGeneralBodyField("opportunity.se.account.issues", accountIssues, locale))
+                .addField(buildGeneralBodyField("opportunity.se.product.issues", productIssues, locale))
+                .addField(buildGeneralBodyField("opportunity.se.sales.description", salesDescription, locale));
+
+        return cardBuilder.build();
     }
 
     // Retrieve contact name, account name, and phone
@@ -233,7 +382,6 @@ public class SalesforceController {
         return retrieveContacts(auth, baseUrl, contactSoql);
     }
 
-
     private Flux<Card> getCards(
             JsonDocument contactDetails,
             String senderEmail,
@@ -245,7 +393,7 @@ public class SalesforceController {
             Locale locale,
             HttpServletRequest request
     ) {
-        int contactsSize = contactDetails.read("$.totalSize");
+        int contactsSize = contactDetails.read(TOTAL_SIZE);
         if (contactsSize > 0) {
             // Contact already exists in the salesforce account. Cards to show are sender info and Opportunities.
             logger.debug("Salesforce account already has a contact for the email: {} ", senderEmail);
@@ -271,7 +419,7 @@ public class SalesforceController {
 
         Flux<Card> userDetailCard = Flux.just(createUserDetailsCard(contactDetails, routingPrefix, locale, request));
 
-        int count = oppIds.read("$.totalSize");
+        int count = oppIds.read(TOTAL_SIZE);
         if (count > 0) {
 
             List<String> Ids = oppIds.read("$.records[*].Opportunity.Id");
@@ -313,7 +461,7 @@ public class SalesforceController {
                                               HttpServletRequest request,
                                               String userEmail) {
 
-        final int oppCount = opportunities.read("$.totalSize");
+        final int oppCount = opportunities.read(TOTAL_SIZE);
 
         List<Card> oppCards = new ArrayList<>();
         for (int oppIndex = 0; oppIndex < oppCount; oppIndex++) {
@@ -342,8 +490,8 @@ public class SalesforceController {
             addCommentsField(cardBodyBuilder, feedComments, locale);
 
             final Card.Builder card = new Card.Builder()
-                    .setName("Salesforce")
-                    .setTemplate(routingPrefix + "templates/generic.hbs")
+                    .setName(SALESFORCE)
+                    .setTemplate(routingPrefix + TEMPLATE)
                     .setHeader(cardTextAccessor.getMessage("opportunity.header", locale, name))
                     .setBody(cardBodyBuilder.build());
 
@@ -458,8 +606,8 @@ public class SalesforceController {
                 .addField(buildGeneralBodyField("senderinfo.phone", contactPhNo, locale));
 
         final Card.Builder card = new Card.Builder()
-                .setName("Salesforce") // TODO - remove this in APF-536
-                .setTemplate(routingPrefix + "templates/generic.hbs")
+                .setName(SALESFORCE) // TODO - remove this in APF-536
+                .setTemplate(routingPrefix + TEMPLATE)
                 .setHeader(cardTextAccessor.getMessage("senderinfo.header", locale))
                 .setBody(cardBodyBuilder.build());
 
@@ -614,8 +762,8 @@ public class SalesforceController {
                 .stream()
                 .map(acct ->
                         new Card.Builder()
-                                .setName("Salesforce")
-                                .setTemplate(routingPrefix + "templates/generic.hbs")
+                                .setName(SALESFORCE)
+                                .setTemplate(routingPrefix + TEMPLATE)
                                 .setHeader(cardTextAccessor.getMessage("addcontact.header", locale))
                                 .setBody(cardTextAccessor.getMessage("addcontact.body", locale, contactEmail, acct.getName()))
                                 .addAction(createAddContactAction(routingPrefix, contactEmail, acct, locale))
@@ -665,7 +813,7 @@ public class SalesforceController {
     ) {
         if (!opportunities.isEmpty()) {  // There exists some opportunities related to this account.
             CardActionInputField.Builder inputFieldBuilder = new CardActionInputField.Builder()
-                    .setId("opportunity_ids")
+                    .setId(OPPORTUNITY_IDS)
                     .setLabel(cardTextAccessor.getMessage("account.opportunity.label", locale))
                     .setFormat("select")
                     .setMinLength(0);
@@ -697,7 +845,7 @@ public class SalesforceController {
             @RequestParam("contact_email") String contactEmail,
             @RequestParam(name = "first_name", required = false) String firstName,
             @RequestParam("last_name") String lastName,
-            @RequestParam(name = "opportunity_ids", required = false) Set<String> opportunityIds
+            @RequestParam(name = OPPORTUNITY_IDS, required = false) Set<String> opportunityIds
     ) {
         /*
          * Once we start using salesforce API version 34, following things can be done in a single network call.
@@ -794,7 +942,7 @@ public class SalesforceController {
             @RequestParam("contact_email") String contactEmail,
             @RequestParam("email_conversations") String conversations,
             @RequestParam("attachment_name") String attachmentName,
-            @RequestParam("opportunity_ids") Set<String> opportunityIds
+            @RequestParam(OPPORTUNITY_IDS) Set<String> opportunityIds
     ) throws IOException {
 
         byte[] formattedConversations = formatConversations(conversations).getBytes(StandardCharsets.UTF_8);
@@ -991,5 +1139,24 @@ public class SalesforceController {
                 .syncBody(body)
                 .retrieve()
                 .bodyToMono(Void.class);
+    }
+
+    /**
+     * This API is specific to VmWare Salesforce opportunity custom fields.
+     */
+    @PostMapping(
+            path = UPDATE_CUSTOM_SE_FIELD,
+            consumes = APPLICATION_FORM_URLENCODED_VALUE
+    )
+    public Mono<Void> updateSECustomFields(
+            @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
+            @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
+            @PathVariable(CUSTOM_FIELD_NAME) final String customFieldName,
+            @PathVariable(OPPORTUNITY_ID) final String opportunityId,
+            @RequestParam(CUSTOM_FIELD_PARAM_NAME) final String customFieldValue
+    ) {
+        final Map<String, String> body = ImmutableMap.of(customFieldName, customFieldValue);
+
+        return updateOpportunityField(baseUrl, auth, opportunityId, body);
     }
 }

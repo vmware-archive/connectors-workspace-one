@@ -73,7 +73,10 @@ class SalesforceControllerTest extends ControllerTestsBase {
     private static final String QUERY_FMT_CONTACT_ID =
             "SELECT id FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
 
-    
+    private static final String QUERY_FMT_SE_ACTIVITY = "SELECT AW_Account_Issues__c, AW_Product_Issues__c, AW_Sales_Engineer_Description__c," +
+            "  AW_SE_Manual_Override__c, AW_SE_Stage__c, AW_SE_Status__c, Id, Name, Account.Name, Account.Owner.Name," +
+            " (SELECT User.Email from OpportunityTeamMembers WHERE User.Email = '%s') FROM Opportunity WHERE StageName NOT IN  ('Closed Lost', 'Closed Won') AND Id IN ('%s')";
+
     private static final String TRAVIS_ACCOUNT_ID = "0014100000Vc2iPAAR";
 
     private static final String SOQL_QUERY_PATH = "/services/data/v39.0/query";
@@ -123,6 +126,8 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @Value("classpath:salesforce/response/existingContactId.json")
     private Resource sfExistingContactId;
 
+    @Value("classpath:salesforce/response/opportunitiesWithCustomFields.json")
+    private Resource sfOpportunitiesWithCustomFields;
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -234,18 +239,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
             "successCardsForSender.json, " + StringUtils.EMPTY,
             "successCardsForSender_xx.json, xx"})
     void testRequestCardSuccess(String resFile, String lang) throws Exception {
-        final String requestFile = "/connector/requests/requestUber.json";
-
-        expectSalesforceRequest(getContactRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
-
-        expectSalesforceRequest(String.format(QUERY_FMT_CONTACT_OPPORTUNITY, "travis@uber.com"))
-                .andRespond(withSuccess(sfResponseContactOppIds, APPLICATION_JSON));
-
-        expectSalesforceRequest(String.format(QUERY_FMT_OPPORTUNITY_INFO, "0064100000BU5dOAAT\', \'0064100000O93EVAAZ"))
-                .andRespond(withSuccess(sfResponseContactOppInfo, APPLICATION_JSON));
-
-        testRequestCards(requestFile, resFile, lang);
+        testCardRequestSuccess(resFile, lang);
     }
 
     @DisplayName("Card request sender related accounts cases")
@@ -349,6 +343,45 @@ class SalesforceControllerTest extends ControllerTestsBase {
                         result.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
     }
 
+    // There are multiple opportunities found related to the email sender.
+    @DisplayName("Card request contact found with opportunities and custom fields related to opportunities.")
+    @ParameterizedTest
+    @CsvSource({
+            "successCardsForSender.json, " + StringUtils.EMPTY,
+            "successCardsForSender_xx.json, xx"})
+    void cardRequestWithOpportunityIds(String resFile, String lang) throws Exception {
+        final String requestFile = "/connector/requests/requestUber.json";
+
+        expectSalesforceRequest(getContactRequestSoql(requestFile))
+                .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
+
+        expectSalesforceRequest(String.format(QUERY_FMT_CONTACT_OPPORTUNITY, "travis@uber.com"))
+                .andRespond(withSuccess(sfResponseContactOppIds, APPLICATION_JSON));
+
+        expectSalesforceRequest(String.format(QUERY_FMT_OPPORTUNITY_INFO, "0064100000BU5dOAAT\', \'0064100000O93EVAAZ"))
+                .andRespond(withSuccess(sfResponseContactOppInfo, APPLICATION_JSON));
+
+//        expectSalesforceRequest(String.format(QUERY_FMT_SE_ACTIVITY, "jjeff@vmware.com", "0064100000O9DnXAAV\', \'0064100000O93EVAAZ"))
+//                .andRespond(withSuccess(sfOpportunitiesWithCustomFields, APPLICATION_JSON));
+
+        testRequestCards("/connector/requests/requestUber.json", resFile, lang);
+    }
+
+    private void testCardRequestSuccess(String resFile, String lang) throws Exception {
+        final String requestFile = "/connector/requests/requestUber.json";
+
+        expectSalesforceRequest(getContactRequestSoql(requestFile))
+                .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
+
+        expectSalesforceRequest(String.format(QUERY_FMT_CONTACT_OPPORTUNITY, "travis@uber.com"))
+                .andRespond(withSuccess(sfResponseContactOppIds, APPLICATION_JSON));
+
+        expectSalesforceRequest(String.format(QUERY_FMT_OPPORTUNITY_INFO, "0064100000BU5dOAAT\', \'0064100000O93EVAAZ"))
+                .andRespond(withSuccess(sfResponseContactOppInfo, APPLICATION_JSON));
+
+        testRequestCards(requestFile, resFile, lang);
+    }
+
     @DisplayName("Update Salesforce opportunity fields")
     @ParameterizedTest(name = "{index} => uri={0}, body={1}")
     @CsvSource({
@@ -356,6 +389,29 @@ class SalesforceControllerTest extends ControllerTestsBase {
             "/opportunity/0067F00000BplCHQAZ/nextstep, nextstep=3/31 - Customer was shown the roadmap for ABC product"
     })
     void updateOpportunityFields(final String uri, final String body) {
+        mockSalesforceOpportunityAPI();
+
+        webClient.post()
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .header("x-salesforce-authorization", "Bearer abc")
+                .header("x-salesforce-base-url", mockBackend.url(""))
+                .syncBody(body)
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @DisplayName("Update VmWare Salesforce opportunity custom fields")
+    @ParameterizedTest(name = "{index} => uri={0}, body={1}")
+    @CsvSource({
+            "/opportunity/vmw/AW_SE_Stage__c/0067F00000BplCHQAZ, custom_field_value=Contact customer for further details",
+            "/opportunity/vmw/AW_SE_Status__c/0067F00000BplCHQAZ, custom_field_value=Opportunity Won",
+            "/opportunity/vmw/AW_Account_Issues__c/0067F00000BplCHQAZ, custom_field_value=Sales lead to take decision.",
+            "/opportunity/vmw/AW_Product_Issues__c/0067F00000BplCHQAZ, custom_field_value=Some features are not available in the product.",
+            "/opportunity/vmw/AW_Sales_Engineer_Description__c/0067F00000BplCHQAZ, custom_field_value=5/30- Testing replacement of competitor companies.",
+    })
+    void updateOpportunityCustomFields(final String uri, final String body) {
         mockSalesforceOpportunityAPI();
 
         webClient.post()
