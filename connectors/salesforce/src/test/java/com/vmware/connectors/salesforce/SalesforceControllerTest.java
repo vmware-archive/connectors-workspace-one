@@ -74,7 +74,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
             "SELECT id FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
 
     private static final String QUERY_FMT_SE_ACTIVITY = "SELECT AW_Account_Issues__c, AW_Product_Issues__c, AW_Sales_Engineer_Description__c," +
-            "  AW_SE_Manual_Override__c, AW_SE_Stage__c, AW_SE_Status__c, Id, Name, Account.Name, Account.Owner.Name," +
+            " AW_SE_Manual_Override__c, AW_SE_Stage__c, AW_SE_Status__c, Id, Name, Account.Name, Account.Owner.Name," +
             " (SELECT User.Email from OpportunityTeamMembers WHERE User.Email = '%s') FROM Opportunity WHERE StageName NOT IN  ('Closed Lost', 'Closed Won') AND Id IN ('%s')";
 
     private static final String TRAVIS_ACCOUNT_ID = "0014100000Vc2iPAAR";

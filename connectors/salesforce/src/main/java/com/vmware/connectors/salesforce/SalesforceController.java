@@ -88,7 +88,7 @@ public class SalesforceController {
 
     // Query format for retrieving AW Sales Engineer activities in Opportunity.
     private static final String QUERY_FMT_SE_ACTIVITY = "SELECT AW_Account_Issues__c, AW_Product_Issues__c, AW_Sales_Engineer_Description__c," +
-            "  AW_SE_Manual_Override__c, AW_SE_Stage__c, AW_SE_Status__c, Id, Name, Account.Name, Account.Owner.Name," +
+            " AW_SE_Manual_Override__c, AW_SE_Stage__c, AW_SE_Status__c, Id, Name, Account.Name, Account.Owner.Name," +
             " (SELECT User.Email from OpportunityTeamMembers WHERE User.Email = '%s') FROM Opportunity WHERE StageName NOT IN  ('Closed Lost', 'Closed Won') AND Id IN ('%s')";
 
     private static final String QUERY_FMT_CONTACT_ID =
@@ -267,7 +267,9 @@ public class SalesforceController {
             return Flux.empty();
         }
 
-        final String opportunityFormat = opportunityIds.stream().collect(Collectors.joining("', '"));
+        final List<String> sortedIds = new ArrayList<>(opportunityIds);
+        Collections.sort(sortedIds);
+        final String opportunityFormat = sortedIds.stream().collect(Collectors.joining("', '"));
         final String opportunitiesSoql = String.format(QUERY_FMT_SE_ACTIVITY, userEmail, opportunityFormat);
 
         return retrieveContacts(auth, baseUrl, opportunitiesSoql)
