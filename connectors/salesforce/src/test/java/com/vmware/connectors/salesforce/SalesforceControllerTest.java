@@ -239,7 +239,18 @@ class SalesforceControllerTest extends ControllerTestsBase {
             "successCardsForSender.json, " + StringUtils.EMPTY,
             "successCardsForSender_xx.json, xx"})
     void testRequestCardSuccess(String resFile, String lang) throws Exception {
-        testCardRequestSuccess(resFile, lang);
+        final String requestFile = "/connector/requests/requestUber.json";
+
+        expectSalesforceRequest(getContactRequestSoql(requestFile))
+                .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
+
+        expectSalesforceRequest(String.format(QUERY_FMT_CONTACT_OPPORTUNITY, "travis@uber.com"))
+                .andRespond(withSuccess(sfResponseContactOppIds, APPLICATION_JSON));
+
+        expectSalesforceRequest(String.format(QUERY_FMT_OPPORTUNITY_INFO, "0064100000BU5dOAAT\', \'0064100000O93EVAAZ"))
+                .andRespond(withSuccess(sfResponseContactOppInfo, APPLICATION_JSON));
+
+        testRequestCards(requestFile, resFile, lang);
     }
 
     @DisplayName("Card request sender related accounts cases")
@@ -343,43 +354,26 @@ class SalesforceControllerTest extends ControllerTestsBase {
                         result.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
     }
 
-    // There are multiple opportunities found related to the email sender.
-    @DisplayName("Card request contact found with opportunities and custom fields related to opportunities.")
+    @Test
+    void regexTestForOpportunityIds() throws Exception {
+        final List<String> expectedList = ImmutableList.of(
+                "00634000018fAkm",
+                "0063400001AeiHd",
+                "00634000018e8yr");
+
+        testRegex("opportunity_ids", fromFile("/regex/opportunities.txt"),expectedList);
+    }
+
+    @DisplayName("Opportunities with VmWare custom fields.")
     @ParameterizedTest
     @CsvSource({
-            "successCardsForSender.json, " + StringUtils.EMPTY,
-            "successCardsForSender_xx.json, xx"})
+            "successCardsWithCustomFields.json, " + StringUtils.EMPTY,
+            "successCardsWithCustomFields_xx.json, xx"})
     void cardRequestWithOpportunityIds(String resFile, String lang) throws Exception {
-        final String requestFile = "/connector/requests/requestCustomFields.json";
-
-        expectSalesforceRequest(getContactRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
-
-        expectSalesforceRequest(String.format(QUERY_FMT_CONTACT_OPPORTUNITY, "travis@uber.com"))
-                .andRespond(withSuccess(sfResponseContactOppIds, APPLICATION_JSON));
-
-        expectSalesforceRequest(String.format(QUERY_FMT_OPPORTUNITY_INFO, "0064100000BU5dOAAT\', \'0064100000O93EVAAZ"))
-                .andRespond(withSuccess(sfResponseContactOppInfo, APPLICATION_JSON));
-
-        expectSalesforceRequest(String.format(QUERY_FMT_SE_ACTIVITY, "jjeff@vmware.com", "0064100000O9DnXAAV\', \'0064100000O93EVAAZ"))
+        expectSalesforceRequest(String.format(QUERY_FMT_SE_ACTIVITY, "jjeff@vmware.com", "0064100000O93EVAAZ\', \'0064100000O9DnXAAV"))
                 .andRespond(withSuccess(sfOpportunitiesWithCustomFields, APPLICATION_JSON));
 
         testRequestCards("/connector/requests/requestCustomFields.json", resFile, lang);
-    }
-
-    private void testCardRequestSuccess(String resFile, String lang) throws Exception {
-        final String requestFile = "/connector/requests/requestUber.json";
-
-        expectSalesforceRequest(getContactRequestSoql(requestFile))
-                .andRespond(withSuccess(sfResponseContactExists, APPLICATION_JSON));
-
-        expectSalesforceRequest(String.format(QUERY_FMT_CONTACT_OPPORTUNITY, "travis@uber.com"))
-                .andRespond(withSuccess(sfResponseContactOppIds, APPLICATION_JSON));
-
-        expectSalesforceRequest(String.format(QUERY_FMT_OPPORTUNITY_INFO, "0064100000BU5dOAAT\', \'0064100000O93EVAAZ"))
-                .andRespond(withSuccess(sfResponseContactOppInfo, APPLICATION_JSON));
-
-        testRequestCards(requestFile, resFile, lang);
     }
 
     @DisplayName("Update Salesforce opportunity fields")
@@ -445,6 +439,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .getResponseBody()
                 .collect(Collectors.joining())
                 .map(JsonNormalizer::forCards)
+                .map(json -> json.replaceAll("http://localhost:\\d+/", "https://salesforce.acme.com/"))
                 .block();
         assertThat(body, sameJSONAs(fromFile("connector/responses/" + responseFile)).allowingAnyArrayOrdering());
     }

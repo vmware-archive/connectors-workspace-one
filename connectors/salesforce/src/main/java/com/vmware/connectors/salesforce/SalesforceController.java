@@ -133,15 +133,15 @@ public class SalesforceController {
     private final CardTextAccessor cardTextAccessor;
 
     // Custom fields for SE Activity. Below fields are specific for VmWare.
-    private static final String AW_ACCOUNT_ISSUES = " AW_Account_Issues__c";
+    private static final String AW_ACCOUNT_ISSUES = "AW_Account_Issues__c";
 
-    private static final String AW_PRODUCT_ISSUES = " AW_Product_Issues__c";
+    private static final String AW_PRODUCT_ISSUES = "AW_Product_Issues__c";
 
-    private static final String AW_SALES_ENGINEERING_DESCRIPTION = " AW_Sales_Engineer_Description__c";
+    private static final String AW_SALES_ENGINEERING_DESCRIPTION = "AW_Sales_Engineer_Description__c";
 
-    private static final String AW_SE_STAGE = " AW_SE_Stage__c";
+    private static final String AW_SE_STAGE = "AW_SE_Stage__c";
 
-    private static final String AW_SE_STATUS = " AW_SE_Status__c";
+    private static final String AW_SE_STATUS = "AW_SE_Status__c";
 
     @Autowired
     public SalesforceController(
@@ -246,11 +246,19 @@ public class SalesforceController {
             return Mono.just(new ResponseEntity<>(BAD_REQUEST));
         }
 
+        // Don't want to hamper the existing flow. The below logic is specific for VMware Sales engineer requirement.
         final Set<String> opportunityIds = cardRequest.getTokens(OPPORTUNITY_IDS);
+        if (!CollectionUtils.isEmpty(opportunityIds)) {
+            return getSEOpportunityCards(opportunityIds, auth, baseUrl, routingPrefix, user, locale)
+                    .collectList()
+                    .map(this::toCards)
+                    .map(ResponseEntity::ok)
+                    .subscriberContext(Reactive.setupContext());
+        }
+
         return retrieveContactInfos(auth, baseUrl, sender)
                 .flatMapMany(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
                         user, senderDomain, locale, request))
-                .concatWith(getSEOpportunityCards(opportunityIds, auth, baseUrl, routingPrefix, user, locale))
                 .collectList()
                 .map(this::toCards)
                 .map(ResponseEntity::ok)
@@ -263,17 +271,25 @@ public class SalesforceController {
                                           final String routingPrefix,
                                           final String userEmail,
                                           final Locale locale) {
-        if (CollectionUtils.isEmpty(opportunityIds)) {
-            return Flux.empty();
-        }
-
         final List<String> sortedIds = new ArrayList<>(opportunityIds);
         Collections.sort(sortedIds);
-        final String opportunityFormat = sortedIds.stream().collect(Collectors.joining("', '"));
-        final String opportunitiesSoql = String.format(QUERY_FMT_SE_ACTIVITY, userEmail, opportunityFormat);
 
-        return retrieveContacts(auth, baseUrl, opportunitiesSoql)
+        return retrieveSEOpportunities(sortedIds, baseUrl, auth, userEmail)
                 .flatMapMany(jsonDocument -> buildCardsForSEActivity(jsonDocument, baseUrl, routingPrefix, locale));
+    }
+
+    private Mono<JsonDocument> retrieveSEOpportunities(final List<String> oppIds,
+                                                       final String baseUrl,
+                                                       final String auth,
+                                                       final String userEmail) {
+        final String opportunityIdsFormat = oppIds.stream().collect(Collectors.joining("', '"));
+
+        final String opportunitiesSoql = String.format(QUERY_FMT_SE_ACTIVITY, userEmail, opportunityIdsFormat);
+        return rest.get()
+                .uri(makeSoqlQueryUri(baseUrl, opportunitiesSoql))
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class);
     }
 
     private Flux<Card> buildCardsForSEActivity(final JsonDocument opportunities,
