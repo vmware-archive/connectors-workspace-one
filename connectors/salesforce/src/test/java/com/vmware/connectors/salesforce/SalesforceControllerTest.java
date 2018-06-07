@@ -359,7 +359,9 @@ class SalesforceControllerTest extends ControllerTestsBase {
         final List<String> expectedList = ImmutableList.of(
                 "00634000018fAkm",
                 "0063400001AeiHd",
-                "00634000018e8yr");
+                "00634000018e8yr",
+                "0064100000O93EVAAZ",
+                "0064100000O9DnXAAV");
 
         testRegex("opportunity_ids", fromFile("/regex/opportunities.txt"),expectedList);
     }

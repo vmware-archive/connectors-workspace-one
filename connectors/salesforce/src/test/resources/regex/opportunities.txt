@@ -4,3 +4,5 @@ https://vmware.my.salesforce.com/00634000018e8yr
 https://vmware.my.salesforce.com/00634000018e
 https://herocard.my.salesforce.com/00634000018e8yr
 https://herocard.my.salesforce.com/006340000eiHd
+https://vmware.my.salesforce.com/0064100000O93EVAAZ
+https://vmware.my.salesforce.com/0064100000O9DnXAAV
