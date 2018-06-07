@@ -328,11 +328,11 @@ public class SalesforceController {
                                                   final Locale locale,
                                                   final String opportunityId,
                                                   final Card.Builder cardBuilder) {
+        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SALES_ENGINEERING_DESCRIPTION, "sales.description"));
         cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SE_STAGE, "stage"));
         cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SE_STATUS, "status"));
         cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_ACCOUNT_ISSUES, "account.issues"));
         cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_PRODUCT_ISSUES, "product.issues"));
-        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SALES_ENGINEERING_DESCRIPTION, "sales.description"));
 
         CardAction.Builder openActionBuilder = new CardAction.Builder();
         openActionBuilder.setLabel(cardTextAccessor.getActionLabel("opportunity.se.open.opportunity", locale))
@@ -379,11 +379,12 @@ public class SalesforceController {
 
         final CardBody.Builder cardBuilder = new CardBody.Builder()
                 .addField(buildGeneralBodyField("opportunity.se.account.owner", accountOwnerName, locale))
+                .addField(buildGeneralBodyField("opportunity.se.sales.description", salesDescription, locale))
                 .addField(buildGeneralBodyField("opportunity.se.stage", seStage, locale))
                 .addField(buildGeneralBodyField("opportunity.se.status", seStatus, locale))
                 .addField(buildGeneralBodyField("opportunity.se.account.issues", accountIssues, locale))
-                .addField(buildGeneralBodyField("opportunity.se.product.issues", productIssues, locale))
-                .addField(buildGeneralBodyField("opportunity.se.sales.description", salesDescription, locale));
+                .addField(buildGeneralBodyField("opportunity.se.product.issues", productIssues, locale));
+
 
         return cardBuilder.build();
     }

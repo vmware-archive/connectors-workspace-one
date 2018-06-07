@@ -22,6 +22,11 @@
           },
           {
             "type": "GENERAL",
+            "title": "SE Description",
+            "description": "AW Sales Engineer Description"
+          },
+          {
+            "type": "GENERAL",
             "title": "SE Stage",
             "description": "Evaluation, Won, Lost"
           },
@@ -39,15 +44,29 @@
             "type": "GENERAL",
             "title": "Product Issues",
             "description": "AW Product Issues"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Sales Description",
-            "description": "AW Sales Engineer Description"
           }
         ]
       },
       "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Update SE Description",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_Sales_Engineer_Description__c/0064100000O93EVAAZ"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "Update SE Description",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Update SE Stage",
@@ -126,25 +145,6 @@
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Update Sales Description",
-          "url": {
-            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_Sales_Engineer_Description__c/0064100000O93EVAAZ"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {},
-          "user_input": [
-            {
-              "id": "custom_field_value",
-              "label": "Update Sales Description",
-              "min_length": 1
-            }
-          ],
-          "completed_label": "Completed",
-          "allow_repeated": true
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
           "label": "Open Opportunity",
           "url": {
             "href": "https://salesforce.acme.com/0064100000O93EVAAZ"
@@ -180,6 +180,11 @@
           },
           {
             "type": "GENERAL",
+            "title": "SE Description",
+            "description": "AW Sales Engineer Description"
+          },
+          {
+            "type": "GENERAL",
             "title": "SE Stage",
             "description": "Evaluation, Won, Lost"
           },
@@ -197,15 +202,29 @@
             "type": "GENERAL",
             "title": "Product Issues",
             "description": "some issues in connectors updated"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Sales Description",
-            "description": "AW Sales Engineer Description"
           }
         ]
       },
       "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Update SE Description",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_Sales_Engineer_Description__c/0064100000O9DnXAAV"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "Update SE Description",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "Update SE Stage",
@@ -276,25 +295,6 @@
             {
               "id": "custom_field_value",
               "label": "Update Product Issues",
-              "min_length": 1
-            }
-          ],
-          "completed_label": "Completed",
-          "allow_repeated": true
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Update Sales Description",
-          "url": {
-            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_Sales_Engineer_Description__c/0064100000O9DnXAAV"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {},
-          "user_input": [
-            {
-              "id": "custom_field_value",
-              "label": "Update Sales Description",
               "min_length": 1
             }
           ],
