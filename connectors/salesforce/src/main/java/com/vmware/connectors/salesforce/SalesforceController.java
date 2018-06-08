@@ -17,7 +17,6 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +128,7 @@ public class SalesforceController {
 
     private final String sfOpportunityFieldsUpdatePath;
 
-    private final String vmwareSEFlag;
+    private final boolean vmwareSEFlag;
 
     private final WebClient rest;
 
@@ -156,7 +155,7 @@ public class SalesforceController {
             @Value("${sf.opportunityTaskLinkPath}") String sfOpportunityTaskLinkPath,
             @Value("${sf.attachmentTasklinkPath}") String sfAttachmentTasklinkPath,
             @Value("${sf.opportunityFieldsUpdatePath}") final String sfOpportunityFieldsUpdatePath,
-            @Value("${vmware.se.cards.flag}") final String vmwSECardsFlag
+            @Value("${vmware.se.cards.flag:false}") final boolean vmwSECardsFlag
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
@@ -253,7 +252,7 @@ public class SalesforceController {
 
         // Don't want to hamper the existing flow. The below logic is specific for VMware Sales engineer requirement.
         final Set<String> opportunityIds = cardRequest.getTokens(OPPORTUNITY_IDS);
-        if (BooleanUtils.toBoolean(vmwareSEFlag) && !CollectionUtils.isEmpty(opportunityIds)) {
+        if (vmwareSEFlag && !CollectionUtils.isEmpty(opportunityIds)) {
             return getSEOpportunityCards(opportunityIds, auth, baseUrl, routingPrefix, user, locale)
                     .collectList()
                     .map(this::toCards)

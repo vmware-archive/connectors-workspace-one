@@ -17,32 +17,32 @@
         "fields": [
           {
             "type": "GENERAL",
-            "title": "Account Owner",
+            "title": "ACCOUNT OWNER",
             "description": "Jeff Jones"
           },
           {
             "type": "GENERAL",
-            "title": "SE Description",
+            "title": "SE DESCRIPTION",
             "description": "AW Sales Engineer Description"
           },
           {
             "type": "GENERAL",
-            "title": "SE Stage",
+            "title": "SE STAGE",
             "description": "Evaluation, Won, Lost"
           },
           {
             "type": "GENERAL",
-            "title": "SE Status",
+            "title": "SE STATUS",
             "description": "AW SE Status"
           },
           {
             "type": "GENERAL",
-            "title": "Account Issues",
+            "title": "ACCOUNT ISSUES",
             "description": "AW Account Issues"
           },
           {
             "type": "GENERAL",
-            "title": "Product Issues",
+            "title": "PRODUCT ISSUES",
             "description": "AW Product Issues"
           }
         ]
@@ -175,32 +175,32 @@
         "fields": [
           {
             "type": "GENERAL",
-            "title": "Account Owner",
+            "title": "ACCOUNT OWNER",
             "description": "Jeff Jones"
           },
           {
             "type": "GENERAL",
-            "title": "SE Description",
+            "title": "SE DESCRIPTION",
             "description": "AW Sales Engineer Description"
           },
           {
             "type": "GENERAL",
-            "title": "SE Stage",
+            "title": "SE STAGE",
             "description": "Evaluation, Won, Lost"
           },
           {
             "type": "GENERAL",
-            "title": "SE Status",
+            "title": "SE STATUS",
             "description": "AW SE Status"
           },
           {
             "type": "GENERAL",
-            "title": "Account Issues",
+            "title": "ACCOUNT ISSUES",
             "description": "AW Account Issues"
           },
           {
             "type": "GENERAL",
-            "title": "Product Issues",
+            "title": "PRODUCT ISSUES",
             "description": "some issues in connectors updated"
           }
         ]
