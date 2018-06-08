@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -54,6 +55,7 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestPropertySource(value = {"classpath:salesforce-test.properties"})
 class SalesforceControllerTest extends ControllerTestsBase {
 
     private static final String QUERY_FMT_ACCOUNT =
