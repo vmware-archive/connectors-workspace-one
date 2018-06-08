@@ -1,0 +1,100 @@
+{
+  "totalSize": 2,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v39.0/sobjects/Opportunity/0064100000O93EVAAZ"
+      },
+      "AW_Account_Issues__c": "AW Account Issues",
+      "AW_Product_Issues__c": "AW Product Issues",
+      "AW_Sales_Engineer_Description__c": "AW Sales Engineer Description",
+      "AW_SE_Manual_Override__c": "AW SE Manual Override",
+      "AW_SE_Stage__c": "Evaluation, Won, Lost",
+      "AW_SE_Status__c": "AW SE Status",
+      "Id": "0064100000O93EVAAZ",
+      "Name": "Shree Test Opportunity1",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v39.0/sobjects/Account/0014100000Vc2iPAAR"
+        },
+        "Name": "Uber IT Account",
+        "Owner": {
+          "attributes": {
+            "type": "User",
+            "url": "/services/data/v39.0/sobjects/User/00541000000osYgAAI"
+          },
+          "Name": "Jeff Jones"
+        }
+      },
+      "OpportunityTeamMembers": {
+        "totalSize": 1,
+        "done": true,
+        "records": [
+          {
+            "attributes": {
+              "type": "OpportunityTeamMember",
+              "url": "/services/data/v39.0/sobjects/OpportunityTeamMember/00q41000002ykDpAAI"
+            },
+            "User": {
+              "attributes": {
+                "type": "User",
+                "url": "/services/data/v39.0/sobjects/User/00541000004hS12AAE"
+              },
+              "Email": "mem1@mem16.ssdevrd.com"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v39.0/sobjects/Opportunity/0064100000O9DnXAAV"
+      },
+      "AW_Account_Issues__c": "AW Account Issues",
+      "AW_Product_Issues__c": "some issues in connectors updated",
+      "AW_Sales_Engineer_Description__c": "AW Sales Engineer Description",
+      "AW_SE_Manual_Override__c": "AW SE Manual Override",
+      "AW_SE_Stage__c": "Evaluation, Won, Lost",
+      "AW_SE_Status__c": "AW SE Status",
+      "Id": "0064100000O9DnXAAV",
+      "Name": "Google IT MobileFlows Purchase",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v39.0/sobjects/Account/0014100001dTuY5AAK"
+        },
+        "Name": "Google IT account",
+        "Owner": {
+          "attributes": {
+            "type": "User",
+            "url": "/services/data/v39.0/sobjects/User/00541000000osYgAAI"
+          },
+          "Name": "Jeff Jones"
+        }
+      },
+      "OpportunityTeamMembers": {
+        "totalSize": 1,
+        "done": true,
+        "records": [
+          {
+            "attributes": {
+              "type": "OpportunityTeamMember",
+              "url": "/services/data/v39.0/sobjects/OpportunityTeamMember/00q41000002ykd9AAA"
+            },
+            "User": {
+              "attributes": {
+                "type": "User",
+                "url": "/services/data/v39.0/sobjects/User/00541000004hS12AAE"
+              },
+              "Email": "mem1@mem16.ssdevrd.com"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

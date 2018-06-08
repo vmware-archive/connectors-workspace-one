@@ -31,7 +31,7 @@ public class Card {
     private UUID id;
 
     @JsonProperty("name")
-    private String name;
+    private String name; // TODO - remove this in APF-536
 
     @JsonProperty("creation_date")
     private OffsetDateTime creationDate;

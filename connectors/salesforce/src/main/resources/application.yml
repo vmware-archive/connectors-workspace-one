@@ -15,3 +15,8 @@ sf:
 management:
   endpoints:
     web.base-path: /
+
+vmware:
+  se:
+    cards:
+      flag: false
