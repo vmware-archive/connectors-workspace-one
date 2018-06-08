@@ -443,7 +443,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .map(JsonNormalizer::forCards)
                 .map(json -> json.replaceAll("http://localhost:\\d+/", "https://salesforce.acme.com/"))
                 .block();
-        System.out.println(body);
         assertThat(body, sameJSONAs(fromFile("connector/responses/" + responseFile)).allowingAnyArrayOrdering());
     }
 

@@ -309,9 +309,9 @@ public class SalesforceController {
             final String opportunityId = opportunities.read(prefix + "Id");
 
             final Card.Builder cardBuilder = new Card.Builder()
-                    .setName(SALESFORCE)
+                    .setName(SALESFORCE) // TODO - remove this in APF-536
                     .setTemplate(routingPrefix + TEMPLATE)
-                    .setHeader(accountName, "Add activity")
+                    .setHeader(accountName, cardTextAccessor.getMessage("opportunity.se.header.subtitle", locale))
                     .setBody(buildCardBodyForSEFields(opportunities, prefix, locale));
 
             // Add card actions for updating opportunity custom SE fields.
@@ -328,19 +328,21 @@ public class SalesforceController {
                                                   final Locale locale,
                                                   final String opportunityId,
                                                   final Card.Builder cardBuilder) {
-        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SALES_ENGINEERING_DESCRIPTION, "sales.description"));
         cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SE_STAGE, "stage"));
-        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SE_STATUS, "status"));
+        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SALES_ENGINEERING_DESCRIPTION, "sales.description"));
+
         cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_ACCOUNT_ISSUES, "account.issues"));
-        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_PRODUCT_ISSUES, "product.issues"));
+        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_SE_STATUS, "status"));
 
         CardAction.Builder openActionBuilder = new CardAction.Builder();
         openActionBuilder.setLabel(cardTextAccessor.getActionLabel("opportunity.se.open.opportunity", locale))
                 .setActionKey(CardActionKey.OPEN_IN)
                 .setAllowRepeated(true)
-                .setUrl(baseUrl + opportunityId)
+                .setUrl(fromHttpUrl(baseUrl).path(opportunityId).toUriString())
                 .setType(GET);
         cardBuilder.addAction(openActionBuilder.build());
+
+        cardBuilder.addAction(buildCardActionForSEFields(routingPrefix, locale, opportunityId, AW_PRODUCT_ISSUES, "product.issues"));
     }
 
     private CardAction buildCardActionForSEFields(final String routingPrefix,
@@ -508,7 +510,7 @@ public class SalesforceController {
             addCommentsField(cardBodyBuilder, feedComments, locale);
 
             final Card.Builder card = new Card.Builder()
-                    .setName(SALESFORCE)
+                    .setName(SALESFORCE) // TODO - remove this in APF-536
                     .setTemplate(routingPrefix + TEMPLATE)
                     .setHeader(cardTextAccessor.getMessage("opportunity.header", locale, name))
                     .setBody(cardBodyBuilder.build());
@@ -780,7 +782,7 @@ public class SalesforceController {
                 .stream()
                 .map(acct ->
                         new Card.Builder()
-                                .setName(SALESFORCE)
+                                .setName(SALESFORCE) // TODO - remove this in APF-536
                                 .setTemplate(routingPrefix + TEMPLATE)
                                 .setHeader(cardTextAccessor.getMessage("addcontact.header", locale))
                                 .setBody(cardTextAccessor.getMessage("addcontact.body", locale, contactEmail, acct.getName()))
