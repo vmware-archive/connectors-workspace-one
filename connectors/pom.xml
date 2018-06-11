@@ -85,7 +85,7 @@
                                                 <arg>-server</arg>
                                                 <arg>-XX:+UnlockExperimentalVMOptions</arg>
                                                 <arg>-XX:+UseCGroupMemoryLimitForHeap</arg>
-                                                <arg>-XX:MaxRAMFraction=1</arg>
+                                                <arg>-XX:MaxRAMFraction=2</arg>
                                                 <arg>-XX:+HeapDumpOnOutOfMemoryError</arg>
                                                 <arg>-XX:HeapDumpPath=/tmp</arg>
                                                 <arg>-jar</arg>
