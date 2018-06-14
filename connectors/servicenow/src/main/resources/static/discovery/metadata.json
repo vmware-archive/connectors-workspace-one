@@ -1,6 +1,7 @@
 {
   "authorization_header": "x-servicenow-authorization",
   "backend_base_url_header": "x-servicenow-base-url",
+  "object_type": "card",
   "fields": {
     "ticket_id": {
       "capture_group": 1,

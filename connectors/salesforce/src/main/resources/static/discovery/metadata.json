@@ -1,6 +1,7 @@
 {
   "authorization_header": "x-salesforce-authorization",
   "backend_base_url_header": "x-salesforce-base-url",
+  "object_type": "card",
   "fields": {
     "user_email": {
       "env": "USER_EMAIL"

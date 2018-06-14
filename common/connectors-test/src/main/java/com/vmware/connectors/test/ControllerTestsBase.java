@@ -33,10 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,6 +98,14 @@ public class ControllerTestsBase {
                 .header(AUTHORIZATION, "Bearer " + jwt.createAccessToken(Instant.now()))
                 .exchange()
                 .expectStatus().isUnauthorized();
+
+    }
+
+    private void verifyObjectTypeField() throws IOException {
+        final byte[] body = getConnectorMetaData();
+
+        final Map<String, Object> map = mapper.readValue(body, Map.class);
+        assertThat(Objects.toString(map.get("object_type")), equalTo("card"));
     }
 
     public static String fromFile(String fileName) throws IOException {
@@ -131,6 +136,8 @@ public class ControllerTestsBase {
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody().json(fromFile("/static/discovery/metadata.json"));
+
+        verifyObjectTypeField();
     }
 
     protected static void headers(HttpHeaders headers) {
@@ -140,20 +147,24 @@ public class ControllerTestsBase {
     }
 
     protected void testRegex(String tokenProperty, String emailInput, List<String> expected) throws Exception {
-        byte[] body = webClient.get()
-                .uri("/discovery/metadata.json")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(byte[].class).getResponseBodyContent();
+        byte[] body = getConnectorMetaData();
 
-            Map<String, Object> results = mapper.readValue(body, Map.class);
-            Map<String, Object> fields = (Map<String, Object>) results.get("fields");
-            Map<String, Object> tokenDefinition = (Map<String, Object>) fields.get(tokenProperty);
-            String regex = (String) tokenDefinition.get("regex");
-            Integer captureGroup = (Integer) tokenDefinition.get("capture_group");
-            verifyRegex(regex, captureGroup, emailInput, expected);
+        Map<String, Object> results = mapper.readValue(body, Map.class);
+        Map<String, Object> fields = (Map<String, Object>) results.get("fields");
+        Map<String, Object> tokenDefinition = (Map<String, Object>) fields.get(tokenProperty);
+        String regex = (String) tokenDefinition.get("regex");
+        Integer captureGroup = (Integer) tokenDefinition.get("capture_group");
+        verifyRegex(regex, captureGroup, emailInput, expected);
+    }
+
+    private byte[] getConnectorMetaData() {
+        return webClient.get()
+                    .uri("/discovery/metadata.json")
+                    .header(AUTHORIZATION, "Bearer " + accessToken())
+                    .accept(APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .returnResult(byte[].class).getResponseBodyContent();
     }
 
     private void verifyRegex(String regex, Integer captureGroup, String emailInput, List<String> expected) throws Exception {
