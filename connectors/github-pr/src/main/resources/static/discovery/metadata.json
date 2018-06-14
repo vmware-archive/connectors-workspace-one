@@ -1,6 +1,7 @@
 {
   "authorization_header": "x-github-pr-authorization",
   "backend_base_url_header": "x-github-pr-base-url",
+  "object_type": "card",
   "fields": {
     "pull_request_urls": {
       "capture_group": 1,

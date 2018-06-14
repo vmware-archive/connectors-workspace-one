@@ -1,6 +1,7 @@
 {
   "authorization_header": "x-gitlab-pr-authorization",
   "backend_base_url_header": "x-gitlab-pr-base-url",
+  "object_type": "card",
   "fields": {
     "merge_request_urls": {
       "capture_group": 1,
