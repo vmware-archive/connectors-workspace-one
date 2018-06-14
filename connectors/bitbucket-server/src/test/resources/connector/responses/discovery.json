@@ -3,7 +3,7 @@
     "metadata": {
       "href": "https://my-connector/discovery/metadata.json"
     },
-    "cards": {
+    "objects": {
       "href": "https://my-connector/cards/requests"
     }
   }

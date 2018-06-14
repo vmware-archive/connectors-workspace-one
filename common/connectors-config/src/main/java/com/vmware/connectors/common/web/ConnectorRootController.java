@@ -66,7 +66,7 @@ public class ConnectorRootController {
 
     private void addCards(ResourceSupport resource, HttpRequest request) {
         String cards = UriComponentsBuilder.fromHttpRequest(request).path("/cards/requests").build().toUriString();
-        resource.add(new Link(cards, "cards"));
+        resource.add(new Link(cards, "objects"));
     }
 
     private void addImage(ResourceSupport resource, HttpRequest request) {

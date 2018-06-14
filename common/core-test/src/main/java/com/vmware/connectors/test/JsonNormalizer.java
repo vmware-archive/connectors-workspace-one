@@ -24,10 +24,10 @@ public final class JsonNormalizer {
 
     public static String forCards(String body) {
         DocumentContext context = JsonPath.using(configuration).parse(body);
-        context.set("$.cards[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
-        context.set("$.cards[?(@.creation_date =~ /" + DATE_PATTERN + "/)].creation_date", DUMMY_DATE_TIME);
-        context.set("$.cards[?(@.expiration_date =~ /" + DATE_PATTERN + "/)].expiration_date", DUMMY_DATE_TIME);
-        context.set("$.cards[*].actions[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
+        context.set("$.objects[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
+        context.set("$.objects[?(@.creation_date =~ /" + DATE_PATTERN + "/)].creation_date", DUMMY_DATE_TIME);
+        context.set("$.objects[?(@.expiration_date =~ /" + DATE_PATTERN + "/)].expiration_date", DUMMY_DATE_TIME);
+        context.set("$.objects[*].actions[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
         return context.jsonString();
     }
 }

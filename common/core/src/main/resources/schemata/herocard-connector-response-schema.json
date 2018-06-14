@@ -4,7 +4,7 @@
 
   "type": "object",
   "properties": {
-    "cards": {"type": "array", "items": {"$ref": "#/definitions/CARD"}},
+    "objects": {"type": "array", "items": {"$ref": "#/definitions/CARD"}},
     "connector_statuses": {"type": "array"}
   },
   "additionalProperties": false,
