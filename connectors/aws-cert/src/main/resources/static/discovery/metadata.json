@@ -1,4 +1,5 @@
 {
+  "object_type": "card",
   "fields": {
     "approval_urls": {
       "capture_group": 1,

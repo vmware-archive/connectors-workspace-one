@@ -1,5 +1,6 @@
 {
   "backend_base_url_header": "x-airwatch-base-url",
+  "object_type": "card",
   "fields": {
     "udid": {
       "env": "ENROLLMENT_DEVICE_UDID"

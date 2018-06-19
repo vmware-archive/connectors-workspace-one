@@ -1,6 +1,7 @@
 {
   "authorization_header": "x-bitbucket-server-authorization",
   "backend_base_url_header": "x-bitbucket-server-base-url",
+  "object_type": "card",
   "fields": {
     "pr_email_subject": {
       "capture_group": 1,
