@@ -6,7 +6,7 @@
     "image": {
       "href": "https://my-connector/images/connector.png"
     },
-    "cards": {
+    "objects": {
       "href": "https://my-connector/cards/requests"
     }
   }
