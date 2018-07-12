@@ -43,9 +43,9 @@ public class CardActionInputField {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private int maxLength;
 
-    // do not instantiate directly
+    // Do not instantiate directly.
     private CardActionInputField() {
-        options = new HashMap<>();
+        this.options = new HashMap<>();
     }
 
     /**
@@ -174,14 +174,14 @@ public class CardActionInputField {
         }
 
         /**
-         * Add a new option related to the field.
+         * Add a new select option related to the field.
          *
-         * @param key   id or key of the option
          * @param value value of the option
+         * @param label label of the option
          * @return This Builder instance, for method chaining
          */
-        public Builder addOption(String key, String value) {
-            inputField.options.put(key, value);
+        public Builder addOption(String value, String label) {
+            inputField.options.put(value, label);
             return this;
         }
 
