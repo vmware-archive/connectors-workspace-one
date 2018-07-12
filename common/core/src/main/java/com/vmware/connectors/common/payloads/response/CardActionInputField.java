@@ -174,9 +174,9 @@ public class CardActionInputField {
         }
 
         /**
-         * Add a new option related to the field.
+         * Add a new select option related to the field.
          *
-         * @param key   id or key of the option
+         * @param key   label of the option
          * @param value value of the option
          * @return This Builder instance, for method chaining
          */
