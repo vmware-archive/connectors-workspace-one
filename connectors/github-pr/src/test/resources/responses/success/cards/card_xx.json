@@ -8,79 +8,9 @@
         "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[GITHUB] MERGE REQUEST",
+        "title": "[GITHUB] PULL REQUEST #1 FROM TestUser1",
         "subtitle": [
-          "vmware/test-repo #1"
-        ]
-      },
-      "body": {
-        "description": "Small merged PR example body",
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "REPOSITORY",
-            "description": "vmware/test-repo"
-          },
-          {
-            "type": "GENERAL",
-            "title": "REQUESTED BY",
-            "description": "TestUser1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "TITLE",
-            "description": "Small merged PR example title"
-          },
-          {
-            "type": "GENERAL",
-            "title": "STATE",
-            "description": "closed"
-          },
-          {
-            "type": "GENERAL",
-            "title": "MERGED",
-            "description": "true"
-          },
-          {
-            "type": "GENERAL",
-            "title": "MERGEABLE",
-            "description": "null"
-          },
-          {
-            "type": "GENERAL",
-            "title": "CREATED ON",
-            "description": "2017-12-20T23:00:00Z"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF COMMENTS",
-            "description": "3"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF REVIEW COMMENTS",
-            "description": "3"
-          },
-          {
-            "type": "GENERAL",
-            "title": "MERGED ON",
-            "description": "2017-12-20T23:30:30Z by TestUser2"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF COMMITS",
-            "description": "1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "CHANGES",
-            "description": "+ 7 / - 0"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF FILES CHANGED",
-            "description": "2"
-          }
+          "vmware/test-repo"
         ]
       },
       "actions": [
@@ -116,110 +46,12 @@
         "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[GITHUB] MERGE REQUEST",
+        "title": "[GITHUB] PULL REQUEST #2 FROM TestUser1",
         "subtitle": [
-          "vmware/test-repo #2"
-        ]
-      },
-      "body": {
-        "description": "Small unmerged PR example body",
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "REPOSITORY",
-            "description": "vmware/test-repo"
-          },
-          {
-            "type": "GENERAL",
-            "title": "REQUESTED BY",
-            "description": "TestUser1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "TITLE",
-            "description": "Small unmerged PR example title"
-          },
-          {
-            "type": "GENERAL",
-            "title": "STATE",
-            "description": "open"
-          },
-          {
-            "type": "GENERAL",
-            "title": "MERGED",
-            "description": "false"
-          },
-          {
-            "type": "GENERAL",
-            "title": "MERGEABLE",
-            "description": "true"
-          },
-          {
-            "type": "GENERAL",
-            "title": "CREATED ON",
-            "description": "2017-12-20T23:00:00Z"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF COMMENTS",
-            "description": "0"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF REVIEW COMMENTS",
-            "description": "0"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF COMMITS",
-            "description": "2"
-          },
-          {
-            "type": "GENERAL",
-            "title": "CHANGES",
-            "description": "+ 9 / - 1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF FILES CHANGED",
-            "description": "2"
-          }
+          "vmware/test-repo"
         ]
       },
       "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "REJECT",
-          "url": {
-            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/2/close"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {},
-          "user_input": [
-            {
-              "id": "reason",
-              "label": "REASON"
-            }
-          ],
-          "completed_label": "REJECTED",
-          "allow_repeated": false
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "MERGE",
-          "url": {
-            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/2/merge"
-          },
-          "type": "POST",
-          "action_key": "DIRECT",
-          "request": {
-            "sha": "cf1586350f0e6730fc3d1b3b386f824c2051b32d"
-          },
-          "user_input": [],
-          "completed_label": "MERGED",
-          "allow_repeated": false
-        },
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "APPROVE",
@@ -251,25 +83,6 @@
           ],
           "completed_label": "COMMENTED",
           "allow_repeated": false
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "REQUEST CHANGES",
-          "url": {
-            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/2/request-changes"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {},
-          "user_input": [
-            {
-              "id": "request",
-              "label": "REQUEST",
-              "min_length": 1
-            }
-          ],
-          "completed_label": "CHANGES REQUESTED",
-          "allow_repeated": false
         }
       ],
       "image": {
@@ -284,79 +97,9 @@
         "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[GITHUB] MERGE REQUEST",
+        "title": "[GITHUB] PULL REQUEST #3 FROM TestUser1",
         "subtitle": [
-          "vmware/test-repo #3"
-        ]
-      },
-      "body": {
-        "description": "Small closed PR example body",
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "REPOSITORY",
-            "description": "vmware/test-repo"
-          },
-          {
-            "type": "GENERAL",
-            "title": "REQUESTED BY",
-            "description": "TestUser1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "TITLE",
-            "description": "Big closed PR example title"
-          },
-          {
-            "type": "GENERAL",
-            "title": "STATE",
-            "description": "closed"
-          },
-          {
-            "type": "GENERAL",
-            "title": "MERGED",
-            "description": "false"
-          },
-          {
-            "type": "GENERAL",
-            "title": "MERGEABLE",
-            "description": "true"
-          },
-          {
-            "type": "GENERAL",
-            "title": "CREATED ON",
-            "description": "2017-12-20T23:00:00Z"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF COMMENTS",
-            "description": "1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF REVIEW COMMENTS",
-            "description": "0"
-          },
-          {
-            "type": "GENERAL",
-            "title": "CLOSED ON",
-            "description": "2017-12-20T23:30:00Z"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF COMMITS",
-            "description": "3"
-          },
-          {
-            "type": "GENERAL",
-            "title": "CHANGES",
-            "description": "+ 89 / - 0"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# OF FILES CHANGED",
-            "description": "7"
-          }
+          "vmware/test-repo"
         ]
       },
       "actions": [
