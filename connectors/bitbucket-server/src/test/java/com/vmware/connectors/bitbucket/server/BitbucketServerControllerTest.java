@@ -14,9 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -29,7 +27,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.vmware.connectors.bitbucket.server.utils.BitbucketServerConstants.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -63,25 +60,11 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
     @Value("classpath:bitbucket/responses/comments.json")
     private Resource comments;
 
-    @Value("classpath:bitbucket/responses/declined.json")
-    private Resource declined;
-
-    @Value("classpath:bitbucket/responses/merged.json")
-    private Resource merged;
-
-    @Value("classpath:bitbucket/responses/activities_pr_236.json")
-    private Resource pr236Activities;
-
-    @Value("classpath:bitbucket/responses/activities_pr_246.json")
-    private Resource pr246Activities;
-
     @ParameterizedTest
     @ValueSource(strings = {
             "/cards/requests",
             "/api/v1/UFO/app-platform-server/249/approve",
-            "/api/v1/UFO/app-platform-server/249/merge",
-            "/api/v1/UFO/app-platform-server/249/comments",
-            "/api/v1/UFO/app-platform-server/249/decline"})
+            "/api/v1/UFO/app-platform-server/249/comments"})
     void testProtectedResources(String uri) throws Exception {
         testProtectedResource(POST, uri);
     }
@@ -140,10 +123,6 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
         expect(pr236Url).andRespond(withSuccess(pr236, APPLICATION_JSON));
         expect(pr246Url).andRespond(withSuccess(pr246, APPLICATION_JSON));
         expect(notFoundUrl).andRespond(withStatus(HttpStatus.NOT_FOUND));
-
-        expect(pr236Url + "/activities").andRespond(withSuccess(pr236Activities, APPLICATION_JSON));
-        expect(pr246Url + "/activities").andRespond(withSuccess(pr246Activities, APPLICATION_JSON));
-        expect(notFoundUrl + "/activities").andRespond(withStatus(HttpStatus.NOT_FOUND));
     }
 
     @ParameterizedTest(name = "{index} ==> ''{0}''")
@@ -159,22 +138,18 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .expectBody().json(fromFile("bitbucket/responses/" + responseFile));
     }
 
-    @DisplayName("PR Action cases")
-    @ParameterizedTest(name = "{index} ==> Action=''{2}''")
-    @MethodSource("actionProvider")
-    void testBitbucketServerPRAction(final String url,
-                                     final Resource resource,
-                                     final BitbucketServerAction stashAction) {
+    @Test
+    void testBitbucketServerPRApproveAction() {
         expect("/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/" + PULL_REQUEST_ID_1).andRespond(withSuccess(pr236, APPLICATION_JSON));
 
-        mockBackend.expect(requestTo("/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/" + stashAction.getAction() + "?version=10"))
+        mockBackend.expect(requestTo("/rest/api/1.0/projects/UFO/repos/app-platform-server/pull-requests/236/" + BitbucketServerAction.APPROVE.getAction() + "?version=10"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
                 .andExpect(MockRestRequestMatchers.header(ATLASSIAN_TOKEN, "no-check"))
-                .andRespond(withSuccess(resource, APPLICATION_JSON));
+                .andRespond(withSuccess(approve, APPLICATION_JSON));
 
         webClient.post()
-                .uri(url)
+                .uri("/api/v1/UFO/app-platform-server/236/approve")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
@@ -182,17 +157,6 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .header(ROUTING_PREFIX, "https://hero/connectors/stash/")
                 .exchange()
                 .expectStatus().isOk();
-    }
-
-    private Stream<Arguments> actionProvider() {
-        String approveUrl = "/api/v1/UFO/app-platform-server/236/approve";
-        String declineUrl = "/api/v1/UFO/app-platform-server/236/decline";
-        String mergeUrl = "/api/v1/UFO/app-platform-server/236/merge";
-        return Stream.of(
-                Arguments.of(approveUrl, approve, BitbucketServerAction.APPROVE),
-                Arguments.of(declineUrl, declined, BitbucketServerAction.DECLINE),
-                Arguments.of(mergeUrl, merged, BitbucketServerAction.MERGE)
-        );
     }
 
     @Test
@@ -262,6 +226,7 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .collect(Collectors.joining())
                 .map(JsonNormalizer::forCards)
                 .block();
+        System.err.println("body is: " + body);
         assertThat(body,  sameJSONAs(fromFile("bitbucket/responses/" + responseFile)).allowingAnyArrayOrdering());
     }
 
