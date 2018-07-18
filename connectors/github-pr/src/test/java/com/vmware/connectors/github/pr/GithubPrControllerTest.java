@@ -42,11 +42,8 @@ class GithubPrControllerTest extends ControllerTestsBase {
     @ParameterizedTest
     @ValueSource(strings = {
             "/cards/requests",
-            "/api/v1/test-owner/test-repo/1234/close",
-            "/api/v1/test-owner/test-repo/1234/merge",
             "/api/v1/test-owner/test-repo/1234/approve",
-            "/api/v1/test-owner/test-repo/1234/comment",
-            "/api/v1/test-owner/test-repo/1234/request-changes"})
+            "/api/v1/test-owner/test-repo/1234/comment"})
     void testProtectedResource(String uri) throws Exception {
         testProtectedResource(POST, uri);
     }
