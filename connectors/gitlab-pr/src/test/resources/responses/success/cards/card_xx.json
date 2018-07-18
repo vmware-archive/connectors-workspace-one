@@ -8,54 +8,9 @@
         "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[GITLAB] MERGE REQUEST",
+        "title": "[GITLAB] MERGE REQUEST #1 FROM TestUser1",
         "subtitle": [
-          "vmware/test-repo #1"
-        ]
-      },
-      "body": {
-        "description": "*Created by: TestUser1*\n\ntest body",
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "REPOSITORY",
-            "description": "vmware/test-repo"
-          },
-          {
-            "type": "GENERAL",
-            "title": "REQUESTED BY",
-            "description": "TestUser1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "TITLE",
-            "description": "Testing small changes merged"
-          },
-          {
-            "type": "GENERAL",
-            "title": "STATE",
-            "description": "merged"
-          },
-          {
-            "type": "GENERAL",
-            "title": "MERGEABLE",
-            "description": "cannot_be_merged"
-          },
-          {
-            "type": "GENERAL",
-            "title": "CREATED ON",
-            "description": "2017-12-29T12:49:29Z"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# COMMENTS",
-            "description": "6"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# CHANGES",
-            "description": "2"
-          }
+          "vmware/test-repo"
         ]
       },
       "actions": [
@@ -91,90 +46,12 @@
         "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[GITLAB] MERGE REQUEST",
+        "title": "[GITLAB] MERGE REQUEST #2 FROM TestUser1",
         "subtitle": [
-          "vmware/test-repo #2"
-        ]
-      },
-      "body": {
-        "description": "*Created by: TestUser1*\n\ntest body",
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "REPOSITORY",
-            "description": "vmware/test-repo"
-          },
-          {
-            "type": "GENERAL",
-            "title": "REQUESTED BY",
-            "description": "TestUser1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "TITLE",
-            "description": "Test small changes open"
-          },
-          {
-            "type": "GENERAL",
-            "title": "STATE",
-            "description": "opened"
-          },
-          {
-            "type": "GENERAL",
-            "title": "MERGEABLE",
-            "description": "can_be_merged"
-          },
-          {
-            "type": "GENERAL",
-            "title": "CREATED ON",
-            "description": "2018-01-11T03:23:39Z"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# COMMENTS",
-            "description": "0"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# CHANGES",
-            "description": "1"
-          }
+          "vmware/test-repo"
         ]
       },
       "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "REJECT",
-          "url": {
-            "href": "https://hero/connectors/gitlab-pr/api/v1/vmware/test-repo/2/close"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {},
-          "user_input": [
-            {
-              "id": "reason",
-              "label": "REASON"
-            }
-          ],
-          "completed_label": "REJECTED",
-          "allow_repeated": false
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "MERGE",
-          "url": {
-            "href": "https://hero/connectors/gitlab-pr/api/v1/vmware/test-repo/2/merge"
-          },
-          "type": "POST",
-          "action_key": "DIRECT",
-          "request": {
-            "sha": "d6dc43f74ee70a7390f02d779164eb4face2c8c6"
-          },
-          "user_input": [],
-          "completed_label": "MERGED",
-          "allow_repeated": false
-        },
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "APPROVE",
@@ -222,54 +99,9 @@
         "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[GITLAB] MERGE REQUEST",
+        "title": "[GITLAB] MERGE REQUEST #3 FROM TestUser1",
         "subtitle": [
-          "vmware/test-repo #3"
-        ]
-      },
-      "body": {
-        "description": "*Created by: TestUser1*\n\ntest body",
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "REPOSITORY",
-            "description": "vmware/test-repo"
-          },
-          {
-            "type": "GENERAL",
-            "title": "REQUESTED BY",
-            "description": "TestUser1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "TITLE",
-            "description": "Test big changes closed"
-          },
-          {
-            "type": "GENERAL",
-            "title": "STATE",
-            "description": "closed"
-          },
-          {
-            "type": "GENERAL",
-            "title": "MERGEABLE",
-            "description": "cannot_be_merged"
-          },
-          {
-            "type": "GENERAL",
-            "title": "CREATED ON",
-            "description": "2017-12-29T12:57:53Z"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# COMMENTS",
-            "description": "1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "# CHANGES",
-            "description": "7"
-          }
+          "vmware/test-repo"
         ]
       },
       "actions": [
