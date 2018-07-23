@@ -12,7 +12,6 @@ import com.jayway.jsonpath.JsonPath;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -32,9 +31,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -70,17 +67,12 @@ class SalesforceControllerTest extends ControllerTestsBase {
             "Account.name, Account.Owner.Name, FORMAT(Opportunity.amount), FORMAT(Opportunity.ExpectedRevenue), (SELECT User.Email from OpportunityTeamMembers), " +
             "(SELECT InsertedBy.Name, Body from Feeds) FROM opportunity WHERE opportunity.id IN ('%s')";
 
-    private static final String QUERY_FMT_CONTACT_ID =
-            "SELECT id FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
 
-    
     private static final String TRAVIS_ACCOUNT_ID = "0014100000Vc2iPAAR";
 
     private static final String SOQL_QUERY_PATH = "/services/data/v39.0/query";
 
     private static final String ADD_CONTACT_PATH = "/services/data/v39.0/sobjects/Contact";
-    private static final String LINK_OPPORTUNITY_TASK_PATH = "/services/data/v39.0/sobjects/Task";
-    private static final String LINK_ATTACHMENT_TASK_PATH = "/services/data/v39.0/sobjects/Attachment";
     private static final String LINK_OPPORTUNITY_PATH = "/services/data/v39.0/sobjects/OpportunityContactRole";
     private static final String UPDATE_OPPORTUNITY_PATH = "/services/data/v39.0/sobjects/Opportunity/0067F00000BplCHQAZ";
 
@@ -113,15 +105,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
 
     @Value("classpath:salesforce/response/accWordHowardOpportunities.json")
     private Resource sfResponseWordHowardOpportunities;
-
-    @Value("classpath:salesforce/response/newTaskCreated.json")
-    private Resource sfResponseTaskCreated;
-
-    @Value("classpath:salesforce/response/newAttachmentCreated.json")
-    private Resource sfResponseAttachmentCreated;
-
-    @Value("classpath:salesforce/response/existingContactId.json")
-    private Resource sfExistingContactId;
 
 
     @ParameterizedTest
@@ -320,24 +303,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testAddConversations() throws Exception {
-        Map<String, String> userContactDetailMap = getUserContactDetails("/salesforce/request/conversations.txt");
-        expectSalesforceRequest(String.format(QUERY_FMT_CONTACT_ID, userContactDetailMap.get("contact_email"),
-                userContactDetailMap.get("user_email")))
-                .andRespond(withSuccess(sfExistingContactId, APPLICATION_JSON));
-        mockBackend.expect(requestTo(LINK_OPPORTUNITY_TASK_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
-                .andRespond(withSuccess(sfResponseTaskCreated, APPLICATION_JSON));
-        mockBackend.expect(requestTo(LINK_ATTACHMENT_TASK_PATH))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer abc"))
-                .andRespond(withSuccess(sfResponseAttachmentCreated, APPLICATION_JSON));
-        requestAddConversationAsAttcahment("abc", "/salesforce/request/conversations.txt")
-                .expectStatus().isOk();
-    }
-
-    @Test
     void testGetImage() {
         webClient.get()
                 .uri("/images/connector.png")
@@ -418,18 +383,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .exchange();
     }
 
-    private WebTestClient.ResponseSpec requestAddConversationAsAttcahment(String authToken, String filePath) throws Exception {
-        return webClient.post()
-                .uri("/conversations")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .contentType(APPLICATION_FORM_URLENCODED)
-                .accept(APPLICATION_JSON)
-                .header("x-salesforce-authorization", "Bearer " + authToken)
-                .header("x-salesforce-base-url", mockBackend.url(""))
-                .syncBody(fromFile(filePath))
-                .exchange();
-    }
-
     private ResponseActions expectSalesforceRequest(String soqlQuery) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(SOQL_QUERY_PATH).queryParam("q", soqlQuery);
         URI tmp = builder.build().toUri();
@@ -458,15 +411,8 @@ class SalesforceControllerTest extends ControllerTestsBase {
     }
 
 
-    private Map<String, String> getUserContactDetails(String filePath) throws IOException {
-        List<String> tokens = Arrays.asList(fromFile(filePath).split("\\&"));
-        return tokens.stream().filter(string -> string.contains("_email")).
-                map(string -> Pair.of(string.split("=")[0], string.split("=")[1])).
-                collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-    }
-
     // SOQL for finding list of Opportunities related to an account.
-    private String getAccountOpportunitySoql(String accountId) throws IOException {
+    private String getAccountOpportunitySoql(String accountId) {
         return String.format(QUERY_FMT_ACCOUNT_OPPORTUNITY, accountId);
     }
 }

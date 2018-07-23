@@ -9,9 +9,6 @@ import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.vmware.connectors.common.json.JsonDocument;
-import com.vmware.connectors.common.model.Message;
-import com.vmware.connectors.common.model.MessageThread;
-import com.vmware.connectors.common.model.UserRecord;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
@@ -24,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -33,9 +29,7 @@ import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,8 +46,6 @@ public class SalesforceController {
     private static final String SALESFORCE_AUTH_HEADER = "x-salesforce-authorization";
     private static final String SALESFORCE_BASE_URL_HEADER = "x-salesforce-base-url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
-    private static final String ADD_CONVERSATIONS_PATH = "/conversations";
-    private static final String CONVERSATION_TYPE = "email";
 
     private static final int COMMENTS_SIZE = 2;
 
@@ -84,9 +76,6 @@ public class SalesforceController {
     private static final String QUERY_FMT_ACCOUNT_OPPORTUNITY =
             "SELECT id, name FROM opportunity WHERE account.id = '%s'";
 
-    private static final String QUERY_FMT_CONTACT_ID =
-            "SELECT id FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
-
     private static final String ADD_CONTACT_PATH = "accounts/{accountId}/contacts";
 
     private static final String UPDATE_CLOSE_DATE = "/opportunity/{opportunityId}/closedate";
@@ -101,10 +90,6 @@ public class SalesforceController {
 
     private final String sfOpportunityContactLinkPath;
 
-    private final String sfOpportunityTaskLinkPath;
-
-    private final String sfAttachmentTasklinkPath;
-
     private final String sfOpportunityFieldsUpdatePath;
 
     private final WebClient rest;
@@ -118,8 +103,6 @@ public class SalesforceController {
             @Value("${sf.soqlQueryPath}") String sfSoqlQueryPath,
             @Value("${sf.addContactPath}") String sfAddContactPath,
             @Value("${sf.opportunityContactLinkPath}") String sfOpportunityContactLinkPath,
-            @Value("${sf.opportunityTaskLinkPath}") String sfOpportunityTaskLinkPath,
-            @Value("${sf.attachmentTasklinkPath}") String sfAttachmentTasklinkPath,
             @Value("${sf.opportunityFieldsUpdatePath}") final String sfOpportunityFieldsUpdatePath
     ) {
         this.rest = rest;
@@ -127,8 +110,6 @@ public class SalesforceController {
         this.sfSoqlQueryPath = sfSoqlQueryPath;
         this.sfAddContactPath = sfAddContactPath;
         this.sfOpportunityContactLinkPath = sfOpportunityContactLinkPath;
-        this.sfOpportunityTaskLinkPath = sfOpportunityTaskLinkPath;
-        this.sfAttachmentTasklinkPath = sfAttachmentTasklinkPath;
         this.sfOpportunityFieldsUpdatePath = sfOpportunityFieldsUpdatePath;
     }
 
@@ -772,175 +753,6 @@ public class SalesforceController {
 
         return rest.post()
                 .uri(makeUri(baseUrl, sfOpportunityContactLinkPath))
-                .header(AUTHORIZATION, auth)
-                .contentType(APPLICATION_JSON)
-                .syncBody(body)
-                .retrieve()
-                .bodyToMono(String.class);
-    }
-
-    ///////////////////////////////////////////////////////////////////
-    // Add Conversation Action methods
-    ///////////////////////////////////////////////////////////////////
-
-    @PostMapping(
-            path = ADD_CONVERSATIONS_PATH,
-            consumes = APPLICATION_FORM_URLENCODED_VALUE
-    )
-    public Mono<Void> addEmailConversation(
-            @RequestHeader(SALESFORCE_AUTH_HEADER) String auth,
-            @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
-            @RequestParam("user_email") String userEmail,
-            @RequestParam("contact_email") String contactEmail,
-            @RequestParam("email_conversations") String conversations,
-            @RequestParam("attachment_name") String attachmentName,
-            @RequestParam("opportunity_ids") Set<String> opportunityIds
-    ) throws IOException {
-
-        byte[] formattedConversations = formatConversations(conversations).getBytes(StandardCharsets.UTF_8);
-
-        return retrieveContactIds(auth, baseUrl, userEmail, contactEmail)
-                .flux()
-                .flatMap(body -> Flux.fromIterable(body.<List<String>>read("$..Id")))
-                .next()
-                .flatMap(
-                        contactId ->
-                                linkContactIdToOpportunity(
-                                        contactId,
-                                        opportunityIds,
-                                        formattedConversations,
-                                        attachmentName,
-                                        baseUrl,
-                                        auth
-                                )
-                );
-    }
-
-    private String formatConversations(String conversations) throws IOException {
-        return MessageThread
-                .parse(conversations)
-                .getMessages()
-                .stream()
-                .map(this::formatSingleMessage)
-                .collect(Collectors.joining("\n"));
-    }
-
-    private String formatSingleMessage(Message message) {
-        return String.format(
-                "Sender Name: %s %s\n"
-                        + "Subject:%s\n"
-                        + "%s\n" // recipients
-                        + "Date:%s\n"
-                        + "Message:%s\n",
-                message.getSender().getFirstName(),
-                message.getSender().getLastName(),
-                message.getSubject(),
-                formatRecipients(message),
-                message.getSentDate(),
-                message.getText()
-        );
-    }
-
-    private String formatRecipients(Message message) {
-        return message.getRecipients()
-                .stream()
-                .map(this::formatRecipient)
-                .collect(Collectors.joining("\n"));
-    }
-
-    private String formatRecipient(UserRecord userRecord) {
-        return String.format(
-                "Recipient Name: %s %s\nRecipientEmail: %s",
-                userRecord.getFirstName(),
-                userRecord.getLastName(),
-                userRecord.getEmailAddress()
-        );
-    }
-
-    // Only retrieve the contact ID
-    private Mono<JsonDocument> retrieveContactIds(
-            String auth,
-            String baseUrl,
-            String userEmail,
-            String contactEmail
-    ) {
-        String contactIdSoql = String.format(QUERY_FMT_CONTACT_ID, contactEmail, userEmail);
-
-        return retrieveContacts(auth, baseUrl, contactIdSoql);
-    }
-
-    private Mono<Void> linkContactIdToOpportunity(
-            String contactId,
-            Set<String> opportunityIds,
-            byte[] conversations,
-            String attachmentName,
-            String baseUrl,
-            String auth
-    ) {
-        return Flux.fromIterable(opportunityIds)
-                .flatMap(opportunityId ->
-                        addEmailConversationToOpportunity(
-                                contactId,
-                                opportunityId,
-                                conversations,
-                                attachmentName,
-                                auth,
-                                baseUrl
-                        )
-                ).then(Mono.empty());
-    }
-
-    private Mono<String> addEmailConversationToOpportunity(
-            String contactId,
-            String opportunityId,
-            byte[] conversation,
-            String attachmentName,
-            String auth,
-            String baseUrl
-    ) {
-        return retrieveOpportunityTaskLink(auth, baseUrl, opportunityId, contactId)
-                .map(ResponseEntity::getBody)
-                .map(body -> body.<String>read("$.id"))
-                .flatMap(parentId -> linkAttachmentToTask(parentId, conversation, attachmentName, baseUrl, auth));
-    }
-
-    private Mono<ResponseEntity<JsonDocument>> retrieveOpportunityTaskLink(
-            String auth,
-            String baseUrl,
-            String opportunityId,
-            String contactId
-    ) {
-        Map<String, String> body = ImmutableMap.of(
-                "WhatId", opportunityId,
-                "Subject", CONVERSATION_TYPE,
-                "WhoId", contactId
-        );
-        return rest.post()
-                .uri(makeUri(baseUrl, sfOpportunityTaskLinkPath))
-                .header(AUTHORIZATION, auth)
-                .contentType(APPLICATION_JSON)
-                .syncBody(body)
-                .exchange()
-                .flatMap(Reactive::checkStatus)
-                .flatMap(response -> response.toEntity(JsonDocument.class));
-    }
-
-    private Mono<String> linkAttachmentToTask(
-            String parentId,
-            byte[] conversations,
-            String attachmentName,
-            String baseUrl,
-            String auth
-    ) {
-
-        Map<String, String> body = ImmutableMap.of(
-                "Body", Base64Utils.encodeToString(conversations),
-                "Name", attachmentName,
-                "ParentId", parentId,
-                "ContentType", TEXT_PLAIN_VALUE
-        );
-        return rest.post()
-                .uri(makeUri(baseUrl, sfAttachmentTasklinkPath))
                 .header(AUTHORIZATION, auth)
                 .contentType(APPLICATION_JSON)
                 .syncBody(body)
