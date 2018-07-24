@@ -242,6 +242,7 @@ public class GithubPrController {
                         .addUserInputField(
                                 new CardActionInputField.Builder()
                                         .setId(COMMENT_PARAM_KEY)
+                                        .setFormat("textarea")
                                         .setLabel(cardTextAccessor.getActionLabel("comment.comment", locale))
                                         .setMinLength(1)
                                         .build()

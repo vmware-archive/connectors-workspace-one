@@ -268,6 +268,7 @@ public class BitbucketServerController {
                         .addUserInputField(
                                 new CardActionInputField.Builder()
                                         .setId(COMMENT_PARAM_KEY)
+                                        .setFormat("textarea")
                                         .setLabel(this.cardTextAccessor.getMessage(BITBUCKET_SERVER_COMMENTS, locale))
                                         .setMinLength(1)
                                         .build()

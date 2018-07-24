@@ -26,6 +26,7 @@
           "user_input": [
             {
               "id": "message",
+              "format": "textarea",
               "label": "Comment",
               "min_length": 1
             }
@@ -79,6 +80,7 @@
           "user_input": [
             {
               "id": "message",
+              "format": "textarea",
               "label": "Comment",
               "min_length": 1
             }
@@ -117,6 +119,7 @@
           "user_input": [
             {
               "id": "message",
+              "format": "textarea",
               "label": "Comment",
               "min_length": 1
             }
