@@ -19,10 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.HtmlUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,8 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
@@ -53,12 +54,29 @@ public class ConcurController {
     private final CardTextAccessor cardTextAccessor;
     private final Resource concurrRequestTemplate;
 
+    private final String clientId;
+    private final String clientSecret;
+    private final String oauthTokenUrl;
+
+    private static final String CLIENT_ID = "client_id";
+    private static final String CLIENT_SECRET = "client_secret";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String CRED_TYPE = "credtype";
+    private static final String GRANT_TYPE = "grant_type";
+
     @Autowired
     public ConcurController(WebClient rest,
                             CardTextAccessor cardTextAccessor,
+                            @Value("${concur.client-id}") final String clientId,
+                            @Value("${concur.client-secret}") final String clientSecret,
+                            @Value("${concur.oauth-instance-url}") final String oauthTokenUrl,
                             @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.oauthTokenUrl = oauthTokenUrl;
         this.concurrRequestTemplate = concurRequestTemplate;
     }
 
@@ -74,14 +92,44 @@ public class ConcurController {
             final HttpServletRequest request) {
 
         final Set<String> expenseReportIds = cardRequest.getTokens(EXPENSE_REPORT_ID);
+        final String authToken = "Bearer " + fetchOAuthToken(oauthTokenUrl, authHeader, clientId, clientSecret);
 
         return Flux.fromIterable(expenseReportIds)
                 .flatMap(expenseReportId -> getCardForExpenseReport(
-                        authHeader, expenseReportId, baseUrl,
+                        authToken, expenseReportId, baseUrl,
                         routingPrefix, locale, request))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .defaultIfEmpty(new Cards())
                 .subscriberContext(Reactive.setupContext());
+    }
+
+    private String fetchOAuthToken(final String baseUrl,
+                                   final String authHeader,
+                                   final String clientId,
+                                   final String clientSecret) {
+        final String authValue = authHeader.substring("Basic".length()).trim();
+        final byte[] decodedAuthValue = Base64.getDecoder().decode(authValue);
+        final String decodedValue = new String(decodedAuthValue, StandardCharsets.UTF_8);
+        final String userName = decodedValue.split(":")[0];
+        final String secret = decodedValue.split(":")[1];
+
+        final Map<String, String> body = new HashMap<>();
+        body.put(CLIENT_ID, clientId);
+        body.put(CLIENT_SECRET, clientSecret);
+        body.put(USERNAME, userName);
+        body.put(PASSWORD, secret);
+        body.put(GRANT_TYPE, PASSWORD);
+        body.put(CRED_TYPE, PASSWORD);
+
+        final JsonDocument result = rest.post()
+                .uri(UriComponentsBuilder.fromHttpUrl(baseUrl).path("/oauth2/v0/token").toUriString())
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .syncBody(body)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .block();
+
+        return result.read("$.access_token");
     }
 
     @PostMapping(path = "/api/expense/approve/{expenseReportId}",
@@ -94,7 +142,8 @@ public class ConcurController {
             @PathVariable(name = ConcurConstants.PathVariable.EXPENSE_REPORT_ID) final String workflowstepId) throws IOException, ExecutionException, InterruptedException {
         logger.debug("Approving the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
 
-        return makeConcurActionRequest(baseUrl, reason, workflowstepId, authHeader, APPROVE);
+        final String oauthToken = "Bearer " + fetchOAuthToken(baseUrl, authHeader, clientId, clientSecret);
+        return makeConcurActionRequest(oauthTokenUrl, reason, workflowstepId, oauthToken, APPROVE);
     }
 
     @PostMapping(path = "/api/expense/reject/{expenseReportId}",
@@ -107,7 +156,8 @@ public class ConcurController {
             @PathVariable(name = ConcurConstants.PathVariable.EXPENSE_REPORT_ID) final String workflowstepId) throws IOException, ExecutionException, InterruptedException {
         logger.debug("Rejecting the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
 
-        return makeConcurActionRequest(baseUrl, reason, workflowstepId, authHeader, REJECT);
+        final String oauthToken = "Bearer " + fetchOAuthToken(baseUrl, authHeader, clientId, clientSecret);
+        return makeConcurActionRequest(oauthTokenUrl, reason, workflowstepId, oauthToken, REJECT);
     }
 
     private Mono<String> makeConcurActionRequest(final String baseUrl,

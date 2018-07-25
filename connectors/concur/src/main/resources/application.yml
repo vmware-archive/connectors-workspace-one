@@ -3,7 +3,20 @@ server:
      enabled: true
      mime-types: application/json,application/xml,text/html,text/xml,text/plain
   server-header: concur-connector
+  port: 9500
 
 management:
   endpoints:
     web.base-path: /
+
+# Needs to be configured by their own enterprise concur client id and client secret.
+concur:
+  client-id: 243cc4ce-92e1-4581-a650-a08e04b3ef28
+  client-secret: ae5e9172-bbe0-4c82-9400-bb6d227d4f1e
+  oauth-instance-url: https://us-impl.api.concursolutions.com
+
+security:
+  oauth2:
+    resource:
+      jwt:
+        key-uri: https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem
