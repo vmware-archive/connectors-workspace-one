@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.concur;
 
+import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.io.IOException;
@@ -49,6 +52,16 @@ class ConcurControllerTest extends ControllerTestsBase {
 
     @Value("classpath:concur/responses/rejected.xml")
     private Resource rejected;
+
+    @Value("classpath:concur/responses/oauth_token.json")
+    private Resource oauthToken;
+
+    private static final String CLIENT_ID = "client_id";
+    private static final String CLIENT_SECRET = "client_secret";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String CRED_TYPE = "credtype";
+    private static final String GRANT_TYPE = "grant_type";
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -172,17 +185,30 @@ class ConcurControllerTest extends ControllerTestsBase {
                         "</WorkflowAction>\n"))
                 .andRespond(withSuccess(approved, APPLICATION_XML));
 
+        final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.put(CLIENT_ID, ImmutableList.of("dummy-client-id"));
+        body.put(CLIENT_SECRET, ImmutableList.of("dummy-client-secret"));
+        body.put(USERNAME, ImmutableList.of("username"));
+        body.put(PASSWORD, ImmutableList.of(PASSWORD));
+        body.put(GRANT_TYPE, ImmutableList.of(PASSWORD));
+        body.put(CRED_TYPE, ImmutableList.of(PASSWORD));
+
+        mockBackend.expect(requestTo("https://fake.api.concursolutions.com/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andExpect(MockRestRequestMatchers.content().formData(body))
+                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
+
         webClient.post()
                 .uri("/api/expense/reject/" + REPORT_ID_2)
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .header("x-concur-base-url", mockBackend.url(""))
                 // Reason with html character embedded in it.
                 .body(BodyInserters.fromFormData(REASON, "Approval </comment> <html> </html> Done"))
                 .exchange()
                 .expectStatus().isOk();
-
     }
 
     @ParameterizedTest
