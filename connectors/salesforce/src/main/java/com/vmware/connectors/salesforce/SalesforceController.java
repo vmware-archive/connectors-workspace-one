@@ -49,8 +49,6 @@ public class SalesforceController {
 
     private static final int COMMENTS_SIZE = 2;
 
-    // TODO: concatenating strings into a SOQL query like this may provide an avenue for a SOQL-injection attack
-
     // Get all Accounts owned by the user that have an existing Contact with the same domain as the sender's email
     //     but *not* those where the sender is already a Contact
     // Unfortunately, SOQL doesn't have a "SELECT DISTINCT" query, so we get back one row per Contact, not one per Account,
@@ -116,6 +114,20 @@ public class SalesforceController {
     ///////////////////////////////////////////////////////////////////
     // Methods common to both the cards request and the actions
     ///////////////////////////////////////////////////////////////////
+
+    /**
+     * Escape special characters to prevent user input from SOQL injection:
+     *
+     * https://developer.salesforce.com/page/Secure_Coding_SQL_Injection
+     * https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_quotedstringescapes.htm
+     * https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_reservedcharacters.htm
+     *
+     * @param value the user input to escape
+     * @return the escaped string value that should be safe to string concat into a SOQL query
+     */
+    private String soqlEscape(String value) {
+        return value.replace("\\", "\\\\").replace("\'", "\\\'");
+    }
 
     /**
      * Retrieve contact data from Salesforce.
@@ -209,7 +221,7 @@ public class SalesforceController {
             String baseUrl,
             String senderEmail
     ) {
-        String contactSoql = String.format(QUERY_FMT_CONTACT, senderEmail);
+        String contactSoql = String.format(QUERY_FMT_CONTACT, soqlEscape(senderEmail));
 
         return retrieveContacts(auth, baseUrl, contactSoql);
     }
@@ -269,7 +281,7 @@ public class SalesforceController {
     private Mono<JsonDocument> retrieveOppIds(String senderEmail,
                                               String baseUrl,
                                               String auth) {
-        String soql = String.format(QUERY_FMT_CONTACT_OPPORTUNITY, senderEmail);
+        String soql = String.format(QUERY_FMT_CONTACT_OPPORTUNITY, soqlEscape(senderEmail));
         return rest.get()
                 .uri(makeSoqlQueryUri(baseUrl, soql))
                 .header(AUTHORIZATION, auth)
@@ -278,7 +290,9 @@ public class SalesforceController {
     }
 
     private Mono<JsonDocument> retrieveOpportunities(List<String> oppIds, String baseUrl, String auth) {
-        String idsFormat = oppIds.stream().collect(Collectors.joining("', '"));
+        String idsFormat = oppIds.stream()
+                .map(this::soqlEscape)
+                .collect(Collectors.joining("', '"));
 
         String soql = String.format(QUERY_FMT_OPPORTUNITY_INFO, idsFormat);
         return rest.get()
@@ -487,7 +501,7 @@ public class SalesforceController {
             String userEmail,
             String senderDomain
     ) {
-        String soql = String.format(QUERY_FMT_ACCOUNT, senderDomain, userEmail);
+        String soql = String.format(QUERY_FMT_ACCOUNT, soqlEscape(senderDomain), soqlEscape(userEmail));
         return rest.get()
                 .uri(makeSoqlQueryUri(baseUrl, soql))
                 .header(AUTHORIZATION, auth)
@@ -560,7 +574,7 @@ public class SalesforceController {
             String baseUrl,
             String accountId
     ) {
-        String soql = String.format(QUERY_FMT_ACCOUNT_OPPORTUNITY, accountId);
+        String soql = String.format(QUERY_FMT_ACCOUNT_OPPORTUNITY, soqlEscape(accountId));
         return rest.get()
                 .uri(makeSoqlQueryUri(baseUrl, soql))
                 .header(AUTHORIZATION, auth)
