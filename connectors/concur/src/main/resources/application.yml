@@ -12,4 +12,4 @@ management:
 concur:
   client-id: dummy-client-id
   client-secret: dummy-client-secret
-  oauth-instance-url: http://us-impl.api.concursolutions.com
+  oauth-instance-url:
