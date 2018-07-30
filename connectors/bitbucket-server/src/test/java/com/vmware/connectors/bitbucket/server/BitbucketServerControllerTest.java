@@ -226,7 +226,6 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .collect(Collectors.joining())
                 .map(JsonNormalizer::forCards)
                 .block();
-        System.err.println("body is: " + body);
         assertThat(body,  sameJSONAs(fromFile("bitbucket/responses/" + responseFile)).allowingAnyArrayOrdering());
     }
 

@@ -5,20 +5,29 @@
 
 package com.vmware.connectors.concur;
 
+import com.google.common.collect.ImmutableList;
+import com.vmware.connectors.mock.MockWebServerWrapper;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
+import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.support.TestPropertySourceUtils;
+import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.io.IOException;
@@ -39,6 +48,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
+@ContextConfiguration(initializers = ConcurControllerTest.CustomInitializer.class)
 class ConcurControllerTest extends ControllerTestsBase {
 
     private static final String REPORT_ID_1 = "79D89435DAE94F53BF60";
@@ -49,6 +59,33 @@ class ConcurControllerTest extends ControllerTestsBase {
 
     @Value("classpath:concur/responses/rejected.xml")
     private Resource rejected;
+
+    @Value("classpath:concur/responses/oauth_token.json")
+    private Resource oauthToken;
+
+    private static final String CLIENT_ID = "client_id";
+    private static final String CLIENT_SECRET = "client_secret";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String CRED_TYPE = "credtype";
+    private static final String GRANT_TYPE = "grant_type";
+
+    private static MockWebServerWrapper mockConcurServer;
+
+    @BeforeAll
+    static void createMock() {
+        mockConcurServer = new MockWebServerWrapper(new MockWebServer());
+    }
+
+    @BeforeEach
+    void resetConcurServer() {
+        mockConcurServer.reset();
+    }
+
+    @AfterEach
+    void verifyMock() {
+        mockConcurServer.verify();
+    }
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -107,6 +144,11 @@ class ConcurControllerTest extends ControllerTestsBase {
                 fromFile("/concur/responses/report_id_2.json")
                         .replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
 
+        mockConcurServer.expect(ExpectedCount.manyTimes(), requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
+
         testRequestCards("request.json", resFile, lang);
     }
 
@@ -115,6 +157,12 @@ class ConcurControllerTest extends ControllerTestsBase {
         expect(REPORT_ID_1).andRespond(withSuccess(
                 fromFile("/concur/responses/report_id_1.json")
                         .replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
+
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
+
         mockExpenseReport("/api/expense/approve/",
                 REPORT_ID_1,
                 approved,
@@ -126,6 +174,11 @@ class ConcurControllerTest extends ControllerTestsBase {
         expect(REPORT_ID_2).andRespond(withSuccess(
                 fromFile("/concur/responses/report_id_2.json")
                         .replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
+
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
 
         mockExpenseReport("/api/expense/reject/",
                 REPORT_ID_2,
@@ -139,7 +192,7 @@ class ConcurControllerTest extends ControllerTestsBase {
                                    final String workflowActionUrl) throws Exception {
         mockBackend.expect(requestTo(workflowActionUrl))
                 .andExpect(method(POST))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andExpect(MockRestRequestMatchers.header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_XML))
                 .andRespond(withSuccess(expectedResponse, APPLICATION_XML));
@@ -148,7 +201,7 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .uri(uri + expenseReportId)
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .header("x-concur-base-url", mockBackend.url(""))
                 .body(BodyInserters.fromFormData(REASON, "Approval Done"))
                 .exchange()
@@ -163,7 +216,7 @@ class ConcurControllerTest extends ControllerTestsBase {
 
         mockBackend.expect(requestTo("/api/expense/expensereport/v1.1/report/gWujNPAb67r9IgBSjNrBNbeHbgDcmoJIs2kyBQX8YzEoS/WorkFlowAction"))
                 .andExpect(method(POST))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andExpect(MockRestRequestMatchers.content().contentType(APPLICATION_XML))
                 // Html characters are escaped.
                 .andExpect(MockRestRequestMatchers.content().xml("<WorkflowAction xmlns=\"http://www.concursolutions.com/api/expense/expensereport/2011/03\">\n" +
@@ -172,17 +225,21 @@ class ConcurControllerTest extends ControllerTestsBase {
                         "</WorkflowAction>\n"))
                 .andRespond(withSuccess(approved, APPLICATION_XML));
 
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
+
         webClient.post()
                 .uri("/api/expense/reject/" + REPORT_ID_2)
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .header("x-concur-base-url", mockBackend.url(""))
                 // Reason with html character embedded in it.
                 .body(BodyInserters.fromFormData(REASON, "Approval </comment> <html> </html> Done"))
                 .exchange()
                 .expectStatus().isOk();
-
     }
 
     @ParameterizedTest
@@ -195,14 +252,19 @@ class ConcurControllerTest extends ControllerTestsBase {
                         .replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
         mockBackend.expect(requestTo("/api/expense/expensereport/v1.1/report/gWujNPAb67r9LjhqgN7BEYYaQOWzavXBtUP1sej$sXfPQ/WorkFlowAction"))
                 .andExpect(method(POST))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
+
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
 
         webClient.post()
                 .uri(uri + REPORT_ID_1)
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header("x-concur-authorization", "OAuth " + "0_xxxxEKPk8cnYlWaos22OpPsLk=")
+                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .header("x-concur-base-url", mockBackend.url(""))
                 .body(BodyInserters.fromFormData(REASON, "Approval Done"))
                 .exchange()
@@ -243,7 +305,7 @@ class ConcurControllerTest extends ControllerTestsBase {
     private ResponseActions expect(final String issue) {
         return mockBackend.expect(requestTo("/api/expense/expensereport/v2.0/report/" + issue))
                 .andExpect(method(GET))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "OAuth 0_xxxxEKPk8cnYlWaos22OpPsLk="))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andExpect(MockRestRequestMatchers.header(ACCEPT, APPLICATION_JSON_VALUE));
     }
 
@@ -253,10 +315,18 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header("x-concur-authorization", "OAuth " + authToken)
+                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .header("x-concur-base-url", mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
                 .headers(ControllerTestsBase::headers)
                 .syncBody(fromFile("/concur/requests/" + requestFile));
+    }
+
+    public static class CustomInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @Override
+        public void initialize(ConfigurableApplicationContext applicationContext) {
+            final String concurUrl = ConcurControllerTest.mockConcurServer.url("");
+            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(applicationContext, "concur.oauth-instance-url=" + concurUrl);
+        }
     }
 }
