@@ -115,13 +115,13 @@ public class ConcurController {
         final byte[] decodedAuthValue = Base64.getDecoder().decode(authValue);
         final String decodedValue = new String(decodedAuthValue, StandardCharsets.UTF_8);
         final String userName = decodedValue.split(":")[0];
-        final String secret = decodedValue.split(":")[1];
+        final String password = decodedValue.split(":")[1];
 
         final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.put(CLIENT_ID, ImmutableList.of(clientId));
         body.put(CLIENT_SECRET, ImmutableList.of(clientSecret));
         body.put(USERNAME, ImmutableList.of(userName));
-        body.put(PASSWORD, ImmutableList.of(secret));
+        body.put(PASSWORD, ImmutableList.of(password));
         body.put(GRANT_TYPE, ImmutableList.of(PASSWORD));
         body.put(CRED_TYPE, ImmutableList.of(PASSWORD));
 
@@ -169,10 +169,10 @@ public class ConcurController {
         final String concurRequestTemplate = getConcurRequestTemplate(reason, concurAction);
 
         return fetchOAuthToken(authHeader, clientId, clientSecret)
-                .flatMap(oauthToken -> getWorkFlowActionUrl(oauthToken, reportID, baseUrl)
+                .flatMap(oauthHeader -> getWorkFlowActionUrl(oauthHeader, reportID, baseUrl)
                         .flatMap(url -> rest.post()
                                 .uri(url)
-                                .header(AUTHORIZATION, oauthToken)
+                                .header(AUTHORIZATION, oauthHeader)
                                 .contentType(APPLICATION_XML)
                                 .accept(APPLICATION_JSON)
                                 .syncBody(concurRequestTemplate)
@@ -198,7 +198,7 @@ public class ConcurController {
         logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
         return fetchOAuthToken(authHeader, clientId, clientSecret)
-                .flatMap(authToken -> getReportDetails(authToken, id, baseUrl))
+                .flatMap(oauthHeader -> getReportDetails(oauthHeader, id, baseUrl))
                 .onErrorResume(Reactive::skipOnNotFound)
                 .map(entity -> convertResponseIntoCard(entity,
                         id,
@@ -207,10 +207,10 @@ public class ConcurController {
                         request));
     }
 
-    private Mono<ResponseEntity<JsonDocument>> getReportDetails(String authHeader, String id, String baseUrl) {
+    private Mono<ResponseEntity<JsonDocument>> getReportDetails(String oauthHeader, String id, String baseUrl) {
         return rest.get()
                 .uri(baseUrl + "/api/expense/expensereport/v2.0/report/{id}", id)
-                .header(AUTHORIZATION, authHeader)
+                .header(AUTHORIZATION, oauthHeader)
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .flatMap(Reactive::checkStatus)
