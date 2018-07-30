@@ -8,8 +8,8 @@ management:
   endpoints:
     web.base-path: /
 
-# Needs to be configured by their own enterprise concur client id and client secret.
+# Below properties are required to be configured by the tenant inorder to fetch the OAuth token.
 concur:
   client-id: dummy-client-id
   client-secret: dummy-client-secret
-  oauth-instance-url:
+  oauth-instance-url: https://dummy.api.concursolutions.com/

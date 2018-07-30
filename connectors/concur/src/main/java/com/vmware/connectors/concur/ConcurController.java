@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.HtmlUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -53,7 +54,6 @@ public class ConcurController {
 
     private static final Logger logger = LoggerFactory.getLogger(ConcurController.class);
 
-
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
     private final Resource concurrRequestTemplate;
@@ -62,12 +62,14 @@ public class ConcurController {
     private final String clientSecret;
     private final String oauthTokenUrl;
 
+    // Client credentials token fields.
     private static final String CLIENT_ID = "client_id";
     private static final String CLIENT_SECRET = "client_secret";
     private static final String USERNAME = "username";
     private static final String PASSWORD = "password";
     private static final String CRED_TYPE = "credtype";
     private static final String GRANT_TYPE = "grant_type";
+    private static final String BEARER = "Bearer ";
 
     @Autowired
     public ConcurController(WebClient rest,
@@ -124,12 +126,12 @@ public class ConcurController {
         body.put(CRED_TYPE, ImmutableList.of(PASSWORD));
 
         return rest.post()
-                .uri(oauthTokenUrl +"/oauth2/v0/token")
+                .uri(UriComponentsBuilder.fromHttpUrl(oauthTokenUrl).path("/oauth2/v0/token").toUriString())
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData(body))
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(jsonDocument -> "Bearer " + jsonDocument.read("$.access_token"));
+                .map(jsonDocument -> BEARER + jsonDocument.read("$.access_token"));
     }
 
     @PostMapping(path = "/api/expense/approve/{expenseReportId}",
@@ -270,6 +272,7 @@ public class ConcurController {
 
         return cardBodyBuilder.build();
     }
+
     private CardBodyField makeCardBodyField(final String title, final String description) {
         return new CardBodyField.Builder()
                 .setTitle(title)
@@ -282,7 +285,7 @@ public class ConcurController {
             final String expenseReportId, final String routingPrefix, final Locale locale) {
         final String approveUrl = "api/expense/approve/" + expenseReportId;
 
-        // Approver has to enter the comment to approve the expense request.
+        // User has to enter the comment to approve the expense request.
         return new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getActionLabel("concur.approve", locale))
                 .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("concur.approve", locale))
@@ -304,7 +307,7 @@ public class ConcurController {
             final String expenseReportId, final String routingPrefix, final Locale locale) {
         final String rejectUrl = "api/expense/reject/" + expenseReportId;
 
-        // Approver has to enter the comment to reject the expense request.
+        // User has to enter the comment to reject the expense request.
         return new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getActionLabel("concur.reject", locale))
                 .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("concur.reject", locale))
