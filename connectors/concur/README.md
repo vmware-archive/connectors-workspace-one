@@ -17,7 +17,7 @@ docker run --name concur-connector \
            ws1connectors/concur-connector \
            --server.port=8080 \
            --concur.oauth-instance-url="https://us-impl.api.concursolutions.com" \
-           --concur.client-id="2803b8f8-a42b-43c2-a739-b8768e4759b8" \ 
-           --concur.client-secret="e013335d-b4ce-4c43-a7e4-b67abc1adcb0"
+           --concur.client-id="2803b8f8-a42b-43c2-a739-b8768e4759b8" \
+           --concur.client-secret="e013335d-b4ce-4c43-a7e4-b67abc1adcb0" \
            --security.oauth2.resource.jwt.key-uri="https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem"
 ```
