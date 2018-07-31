@@ -10,6 +10,7 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,8 @@ import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Stream;
@@ -50,10 +54,13 @@ public class AwsCertController {
 
     private static final String ROUTING_PREFIX = "x-routing-prefix";
 
+    private final static String METADATA_PATH = "/discovery/metadata.json";
+
     private static final String APPROVE_PATH = "/api/v1/approve";
 
     private final String certificateApprovalHost;
     private final String certificateApprovalPath;
+    private final String metadata;
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
 
@@ -61,13 +68,21 @@ public class AwsCertController {
     public AwsCertController(
             @Value("${aws.certificate.connector.approval.host}") String certificateApprovalHost,
             @Value("${aws.certificate.connector.approval.path}") String certificateApprovalPath,
+            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource,
             WebClient rest,
             CardTextAccessor cardTextAccessor
-    ) {
+    ) throws IOException {
         this.certificateApprovalHost = certificateApprovalHost.toLowerCase(Locale.US);
         this.certificateApprovalPath = certificateApprovalPath;
+        this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
+    }
+
+    @GetMapping(path = METADATA_PATH)
+    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        return ResponseEntity.ok(this.metadata.replace("CONNECTOR_HOST", requestUrl.split(METADATA_PATH)[0]));
     }
 
     @PostMapping(

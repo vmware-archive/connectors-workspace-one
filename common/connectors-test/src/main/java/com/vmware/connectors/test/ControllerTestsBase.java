@@ -6,6 +6,8 @@
 package com.vmware.connectors.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 import com.vmware.connectors.mock.MockWebServerWrapper;
 import com.vmware.connectors.mock.PhaserClientHttpConnector;
 import okhttp3.mockwebserver.MockWebServer;
@@ -41,6 +43,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 /**
  * Created by Rob Worsnop on 12/1/16.
@@ -66,7 +69,6 @@ public class ControllerTestsBase {
     private String auth;
 
     protected MockWebServerWrapper mockBackend;
-
 
 
     @BeforeEach
@@ -101,13 +103,6 @@ public class ControllerTestsBase {
 
     }
 
-    private void verifyObjectTypeField() throws IOException {
-        final byte[] body = getConnectorMetaData();
-
-        final Map<String, Object> map = mapper.readValue(body, Map.class);
-        assertThat(Objects.toString(map.get("object_type")), equalTo("card"));
-    }
-
     public static String fromFile(String fileName) throws IOException {
         try (InputStream stream = new ClassPathResource(fileName).getInputStream()) {
             return IOUtils.toString(stream, Charset.defaultCharset());
@@ -130,14 +125,20 @@ public class ControllerTestsBase {
                 .expectStatus().is2xxSuccessful()
                 .expectBody().json(fromFile("/connector/responses/discovery.json"));
 
+        String expectedMetadata = fromFile("/static/discovery/metadata.json");
+        String localHostRegex = "(http|https):\\/\\/localhost:\\d{4,5}";
         webClient.get()
                 .uri("/discovery/metadata.json")
                 .headers(ControllerTestsBase::headers)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
-                .expectBody().json(fromFile("/static/discovery/metadata.json"));
-
-        verifyObjectTypeField();
+                .expectBody()
+                .consumeWith(res -> {
+                    String body = new String(res.getResponseBody());
+                    assertThat(body.replaceAll(localHostRegex, "CONNECTOR_HOST"),
+                            sameJSONAs(expectedMetadata).allowingAnyArrayOrdering());
+                })
+                .jsonPath("$.object_types[0].object_type.name").isEqualTo("card"); // Verify object type is 'card'.
     }
 
     protected static void headers(HttpHeaders headers) {
@@ -147,24 +148,23 @@ public class ControllerTestsBase {
     }
 
     protected void testRegex(String tokenProperty, String emailInput, List<String> expected) throws Exception {
-        byte[] body = getConnectorMetaData();
+        String body = new String(getConnectorMetaData());
 
-        Map<String, Object> results = mapper.readValue(body, Map.class);
-        Map<String, Object> fields = (Map<String, Object>) results.get("fields");
-        Map<String, Object> tokenDefinition = (Map<String, Object>) fields.get(tokenProperty);
-        String regex = (String) tokenDefinition.get("regex");
-        Integer captureGroup = (Integer) tokenDefinition.get("capture_group");
+        DocumentContext ctx = JsonPath.parse(body);
+        Integer captureGroup = ctx.read("$.object_types[0].fields." + tokenProperty + ".capture_group");
+        String regex = ctx.read("$.object_types[0].fields." + tokenProperty + ".regex");
+
         verifyRegex(regex, captureGroup, emailInput, expected);
     }
 
     private byte[] getConnectorMetaData() {
         return webClient.get()
-                    .uri("/discovery/metadata.json")
-                    .header(AUTHORIZATION, "Bearer " + accessToken())
-                    .accept(APPLICATION_JSON)
-                    .exchange()
-                    .expectStatus().isOk()
-                    .returnResult(byte[].class).getResponseBodyContent();
+                .uri("/discovery/metadata.json")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(byte[].class).getResponseBodyContent();
     }
 
     private void verifyRegex(String regex, Integer captureGroup, String emailInput, List<String> expected) throws Exception {
@@ -210,6 +210,6 @@ public class ControllerTestsBase {
             WebClient.Builder builder = WebClient.builder();
             codecCustomizer.customize(builder);
             return builder.clientConnector(new PhaserClientHttpConnector());
-         }
+        }
     }
 }

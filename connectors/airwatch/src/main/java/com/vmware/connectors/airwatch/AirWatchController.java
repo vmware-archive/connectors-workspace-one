@@ -36,6 +36,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -59,6 +60,7 @@ public class AirWatchController {
     private static final String AIRWATCH_AUTH_HEADER = "Authorization";
     private static final String AIRWATCH_BASE_URL_HEADER = "x-airwatch-base-url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
+    private final static String METADATA_PATH = "/discovery/metadata.json";
 
     private static final int AW_USER_NOT_ASSOCIATED_WITH_UDID = 1001;
     private static final int AW_UDID_NOT_RESOLVED = 1002;
@@ -89,9 +91,10 @@ public class AirWatchController {
         this.gbBaseUri = gbBaseUri;
     }
 
-    @GetMapping(path = "/discovery/metadata.json")
-    public ResponseEntity<String> getmetadata() {
-        return ResponseEntity.ok(connectorMetadata);
+    @GetMapping(path = METADATA_PATH)
+    public ResponseEntity<String> getmetadata(HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        return ResponseEntity.ok(connectorMetadata.replace("CONNECTOR_HOST", requestUrl.split(METADATA_PATH)[0]));
     }
 
     @PostMapping(path = "/cards/requests",

@@ -12,12 +12,16 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,6 +31,8 @@ import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +53,7 @@ public class ServiceNowController {
     private static final String AUTH_HEADER = "x-servicenow-authorization";
     private static final String BASE_URL_HEADER = "x-servicenow-base-url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
+    private final static String METADATA_PATH = "/discovery/metadata.json";
 
     private static final String REASON_PARAM_KEY = "reason";
 
@@ -59,7 +66,7 @@ public class ServiceNowController {
     /**
      * The query param to specify a limit of the results coming back in your
      * ServiceNow REST calls.
-     *
+     * <p>
      * The default is 10,000.
      */
     private static final String SNOW_SYS_PARAM_LIMIT = "sysparm_limit";
@@ -68,7 +75,7 @@ public class ServiceNowController {
      * The maximum approval requests to fetch from ServiceNow.  Since we have
      * to filter results out based on the ticket_id param passed in by the
      * client, this has to be sufficiently large to not lose results.
-     *
+     * <p>
      * I wasn't able to find a REST call that would allow me to bulk lookup the
      * approval requests (or requests) by multiple request numbers
      * (ex. REQ0010001,REQ0010002,REQ0010003), so I'm forced to do things a
@@ -79,15 +86,24 @@ public class ServiceNowController {
     private static final int MAX_APPROVAL_RESULTS = 10000;
 
     private final WebClient rest;
+    private final String metadata;
     private final CardTextAccessor cardTextAccessor;
 
     @Autowired
     public ServiceNowController(
             WebClient rest,
-            CardTextAccessor cardTextAccessor
-    ) {
+            CardTextAccessor cardTextAccessor,
+            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource
+    ) throws IOException {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
+        this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
+    }
+
+    @GetMapping(path = METADATA_PATH)
+    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        return ResponseEntity.ok(this.metadata.replace("CONNECTOR_HOST", requestUrl.split(METADATA_PATH)[0]));
     }
 
     @PostMapping(
@@ -246,7 +262,7 @@ public class ServiceNowController {
         logger.trace("callForAndAggregateRequestInfo called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
 
         return callForRequestInfo(baseUrl, auth, approvalRequest)
-               .map(requestNumber -> new ApprovalRequestWithInfo(approvalRequest, requestNumber));
+                .map(requestNumber -> new ApprovalRequestWithInfo(approvalRequest, requestNumber));
     }
 
     private Mono<Request> callForRequestInfo(
@@ -315,19 +331,19 @@ public class ServiceNowController {
         );
 
         return rest.get()
-                .uri(              UriComponentsBuilder
-                                .fromHttpUrl(baseUrl)
-                                .path("/api/now/table/{scTableName}")
-                                .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
-                                .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
-                                .queryParam(ScRequestedItem.Fields.REQUEST.toString(), approvalRequest.getApprovalSysId())
-                                .buildAndExpand(
-                                        ImmutableMap.of(
-                                                "scTableName", ScRequestedItem.TABLE_NAME
-                                        )
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path("/api/now/table/{scTableName}")
+                        .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
+                        .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
+                        .queryParam(ScRequestedItem.Fields.REQUEST.toString(), approvalRequest.getApprovalSysId())
+                        .buildAndExpand(
+                                ImmutableMap.of(
+                                        "scTableName", ScRequestedItem.TABLE_NAME
                                 )
-                                .encode()
-                                .toUri())
+                        )
+                        .encode()
+                        .toUri())
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)

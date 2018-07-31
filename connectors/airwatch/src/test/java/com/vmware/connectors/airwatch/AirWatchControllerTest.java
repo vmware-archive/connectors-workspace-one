@@ -107,12 +107,20 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody().json(fromFile("/connector/responses/discovery.json"));
+
+        String expectedMetadata = fromFile("/connector/responses/metadata.json");
+        String localHostRegex = "(http|https):\\/\\/localhost:\\d{4,5}";
         webClient.get()
                 .uri("/discovery/metadata.json")
                 .headers(ControllerTestsBase::headers)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
-                .expectBody().json(fromFile("/connector/responses/metadata.json"));
+                .expectBody()
+                .consumeWith(res -> {
+                    String body = new String(res.getResponseBody());
+                    assertThat(body.replaceAll(localHostRegex, "CONNECTOR_HOST"),
+                            sameJSONAs(expectedMetadata).allowingAnyArrayOrdering());
+                });
     }
 
     @Test

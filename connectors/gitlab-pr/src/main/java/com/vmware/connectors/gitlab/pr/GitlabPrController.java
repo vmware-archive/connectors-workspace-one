@@ -13,13 +13,16 @@ import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import com.vmware.connectors.gitlab.pr.v4.MergeRequest;
 import com.vmware.connectors.gitlab.pr.v4.MergeRequestActionConstants;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
@@ -29,8 +32,10 @@ import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -48,6 +53,7 @@ public class GitlabPrController {
     private static final String AUTH_HEADER = "x-gitlab-pr-authorization";
     private static final String BASE_URL_HEADER = "x-gitlab-pr-base-url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
+    private final static String METADATA_PATH = "/discovery/metadata.json";
 
     private static final String COMMENT_PARAM_KEY = "message";
     private static final String SHA_PARAM_KEY = "sha";
@@ -60,17 +66,26 @@ public class GitlabPrController {
 
     private final boolean isEnterpriseEdition;
     private final WebClient rest;
+    private final String metadata;
     private final CardTextAccessor cardTextAccessor;
 
     @Autowired
     public GitlabPrController(
             @Value("${gitlab.connector.enterprise:false}") boolean isEnterpriseEdition,
             WebClient rest,
-            CardTextAccessor cardTextAccessor
-    ) {
+            CardTextAccessor cardTextAccessor,
+            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource
+    ) throws IOException {
         this.isEnterpriseEdition = isEnterpriseEdition;
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
+        this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
+    }
+
+    @GetMapping(path = METADATA_PATH)
+    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        return ResponseEntity.ok(this.metadata.replace("CONNECTOR_HOST", requestUrl.split(METADATA_PATH)[0]));
     }
 
     @PostMapping(

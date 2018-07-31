@@ -29,6 +29,7 @@ import reactor.core.publisher.Mono;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Set;
@@ -48,18 +49,28 @@ public class ConcurController {
 
     private static final Logger logger = LoggerFactory.getLogger(ConcurController.class);
 
+    private final static String METADATA_PATH = "/discovery/metadata.json";
 
     private final WebClient rest;
+    private final String metadata;
     private final CardTextAccessor cardTextAccessor;
     private final Resource concurrRequestTemplate;
 
     @Autowired
     public ConcurController(WebClient rest,
                             CardTextAccessor cardTextAccessor,
-                            @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate) {
+                            @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate,
+                            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource) throws IOException {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.concurrRequestTemplate = concurRequestTemplate;
+        this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
+    }
+
+    @GetMapping(path = METADATA_PATH)
+    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        return ResponseEntity.ok(this.metadata.replace("CONNECTOR_HOST", requestUrl.split(METADATA_PATH)[0]));
     }
 
     @PostMapping(path = "/cards/requests",

@@ -14,9 +14,12 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,8 @@ import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -45,15 +50,26 @@ public class BitbucketServerController {
 
     private static final String BITBUCKET_PREFIX = "bitbucket.";
 
+    private final static String METADATA_PATH = "/discovery/metadata.json";
+
     private static final String BITBUCKET_SERVER_COMMENTS = "bitbucket.comments";
 
     private final WebClient rest;
+    private final String metadata;
     private final CardTextAccessor cardTextAccessor;
 
     @Autowired
-    public BitbucketServerController(WebClient rest, CardTextAccessor cardTextAccessor) {
+    public BitbucketServerController(WebClient rest, CardTextAccessor cardTextAccessor,
+                                     @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource) throws IOException {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
+        this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
+    }
+
+    @GetMapping(path = METADATA_PATH)
+    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        return ResponseEntity.ok(this.metadata.replace("CONNECTOR_HOST", requestUrl.split(METADATA_PATH)[0]));
     }
 
     @PostMapping(

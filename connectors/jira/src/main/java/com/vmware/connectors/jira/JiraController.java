@@ -12,10 +12,13 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,8 @@ import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -43,16 +48,26 @@ public class JiraController {
     private final static String JIRA_AUTH_HEADER = "x-jira-authorization";
     private final static String JIRA_BASE_URL_HEADER = "x-jira-base-url";
     private final static String ROUTING_PREFIX = "x-routing-prefix";
+    private final static String METADATA_PATH = "/discovery/metadata.json";
 
     private static final int COMMENTS_SIZE = 2;
 
+    private final String metadata;
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
 
     @Autowired
-    public JiraController(WebClient rest, CardTextAccessor cardTextAccessor) {
+    public JiraController(WebClient rest, CardTextAccessor cardTextAccessor,
+                          @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource) throws IOException {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
+        this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
+    }
+
+    @GetMapping(path = METADATA_PATH)
+    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        return ResponseEntity.ok(this.metadata.replace("CONNECTOR_HOST", requestUrl.split(METADATA_PATH)[0]));
     }
 
     @PostMapping(path = "/cards/requests", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
