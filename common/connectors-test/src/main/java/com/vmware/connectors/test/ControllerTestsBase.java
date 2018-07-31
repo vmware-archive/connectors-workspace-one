@@ -138,7 +138,10 @@ public class ControllerTestsBase {
                     assertThat(body.replaceAll(localHostRegex, "CONNECTOR_HOST"),
                             sameJSONAs(expectedMetadata).allowingAnyArrayOrdering());
                 })
-                .jsonPath("$.object_types[0].object_type.name").isEqualTo("card"); // Verify object type is 'card'.
+                // Confirm connector has updated the place holder.
+                .jsonPath("$.object_types[?(@.endpoint.href =~ /.*" + localHostRegex + ".*$/i)]").isNotEmpty()
+                // Verify object type is 'card'.
+                .jsonPath("$.object_types[0].object_type.name").isEqualTo("card");
     }
 
     protected static void headers(HttpHeaders headers) {
