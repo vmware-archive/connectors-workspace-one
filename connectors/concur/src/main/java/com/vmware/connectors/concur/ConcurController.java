@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.concur;
 
+import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
@@ -20,9 +21,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.HtmlUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -31,6 +36,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -56,13 +62,32 @@ public class ConcurController {
     private final CardTextAccessor cardTextAccessor;
     private final Resource concurrRequestTemplate;
 
+    private final String clientId;
+    private final String clientSecret;
+    private final String oauthTokenUrl;
+
+    // Client credentials token fields.
+    private static final String CLIENT_ID = "client_id";
+    private static final String CLIENT_SECRET = "client_secret";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String CRED_TYPE = "credtype";
+    private static final String GRANT_TYPE = "grant_type";
+    private static final String BEARER = "Bearer ";
+
     @Autowired
     public ConcurController(WebClient rest,
                             CardTextAccessor cardTextAccessor,
+                            @Value("${concur.client-id}") final String clientId,
+                            @Value("${concur.client-secret}") final String clientSecret,
+                            @Value("${concur.oauth-instance-url}") final String oauthTokenUrl,
                             @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate,
                             @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource) throws IOException {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.oauthTokenUrl = oauthTokenUrl;
         this.concurrRequestTemplate = concurRequestTemplate;
         this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
     }
@@ -93,6 +118,32 @@ public class ConcurController {
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .defaultIfEmpty(new Cards())
                 .subscriberContext(Reactive.setupContext());
+    }
+
+    private Mono<String> fetchOAuthToken(final String authHeader,
+                                   final String clientId,
+                                   final String clientSecret) {
+        final String authValue = authHeader.substring("Basic".length()).trim();
+        final byte[] decodedAuthValue = Base64.getDecoder().decode(authValue);
+        final String decodedValue = new String(decodedAuthValue, StandardCharsets.UTF_8);
+        final String userName = decodedValue.split(":")[0];
+        final String password = decodedValue.split(":")[1];
+
+        final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.put(CLIENT_ID, ImmutableList.of(clientId));
+        body.put(CLIENT_SECRET, ImmutableList.of(clientSecret));
+        body.put(USERNAME, ImmutableList.of(userName));
+        body.put(PASSWORD, ImmutableList.of(password));
+        body.put(GRANT_TYPE, ImmutableList.of(PASSWORD));
+        body.put(CRED_TYPE, ImmutableList.of(PASSWORD));
+
+        return rest.post()
+                .uri(UriComponentsBuilder.fromHttpUrl(oauthTokenUrl).path("/oauth2/v0/token").toUriString())
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData(body))
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(jsonDocument -> BEARER + jsonDocument.read("$.access_token"));
     }
 
     @PostMapping(path = "/api/expense/approve/{expenseReportId}",
@@ -129,15 +180,16 @@ public class ConcurController {
         // Replace the placeholder in concur request template with appropriate action and comment.
         final String concurRequestTemplate = getConcurRequestTemplate(reason, concurAction);
 
-        return getWorkFlowActionUrl(authHeader, reportID, baseUrl)
-                .flatMap(url -> rest.post()
-                    .uri(url)
-                    .header(AUTHORIZATION, authHeader)
-                    .contentType(APPLICATION_XML)
-                    .accept(APPLICATION_JSON)
-                    .syncBody(concurRequestTemplate)
-                    .retrieve()
-                    .bodyToMono(String.class));
+        return fetchOAuthToken(authHeader, clientId, clientSecret)
+                .flatMap(oauthHeader -> getWorkFlowActionUrl(oauthHeader, reportID, baseUrl)
+                        .flatMap(url -> rest.post()
+                                .uri(url)
+                                .header(AUTHORIZATION, oauthHeader)
+                                .contentType(APPLICATION_XML)
+                                .accept(APPLICATION_JSON)
+                                .syncBody(concurRequestTemplate)
+                                .retrieve()
+                                .bodyToMono(String.class)));
     }
 
     private String getConcurRequestTemplate(final String reason,
@@ -157,7 +209,8 @@ public class ConcurController {
                                                 final HttpServletRequest request) {
         logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
-        return getReportDetails(authHeader, id, baseUrl)
+        return fetchOAuthToken(authHeader, clientId, clientSecret)
+                .flatMap(oauthHeader -> getReportDetails(oauthHeader, id, baseUrl))
                 .onErrorResume(Reactive::skipOnNotFound)
                 .map(entity -> convertResponseIntoCard(entity,
                         id,
@@ -166,10 +219,10 @@ public class ConcurController {
                         request));
     }
 
-    private Mono<ResponseEntity<JsonDocument>> getReportDetails(String authHeader, String id, String baseUrl) {
+    private Mono<ResponseEntity<JsonDocument>> getReportDetails(String oauthHeader, String id, String baseUrl) {
         return rest.get()
                 .uri(baseUrl + "/api/expense/expensereport/v2.0/report/{id}", id)
-                .header(AUTHORIZATION, authHeader)
+                .header(AUTHORIZATION, oauthHeader)
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .flatMap(Reactive::checkStatus)
@@ -231,6 +284,7 @@ public class ConcurController {
 
         return cardBodyBuilder.build();
     }
+
     private CardBodyField makeCardBodyField(final String title, final String description) {
         return new CardBodyField.Builder()
                 .setTitle(title)
@@ -243,7 +297,7 @@ public class ConcurController {
             final String expenseReportId, final String routingPrefix, final Locale locale) {
         final String approveUrl = "api/expense/approve/" + expenseReportId;
 
-        // Approver has to enter the comment to approve the expense request.
+        // User has to enter the comment to approve the expense request.
         return new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getActionLabel("concur.approve", locale))
                 .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("concur.approve", locale))
@@ -265,7 +319,7 @@ public class ConcurController {
             final String expenseReportId, final String routingPrefix, final Locale locale) {
         final String rejectUrl = "api/expense/reject/" + expenseReportId;
 
-        // Approver has to enter the comment to reject the expense request.
+        // User has to enter the comment to reject the expense request.
         return new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getActionLabel("concur.reject", locale))
                 .setCompletedLabel(this.cardTextAccessor.getActionCompletedLabel("concur.reject", locale))
