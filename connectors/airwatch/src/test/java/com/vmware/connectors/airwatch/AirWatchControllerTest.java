@@ -118,9 +118,13 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .expectBody()
                 .consumeWith(res -> {
                     String body = new String(res.getResponseBody());
-                    assertThat(body.replaceAll(localHostRegex, "CONNECTOR_HOST"),
+                    assertThat(body.replaceAll(localHostRegex, "http://localhost"),
                             sameJSONAs(expectedMetadata).allowingAnyArrayOrdering());
-                });
+                })
+                // Confirm connector has updated the place holder.
+                .jsonPath("$.object_types[?(@.endpoint.href =~ /.*" + localHostRegex + ".*$/i)]").isNotEmpty()
+                // Verify object type is 'card'.
+                .jsonPath("$.object_types[0].object_type.name").isEqualTo("card");
     }
 
     @Test
