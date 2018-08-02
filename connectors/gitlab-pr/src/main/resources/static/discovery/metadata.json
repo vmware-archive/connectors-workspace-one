@@ -16,7 +16,7 @@
         }
       },
       "endpoint": {
-        "href": "CONNECTOR_HOST/cards/requests"
+        "href": "${CONNECTOR_HOST}/cards/requests"
       }
     }
   ]

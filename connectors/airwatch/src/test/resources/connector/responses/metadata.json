@@ -21,7 +21,7 @@
         }
       },
       "endpoint": {
-        "href": "http://localhost/cards/requests"
+        "href": "https://my-connector/cards/requests"
       }
     }
   ]

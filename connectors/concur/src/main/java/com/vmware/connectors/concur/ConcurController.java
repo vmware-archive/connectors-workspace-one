@@ -55,8 +55,6 @@ public class ConcurController {
 
     private static final Logger logger = LoggerFactory.getLogger(ConcurController.class);
 
-    private final static String METADATA_PATH = "/discovery/metadata.json";
-
     private final WebClient rest;
     private final String metadata;
     private final CardTextAccessor cardTextAccessor;
@@ -92,10 +90,10 @@ public class ConcurController {
         this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
     }
 
-    @GetMapping(path = METADATA_PATH)
+    @GetMapping(path = "/discovery/metadata.json")
     public ResponseEntity<String> getMetadata(HttpServletRequest request) {
-        String requestUrl = request.getRequestURL().toString();
-        return ResponseEntity.ok(this.metadata.replace("CONNECTOR_HOST", requestUrl.split(METADATA_PATH)[0]));
+        return ResponseEntity.ok(
+                this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }
 
     @PostMapping(path = "/cards/requests",

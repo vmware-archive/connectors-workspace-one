@@ -18,6 +18,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +61,6 @@ public class AirWatchController {
     private static final String AIRWATCH_AUTH_HEADER = "Authorization";
     private static final String AIRWATCH_BASE_URL_HEADER = "x-airwatch-base-url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
-    private final static String METADATA_PATH = "/discovery/metadata.json";
 
     private static final int AW_USER_NOT_ASSOCIATED_WITH_UDID = 1001;
     private static final int AW_UDID_NOT_RESOLVED = 1002;
@@ -91,10 +91,10 @@ public class AirWatchController {
         this.gbBaseUri = gbBaseUri;
     }
 
-    @GetMapping(path = METADATA_PATH)
-    public ResponseEntity<String> getmetadata(HttpServletRequest request) {
-        String requestUrl = request.getRequestURL().toString();
-        return ResponseEntity.ok(connectorMetadata.replace("CONNECTOR_HOST", requestUrl.split(METADATA_PATH)[0]));
+    @GetMapping(path = "/discovery/metadata.json")
+    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
+        return ResponseEntity.ok(
+                this.connectorMetadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }
 
     @PostMapping(path = "/cards/requests",

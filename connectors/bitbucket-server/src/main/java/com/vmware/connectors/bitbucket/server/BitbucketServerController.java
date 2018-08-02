@@ -50,8 +50,6 @@ public class BitbucketServerController {
 
     private static final String BITBUCKET_PREFIX = "bitbucket.";
 
-    private final static String METADATA_PATH = "/discovery/metadata.json";
-
     private static final String BITBUCKET_SERVER_COMMENTS = "bitbucket.comments";
 
     private final WebClient rest;
@@ -66,10 +64,10 @@ public class BitbucketServerController {
         this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
     }
 
-    @GetMapping(path = METADATA_PATH)
+    @GetMapping(path = "/discovery/metadata.json")
     public ResponseEntity<String> getMetadata(HttpServletRequest request) {
-        String requestUrl = request.getRequestURL().toString();
-        return ResponseEntity.ok(this.metadata.replace("CONNECTOR_HOST", requestUrl.split(METADATA_PATH)[0]));
+        return ResponseEntity.ok(
+                this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }
 
     @PostMapping(

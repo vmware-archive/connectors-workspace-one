@@ -109,22 +109,13 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .expectBody().json(fromFile("/connector/responses/discovery.json"));
 
         String expectedMetadata = fromFile("/connector/responses/metadata.json");
-        String localHostRegex = "(http|https):\\/\\/localhost:\\d{4,5}";
         webClient.get()
                 .uri("/discovery/metadata.json")
                 .headers(ControllerTestsBase::headers)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
-                .consumeWith(res -> {
-                    String body = new String(res.getResponseBody());
-                    assertThat(body.replaceAll(localHostRegex, "http://localhost"),
-                            sameJSONAs(expectedMetadata).allowingAnyArrayOrdering());
-                })
-                // Confirm connector has updated the place holder.
-                .jsonPath("$.object_types[?(@.endpoint.href =~ /.*" + localHostRegex + ".*$/i)]").isNotEmpty()
-                // Verify object type is 'card'.
-                .jsonPath("$.object_types[0].object_type.name").isEqualTo("card");
+                .json(expectedMetadata);
     }
 
     @Test

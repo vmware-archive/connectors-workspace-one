@@ -50,7 +50,6 @@ public class GithubPrController {
     private static final String AUTH_HEADER = "x-github-pr-authorization";
     private static final String BASE_URL_HEADER = "x-github-pr-base-url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
-    private final static String METADATA_PATH = "/discovery/metadata.json";
 
     private static final String OPEN_STATE = "open";
 
@@ -73,10 +72,10 @@ public class GithubPrController {
         this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
     }
 
-    @GetMapping(path = METADATA_PATH)
+    @GetMapping(path = "/discovery/metadata.json")
     public ResponseEntity<String> getMetadata(HttpServletRequest request) {
-        String requestUrl = request.getRequestURL().toString();
-        return ResponseEntity.ok(this.metadata.replace("CONNECTOR_HOST", requestUrl.split(METADATA_PATH)[0]));
+        return ResponseEntity.ok(
+                this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }
 
     @PostMapping(

@@ -43,7 +43,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 /**
  * Created by Rob Worsnop on 12/1/16.
@@ -125,21 +124,18 @@ public class ControllerTestsBase {
                 .expectStatus().is2xxSuccessful()
                 .expectBody().json(fromFile("/connector/responses/discovery.json"));
 
-        String expectedMetadata = fromFile("/static/discovery/metadata.json");
-        String localHostRegex = "(http|https):\\/\\/localhost:\\d{4,5}";
+        String xForwardedHost = "https://my-connector";
+        // Confirm connector has updated the host placeholder.
+        String expectedMetadata = fromFile("/static/discovery/metadata.json")
+                .replace("${CONNECTOR_HOST}", xForwardedHost);
+
         webClient.get()
                 .uri("/discovery/metadata.json")
                 .headers(ControllerTestsBase::headers)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
-                .consumeWith(res -> {
-                    String body = new String(res.getResponseBody());
-                    assertThat(body.replaceAll(localHostRegex, "CONNECTOR_HOST"),
-                            sameJSONAs(expectedMetadata).allowingAnyArrayOrdering());
-                })
-                // Confirm connector has updated the place holder.
-                .jsonPath("$.object_types[?(@.endpoint.href =~ /.*" + localHostRegex + ".*$/i)]").isNotEmpty()
+                .json(expectedMetadata)
                 // Verify object type is 'card'.
                 .jsonPath("$.object_types[0].object_type.name").isEqualTo("card");
     }
