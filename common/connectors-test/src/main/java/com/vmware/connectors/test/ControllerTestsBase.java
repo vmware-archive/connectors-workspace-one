@@ -24,6 +24,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.TestPropertySource;
@@ -36,6 +37,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -137,6 +139,7 @@ public class ControllerTestsBase {
                 .uri("/discovery/metadata.json")
                 .headers(ControllerTestsBase::headers)
                 .exchange()
+                .expectHeader().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
                 .json(expectedMetadata)

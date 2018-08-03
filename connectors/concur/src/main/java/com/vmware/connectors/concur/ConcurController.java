@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -40,6 +41,7 @@ import java.util.Base64;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
 import static com.vmware.connectors.concur.ConcurConstants.ConcurRequestActions.*;
@@ -57,6 +59,8 @@ public class ConcurController {
 
     private final WebClient rest;
     private final String metadata;
+    private final long maxAge;
+    private final TimeUnit unit;
     private final CardTextAccessor cardTextAccessor;
     private final Resource concurrRequestTemplate;
 
@@ -80,7 +84,9 @@ public class ConcurController {
                             @Value("${concur.client-secret}") final String clientSecret,
                             @Value("${concur.oauth-instance-url}") final String oauthTokenUrl,
                             @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate,
-                            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource) throws IOException {
+                            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource,
+                            @Value("${rootDiscovery.cacheControl.maxAge:1}") long maxAge,
+                            @Value("${rootDiscovery.cacheControl.unit:HOURS}") TimeUnit unit) throws IOException {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.clientId = clientId;
@@ -88,12 +94,15 @@ public class ConcurController {
         this.oauthTokenUrl = oauthTokenUrl;
         this.concurrRequestTemplate = concurRequestTemplate;
         this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
+        this.maxAge = maxAge;
+        this.unit = unit;
     }
 
     @GetMapping(path = "/discovery/metadata.json")
     public ResponseEntity<String> getMetadata(HttpServletRequest request) {
-        return ResponseEntity.ok(
-                this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(maxAge, unit))
+                .body(this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }
 
     @PostMapping(path = "/cards/requests",

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -102,6 +104,10 @@ public class SalesforceController {
 
     private final CardTextAccessor cardTextAccessor;
 
+    private final long maxAge;
+
+    private final TimeUnit unit;
+
     @Autowired
     public SalesforceController(
             WebClient rest,
@@ -110,7 +116,9 @@ public class SalesforceController {
             @Value("${sf.addContactPath}") String sfAddContactPath,
             @Value("${sf.opportunityContactLinkPath}") String sfOpportunityContactLinkPath,
             @Value("${sf.opportunityFieldsUpdatePath}") final String sfOpportunityFieldsUpdatePath,
-            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource
+            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource,
+            @Value("${rootDiscovery.cacheControl.maxAge:1}") long maxAge,
+            @Value("${rootDiscovery.cacheControl.unit:HOURS}") TimeUnit unit
     ) throws IOException {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
@@ -119,12 +127,15 @@ public class SalesforceController {
         this.sfOpportunityContactLinkPath = sfOpportunityContactLinkPath;
         this.sfOpportunityFieldsUpdatePath = sfOpportunityFieldsUpdatePath;
         this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
+        this.maxAge = maxAge;
+        this.unit = unit;
     }
 
     @GetMapping(path = "/discovery/metadata.json")
     public ResponseEntity<String> getMetadata(HttpServletRequest request) {
-        return ResponseEntity.ok(
-                this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(maxAge, unit))
+                .body(this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }
 
     ///////////////////////////////////////////////////////////////////

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
@@ -87,22 +89,29 @@ public class ServiceNowController {
     private final WebClient rest;
     private final String metadata;
     private final CardTextAccessor cardTextAccessor;
+    private final long maxAge;
+    private final TimeUnit unit;
 
     @Autowired
     public ServiceNowController(
             WebClient rest,
             CardTextAccessor cardTextAccessor,
-            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource
+            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource,
+            @Value("${rootDiscovery.cacheControl.maxAge:1}") long maxAge,
+            @Value("${rootDiscovery.cacheControl.unit:HOURS}") TimeUnit unit
     ) throws IOException {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
+        this.maxAge = maxAge;
+        this.unit = unit;
     }
 
     @GetMapping(path = "/discovery/metadata.json")
     public ResponseEntity<String> getMetadata(HttpServletRequest request) {
-        return ResponseEntity.ok(
-                this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(maxAge, unit))
+                .body(this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }
 
     @PostMapping(

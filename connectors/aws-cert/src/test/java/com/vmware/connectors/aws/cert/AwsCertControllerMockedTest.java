@@ -35,6 +35,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -61,6 +62,9 @@ public class AwsCertControllerMockedTest {
 
     private AwsCertController controller;
 
+    private final long maxAge = 1;
+    private final TimeUnit unit = TimeUnit.HOURS;
+
     @Mock
     private ClientHttpConnector mockClientHttpConnector;
 
@@ -77,7 +81,9 @@ public class AwsCertControllerMockedTest {
                 "/approvals",
                 metadataJsonResource,
                 WebClient.builder().clientConnector(mockClientHttpConnector).build(),
-                new CardTextAccessor(messageSource));
+                new CardTextAccessor(messageSource),
+                maxAge,
+                unit);
     }
 
     @ParameterizedTest

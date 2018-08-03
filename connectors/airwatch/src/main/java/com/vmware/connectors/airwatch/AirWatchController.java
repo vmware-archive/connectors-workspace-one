@@ -25,10 +25,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.CacheControl;
 import org.springframework.util.MimeType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -43,6 +45,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -80,21 +83,29 @@ public class AirWatchController {
 
     private final URI gbBaseUri;
 
+    private final long maxAge;
+    private final TimeUnit unit;
+
     @Autowired
     public AirWatchController(WebClient rest, CardTextAccessor cardTextAccessor,
                               AppConfigService appConfig, String connectorMetadata,
-                              URI gbBaseUri) {
+                              URI gbBaseUri,
+                              @Value("${rootDiscovery.cacheControl.maxAge:1}") long maxAge,
+                              @Value("${rootDiscovery.cacheControl.unit:HOURS}") TimeUnit unit) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.appConfig = appConfig;
         this.connectorMetadata = connectorMetadata;
         this.gbBaseUri = gbBaseUri;
+        this.maxAge = maxAge;
+        this.unit = unit;
     }
 
     @GetMapping(path = "/discovery/metadata.json")
     public ResponseEntity<String> getMetadata(HttpServletRequest request) {
-        return ResponseEntity.ok(
-                this.connectorMetadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(maxAge, unit))
+                .body(this.connectorMetadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }
 
     @PostMapping(path = "/cards/requests",
