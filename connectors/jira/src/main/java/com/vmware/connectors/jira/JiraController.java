@@ -45,8 +45,8 @@ import static org.springframework.http.MediaType.*;
 @RestController
 public class JiraController {
     private final static Logger logger = LoggerFactory.getLogger(JiraController.class);
-    private final static String JIRA_AUTH_HEADER = "x-jira-authorization";
-    private final static String JIRA_BASE_URL_HEADER = "x-jira-base-url";
+    private final static String JIRA_AUTH_HEADER = "X-Connector-Authorization";
+    private final static String JIRA_BASE_URL_HEADER = "X-Connector-Base-Url";
     private final static String ROUTING_PREFIX = "x-routing-prefix";
 
     private static final int COMMENTS_SIZE = 2;

@@ -200,7 +200,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .uri("/mdm/app/install")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header("x-airwatch-base-url", mockBackend.url(""))
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .body(BodyInserters.fromFormData("app_name", "Concur")
                         .with("udid", "ABCD")
                         .with("platform", "android"))
@@ -226,7 +226,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .uri("/mdm/app/install")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header("x-airwatch-base-url", mockBackend.url(""))
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .body(BodyInserters.fromFormData("app_name", appName)
                         .with("udid", "ABCD")
                         .with("platform", "ios"))
@@ -246,7 +246,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody().jsonPath("$.message")
-                    .isEqualTo("Missing request header 'x-airwatch-base-url' for method parameter of type String");
+                    .isEqualTo("Missing request header '" + X_BASE_URL_HEADER + "' for method parameter of type String");
 
     }
 
@@ -325,7 +325,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header("x-airwatch-base-url", mockBackend.url(""))
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/airwatch/")
                 .syncBody(fromFile("/connector/requests/" + requestfile));
     }

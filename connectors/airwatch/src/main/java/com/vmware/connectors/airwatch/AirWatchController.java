@@ -59,7 +59,7 @@ public class AirWatchController {
     private static final Logger logger = LoggerFactory.getLogger(AirWatchController.class);
 
     private static final String AIRWATCH_AUTH_HEADER = "Authorization";
-    private static final String AIRWATCH_BASE_URL_HEADER = "x-airwatch-base-url";
+    private static final String AIRWATCH_BASE_URL_HEADER = "X-Connector-Base-Url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
 
     private static final int AW_USER_NOT_ASSOCIATED_WITH_UDID = 1001;

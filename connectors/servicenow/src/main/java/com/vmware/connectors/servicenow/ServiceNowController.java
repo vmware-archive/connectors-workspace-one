@@ -50,8 +50,8 @@ public class ServiceNowController {
      */
     private static final String RESULT_PREFIX = "$.result.";
 
-    private static final String AUTH_HEADER = "x-servicenow-authorization";
-    private static final String BASE_URL_HEADER = "x-servicenow-base-url";
+    private static final String AUTH_HEADER = "X-Connector-Authorization";
+    private static final String BASE_URL_HEADER = "X-Connector-Base-Url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
 
     private static final String REASON_PARAM_KEY = "reason";

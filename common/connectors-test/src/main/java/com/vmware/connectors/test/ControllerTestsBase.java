@@ -56,6 +56,10 @@ public class ControllerTestsBase {
 
     private static final Logger logger = LoggerFactory.getLogger(ControllerTestsBase.class);
 
+    protected final static String X_AUTH_HEADER = "X-Connector-Authorization";
+
+    protected final static String X_BASE_URL_HEADER = "X-Connector-Base-Url";
+
     @Autowired
     protected JwtUtils jwt;
 

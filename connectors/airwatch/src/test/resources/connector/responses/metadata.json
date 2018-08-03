@@ -1,5 +1,4 @@
 {
-  "backend_base_url_header": "x-airwatch-base-url",
   "object_types": [
     {
       "object_type": {

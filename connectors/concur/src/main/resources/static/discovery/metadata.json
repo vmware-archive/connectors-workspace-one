@@ -1,6 +1,7 @@
 {
-  "authorization_header": "x-concur-authorization",
-  "backend_base_url_header": "x-concur-base-url",
+  "image": {
+    "href": "${CONNECTOR_HOST}/images/connector.png"
+  },
   "object_types": [
     {
       "object_type": {
