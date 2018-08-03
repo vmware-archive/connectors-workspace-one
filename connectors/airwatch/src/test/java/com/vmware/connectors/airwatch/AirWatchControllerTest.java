@@ -103,13 +103,6 @@ class AirWatchControllerTest extends ControllerTestsBase {
 
     @Test
     void testDiscovery() throws IOException {
-        webClient.get()
-                .uri("/")
-                .headers(ControllerTestsBase::headers)
-                .exchange()
-                .expectStatus().is2xxSuccessful()
-                .expectBody().json(fromFile("/connector/responses/discovery.json"));
-
         String expectedMetadata = fromFile("/connector/responses/metadata.json");
         webClient.get()
                 .uri("/discovery/metadata.json")

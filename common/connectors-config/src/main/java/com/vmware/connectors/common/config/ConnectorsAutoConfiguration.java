@@ -7,7 +7,6 @@ package com.vmware.connectors.common.config;
 
 import com.vmware.connectors.common.json.JsonDocumentDecoder;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.web.ConnectorRootController;
 import com.vmware.connectors.common.web.ExceptionHandlers;
 import com.vmware.connectors.common.web.MdcFilter;
 import org.apache.commons.io.IOUtils;
@@ -54,7 +53,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 @Configuration
 @AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
-@Import({ExceptionHandlers.class, ConnectorRootController.class})
+@Import({ExceptionHandlers.class})
 public class ConnectorsAutoConfiguration {
 
 

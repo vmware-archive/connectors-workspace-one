@@ -123,12 +123,6 @@ public class ControllerTestsBase {
     }
 
     protected void testConnectorDiscovery() throws IOException {
-        webClient.get()
-                .uri("/")
-                .headers(ControllerTestsBase::headers)
-                .exchange()
-                .expectStatus().is2xxSuccessful()
-                .expectBody().json(fromFile("/connector/responses/discovery.json"));
 
         String xForwardedHost = "https://my-connector";
         // Confirm connector has updated the host placeholder.
