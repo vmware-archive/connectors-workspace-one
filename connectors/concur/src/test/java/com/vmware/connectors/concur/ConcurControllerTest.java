@@ -53,6 +53,7 @@ class ConcurControllerTest extends ControllerTestsBase {
 
     private static final String REPORT_ID_1 = "79D89435DAE94F53BF60";
     private static final String REPORT_ID_2 = "F49BD54084CE4C09BD65";
+    private static final String INVALID_REPORT_ID = "invalid-report-id";
 
     @Value("classpath:concur/responses/approved.xml")
     private Resource approved;
@@ -150,6 +151,22 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
 
         testRequestCards("request.json", resFile, lang);
+    }
+
+    @Test
+    void testRequestCardsWithInvalidReportId() throws Exception {
+        expect(REPORT_ID_1).andRespond(withSuccess(
+                fromFile("/concur/responses/report_id_1.json")
+                        .replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
+
+        expect(INVALID_REPORT_ID).andRespond(withStatus(HttpStatus.BAD_REQUEST));
+
+        mockConcurServer.expect(ExpectedCount.manyTimes(), requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
+
+        testRequestCards("request_with_invalid_report_id.json", "single_card_response.json", StringUtils.EMPTY);
     }
 
     @Test

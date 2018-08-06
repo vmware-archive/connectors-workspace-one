@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -199,7 +200,7 @@ public class ConcurController {
 
         return fetchOAuthToken(authHeader, clientId, clientSecret)
                 .flatMap(oauthHeader -> getReportDetails(oauthHeader, id, baseUrl))
-                .onErrorResume(Reactive::skipOnNotFound)
+                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable, HttpStatus.BAD_REQUEST))
                 .map(entity -> convertResponseIntoCard(entity,
                         id,
                         routingPrefix,
