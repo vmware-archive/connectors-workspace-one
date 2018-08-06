@@ -40,6 +40,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.HEAD;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -281,6 +282,39 @@ class ConcurControllerTest extends ControllerTestsBase {
                 "356EEB33D8E548C1B902",
                 "923EFB33D8E548C1B902");
         testRegex("expense_report_id", fromFile("concur/regex-input.txt"), expectedList);
+    }
+
+    @Test
+    public void testAuthSuccess() {
+        mockBackend.expect(requestTo("/"))
+                .andExpect(method(HEAD))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
+                .andRespond(withSuccess());
+
+        webClient.head()
+                .uri("/test-auth")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header("x-concur-authorization", "Bearer abc")
+                .header("x-concur-base-url", mockBackend.url(""))
+                .exchange()
+                .expectStatus().isNoContent();
+    }
+
+    @Test
+    public void testAuthFailure() {
+        mockBackend.expect(requestTo("/"))
+                .andExpect(method(HEAD))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
+                .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
+
+        webClient.head()
+                .uri("/test-auth")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header("x-concur-authorization", "Bearer abc")
+                .header("x-concur-base-url", mockBackend.url(""))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("x-backend-status", "401");
     }
 
     private void testRequestCards(final String requestFile,
