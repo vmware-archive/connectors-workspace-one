@@ -129,8 +129,9 @@ public class ControllerTestsBase {
         String expectedMetadata = fromFile("/static/discovery/metadata.json")
                 .replace("${CONNECTOR_HOST}", xForwardedHost);
 
+        // Discovery metadata.json is at the connector root.
         webClient.get()
-                .uri("/discovery/metadata.json")
+                .uri("/")
                 .headers(ControllerTestsBase::headers)
                 .exchange()
                 .expectHeader().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
@@ -159,7 +160,7 @@ public class ControllerTestsBase {
 
     private byte[] getConnectorMetaData() {
         return webClient.get()
-                .uri("/discovery/metadata.json")
+                .uri("/")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .accept(APPLICATION_JSON)
                 .exchange()

@@ -80,7 +80,7 @@ public class GithubPrController {
         this.unit = unit;
     }
 
-    @GetMapping(path = "/discovery/metadata.json")
+    @GetMapping(path = "/")
     public ResponseEntity<String> getMetadata(HttpServletRequest request) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(maxAge, unit))

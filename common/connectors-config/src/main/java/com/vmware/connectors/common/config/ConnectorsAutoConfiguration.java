@@ -130,9 +130,6 @@ public class ConnectorsAutoConfiguration {
                 registry.addResourceHandler("/templates/**")
                         .addResourceLocations("classpath:/static/templates/")
                         .setCacheControl(cacheControl);
-                registry.addResourceHandler("/discovery/**")
-                        .addResourceLocations("classpath:/static/discovery/")
-                        .setCacheControl(cacheControl);
                 registry.addResourceHandler("/images/**")
                         .addResourceLocations("classpath:/static/images/")
                         .setCacheControl(cacheControl);
@@ -155,7 +152,7 @@ public class ConnectorsAutoConfiguration {
                 http.anonymous()
                         .and()
                         .authorizeRequests()
-                        .antMatchers(HttpMethod.GET, "/health", "/templates/**", "/discovery/**", "/images/**", "/").permitAll()
+                        .antMatchers(HttpMethod.GET, "/health", "/templates/**", "/images/**", "/").permitAll()
                         .and()
                         .authorizeRequests()
                         .antMatchers("/**").authenticated();

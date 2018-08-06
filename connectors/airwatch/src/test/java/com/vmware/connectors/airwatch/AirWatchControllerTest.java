@@ -104,8 +104,9 @@ class AirWatchControllerTest extends ControllerTestsBase {
     @Test
     void testDiscovery() throws IOException {
         String expectedMetadata = fromFile("/connector/responses/metadata.json");
+        // Discovery metadata.json is at the connector root.
         webClient.get()
-                .uri("/discovery/metadata.json")
+                .uri("/")
                 .headers(ControllerTestsBase::headers)
                 .exchange()
                 .expectHeader().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
