@@ -279,7 +279,9 @@ class ConcurControllerTest extends ControllerTestsBase {
                 "623EEB33D8E548C1B902",
                 "126EEB33D8E548C1B902",
                 "356EEB33D8E548C1B902",
-                "923EFB33D8E548C1B902");
+                "356EEB33D8E548C1B902",
+                "923EFB33D8E548C1B902",
+                "D32CBFA3289D4366B1A7");
         testRegex("expense_report_id", fromFile("concur/regex-input.txt"), expectedList);
     }
 
