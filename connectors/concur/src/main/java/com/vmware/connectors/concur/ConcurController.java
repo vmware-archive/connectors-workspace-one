@@ -95,7 +95,6 @@ public class ConcurController {
                 .retrieve()
                 .bodyToMono(Void.class)
                 .then(Mono.just(ResponseEntity.noContent().build()));
-
     }
 
     @PostMapping(path = "/cards/requests",
