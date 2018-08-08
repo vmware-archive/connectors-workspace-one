@@ -139,7 +139,7 @@ public class ControllerTestsBase {
                 .expectBody()
                 .json(expectedMetadata)
                 // Verify object type is 'card'.
-                .jsonPath("$.object_types[0].object_type.name").isEqualTo("card");
+                .jsonPath("$.object_types[0].name").isEqualTo("card");
     }
 
     protected static void headers(HttpHeaders headers) {

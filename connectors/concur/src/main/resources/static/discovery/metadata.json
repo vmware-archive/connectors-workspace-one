@@ -4,11 +4,9 @@
   },
   "object_types": [
     {
-      "object_type": {
-        "name": "card",
-        "doc": {
-          "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
-        }
+      "name": "card",
+      "doc": {
+        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
       },
       "fields": {
         "expense_report_id": {
