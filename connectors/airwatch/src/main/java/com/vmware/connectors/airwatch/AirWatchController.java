@@ -18,19 +18,16 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.CacheControl;
 import org.springframework.util.MimeType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -39,13 +36,11 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -78,34 +73,16 @@ public class AirWatchController {
 
     private final AppConfigService appConfig;
 
-    // Metadata includes connector regex derived from app keywords.
-    private final String connectorMetadata;
-
     private final URI gbBaseUri;
-
-    private final long maxAge;
-    private final TimeUnit unit;
 
     @Autowired
     public AirWatchController(WebClient rest, CardTextAccessor cardTextAccessor,
-                              AppConfigService appConfig, String connectorMetadata,
-                              URI gbBaseUri,
-                              @Value("${rootDiscovery.cacheControl.maxAge:1}") long maxAge,
-                              @Value("${rootDiscovery.cacheControl.unit:HOURS}") TimeUnit unit) {
+                              AppConfigService appConfig,
+                              URI gbBaseUri) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.appConfig = appConfig;
-        this.connectorMetadata = connectorMetadata;
         this.gbBaseUri = gbBaseUri;
-        this.maxAge = maxAge;
-        this.unit = unit;
-    }
-
-    @GetMapping(path = "/")
-    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(maxAge, unit))
-                .body(this.connectorMetadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }
 
     @PostMapping(path = "/cards/requests",

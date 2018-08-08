@@ -7,13 +7,16 @@ package com.vmware.connectors.common.config;
 
 import com.vmware.connectors.common.json.JsonDocumentDecoder;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.web.ConnectorRootController;
 import com.vmware.connectors.common.web.ExceptionHandlers;
 import com.vmware.connectors.common.web.MdcFilter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.JwtAccessTokenConverterConfigurer;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.JwtAccessTokenConverterRestTemplateCustomizer;
 import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
@@ -26,6 +29,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -41,6 +45,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.Filter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -53,9 +58,15 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 @Configuration
 @AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
-@Import({ExceptionHandlers.class})
+@Import({ExceptionHandlers.class, ConnectorRootController.class})
 public class ConnectorsAutoConfiguration {
 
+    private final Resource metadataHalResource;
+
+    @Autowired
+    public ConnectorsAutoConfiguration(@Value("classpath:static/discovery/metadata.json") Resource metadataHalResource) {
+        this.metadataHalResource = metadataHalResource;
+    }
 
     @Bean
     public ConfigurableServletWebServerFactory webServerFactory() {
@@ -181,5 +192,11 @@ public class ConnectorsAutoConfiguration {
     @Bean
     public CodecCustomizer codecCustomizer() {
         return configurer -> configurer.customCodecs().decoder(new JsonDocumentDecoder());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "connectorMetadata")
+    public String connectorMetadata() throws IOException {
+        return IOUtils.toString(metadataHalResource.getInputStream(), Charset.defaultCharset());
     }
 }

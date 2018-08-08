@@ -14,14 +14,11 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.CacheControl;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -32,11 +29,8 @@ import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -100,13 +94,7 @@ public class SalesforceController {
 
     private final WebClient rest;
 
-    private final String metadata;
-
     private final CardTextAccessor cardTextAccessor;
-
-    private final long maxAge;
-
-    private final TimeUnit unit;
 
     @Autowired
     public SalesforceController(
@@ -115,28 +103,16 @@ public class SalesforceController {
             @Value("${sf.soqlQueryPath}") String sfSoqlQueryPath,
             @Value("${sf.addContactPath}") String sfAddContactPath,
             @Value("${sf.opportunityContactLinkPath}") String sfOpportunityContactLinkPath,
-            @Value("${sf.opportunityFieldsUpdatePath}") final String sfOpportunityFieldsUpdatePath,
-            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource,
-            @Value("${rootDiscovery.cacheControl.maxAge:1}") long maxAge,
-            @Value("${rootDiscovery.cacheControl.unit:HOURS}") TimeUnit unit
-    ) throws IOException {
+            @Value("${sf.opportunityFieldsUpdatePath}") final String sfOpportunityFieldsUpdatePath
+    ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.sfSoqlQueryPath = sfSoqlQueryPath;
         this.sfAddContactPath = sfAddContactPath;
         this.sfOpportunityContactLinkPath = sfOpportunityContactLinkPath;
         this.sfOpportunityFieldsUpdatePath = sfOpportunityFieldsUpdatePath;
-        this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
-        this.maxAge = maxAge;
-        this.unit = unit;
     }
 
-    @GetMapping(path = "/")
-    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(maxAge, unit))
-                .body(this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
-    }
 
     ///////////////////////////////////////////////////////////////////
     // Methods common to both the cards request and the actions

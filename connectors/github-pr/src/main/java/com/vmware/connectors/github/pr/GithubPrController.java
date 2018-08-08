@@ -13,17 +13,12 @@ import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import com.vmware.connectors.github.pr.v3.PullRequest;
 import com.vmware.connectors.github.pr.v3.Review;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.CacheControl;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
@@ -33,11 +28,8 @@ import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,31 +52,15 @@ public class GithubPrController {
     private static final int URI_SEGMENT_SIZE = 4;
 
     private final WebClient rest;
-    private final String metadata;
     private final CardTextAccessor cardTextAccessor;
-    private final long maxAge;
-    private final TimeUnit unit;
 
     @Autowired
     public GithubPrController(
             WebClient rest,
-            CardTextAccessor cardTextAccessor,
-            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource,
-            @Value("${rootDiscovery.cacheControl.maxAge:1}") long maxAge,
-            @Value("${rootDiscovery.cacheControl.unit:HOURS}") TimeUnit unit
-    ) throws IOException {
+            CardTextAccessor cardTextAccessor
+    ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
-        this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
-        this.maxAge = maxAge;
-        this.unit = unit;
-    }
-
-    @GetMapping(path = "/")
-    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(maxAge, unit))
-                .body(this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }
 
     @PostMapping(

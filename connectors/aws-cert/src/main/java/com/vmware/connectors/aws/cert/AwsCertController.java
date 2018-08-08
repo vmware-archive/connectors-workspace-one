@@ -10,7 +10,6 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,8 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.CacheControl;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,11 +34,8 @@ import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
@@ -60,36 +54,20 @@ public class AwsCertController {
 
     private final String certificateApprovalHost;
     private final String certificateApprovalPath;
-    private final String metadata;
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
-    private final long maxAge;
-    private final TimeUnit unit;
 
     @Autowired
     public AwsCertController(
             @Value("${aws.certificate.connector.approval.host}") String certificateApprovalHost,
             @Value("${aws.certificate.connector.approval.path}") String certificateApprovalPath,
-            @Value("classpath:static/discovery/metadata.json") Resource metadataJsonResource,
             WebClient rest,
-            CardTextAccessor cardTextAccessor,
-            @Value("${rootDiscovery.cacheControl.maxAge:1}") long maxAge,
-            @Value("${rootDiscovery.cacheControl.unit:HOURS}") TimeUnit unit
-    ) throws IOException {
+            CardTextAccessor cardTextAccessor
+    ) {
         this.certificateApprovalHost = certificateApprovalHost.toLowerCase(Locale.US);
         this.certificateApprovalPath = certificateApprovalPath;
-        this.metadata = IOUtils.toString(metadataJsonResource.getInputStream(), Charset.defaultCharset());
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
-        this.maxAge = maxAge;
-        this.unit = unit;
-    }
-
-    @GetMapping(path = "/")
-    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(maxAge, unit))
-                .body(this.metadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }
 
     @PostMapping(

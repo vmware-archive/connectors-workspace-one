@@ -18,8 +18,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +33,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -62,28 +59,20 @@ public class AwsCertControllerMockedTest {
 
     private AwsCertController controller;
 
-    private final long maxAge = 1;
-    private final TimeUnit unit = TimeUnit.HOURS;
-
     @Mock
     private ClientHttpConnector mockClientHttpConnector;
 
     @BeforeEach
-    void createController() throws IOException {
+    void createController() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setFallbackToSystemLocale(false);
         messageSource.setBasename("cards/text");
 
-        Resource metadataJsonResource = new ClassPathResource("discovery/metadata.json");
-
         controller = new AwsCertController(
                 "certificates.Fake-Amazon.com",
                 "/approvals",
-                metadataJsonResource,
                 WebClient.builder().clientConnector(mockClientHttpConnector).build(),
-                new CardTextAccessor(messageSource),
-                maxAge,
-                unit);
+                new CardTextAccessor(messageSource));
     }
 
     @ParameterizedTest
