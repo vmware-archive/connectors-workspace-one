@@ -125,14 +125,13 @@ public class BitbucketServerController {
     }
 
     @GetMapping("/test-auth")
-    public Mono<ResponseEntity<Void>> verifyAuth(@RequestHeader(AUTH_HEADER) final String authHeader,
+    public Mono<Void> verifyAuth(@RequestHeader(AUTH_HEADER) final String authHeader,
                                                  @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
         return rest.head()
                 .uri(baseUrl + "/rest/api/1.0/dashboard/pull-request-suggestions?limit=1")
                 .header(AUTHORIZATION, authHeader)
                 .retrieve()
-                .bodyToMono(Void.class)
-                .then(Mono.just(ResponseEntity.noContent().build()));
+                .bodyToMono(Void.class);
     }
 
     private Mono<String> performBitbucketServerAction(final String baseUrl,

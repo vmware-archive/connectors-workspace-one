@@ -297,7 +297,7 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .header("x-concur-authorization", "Bearer abc")
                 .header("x-concur-base-url", mockBackend.url(""))
                 .exchange()
-                .expectStatus().isNoContent();
+                .expectStatus().isOk();
     }
 
     @Test
