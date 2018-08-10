@@ -286,35 +286,33 @@ class ConcurControllerTest extends ControllerTestsBase {
 
     @Test
     public void testAuthSuccess() {
-        mockBackend.expect(requestTo("/"))
-                .andExpect(method(HEAD))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
-                .andRespond(withSuccess());
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
 
         webClient.head()
                 .uri("/test-auth")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header("x-concur-authorization", "Bearer abc")
-                .header("x-concur-base-url", mockBackend.url(""))
+                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isNoContent();
     }
 
     @Test
     public void testAuthFailure() {
-        mockBackend.expect(requestTo("/"))
-                .andExpect(method(HEAD))
-                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
-                .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andRespond(withStatus(HttpStatus.FORBIDDEN));
 
         webClient.head()
                 .uri("/test-auth")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header("x-concur-authorization", "Bearer abc")
-                .header("x-concur-base-url", mockBackend.url(""))
+                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .exchange()
-                .expectStatus().isBadRequest()
-                .expectHeader().valueEquals("x-backend-status", "401");
+                .expectStatus().is5xxServerError()
+                .expectHeader().valueEquals("x-backend-status", "403");
     }
 
     private void testRequestCards(final String requestFile,
