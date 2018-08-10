@@ -20,12 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
@@ -137,7 +139,21 @@ public class ConcurController {
                 .body(BodyInserters.fromFormData(body))
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(jsonDocument -> BEARER + jsonDocument.read("$.access_token"));
+                .map(jsonDocument -> BEARER + jsonDocument.read("$.access_token"))
+                .onErrorMap(WebClientResponseException.class, e -> {
+                    // Concur gives a 403 instead of a 401 when the password is bad, so we must convert it
+                    if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
+                        return new WebClientResponseException(
+                                e.getMessage(),
+                                HttpStatus.UNAUTHORIZED.value(),
+                                e.getStatusText(),
+                                e.getHeaders(),
+                                e.getResponseBodyAsByteArray(),
+                                StandardCharsets.UTF_8
+                        );
+                    }
+                    return e;
+                });
     }
 
     @PostMapping(path = "/api/expense/approve/{expenseReportId}",
@@ -170,7 +186,7 @@ public class ConcurController {
                                                  final String reason,
                                                  final String reportID,
                                                  final String authHeader,
-                                                 final String concurAction) throws IOException, ExecutionException, InterruptedException {
+                                                 final String concurAction) throws IOException {
         // Replace the placeholder in concur request template with appropriate action and comment.
         final String concurRequestTemplate = getConcurRequestTemplate(reason, concurAction);
 
