@@ -125,13 +125,7 @@ public class ConcurController {
         final String userName = decodedValue.split(":")[0];
         final String password = decodedValue.split(":")[1];
 
-        final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.put(CLIENT_ID, ImmutableList.of(clientId));
-        body.put(CLIENT_SECRET, ImmutableList.of(clientSecret));
-        body.put(USERNAME, ImmutableList.of(userName));
-        body.put(PASSWORD, ImmutableList.of(password));
-        body.put(GRANT_TYPE, ImmutableList.of(PASSWORD));
-        body.put(CRED_TYPE, ImmutableList.of(PASSWORD));
+        final MultiValueMap<String, String> body = getBody(clientId, clientSecret, userName, password);
 
         return rest.post()
                 .uri(UriComponentsBuilder.fromHttpUrl(oauthTokenUrl).path("/oauth2/v0/token").toUriString())
@@ -140,20 +134,33 @@ public class ConcurController {
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .map(jsonDocument -> BEARER + jsonDocument.read("$.access_token"))
-                .onErrorMap(WebClientResponseException.class, e -> {
-                    // Concur gives a 403 instead of a 401 when the password is bad, so we must convert it
-                    if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
-                        return new WebClientResponseException(
-                                e.getMessage(),
-                                HttpStatus.UNAUTHORIZED.value(),
-                                e.getStatusText(),
-                                e.getHeaders(),
-                                e.getResponseBodyAsByteArray(),
-                                StandardCharsets.UTF_8
-                        );
-                    }
-                    return e;
-                });
+                .onErrorMap(WebClientResponseException.class, e -> handleForbiddenError(e));
+    }
+
+    private Throwable handleForbiddenError(WebClientResponseException e) {
+        // Concur gives a 403 instead of a 401 when the password is bad, so we must convert it
+        if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
+            return new WebClientResponseException(
+                    e.getMessage(),
+                    HttpStatus.UNAUTHORIZED.value(),
+                    e.getStatusText(),
+                    e.getHeaders(),
+                    e.getResponseBodyAsByteArray(),
+                    StandardCharsets.UTF_8
+            );
+        }
+        return e;
+    }
+
+    private MultiValueMap<String, String> getBody(String clientId, String clientSecret, String userName, String password) {
+        final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.put(CLIENT_ID, ImmutableList.of(clientId));
+        body.put(CLIENT_SECRET, ImmutableList.of(clientSecret));
+        body.put(USERNAME, ImmutableList.of(userName));
+        body.put(PASSWORD, ImmutableList.of(password));
+        body.put(GRANT_TYPE, ImmutableList.of(PASSWORD));
+        body.put(CRED_TYPE, ImmutableList.of(PASSWORD));
+        return body;
     }
 
     @PostMapping(path = "/api/expense/approve/{expenseReportId}",
