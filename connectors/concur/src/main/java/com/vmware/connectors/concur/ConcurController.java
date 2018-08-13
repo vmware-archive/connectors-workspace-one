@@ -20,12 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
@@ -86,6 +88,12 @@ public class ConcurController {
         this.concurrRequestTemplate = concurRequestTemplate;
     }
 
+    @GetMapping("/test-auth")
+    public Mono<ResponseEntity<Void>> verifyAuth(@RequestHeader(name = AUTHORIZATION_HEADER) final String authHeader) {
+        return fetchOAuthToken(authHeader, clientId, clientSecret)
+                .map(ignoredToken -> ResponseEntity.noContent().build());
+    }
+
     @PostMapping(path = "/cards/requests",
             produces = APPLICATION_JSON_VALUE,
             consumes = APPLICATION_JSON_VALUE)
@@ -117,13 +125,7 @@ public class ConcurController {
         final String userName = decodedValue.split(":")[0];
         final String password = decodedValue.split(":")[1];
 
-        final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.put(CLIENT_ID, ImmutableList.of(clientId));
-        body.put(CLIENT_SECRET, ImmutableList.of(clientSecret));
-        body.put(USERNAME, ImmutableList.of(userName));
-        body.put(PASSWORD, ImmutableList.of(password));
-        body.put(GRANT_TYPE, ImmutableList.of(PASSWORD));
-        body.put(CRED_TYPE, ImmutableList.of(PASSWORD));
+        final MultiValueMap<String, String> body = getBody(clientId, clientSecret, userName, password);
 
         return rest.post()
                 .uri(UriComponentsBuilder.fromHttpUrl(oauthTokenUrl).path("/oauth2/v0/token").toUriString())
@@ -131,7 +133,34 @@ public class ConcurController {
                 .body(BodyInserters.fromFormData(body))
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(jsonDocument -> BEARER + jsonDocument.read("$.access_token"));
+                .map(jsonDocument -> BEARER + jsonDocument.read("$.access_token"))
+                .onErrorMap(WebClientResponseException.class, e -> handleForbiddenError(e));
+    }
+
+    private Throwable handleForbiddenError(WebClientResponseException e) {
+        // Concur gives a 403 instead of a 401 when the password is bad, so we must convert it
+        if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
+            return new WebClientResponseException(
+                    e.getMessage(),
+                    HttpStatus.UNAUTHORIZED.value(),
+                    e.getStatusText(),
+                    e.getHeaders(),
+                    e.getResponseBodyAsByteArray(),
+                    StandardCharsets.UTF_8
+            );
+        }
+        return e;
+    }
+
+    private MultiValueMap<String, String> getBody(String clientId, String clientSecret, String userName, String password) {
+        final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.put(CLIENT_ID, ImmutableList.of(clientId));
+        body.put(CLIENT_SECRET, ImmutableList.of(clientSecret));
+        body.put(USERNAME, ImmutableList.of(userName));
+        body.put(PASSWORD, ImmutableList.of(password));
+        body.put(GRANT_TYPE, ImmutableList.of(PASSWORD));
+        body.put(CRED_TYPE, ImmutableList.of(PASSWORD));
+        return body;
     }
 
     @PostMapping(path = "/api/expense/approve/{expenseReportId}",
@@ -164,7 +193,7 @@ public class ConcurController {
                                                  final String reason,
                                                  final String reportID,
                                                  final String authHeader,
-                                                 final String concurAction) throws IOException, ExecutionException, InterruptedException {
+                                                 final String concurAction) throws IOException {
         // Replace the placeholder in concur request template with appropriate action and comment.
         final String concurRequestTemplate = getConcurRequestTemplate(reason, concurAction);
 
@@ -199,7 +228,7 @@ public class ConcurController {
 
         return fetchOAuthToken(authHeader, clientId, clientSecret)
                 .flatMap(oauthHeader -> getReportDetails(oauthHeader, id, baseUrl))
-                .onErrorResume(Reactive::skipOnNotFound)
+                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable, HttpStatus.BAD_REQUEST))
                 .map(entity -> convertResponseIntoCard(entity,
                         id,
                         routingPrefix,
