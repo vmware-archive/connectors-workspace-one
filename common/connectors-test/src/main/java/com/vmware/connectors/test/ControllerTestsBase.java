@@ -6,8 +6,6 @@
 package com.vmware.connectors.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import com.vmware.connectors.mock.MockWebServerWrapper;
 import com.vmware.connectors.mock.PhaserClientHttpConnector;
 import okhttp3.mockwebserver.MockWebServer;
@@ -34,7 +32,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -104,6 +101,13 @@ public class ControllerTestsBase {
 
     }
 
+    private void verifyObjectTypeField() throws IOException {
+        final byte[] body = getConnectorMetaData();
+
+        final Map<String, Object> map = mapper.readValue(body, Map.class);
+        assertThat(Objects.toString(map.get("object_type")), equalTo("card"));
+    }
+
     public static String fromFile(String fileName) throws IOException {
         try (InputStream stream = new ClassPathResource(fileName).getInputStream()) {
             return IOUtils.toString(stream, Charset.defaultCharset());
@@ -132,6 +136,8 @@ public class ControllerTestsBase {
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody().json(fromFile("/static/discovery/metadata.json"));
+
+        verifyObjectTypeField();
     }
 
     protected static void headers(HttpHeaders headers) {
@@ -141,11 +147,13 @@ public class ControllerTestsBase {
     }
 
     protected void testRegex(String tokenProperty, String emailInput, List<String> expected) throws Exception {
-        final String body = new String(getConnectorMetaData(), StandardCharsets.UTF_8);
+        byte[] body = getConnectorMetaData();
 
-        final DocumentContext documentContext = JsonPath.parse(body);
-        final Integer captureGroup = documentContext.read("$.object_types[0].fields." + tokenProperty + ".capture_group");
-        final String regex = documentContext.read("$.object_types[0].fields." + tokenProperty + ".regex");
+        Map<String, Object> results = mapper.readValue(body, Map.class);
+        Map<String, Object> fields = (Map<String, Object>) results.get("fields");
+        Map<String, Object> tokenDefinition = (Map<String, Object>) fields.get(tokenProperty);
+        String regex = (String) tokenDefinition.get("regex");
+        Integer captureGroup = (Integer) tokenDefinition.get("capture_group");
         verifyRegex(regex, captureGroup, emailInput, expected);
     }
 
