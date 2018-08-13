@@ -135,7 +135,7 @@ class ConcurControllerTest extends ControllerTestsBase {
                 fromFile("/concur/responses/report_id_2.json")
                         .replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
 
-        mockConcurServer.expect(ExpectedCount.manyTimes(), requestTo("/oauth2/v0/token"))
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
                 .andRespond(withSuccess(oauthToken, APPLICATION_JSON));

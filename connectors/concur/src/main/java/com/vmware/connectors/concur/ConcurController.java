@@ -22,6 +22,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -106,11 +107,24 @@ public class ConcurController {
             final HttpServletRequest request) {
 
         final Set<String> expenseReportIds = cardRequest.getTokens(EXPENSE_REPORT_ID);
+        if (CollectionUtils.isEmpty(expenseReportIds)) {
+            return Mono.just(new Cards());
+        }
 
+        return fetchOAuthToken(authHeader, clientId, clientSecret)
+                .flatMap(oauthHeader -> fetchCards(baseUrl, routingPrefix, locale,
+                        request, expenseReportIds, oauthHeader));
+    }
+
+    private Mono<Cards> fetchCards(final String baseUrl,
+                                   final  String routingPrefix,
+                                   final Locale locale,
+                                   final HttpServletRequest request,
+                                   final Set<String> expenseReportIds,
+                                   final String oauthHeader) {
         return Flux.fromIterable(expenseReportIds)
-                .flatMap(expenseReportId -> getCardForExpenseReport(
-                        authHeader, expenseReportId, baseUrl,
-                        routingPrefix, locale, request))
+                .flatMap(expenseReportId -> getCardForExpenseReport(expenseReportId, baseUrl, routingPrefix,
+                        locale, request, oauthHeader))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .defaultIfEmpty(new Cards())
                 .subscriberContext(Reactive.setupContext());
@@ -217,23 +231,17 @@ public class ConcurController {
         return concurRequestTemplate;
     }
 
-
-    private Mono<Card> getCardForExpenseReport(final String authHeader,
-                                                final String id,
-                                                final String baseUrl,
-                                                final String routingPrefix,
-                                                final Locale locale,
-                                                final HttpServletRequest request) {
+    private Mono<Card> getCardForExpenseReport(final String id,
+                                               final String baseUrl,
+                                               final String routingPrefix,
+                                               final Locale locale,
+                                               final HttpServletRequest request,
+                                               final String oauthHeader) {
         logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
-        return fetchOAuthToken(authHeader, clientId, clientSecret)
-                .flatMap(oauthHeader -> getReportDetails(oauthHeader, id, baseUrl))
-                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable, HttpStatus.BAD_REQUEST))
-                .map(entity -> convertResponseIntoCard(entity,
-                        id,
-                        routingPrefix,
-                        locale,
-                        request));
+        return getReportDetails(oauthHeader, id, baseUrl)
+                .onErrorResume(Reactive::skipOnNotFound)
+                .map(entity -> convertResponseIntoCard(entity, id, routingPrefix, locale, request));
     }
 
     private Mono<ResponseEntity<JsonDocument>> getReportDetails(String oauthHeader, String id, String baseUrl) {
