@@ -4,6 +4,9 @@ server:
      mime-types: application/json,application/xml,text/html,text/xml,text/plain
   server-header: bitbucket-server-connector
 
+connector:
+  hasTestAuth: true
+
 management:
   endpoints:
     web.base-path: /

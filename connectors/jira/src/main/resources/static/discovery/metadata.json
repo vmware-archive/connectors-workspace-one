@@ -1,25 +1,11 @@
 {
-  "image": {
-    "href": "${CONNECTOR_HOST}/images/connector.png"
-  },
-  "test_auth": {
-    "href": "${CONNECTOR_HOST}/test-auth"
-  },
-  "object_types": [
-    {
-      "name": "card",
-      "doc": {
-        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
-      },
-      "fields": {
-        "issue_id": {
-          "capture_group": 1,
-          "regex": "\\b([A-Z]{1,10}-\\d+)\\b"
-        }
-      },
-      "endpoint": {
-        "href": "${CONNECTOR_HOST}/cards/requests"
-      }
+  "authorization_header": "x-jira-authorization",
+  "backend_base_url_header": "x-jira-base-url",
+  "object_type": "card",
+  "fields": {
+    "issue_id": {
+      "capture_group": 1,
+      "regex": "\\b([A-Z]{1,10}-\\d+)\\b"
     }
-  ]
+  }
 }

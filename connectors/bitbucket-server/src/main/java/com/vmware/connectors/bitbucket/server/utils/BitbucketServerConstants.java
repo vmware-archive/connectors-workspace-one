@@ -12,10 +12,10 @@ public final class BitbucketServerConstants {
     public static final String BITBUCKET_PR_EMAIL_SUBJECT_REGEX = "(([a-zA-Z0-9]+)\\/([a-zA-Z0-9-]+) - Pull request #([0-9]+):[ ])";
 
     // Authorization header for bitbucket server.
-    public static final String AUTH_HEADER = "X-Connector-Authorization";
+    public static final String AUTH_HEADER = "x-bitbucket-server-authorization";
 
     // Bitbucket Server base URL.
-    public static final String BASE_URL_HEADER = "X-Connector-Base-Url";
+    public static final String BASE_URL_HEADER = "x-bitbucket-server-base-url";
 
     // Routing prefix for Bitbucket server connector.
     public static final String ROUTING_PREFIX = "x-routing-prefix";

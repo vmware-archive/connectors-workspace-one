@@ -102,13 +102,13 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-servicenow-base-url", mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/servicenow/")
                 .headers(ControllerTestsBase::headers)
                 .syncBody(fromFile("/servicenow/requests/" + requestFile));
 
         if (authToken != null) {
-            spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
+            spec = spec.header("x-servicenow-authorization", "Bearer " + authToken);
         }
 
         if (language != null) {

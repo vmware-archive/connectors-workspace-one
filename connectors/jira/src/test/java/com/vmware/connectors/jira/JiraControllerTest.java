@@ -140,8 +140,8 @@ class JiraControllerTest extends ControllerTestsBase {
         webClient.head()
                 .uri("/test-auth")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, "Bearer abc")
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-jira-authorization", "Bearer abc")
+                .header("x-jira-base-url", mockBackend.url(""))
                 .exchange()
                 .expectStatus().isNoContent();
     }
@@ -156,8 +156,8 @@ class JiraControllerTest extends ControllerTestsBase {
         webClient.head()
                 .uri("/test-auth")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, "Bearer abc")
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-jira-authorization", "Bearer abc")
+                .header("x-jira-base-url", mockBackend.url(""))
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectHeader().valueEquals("x-backend-status", "401");
@@ -177,7 +177,7 @@ class JiraControllerTest extends ControllerTestsBase {
                 .syncBody(fromFile("/jira/requests/request.json"))
                 .exchange()
                 .expectStatus().isBadRequest()
-                .expectBody().jsonPath("$.message").isEqualTo("Missing request header '" + X_AUTH_HEADER + "' for method parameter of type String");
+                .expectBody().jsonPath("$.message").isEqualTo("Missing request header 'x-jira-authorization' for method parameter of type String");
     }
 
     @Test
@@ -234,8 +234,8 @@ class JiraControllerTest extends ControllerTestsBase {
                 .uri("/api/v1/issues/1234/comment")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header(X_AUTH_HEADER, "Bearer abc")
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-jira-authorization", "Bearer abc")
+                .header("x-jira-base-url", mockBackend.url(""))
                 .syncBody("body=Hello")
                 .exchange()
                 .expectStatus().isCreated();
@@ -246,8 +246,8 @@ class JiraControllerTest extends ControllerTestsBase {
         webClient.post()
                 .uri("/api/v1/issues/1234/comment")
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header(X_AUTH_HEADER, "Bearer abc")
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-jira-authorization", "Bearer abc")
+                .header("x-jira-base-url", mockBackend.url(""))
                 .syncBody("body=Hello")
                 .exchange()
                 .expectStatus().isUnauthorized()
@@ -260,7 +260,7 @@ class JiraControllerTest extends ControllerTestsBase {
                 .uri("/api/v1/issues/1234/comment")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header(X_BASE_URL_HEADER, "https://jira.acme.com")
+                .header("x-jira-base-url", "https://jira.acme.com")
                 .syncBody("body=Hello")
                 .exchange()
                 .expectStatus().isBadRequest();
@@ -277,8 +277,8 @@ class JiraControllerTest extends ControllerTestsBase {
                 .uri("/api/v1/issues/1234/comment")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header(X_AUTH_HEADER, "Bearer bogus")
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-jira-authorization", "Bearer bogus")
+                .header("x-jira-base-url", mockBackend.url(""))
                 .syncBody("body=Hello")
                 .exchange()
                 .expectStatus().isBadRequest()
@@ -301,8 +301,8 @@ class JiraControllerTest extends ControllerTestsBase {
         webClient.post()
                 .uri("/api/v1/issues/1234/watchers")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, "Bearer abc")
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-jira-authorization", "Bearer abc")
+                .header("x-jira-base-url", mockBackend.url(""))
                 .exchange()
                 .expectStatus().isNoContent();
      }
@@ -312,8 +312,8 @@ class JiraControllerTest extends ControllerTestsBase {
         webClient.post()
                 .uri("/api/v1/issues/1234/watchers")
                 .header(AUTHORIZATION, "Bearer invalid")
-                .header(X_AUTH_HEADER, "Bearer abc")
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-jira-authorization", "Bearer abc")
+                .header("x-jira-base-url", mockBackend.url(""))
                 .exchange()
                 .expectStatus().isUnauthorized()
                 .expectBody().json("{\"error\":\"invalid_token\"}");
@@ -324,7 +324,7 @@ class JiraControllerTest extends ControllerTestsBase {
         webClient.post()
                 .uri("/api/v1/issues/1234/watchers")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                 .header("x-jira-base-url", mockBackend.url(""))
                 .exchange()
                 .expectStatus().isBadRequest();
     }
@@ -340,8 +340,8 @@ class JiraControllerTest extends ControllerTestsBase {
         webClient.post()
                 .uri("/api/v1/issues/1234/watchers")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, "Bearer bogus")
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-jira-authorization", "Bearer bogus")
+                .header("x-jira-base-url", mockBackend.url(""))
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
@@ -389,8 +389,8 @@ class JiraControllerTest extends ControllerTestsBase {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .headers(ControllerTestsBase::headers)
-                .header(X_AUTH_HEADER, "Bearer " + authToken)
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-jira-authorization", "Bearer " + authToken)
+                .header("x-jira-base-url", mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/jira/")
                 .syncBody(fromFile("/jira/requests/" + requestfile));
     }

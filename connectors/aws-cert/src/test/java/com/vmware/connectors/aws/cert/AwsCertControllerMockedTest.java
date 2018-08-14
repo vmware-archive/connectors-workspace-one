@@ -77,11 +77,11 @@ public class AwsCertControllerMockedTest {
 
     @ParameterizedTest
     @CsvSource({
-            APPROVAL_URL_WRONG_HOST_1 + ", 400",
-            APPROVAL_URL_WRONG_HOST_2 + ", 400",
-            APPROVAL_URL_WRONG_PATH + ", 400",
-            APPROVAL_URL_CORRECT + ", 200",
-            APPROVAL_URL_CORRECT_EXACT_HOST + ", 200"
+            APPROVAL_URL_WRONG_HOST_1 +", 400",
+            APPROVAL_URL_WRONG_HOST_2 +", 400",
+            APPROVAL_URL_WRONG_PATH +", 400",
+            APPROVAL_URL_CORRECT +", 200",
+            APPROVAL_URL_CORRECT_EXACT_HOST +", 200"
     })
     void testApprove(String approvalUrl, int status) {
         if (status == HttpStatus.OK.value()) {
@@ -125,8 +125,8 @@ public class AwsCertControllerMockedTest {
 
         assertThat(cards.getCards(), is(iterableWithSize(2)));
 
-        verify(mockClientHttpConnector).connect(eq(HttpMethod.GET), eq(URI.create(APPROVAL_URL_CORRECT)), any());
-        verify(mockClientHttpConnector).connect(eq(HttpMethod.GET), eq(URI.create(APPROVAL_URL_CORRECT_EXACT_HOST)), any());
+        verify(mockClientHttpConnector).connect(eq(HttpMethod.GET),eq(URI.create(APPROVAL_URL_CORRECT)), any());
+        verify(mockClientHttpConnector).connect(eq(HttpMethod.GET),eq(URI.create(APPROVAL_URL_CORRECT_EXACT_HOST)), any());
     }
 
 }

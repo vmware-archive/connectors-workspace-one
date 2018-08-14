@@ -41,8 +41,8 @@ public class GithubPrController {
 
     private static final Logger logger = LoggerFactory.getLogger(GithubPrController.class);
 
-    private static final String AUTH_HEADER = "X-Connector-Authorization";
-    private static final String BASE_URL_HEADER = "X-Connector-Base-Url";
+    private static final String AUTH_HEADER = "x-github-pr-authorization";
+    private static final String BASE_URL_HEADER = "x-github-pr-base-url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
 
     private static final String OPEN_STATE = "open";
@@ -148,7 +148,7 @@ public class GithubPrController {
                 .bodyToMono(PullRequest.class)
                 .onErrorResume(Reactive::skipOnNotFound)
                 .map(pullRequest -> Pair.of(pullRequestId, pullRequest));
-    }
+        }
 
     private String makeGithubUri(
             String baseUrl,

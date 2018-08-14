@@ -45,8 +45,8 @@ public class GitlabPrController {
 
     private static final Logger logger = LoggerFactory.getLogger(GitlabPrController.class);
 
-    private static final String AUTH_HEADER = "X-Connector-Authorization";
-    private static final String BASE_URL_HEADER = "X-Connector-Base-Url";
+    private static final String AUTH_HEADER = "x-gitlab-pr-authorization";
+    private static final String BASE_URL_HEADER = "x-gitlab-pr-base-url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
 
     private static final String COMMENT_PARAM_KEY = "message";

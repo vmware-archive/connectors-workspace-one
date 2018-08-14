@@ -1,22 +1,11 @@
 {
-  "image": {
-    "href": "${CONNECTOR_HOST}/images/connector.png"
-  },
-  "object_types": [
-    {
-      "name": "card",
-      "doc": {
-        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
-      },
-      "fields": {
-        "pull_request_urls": {
-          "capture_group": 1,
-          "regex": "(https://github.com/[a-zA-Z0-9-]+/[a-zA-Z0-9._-]+/pull/[0-9]+)"
-        }
-      },
-      "endpoint": {
-        "href": "${CONNECTOR_HOST}/cards/requests"
-      }
+  "authorization_header": "x-github-pr-authorization",
+  "backend_base_url_header": "x-github-pr-base-url",
+  "object_type": "card",
+  "fields": {
+    "pull_request_urls": {
+      "capture_group": 1,
+      "regex": "(https://github.com/[a-zA-Z0-9-]+/[a-zA-Z0-9._-]+/pull/[0-9]+)"
     }
-  ]
+  }
 }

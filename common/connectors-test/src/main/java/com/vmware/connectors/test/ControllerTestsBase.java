@@ -6,8 +6,6 @@
 package com.vmware.connectors.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import com.vmware.connectors.mock.MockWebServerWrapper;
 import com.vmware.connectors.mock.PhaserClientHttpConnector;
 import okhttp3.mockwebserver.MockWebServer;
@@ -24,7 +22,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.TestPropertySource;
@@ -37,7 +34,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,10 +54,6 @@ public class ControllerTestsBase {
 
     private static final Logger logger = LoggerFactory.getLogger(ControllerTestsBase.class);
 
-    protected final static String X_AUTH_HEADER = "X-Connector-Authorization";
-
-    protected final static String X_BASE_URL_HEADER = "X-Connector-Base-Url";
-
     @Autowired
     protected JwtUtils jwt;
 
@@ -74,6 +66,7 @@ public class ControllerTestsBase {
     private String auth;
 
     protected MockWebServerWrapper mockBackend;
+
 
 
     @BeforeEach
@@ -108,6 +101,13 @@ public class ControllerTestsBase {
 
     }
 
+    private void verifyObjectTypeField() throws IOException {
+        final byte[] body = getConnectorMetaData();
+
+        final Map<String, Object> map = mapper.readValue(body, Map.class);
+        assertThat(Objects.toString(map.get("object_type")), equalTo("card"));
+    }
+
     public static String fromFile(String fileName) throws IOException {
         try (InputStream stream = new ClassPathResource(fileName).getInputStream()) {
             return IOUtils.toString(stream, Charset.defaultCharset());
@@ -123,23 +123,21 @@ public class ControllerTestsBase {
     }
 
     protected void testConnectorDiscovery() throws IOException {
-
-        String xForwardedHost = "https://my-connector";
-        // Confirm connector has updated the host placeholder.
-        String expectedMetadata = fromFile("/static/discovery/metadata.json")
-                .replace("${CONNECTOR_HOST}", xForwardedHost);
-
-        // Discovery metadata.json is at the connector root.
         webClient.get()
                 .uri("/")
                 .headers(ControllerTestsBase::headers)
                 .exchange()
-                .expectHeader().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
                 .expectStatus().is2xxSuccessful()
-                .expectBody()
-                .json(expectedMetadata)
-                // Verify object type is 'card'.
-                .jsonPath("$.object_types[0].name").isEqualTo("card");
+                .expectBody().json(fromFile("/connector/responses/discovery.json"));
+
+        webClient.get()
+                .uri("/discovery/metadata.json")
+                .headers(ControllerTestsBase::headers)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody().json(fromFile("/static/discovery/metadata.json"));
+
+        verifyObjectTypeField();
     }
 
     protected static void headers(HttpHeaders headers) {
@@ -149,23 +147,24 @@ public class ControllerTestsBase {
     }
 
     protected void testRegex(String tokenProperty, String emailInput, List<String> expected) throws Exception {
-        String body = new String(getConnectorMetaData());
+        byte[] body = getConnectorMetaData();
 
-        DocumentContext ctx = JsonPath.parse(body);
-        Integer captureGroup = ctx.read("$.object_types[0].fields." + tokenProperty + ".capture_group");
-        String regex = ctx.read("$.object_types[0].fields." + tokenProperty + ".regex");
-
+        Map<String, Object> results = mapper.readValue(body, Map.class);
+        Map<String, Object> fields = (Map<String, Object>) results.get("fields");
+        Map<String, Object> tokenDefinition = (Map<String, Object>) fields.get(tokenProperty);
+        String regex = (String) tokenDefinition.get("regex");
+        Integer captureGroup = (Integer) tokenDefinition.get("capture_group");
         verifyRegex(regex, captureGroup, emailInput, expected);
     }
 
     private byte[] getConnectorMetaData() {
         return webClient.get()
-                .uri("/")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(byte[].class).getResponseBodyContent();
+                    .uri("/discovery/metadata.json")
+                    .header(AUTHORIZATION, "Bearer " + accessToken())
+                    .accept(APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .returnResult(byte[].class).getResponseBodyContent();
     }
 
     private void verifyRegex(String regex, Integer captureGroup, String emailInput, List<String> expected) throws Exception {
@@ -211,6 +210,6 @@ public class ControllerTestsBase {
             WebClient.Builder builder = WebClient.builder();
             codecCustomizer.customize(builder);
             return builder.clientConnector(new PhaserClientHttpConnector());
-        }
+         }
     }
 }

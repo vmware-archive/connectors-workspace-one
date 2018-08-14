@@ -45,8 +45,8 @@ public final class ConcurConstants {
     }
 
     public static final class Header {
-        public final static String AUTHORIZATION_HEADER = "X-Connector-Authorization";
-        public final static String BACKEND_BASE_URL_HEADER = "X-Connector-Base-Url";
+        public final static String AUTHORIZATION_HEADER = "x-concur-authorization";
+        public final static String BACKEND_BASE_URL_HEADER = "x-concur-base-url";
         public final static String ROUTING_PREFIX = "x-routing-prefix";
 
         private Header() {

@@ -83,13 +83,13 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-gitlab-pr-base-url", mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/gitlab-pr/")
                 .headers(ControllerTestsBase::headers)
                 .syncBody(content);
 
         if (authToken != null) {
-            spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
+            spec = spec.header("x-gitlab-pr-authorization", "Bearer " + authToken);
         }
 
         if (language != null) {
