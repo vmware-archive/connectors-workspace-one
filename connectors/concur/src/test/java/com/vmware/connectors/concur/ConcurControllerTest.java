@@ -97,6 +97,11 @@ class ConcurControllerTest extends ControllerTestsBase {
         testRequestCards("emptyIssue.json", "emptyIssue.json", null);
     }
 
+    @Test
+    void testRequestWithEmptyEmailSubject() throws Exception{
+        testRequestCards("emptyEmailSubject.json", "emptyIssue.json", null);
+    }
+
     @DisplayName("Missing parameter cases")
     @ParameterizedTest(name = "{index} ==> ''{0}''")
     @CsvSource({
@@ -135,7 +140,7 @@ class ConcurControllerTest extends ControllerTestsBase {
                 fromFile("/concur/responses/report_id_2.json")
                         .replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
 
-        mockConcurServer.expect(ExpectedCount.manyTimes(), requestTo("/oauth2/v0/token"))
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
                 .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
@@ -151,7 +156,7 @@ class ConcurControllerTest extends ControllerTestsBase {
 
         expect(INVALID_REPORT_ID).andRespond(withStatus(HttpStatus.BAD_REQUEST));
 
-        mockConcurServer.expect(ExpectedCount.manyTimes(), requestTo("/oauth2/v0/token"))
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
                 .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
@@ -286,7 +291,9 @@ class ConcurControllerTest extends ControllerTestsBase {
                 "623EEB33D8E548C1B902",
                 "126EEB33D8E548C1B902",
                 "356EEB33D8E548C1B902",
-                "923EFB33D8E548C1B902");
+                "356EEB33D8E548C1B902",
+                "923EFB33D8E548C1B902",
+                "D32CBFA3289D4366B1A7");
         testRegex("expense_report_id", fromFile("concur/regex-input.txt"), expectedList);
     }
 

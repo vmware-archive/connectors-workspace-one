@@ -3,9 +3,12 @@
   "backend_base_url_header": "x-concur-base-url",
   "object_type": "card",
   "fields": {
+    "concur_automated_email_subject": {
+      "regex": "Expense Report Pending Your Approval"
+    },
     "expense_report_id": {
       "capture_group": 1,
-      "regex": "Report\\s*Id\\s*:\\s*([A-Za-z0-9]{20,})"
+      "regex": "\\b([A-F0-9]{20,})\\b"
     }
   }
 }

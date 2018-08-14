@@ -17,6 +17,9 @@ public final class ConcurConstants {
         // Unique ticket request identifier for retrieving travel information.
         public static final String EXPENSE_REPORT_ID = "expense_report_id";
 
+        // Concur auto generated email subject.
+        public static final String CONCUR_AUTOMATED_EMAIL_SUBJECT = "concur_automated_email_subject";
+
         private Fields() {
         }
     }
