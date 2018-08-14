@@ -46,6 +46,7 @@ import java.util.concurrent.ExecutionException;
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
 import static com.vmware.connectors.concur.ConcurConstants.ConcurRequestActions.*;
 import static com.vmware.connectors.concur.ConcurConstants.ConcurResponseActions.SUBMITTED_AND_PENDING_APPROVAL;
+import static com.vmware.connectors.concur.ConcurConstants.Fields.CONCUR_AUTOMATED_EMAIL_SUBJECT;
 import static com.vmware.connectors.concur.ConcurConstants.Fields.EXPENSE_REPORT_ID;
 import static com.vmware.connectors.concur.ConcurConstants.Header.*;
 import static com.vmware.connectors.concur.ConcurConstants.RequestParam.REASON;
@@ -105,6 +106,11 @@ public class ConcurController {
             final Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
             final HttpServletRequest request) {
+
+        final String automatedEmailSubject = cardRequest.getTokenSingleValue(CONCUR_AUTOMATED_EMAIL_SUBJECT);
+        if (StringUtils.isBlank(automatedEmailSubject)) {
+            return Mono.just(new Cards());
+        }
 
         final Set<String> expenseReportIds = cardRequest.getTokens(EXPENSE_REPORT_ID);
         if (CollectionUtils.isEmpty(expenseReportIds)) {
@@ -240,7 +246,7 @@ public class ConcurController {
         logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
         return getReportDetails(oauthHeader, id, baseUrl)
-                .onErrorResume(Reactive::skipOnNotFound)
+                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable, HttpStatus.BAD_REQUEST))
                 .map(entity -> convertResponseIntoCard(entity, id, routingPrefix, locale, request));
     }
 

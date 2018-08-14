@@ -97,6 +97,11 @@ class ConcurControllerTest extends ControllerTestsBase {
         testRequestCards("emptyIssue.json", "emptyIssue.json", null);
     }
 
+    @Test
+    void testRequestWithEmptyEmailSubject() throws Exception{
+        testRequestCards("emptyEmailSubject.json", "emptyIssue.json", null);
+    }
+
     @DisplayName("Missing parameter cases")
     @ParameterizedTest(name = "{index} ==> ''{0}''")
     @CsvSource({
@@ -151,7 +156,7 @@ class ConcurControllerTest extends ControllerTestsBase {
 
         expect(INVALID_REPORT_ID).andRespond(withStatus(HttpStatus.BAD_REQUEST));
 
-        mockConcurServer.expect(ExpectedCount.manyTimes(), requestTo("/oauth2/v0/token"))
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
                 .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
