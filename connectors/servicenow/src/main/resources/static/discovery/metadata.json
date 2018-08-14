@@ -1,14 +1,25 @@
 {
-  "authorization_header": "x-servicenow-authorization",
-  "backend_base_url_header": "x-servicenow-base-url",
-  "object_type": "card",
-  "fields": {
-    "ticket_id": {
-      "capture_group": 1,
-      "regex": "\\b(REQ[0-9]{7})\\b"
-    },
-    "email": {
-      "env": "USER_EMAIL"
+  "image": {
+    "href": "${CONNECTOR_HOST}/images/connector.png"
+  },
+  "object_types": [
+    {
+      "name": "card",
+      "doc": {
+        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "fields": {
+        "ticket_id": {
+          "capture_group": 1,
+          "regex": "\\b(REQ[0-9]{7})\\b"
+        },
+        "email": {
+          "env": "USER_EMAIL"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/cards/requests"
+      }
     }
-  }
+  ]
 }

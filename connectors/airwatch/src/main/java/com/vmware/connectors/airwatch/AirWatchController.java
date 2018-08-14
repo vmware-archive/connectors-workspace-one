@@ -57,7 +57,7 @@ public class AirWatchController {
     private static final Logger logger = LoggerFactory.getLogger(AirWatchController.class);
 
     private static final String AIRWATCH_AUTH_HEADER = "Authorization";
-    private static final String AIRWATCH_BASE_URL_HEADER = "x-airwatch-base-url";
+    private static final String AIRWATCH_BASE_URL_HEADER = "X-Connector-Base-Url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
 
     private static final int AW_USER_NOT_ASSOCIATED_WITH_UDID = 1001;
@@ -73,25 +73,16 @@ public class AirWatchController {
 
     private final AppConfigService appConfig;
 
-    // Metadata includes connector regex derived from app keywords.
-    private final String connectorMetadata;
-
     private final URI gbBaseUri;
 
     @Autowired
     public AirWatchController(WebClient rest, CardTextAccessor cardTextAccessor,
-                              AppConfigService appConfig, String connectorMetadata,
+                              AppConfigService appConfig,
                               URI gbBaseUri) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.appConfig = appConfig;
-        this.connectorMetadata = connectorMetadata;
         this.gbBaseUri = gbBaseUri;
-    }
-
-    @GetMapping(path = "/discovery/metadata.json")
-    public ResponseEntity<String> getmetadata() {
-        return ResponseEntity.ok(connectorMetadata);
     }
 
     @PostMapping(path = "/cards/requests",

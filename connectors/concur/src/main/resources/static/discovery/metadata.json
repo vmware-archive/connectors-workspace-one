@@ -1,11 +1,22 @@
 {
-  "authorization_header": "x-concur-authorization",
-  "backend_base_url_header": "x-concur-base-url",
-  "object_type": "card",
-  "fields": {
-    "expense_report_id": {
-      "capture_group": 1,
-      "regex": "Report\\s*Id\\s*:\\s*([A-Za-z0-9]{20,})"
+  "image": {
+    "href": "${CONNECTOR_HOST}/images/connector.png"
+  },
+  "object_types": [
+    {
+      "name": "card",
+      "doc": {
+        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "fields": {
+        "expense_report_id": {
+          "capture_group": 1,
+          "regex": "Report\\s*Id\\s*:\\s*([A-Za-z0-9]{20,})"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/cards/requests"
+      }
     }
-  }
+  ]
 }
