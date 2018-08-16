@@ -307,7 +307,7 @@ class ConcurControllerTest extends ControllerTestsBase {
         webClient.head()
                 .uri("/test-auth")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header("x-connector-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
+                .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .exchange()
                 .expectStatus().isNoContent();
     }
@@ -322,7 +322,7 @@ class ConcurControllerTest extends ControllerTestsBase {
         webClient.head()
                 .uri("/test-auth")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header("x-connector-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
+                .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectHeader().valueEquals("x-backend-status", "401");
