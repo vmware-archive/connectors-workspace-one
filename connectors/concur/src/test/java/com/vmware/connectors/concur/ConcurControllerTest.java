@@ -213,8 +213,8 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .uri(uri + expenseReportId)
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
-                .header("x-concur-base-url", mockBackend.url(""))
+                .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .body(BodyInserters.fromFormData(REASON, "Approval Done"))
                 .exchange()
                 .expectStatus().isOk();
@@ -246,8 +246,8 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .uri("/api/expense/reject/" + REPORT_ID_2)
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
-                .header("x-concur-base-url", mockBackend.url(""))
+                .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 // Reason with html character embedded in it.
                 .body(BodyInserters.fromFormData(REASON, "Approval </comment> <html> </html> Done"))
                 .exchange()
@@ -276,8 +276,8 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .uri(uri + REPORT_ID_1)
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
-                .header("x-concur-base-url", mockBackend.url(""))
+                .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .body(BodyInserters.fromFormData(REASON, "Approval Done"))
                 .exchange()
                 .expectStatus().isBadRequest()
@@ -307,7 +307,7 @@ class ConcurControllerTest extends ControllerTestsBase {
         webClient.head()
                 .uri("/test-auth")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
+                .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .exchange()
                 .expectStatus().isNoContent();
     }
@@ -322,7 +322,7 @@ class ConcurControllerTest extends ControllerTestsBase {
         webClient.head()
                 .uri("/test-auth")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
+                .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectHeader().valueEquals("x-backend-status", "401");
@@ -360,8 +360,8 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header("x-concur-authorization", "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
-                .header("x-concur-base-url", mockBackend.url(""))
+                .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
                 .headers(ControllerTestsBase::headers)
                 .syncBody(fromFile("/concur/requests/" + requestFile));

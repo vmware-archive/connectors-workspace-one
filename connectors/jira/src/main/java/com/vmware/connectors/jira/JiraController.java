@@ -40,8 +40,8 @@ import static org.springframework.http.MediaType.*;
 @RestController
 public class JiraController {
     private final static Logger logger = LoggerFactory.getLogger(JiraController.class);
-    private final static String JIRA_AUTH_HEADER = "x-jira-authorization";
-    private final static String JIRA_BASE_URL_HEADER = "x-jira-base-url";
+    private final static String JIRA_AUTH_HEADER = "X-Connector-Authorization";
+    private final static String JIRA_BASE_URL_HEADER = "X-Connector-Base-Url";
     private final static String ROUTING_PREFIX = "x-routing-prefix";
 
     private static final int COMMENTS_SIZE = 2;
@@ -109,7 +109,7 @@ public class JiraController {
 
     @GetMapping("/test-auth")
     public Mono<ResponseEntity<Void>> verifyAuth(@RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
-                                                   @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl) {
+                                                 @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl) {
         return rest.head()
                 .uri(baseUrl + "/rest/api/2/myself")
                 .header(AUTHORIZATION, jiraAuth)
@@ -120,7 +120,7 @@ public class JiraController {
     }
 
     private Mono<HttpStatus> addUserToWatcher(JsonDocument jiraUserDetails, String jiraAuth,
-                                                              String baseUrl, String issueKey) {
+                                              String baseUrl, String issueKey) {
         String user = jiraUserDetails.read("$.name");
         return rest.post()
                 .uri(baseUrl + "/rest/api/2/issue/{issueKey}/watchers", issueKey)
@@ -178,7 +178,7 @@ public class JiraController {
 
         CardBody.Builder cardBodyBuilder = new CardBody.Builder()
                 .addField(buildGeneralBodyField("project", jiraResponse.read("$.fields.project.name"), locale))
-                .addField(buildGeneralBodyField("components", String.join(",", components),locale))
+                .addField(buildGeneralBodyField("components", String.join(",", components), locale))
                 .addField(buildGeneralBodyField("priority", jiraResponse.read("$.fields.priority.name"), locale))
                 .addField(buildGeneralBodyField("status", jiraResponse.read("$.fields.status.name"), locale))
                 .addField(buildGeneralBodyField("resolution", jiraResponse.read("$.fields.resolution.name"), locale))

@@ -7,7 +7,3 @@ server:
 management:
   endpoints:
     web.base-path: /
-
-
-connector:
-  hasTestAuth: true

@@ -43,8 +43,8 @@ public class SalesforceController {
 
     private static final Logger logger = LoggerFactory.getLogger(SalesforceController.class);
 
-    private static final String SALESFORCE_AUTH_HEADER = "x-salesforce-authorization";
-    private static final String SALESFORCE_BASE_URL_HEADER = "x-salesforce-base-url";
+    private static final String SALESFORCE_AUTH_HEADER = "X-Connector-Authorization";
+    private static final String SALESFORCE_BASE_URL_HEADER = "X-Connector-Base-Url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
 
     private static final int COMMENTS_SIZE = 2;
@@ -110,6 +110,7 @@ public class SalesforceController {
         this.sfOpportunityContactLinkPath = sfOpportunityContactLinkPath;
         this.sfOpportunityFieldsUpdatePath = sfOpportunityFieldsUpdatePath;
     }
+
 
     ///////////////////////////////////////////////////////////////////
     // Methods common to both the cards request and the actions

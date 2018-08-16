@@ -44,8 +44,8 @@ public class ServiceNowController {
      */
     private static final String RESULT_PREFIX = "$.result.";
 
-    private static final String AUTH_HEADER = "x-servicenow-authorization";
-    private static final String BASE_URL_HEADER = "x-servicenow-base-url";
+    private static final String AUTH_HEADER = "X-Connector-Authorization";
+    private static final String BASE_URL_HEADER = "X-Connector-Base-Url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
 
     private static final String REASON_PARAM_KEY = "reason";
@@ -59,7 +59,7 @@ public class ServiceNowController {
     /**
      * The query param to specify a limit of the results coming back in your
      * ServiceNow REST calls.
-     *
+     * <p>
      * The default is 10,000.
      */
     private static final String SNOW_SYS_PARAM_LIMIT = "sysparm_limit";
@@ -68,7 +68,7 @@ public class ServiceNowController {
      * The maximum approval requests to fetch from ServiceNow.  Since we have
      * to filter results out based on the ticket_id param passed in by the
      * client, this has to be sufficiently large to not lose results.
-     *
+     * <p>
      * I wasn't able to find a REST call that would allow me to bulk lookup the
      * approval requests (or requests) by multiple request numbers
      * (ex. REQ0010001,REQ0010002,REQ0010003), so I'm forced to do things a
@@ -246,7 +246,7 @@ public class ServiceNowController {
         logger.trace("callForAndAggregateRequestInfo called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
 
         return callForRequestInfo(baseUrl, auth, approvalRequest)
-               .map(requestNumber -> new ApprovalRequestWithInfo(approvalRequest, requestNumber));
+                .map(requestNumber -> new ApprovalRequestWithInfo(approvalRequest, requestNumber));
     }
 
     private Mono<Request> callForRequestInfo(
@@ -315,19 +315,19 @@ public class ServiceNowController {
         );
 
         return rest.get()
-                .uri(              UriComponentsBuilder
-                                .fromHttpUrl(baseUrl)
-                                .path("/api/now/table/{scTableName}")
-                                .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
-                                .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
-                                .queryParam(ScRequestedItem.Fields.REQUEST.toString(), approvalRequest.getApprovalSysId())
-                                .buildAndExpand(
-                                        ImmutableMap.of(
-                                                "scTableName", ScRequestedItem.TABLE_NAME
-                                        )
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path("/api/now/table/{scTableName}")
+                        .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
+                        .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
+                        .queryParam(ScRequestedItem.Fields.REQUEST.toString(), approvalRequest.getApprovalSysId())
+                        .buildAndExpand(
+                                ImmutableMap.of(
+                                        "scTableName", ScRequestedItem.TABLE_NAME
                                 )
-                                .encode()
-                                .toUri())
+                        )
+                        .encode()
+                        .toUri())
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
