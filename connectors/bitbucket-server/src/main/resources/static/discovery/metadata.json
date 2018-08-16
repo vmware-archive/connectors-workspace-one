@@ -1,11 +1,25 @@
 {
-  "authorization_header": "x-bitbucket-server-authorization",
-  "backend_base_url_header": "x-bitbucket-server-base-url",
-  "object_type": "card",
-  "fields": {
-    "pr_email_subject": {
-      "capture_group": 1,
-      "regex": "((?:[a-zA-Z0-9]+)\/(?:[a-zA-Z0-9-]+) - Pull request #(?:[0-9]+):[ ])"
+  "image": {
+    "href": "${CONNECTOR_HOST}/images/connector.png"
+  },
+  "test_auth": {
+    "href": "${CONNECTOR_HOST}/test-auth"
+  },
+  "object_types": [
+    {
+      "name": "card",
+      "doc": {
+        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "fields": {
+        "pr_email_subject": {
+          "capture_group": 1,
+          "regex": "((?:[a-zA-Z0-9]+)\/(?:[a-zA-Z0-9-]+) - Pull request #(?:[0-9]+):[ ])"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/cards/requests"
+      }
     }
-  }
+  ]
 }
