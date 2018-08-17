@@ -1,4 +1,7 @@
 {
+  "image": {
+    "href": "https://my-connector/images/connector.png"
+  },
   "object_types": [
     {
       "name": "card",
