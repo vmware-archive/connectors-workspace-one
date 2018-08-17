@@ -172,7 +172,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .syncBody(fromFile("/connector/requests/request.json"))
                 .exchange()
                 .expectStatus().isBadRequest()
-                .expectBody().jsonPath("$.message").isEqualTo("Missing request header 'x-salesforce-authorization' for method parameter of type String");
+                .expectBody().jsonPath("$.message").isEqualTo("Missing request header '" + X_AUTH_HEADER + "' for method parameter of type String");
     }
 
     @DisplayName("Card request invalid token cases")
@@ -327,8 +327,8 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .uri(uri)
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .header("x-salesforce-authorization", "Bearer abc")
-                .header("x-salesforce-base-url", mockBackend.url(""))
+                .header(X_AUTH_HEADER, "Bearer abc")
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .syncBody(body)
                 .exchange()
                 .expectStatus().isOk();
@@ -364,8 +364,8 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header("x-salesforce-authorization", "Bearer " + authToken)
-                .header("x-salesforce-base-url", mockBackend.url(""))
+                .header(X_AUTH_HEADER, "Bearer " + authToken)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/salesforce/")
                 .headers(ControllerTestsBase::headers)
                 .syncBody(fromFile(filePath));
@@ -377,8 +377,8 @@ class SalesforceControllerTest extends ControllerTestsBase {
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .accept(APPLICATION_JSON)
-                .header("x-salesforce-authorization", "Bearer " + authToken)
-                .header("x-salesforce-base-url", mockBackend.url(""))
+                .header(X_AUTH_HEADER, "Bearer " + authToken)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .syncBody(fromFile(filePath))
                 .exchange();
     }

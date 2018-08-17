@@ -20,12 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
@@ -43,6 +46,7 @@ import java.util.concurrent.ExecutionException;
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
 import static com.vmware.connectors.concur.ConcurConstants.ConcurRequestActions.*;
 import static com.vmware.connectors.concur.ConcurConstants.ConcurResponseActions.SUBMITTED_AND_PENDING_APPROVAL;
+import static com.vmware.connectors.concur.ConcurConstants.Fields.CONCUR_AUTOMATED_EMAIL_SUBJECT;
 import static com.vmware.connectors.concur.ConcurConstants.Fields.EXPENSE_REPORT_ID;
 import static com.vmware.connectors.concur.ConcurConstants.Header.*;
 import static com.vmware.connectors.concur.ConcurConstants.RequestParam.REASON;
@@ -86,6 +90,12 @@ public class ConcurController {
         this.concurrRequestTemplate = concurRequestTemplate;
     }
 
+    @GetMapping("/test-auth")
+    public Mono<ResponseEntity<Void>> verifyAuth(@RequestHeader(name = AUTHORIZATION_HEADER) final String authHeader) {
+        return fetchOAuthToken(authHeader, clientId, clientSecret)
+                .map(ignoredToken -> ResponseEntity.noContent().build());
+    }
+
     @PostMapping(path = "/cards/requests",
             produces = APPLICATION_JSON_VALUE,
             consumes = APPLICATION_JSON_VALUE)
@@ -97,12 +107,30 @@ public class ConcurController {
             @Valid @RequestBody CardRequest cardRequest,
             final HttpServletRequest request) {
 
-        final Set<String> expenseReportIds = cardRequest.getTokens(EXPENSE_REPORT_ID);
+        final String automatedEmailSubject = cardRequest.getTokenSingleValue(CONCUR_AUTOMATED_EMAIL_SUBJECT);
+        if (StringUtils.isBlank(automatedEmailSubject)) {
+            return Mono.just(new Cards());
+        }
 
+        final Set<String> expenseReportIds = cardRequest.getTokens(EXPENSE_REPORT_ID);
+        if (CollectionUtils.isEmpty(expenseReportIds)) {
+            return Mono.just(new Cards());
+        }
+
+        return fetchOAuthToken(authHeader, clientId, clientSecret)
+                .flatMap(oauthHeader -> fetchCards(baseUrl, routingPrefix, locale,
+                        request, expenseReportIds, oauthHeader));
+    }
+
+    private Mono<Cards> fetchCards(final String baseUrl,
+                                   final  String routingPrefix,
+                                   final Locale locale,
+                                   final HttpServletRequest request,
+                                   final Set<String> expenseReportIds,
+                                   final String oauthHeader) {
         return Flux.fromIterable(expenseReportIds)
-                .flatMap(expenseReportId -> getCardForExpenseReport(
-                        authHeader, expenseReportId, baseUrl,
-                        routingPrefix, locale, request))
+                .flatMap(expenseReportId -> getCardForExpenseReport(expenseReportId, baseUrl, routingPrefix,
+                        locale, request, oauthHeader))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
                 .defaultIfEmpty(new Cards())
                 .subscriberContext(Reactive.setupContext());
@@ -117,13 +145,7 @@ public class ConcurController {
         final String userName = decodedValue.split(":")[0];
         final String password = decodedValue.split(":")[1];
 
-        final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.put(CLIENT_ID, ImmutableList.of(clientId));
-        body.put(CLIENT_SECRET, ImmutableList.of(clientSecret));
-        body.put(USERNAME, ImmutableList.of(userName));
-        body.put(PASSWORD, ImmutableList.of(password));
-        body.put(GRANT_TYPE, ImmutableList.of(PASSWORD));
-        body.put(CRED_TYPE, ImmutableList.of(PASSWORD));
+        final MultiValueMap<String, String> body = getBody(clientId, clientSecret, userName, password);
 
         return rest.post()
                 .uri(UriComponentsBuilder.fromHttpUrl(oauthTokenUrl).path("/oauth2/v0/token").toUriString())
@@ -131,7 +153,34 @@ public class ConcurController {
                 .body(BodyInserters.fromFormData(body))
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(jsonDocument -> BEARER + jsonDocument.read("$.access_token"));
+                .map(jsonDocument -> BEARER + jsonDocument.read("$.access_token"))
+                .onErrorMap(WebClientResponseException.class, e -> handleForbiddenError(e));
+    }
+
+    private Throwable handleForbiddenError(WebClientResponseException e) {
+        // Concur gives a 403 instead of a 401 when the password is bad, so we must convert it
+        if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
+            return new WebClientResponseException(
+                    e.getMessage(),
+                    HttpStatus.UNAUTHORIZED.value(),
+                    e.getStatusText(),
+                    e.getHeaders(),
+                    e.getResponseBodyAsByteArray(),
+                    StandardCharsets.UTF_8
+            );
+        }
+        return e;
+    }
+
+    private MultiValueMap<String, String> getBody(String clientId, String clientSecret, String userName, String password) {
+        final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.put(CLIENT_ID, ImmutableList.of(clientId));
+        body.put(CLIENT_SECRET, ImmutableList.of(clientSecret));
+        body.put(USERNAME, ImmutableList.of(userName));
+        body.put(PASSWORD, ImmutableList.of(password));
+        body.put(GRANT_TYPE, ImmutableList.of(PASSWORD));
+        body.put(CRED_TYPE, ImmutableList.of(PASSWORD));
+        return body;
     }
 
     @PostMapping(path = "/api/expense/approve/{expenseReportId}",
@@ -164,7 +213,7 @@ public class ConcurController {
                                                  final String reason,
                                                  final String reportID,
                                                  final String authHeader,
-                                                 final String concurAction) throws IOException, ExecutionException, InterruptedException {
+                                                 final String concurAction) throws IOException {
         // Replace the placeholder in concur request template with appropriate action and comment.
         final String concurRequestTemplate = getConcurRequestTemplate(reason, concurAction);
 
@@ -188,23 +237,17 @@ public class ConcurController {
         return concurRequestTemplate;
     }
 
-
-    private Mono<Card> getCardForExpenseReport(final String authHeader,
-                                                final String id,
-                                                final String baseUrl,
-                                                final String routingPrefix,
-                                                final Locale locale,
-                                                final HttpServletRequest request) {
+    private Mono<Card> getCardForExpenseReport(final String id,
+                                               final String baseUrl,
+                                               final String routingPrefix,
+                                               final Locale locale,
+                                               final HttpServletRequest request,
+                                               final String oauthHeader) {
         logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
-        return fetchOAuthToken(authHeader, clientId, clientSecret)
-                .flatMap(oauthHeader -> getReportDetails(oauthHeader, id, baseUrl))
-                .onErrorResume(Reactive::skipOnNotFound)
-                .map(entity -> convertResponseIntoCard(entity,
-                        id,
-                        routingPrefix,
-                        locale,
-                        request));
+        return getReportDetails(oauthHeader, id, baseUrl)
+                .onErrorResume(throwable -> Reactive.skipOnStatus(throwable, HttpStatus.BAD_REQUEST))
+                .map(entity -> convertResponseIntoCard(entity, id, routingPrefix, locale, request));
     }
 
     private Mono<ResponseEntity<JsonDocument>> getReportDetails(String oauthHeader, String id, String baseUrl) {

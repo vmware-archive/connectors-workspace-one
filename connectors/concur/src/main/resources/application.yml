@@ -4,11 +4,14 @@ server:
      mime-types: application/json,application/xml,text/html,text/xml,text/plain
   server-header: concur-connector
 
+connector:
+  hasTestAuth: true
+
 management:
   endpoints:
     web.base-path: /
 
-# Below properties are required to be configured by the tenant inorder to fetch the OAuth token.
+# Inorder to fetch the OAuth token, the below properties are required to be configured by the tenant.
 concur:
   client-id: dummy-client-id
   client-secret: dummy-client-secret

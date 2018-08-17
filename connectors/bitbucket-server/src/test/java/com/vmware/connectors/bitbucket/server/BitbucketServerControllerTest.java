@@ -191,7 +191,7 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
                 .exchange()
-                .expectStatus().isNoContent();
+                .expectStatus().isOk();
     }
 
     @Test

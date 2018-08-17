@@ -90,13 +90,13 @@ class GithubPrControllerTest extends ControllerTestsBase {
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
-                .header("x-github-pr-base-url", mockBackend.url(""))
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/github-pr/")
                 .headers(ControllerTestsBase::headers)
                 .syncBody(content);
 
         if (authToken != null) {
-            spec = spec.header("x-github-pr-authorization", "Bearer " + authToken);
+            spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
         }
 
         if (language != null) {

@@ -1,16 +1,25 @@
 {
-  "backend_base_url_header": "x-airwatch-base-url",
-  "object_type": "card",
-  "fields": {
-    "udid": {
-      "env": "ENROLLMENT_DEVICE_UDID"
-    },
-    "platform": {
-      "env": "DEVICE_SYSTEM_NAME"
-    },
-    "app_keywords": {
-      "capture_group": 1,
-      "regex": "(CONNECTOR_REGEX)"
+  "object_types": [
+    {
+      "name": "card",
+      "doc": {
+        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "fields": {
+        "udid": {
+          "env": "ENROLLMENT_DEVICE_UDID"
+        },
+        "platform": {
+          "env": "DEVICE_SYSTEM_NAME"
+        },
+        "app_keywords": {
+          "capture_group": 1,
+          "regex": "(CONNECTOR_REGEX)"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/cards/requests"
+      }
     }
-  }
+  ]
 }

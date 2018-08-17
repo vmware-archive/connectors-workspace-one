@@ -30,19 +30,19 @@ public final class CommonUtils {
     }
 
     public static String buildConnectorImageUrl(final HttpRequest request) {
-        return buildConnectorImageUrl(request, DEFAULT_IMAGE_PATH);
+        return buildConnectorUrl(request, DEFAULT_IMAGE_PATH);
     }
 
     public static String buildConnectorImageUrl(final HttpServletRequest request) {
-        return buildConnectorImageUrl(request, DEFAULT_IMAGE_PATH);
+        return buildConnectorUrl(request, DEFAULT_IMAGE_PATH);
     }
 
-    public static String buildConnectorImageUrl(final HttpRequest request, final String path) {
+    public static String buildConnectorUrl(final HttpRequest request, final String path) {
         return UriComponentsBuilder.fromHttpRequest(request).replacePath(path).build().toString();
     }
 
-    public static String buildConnectorImageUrl(final HttpServletRequest request, final String path) {
-        return buildConnectorImageUrl(new ServletServerHttpRequest(request), path);
+    public static String buildConnectorUrl(final HttpServletRequest request, final String path) {
+        return buildConnectorUrl(new ServletServerHttpRequest(request), path);
     }
 
 }
