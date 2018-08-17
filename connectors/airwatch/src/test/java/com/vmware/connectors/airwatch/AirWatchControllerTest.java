@@ -46,6 +46,7 @@ import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 import static org.springframework.test.web.client.ExpectedCount.times;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
@@ -298,6 +299,17 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .expectStatus().isBadRequest()
                 .expectBody().json(fromFile("connector/responses/invalidPlatform.json"));
 
+    }
+
+    @Test
+    void testGetImage() {
+        webClient.get()
+                .uri("/images/connector.png")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentLength(13487)
+                .expectHeader().contentType(IMAGE_PNG_VALUE)
+                .expectBody(byte[].class).isEqualTo(bytesFromFile("/static/images/connector.png"));
     }
 
     private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
