@@ -195,6 +195,7 @@ public class CardTest {
         actionBuilder.setLabel("Suffer slings and arrows");
         actionBuilder.setType(HttpMethod.GET);
         cardBuilder.addAction(actionBuilder.build());
+        cardBuilder.addTag("cats").addTag("fails");
 
         actionBuilder.setActionKey("TAKE_ARMS");
         actionBuilder.setId(uuid);
