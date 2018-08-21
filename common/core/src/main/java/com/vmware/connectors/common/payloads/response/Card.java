@@ -9,11 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
@@ -58,11 +54,15 @@ public class Card {
     @JsonProperty("image")
     private Link image;
 
+    @JsonProperty("tags")
+    private final Set<String> tags;
+
     // Don't instantiate directly -- use a Card.Builder
     private Card() {
         this.actions = new ArrayList<>();
         this.id = UUID.randomUUID();
         this.creationDate = OffsetDateTime.now();
+        this.tags = new HashSet<>();
     }
 
     /**
@@ -156,6 +156,18 @@ public class Card {
     @JsonInclude(NON_EMPTY)
     public List<CardAction> getActions() {
         return Collections.unmodifiableList(actions);
+    }
+
+    /**
+     * Return a Set containing the tags applied to this card.
+     * The meaning of tags can vary and is known to the connector and consuming clients.
+     * This Set is <i>unmodifiable</i> - its contents cannot be changed once the Card is created.
+     *
+     * @return An unmodifiable Set of the tags on this Card
+     */
+    @JsonInclude(NON_EMPTY)
+    public Set<String> getTags() {
+        return Collections.unmodifiableSet(tags);
     }
 
 
@@ -326,6 +338,17 @@ public class Card {
          */
         public Builder addAction(CardAction action) {
             card.actions.add(action);
+            return this;
+        }
+
+        /**
+         * Add a tag to the Card under construction.
+         *
+         * @param tag the new tag to be added to the Card
+         * @return this Builder instance, for method chaining
+         */
+        public Builder addTag(String tag) {
+            card.tags.add(tag);
             return this;
         }
 
