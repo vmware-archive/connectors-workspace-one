@@ -139,7 +139,7 @@ public class ControllerTestsBase {
                 .expectBody()
                 .json(expectedMetadata)
                 // Verify object type is 'card'.
-                .jsonPath("$.object_types[0].name").isEqualTo("card");
+                .jsonPath("$.object_types.card").exists();
     }
 
     protected static void headers(HttpHeaders headers) {
@@ -152,8 +152,8 @@ public class ControllerTestsBase {
         String body = new String(getConnectorMetaData());
 
         DocumentContext ctx = JsonPath.parse(body);
-        Integer captureGroup = ctx.read("$.object_types[0].fields." + tokenProperty + ".capture_group");
-        String regex = ctx.read("$.object_types[0].fields." + tokenProperty + ".regex");
+        Integer captureGroup = ctx.read("$.object_types.card.fields." + tokenProperty + ".capture_group");
+        String regex = ctx.read("$.object_types.card.fields." + tokenProperty + ".regex");
 
         verifyRegex(regex, captureGroup, emailInput, expected);
     }

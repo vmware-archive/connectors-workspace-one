@@ -2,9 +2,8 @@
   "image": {
     "href": "${CONNECTOR_HOST}/images/connector.png"
   },
-  "object_types": [
-    {
-      "name": "card",
+  "object_types": {
+    "card": {
       "doc": {
         "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
       },
@@ -21,5 +20,5 @@
         "href": "${CONNECTOR_HOST}/cards/requests"
       }
     }
-  ]
+  }
 }
