@@ -340,6 +340,7 @@ public class ConcurController {
                 .addUserInputField(
                         new CardActionInputField.Builder()
                                 .setId(REASON)
+                                .setFormat("textarea")
                                 .setLabel(cardTextAccessor.getMessage("concur.approve.reason.label", locale))
                                 .setMinLength(1)
                                 .build()
@@ -361,6 +362,7 @@ public class ConcurController {
                 .addUserInputField(
                         new CardActionInputField.Builder()
                                 .setId(REASON)
+                                .setFormat("textarea")
                                 .setLabel(this.cardTextAccessor.getMessage("concur.reject.reason.label", locale))
                                 .setMinLength(1)
                                 .build()

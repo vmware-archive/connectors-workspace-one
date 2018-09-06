@@ -50,6 +50,7 @@
           "user_input": [
             {
               "id": "reason",
+              "format": "textarea",
               "label": "Reason for approval",
               "min_length": 1
             }
@@ -70,6 +71,7 @@
           "user_input": [
             {
               "id": "reason",
+              "format": "textarea",
               "label": "Reason for rejection",
               "min_length": 1
             }
