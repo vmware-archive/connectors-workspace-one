@@ -107,6 +107,8 @@ public class ConcurController {
             @Valid @RequestBody CardRequest cardRequest,
             final HttpServletRequest request) {
 
+        logger.debug("getCards called: baseUrl={}, cardRequest={}", baseUrl, cardRequest);
+
         final String automatedEmailSubject = cardRequest.getTokenSingleValue(CONCUR_AUTOMATED_EMAIL_SUBJECT);
         if (StringUtils.isBlank(automatedEmailSubject)) {
             return Mono.just(new Cards());
@@ -123,11 +125,13 @@ public class ConcurController {
     }
 
     private Mono<Cards> fetchCards(final String baseUrl,
-                                   final  String routingPrefix,
+                                   final String routingPrefix,
                                    final Locale locale,
                                    final HttpServletRequest request,
                                    final Set<String> expenseReportIds,
                                    final String oauthHeader) {
+        logger.debug("fetchCards called: baseUrl={}, expenseReportIds={}", baseUrl, expenseReportIds);
+
         return Flux.fromIterable(expenseReportIds)
                 .flatMap(expenseReportId -> getCardForExpenseReport(expenseReportId, baseUrl, routingPrefix,
                         locale, request, oauthHeader))
@@ -137,8 +141,10 @@ public class ConcurController {
     }
 
     private Mono<String> fetchOAuthToken(final String authHeader,
-                                   final String clientId,
-                                   final String clientSecret) {
+                                         final String clientId,
+                                         final String clientSecret) {
+        logger.debug("fetchOAuthToken called: clientId={}", clientId);
+
         final String authValue = authHeader.substring("Basic".length()).trim();
         final byte[] decodedAuthValue = Base64.getDecoder().decode(authValue);
         final String decodedValue = new String(decodedAuthValue, StandardCharsets.UTF_8);
@@ -251,6 +257,8 @@ public class ConcurController {
     }
 
     private Mono<ResponseEntity<JsonDocument>> getReportDetails(String oauthHeader, String id, String baseUrl) {
+        logger.debug("getReportDetails called: baseUrl={}, id={}", baseUrl, id);
+
         return rest.get()
                 .uri(baseUrl + "/api/expense/expensereport/v2.0/report/{id}", id)
                 .header(AUTHORIZATION, oauthHeader)
@@ -261,8 +269,8 @@ public class ConcurController {
     }
 
     private Mono<String> getWorkFlowActionUrl(final String authHeader,
-                                                final String id,
-                                                final String baseUrl) {
+                                              final String id,
+                                              final String baseUrl) {
         return getReportDetails(authHeader, id, baseUrl)
                 .map(ResponseEntity::getBody)
                 .map(jsonDocument -> jsonDocument.read("$.WorkflowActionURL"));
@@ -273,6 +281,8 @@ public class ConcurController {
                                          final String routingPrefix,
                                          final Locale locale,
                                          final HttpServletRequest request) {
+        logger.debug("convertResponseIntoCard called: expenseReportId={}", expenseReportId);
+
         final JsonDocument response = entity.getBody();
         final String approvalStatus = response.read("$.ApprovalStatusName");
 
