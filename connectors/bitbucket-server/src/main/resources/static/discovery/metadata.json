@@ -5,9 +5,8 @@
   "test_auth": {
     "href": "${CONNECTOR_HOST}/test-auth"
   },
-  "object_types": [
-    {
-      "name": "card",
+  "object_types": {
+    "card": {
       "doc": {
         "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
       },
@@ -21,5 +20,5 @@
         "href": "${CONNECTOR_HOST}/cards/requests"
       }
     }
-  ]
+  }
 }
