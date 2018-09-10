@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.utils;
 
+@SuppressWarnings("PMD.ClassNamingConventions")
 public class IgnoredFieldsReplacer {
 
     /**

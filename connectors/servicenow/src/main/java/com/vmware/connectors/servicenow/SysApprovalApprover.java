@@ -8,6 +8,7 @@ package com.vmware.connectors.servicenow;
 /**
  * A class to hold API information (fields, states, etc.) for ServiceNow's sysapproval_approver table.
  */
+@SuppressWarnings("PMD.ClassNamingConventions")
 final class SysApprovalApprover {
 
     enum Fields {

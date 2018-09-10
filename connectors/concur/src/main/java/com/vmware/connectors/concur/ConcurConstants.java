@@ -8,6 +8,7 @@ package com.vmware.connectors.concur;
 /**
  * Constants for Concur connector;
  */
+@SuppressWarnings("PMD.ClassNamingConventions")
 public final class ConcurConstants {
 
     private ConcurConstants() {

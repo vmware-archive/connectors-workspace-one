@@ -6,16 +6,18 @@
 package com.vmware.connectors.salesforce;
 
 import com.google.common.collect.ImmutableList;
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * This class is a Memento encapsulating the things we need to know about a Salesforce account.
  * Instances of this class are immutable.
  */
-@AutoProperty
 public class SFAccount {
 
     private final String id;
@@ -51,17 +53,17 @@ public class SFAccount {
 
     @Override
     public boolean equals(Object obj) {
-        return Pojomatic.equals(this, obj);
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 
     @Override
     public int hashCode() {
-        return Pojomatic.hashCode(this);
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 
 }

@@ -14,7 +14,7 @@
     </parent>
 
     <properties>
-        <docker.javaImage>ws1devops/java8:u172</docker.javaImage>
+        <docker.javaImage>openjdk:10.0.2-jre</docker.javaImage>
     </properties>
 
     <modules>
@@ -83,9 +83,7 @@
                                             <entryPoint>
                                                 <arg>java</arg>
                                                 <arg>-server</arg>
-                                                <arg>-XX:+UnlockExperimentalVMOptions</arg>
-                                                <arg>-XX:+UseCGroupMemoryLimitForHeap</arg>
-                                                <arg>-XX:MaxRAMFraction=2</arg>
+                                                <arg>-XX:MaxRAMPercentage=50</arg>
                                                 <arg>-XX:+HeapDumpOnOutOfMemoryError</arg>
                                                 <arg>-XX:HeapDumpPath=/tmp</arg>
                                                 <arg>-jar</arg>

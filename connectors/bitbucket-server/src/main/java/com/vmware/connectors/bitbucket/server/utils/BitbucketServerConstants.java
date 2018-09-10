@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.bitbucket.server.utils;
 
+@SuppressWarnings("PMD.ClassNamingConventions")
 public final class BitbucketServerConstants {
 
     public static final String BITBUCKET_PR_EMAIL_SUBJECT = "pr_email_subject";

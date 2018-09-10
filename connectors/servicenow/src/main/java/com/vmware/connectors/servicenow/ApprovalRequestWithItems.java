@@ -1,12 +1,12 @@
 package com.vmware.connectors.servicenow;
 
 import com.google.common.collect.ImmutableList;
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
 
-@AutoProperty
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+
 class ApprovalRequestWithItems extends ApprovalRequestWithInfo {
 
     private final List<RequestedItem> items;
@@ -25,7 +25,7 @@ class ApprovalRequestWithItems extends ApprovalRequestWithInfo {
 
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 
 }

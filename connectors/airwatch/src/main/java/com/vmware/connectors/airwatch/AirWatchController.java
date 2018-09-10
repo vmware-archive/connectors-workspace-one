@@ -287,8 +287,7 @@ public class AirWatchController {
                     "vIDM catalog doesn't contain " + appName);
         }
 
-        int RIGHT_APP_COUNT = 1;
-        if (jsonArray.size() != RIGHT_APP_COUNT) {
+        if (jsonArray.size() != 1) { //NOPMD
             throw new GbAppMapException(
                     "Unable to map " + appName + " to a single GreenBox app");
         }

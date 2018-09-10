@@ -7,20 +7,20 @@ package com.vmware.connectors.common.payloads.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Map;
 import java.util.Set;
 
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+
 /**
  * Payload for card requests
  *
  * @author Rob Worsnop
  */
-@AutoProperty
 public class CardRequest {
     @NotNull(message = "tokens required")
     @Size(min = 1, message = "tokens should have at least one entry")
@@ -88,7 +88,7 @@ public class CardRequest {
 
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 
 }

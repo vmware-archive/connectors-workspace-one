@@ -6,16 +6,16 @@
 package com.vmware.connectors.github.pr.v3;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Date;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * https://developer.github.com/v3/pulls/
  */
 @SuppressWarnings("PMD.ExcessivePublicCount")
-@AutoProperty
 public class PullRequest {
 
     @JsonProperty("_links")
@@ -78,7 +78,6 @@ public class PullRequest {
     private int changedFiles;
 
 
-    @AutoProperty
     public static class Links {
 
         @JsonProperty("html")
@@ -127,12 +126,11 @@ public class PullRequest {
 
         @Override
         public String toString() {
-            return Pojomatic.toString(this);
+            return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
         }
 
     }
 
-    @AutoProperty
     public static class Head {
 
         @JsonProperty("sha")
@@ -148,12 +146,11 @@ public class PullRequest {
 
         @Override
         public String toString() {
-            return Pojomatic.toString(this);
+            return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
         }
 
     }
 
-    @AutoProperty
     public static class User {
 
         @JsonProperty("login")
@@ -169,7 +166,7 @@ public class PullRequest {
 
         @Override
         public String toString() {
-            return Pojomatic.toString(this);
+            return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
         }
 
     }
@@ -331,7 +328,7 @@ public class PullRequest {
 
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 
 }
