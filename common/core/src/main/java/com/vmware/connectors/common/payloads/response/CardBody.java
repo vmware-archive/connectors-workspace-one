@@ -19,6 +19,7 @@ import java.util.List;
  * Instances of this class are unmodifiable once created. The CardBody class cannot be directly constructed;
  * use the CardBody.Builder class to create and populate a CardBody instance.
  */
+@SuppressWarnings("PMD.LinguisticNaming")
 public class CardBody {
     @JsonProperty("description")
     @JsonInclude(JsonInclude.Include.NON_NULL)

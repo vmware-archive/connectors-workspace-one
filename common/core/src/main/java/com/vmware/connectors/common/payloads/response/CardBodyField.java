@@ -18,6 +18,7 @@ import java.util.Map;
  * Instances of this class are immutable.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@SuppressWarnings("PMD.LinguisticNaming")
 public class CardBodyField {
     @JsonProperty("type")
     private String type;

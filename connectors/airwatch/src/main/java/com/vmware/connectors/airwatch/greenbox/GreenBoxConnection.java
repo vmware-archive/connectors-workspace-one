@@ -5,15 +5,15 @@
 
 package com.vmware.connectors.airwatch.greenbox;
 
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.net.URI;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * Created by harshas on 01/31/18.
  */
-@AutoProperty
 public class GreenBoxConnection {
 
     private final URI baseUri;
@@ -42,6 +42,6 @@ public class GreenBoxConnection {
 
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }

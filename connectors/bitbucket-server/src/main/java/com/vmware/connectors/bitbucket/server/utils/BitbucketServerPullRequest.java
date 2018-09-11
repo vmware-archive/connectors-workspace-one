@@ -5,13 +5,13 @@
 
 package com.vmware.connectors.bitbucket.server.utils;
 
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * Fields related to stash/bitbucket server pull request.
  */
-@AutoProperty
 public class BitbucketServerPullRequest {
 
     // Name of the stash project.
@@ -61,6 +61,6 @@ public class BitbucketServerPullRequest {
 
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }

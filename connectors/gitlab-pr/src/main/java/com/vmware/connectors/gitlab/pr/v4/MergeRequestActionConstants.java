@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.gitlab.pr.v4;
 
+@SuppressWarnings("PMD.ClassNamingConventions")
 public final class MergeRequestActionConstants {
 
     private MergeRequestActionConstants() {

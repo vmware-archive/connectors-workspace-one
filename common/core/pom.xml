@@ -71,10 +71,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-         </dependency>
-        <dependency>
-            <groupId>org.pojomatic</groupId>
-            <artifactId>pojomatic</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vmware.card-connectors</groupId>

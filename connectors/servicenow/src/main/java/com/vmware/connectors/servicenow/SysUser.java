@@ -8,6 +8,7 @@ package com.vmware.connectors.servicenow;
 /**
  * A class to hold API information (fields, states, etc.) for ServiceNow's sys_user table.
  */
+@SuppressWarnings("PMD.ClassNamingConventions")
 final class SysUser {
 
     enum Fields {

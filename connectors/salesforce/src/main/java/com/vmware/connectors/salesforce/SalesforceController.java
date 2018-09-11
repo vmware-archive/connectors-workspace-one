@@ -268,9 +268,9 @@ public class SalesforceController {
         int count = oppIds.read("$.totalSize");
         if (count > 0) {
 
-            List<String> Ids = oppIds.read("$.records[*].Opportunity.Id");
+            List<String> ids = oppIds.read("$.records[*].Opportunity.Id");
 
-            Flux<Card> opportunityCards = retrieveOpportunities(Ids, baseUrl, auth)
+            Flux<Card> opportunityCards = retrieveOpportunities(ids, baseUrl, auth)
                     .flatMapMany(document -> createOpportunityCards(document, routingPrefix, locale, request, userEmail));
 
             return Flux.concat(userDetailCard, opportunityCards);
@@ -567,7 +567,7 @@ public class SalesforceController {
             String auth
     ) {
         return retrieveAccountOpportunities(auth, baseUrl, account.getId())
-                .map(body -> setAccOpportunities(body, account));
+                .map(body -> toAccount(body, account));
     }
 
     private Mono<JsonDocument> retrieveAccountOpportunities(
@@ -584,7 +584,7 @@ public class SalesforceController {
 
     }
 
-    private SFAccount setAccOpportunities(
+    private SFAccount toAccount(
             JsonDocument accOpportunityResponse,
             SFAccount account
     ) {

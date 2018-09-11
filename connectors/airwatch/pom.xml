@@ -18,6 +18,23 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
@@ -122,6 +139,10 @@
                                             </inline>
                                         </assembly>
                                         <runCmds>
+                                            <run>yum -y install wget</run>
+                                            <run>wget https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_linux-x64_bin.tar.gz</run>
+                                            <run>tar xvf openjdk-10*_bin.tar.gz</run>
+                                            <run>ln -s /jdk-10.0.2/bin/java /usr/bin/java</run>
                                             <run>yum -y install /maven/target/rpm/${connector.name}-connector/RPMS/noarch/*.rpm</run>
                                             <run>
                                                 <![CDATA[
@@ -143,7 +164,9 @@
                                     </build>
                                     <run>
                                         <privileged>true</privileged>
-                                        <ports>connector.port:8080</ports>
+                                        <ports>
+                                            <port>connector.port:8080</port>
+                                        </ports>
                                         <wait>
                                             <!-- Build will fail if not healthy within 60 seconds -->
                                             <time>60000</time>

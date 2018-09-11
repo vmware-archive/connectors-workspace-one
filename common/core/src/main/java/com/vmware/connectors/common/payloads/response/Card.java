@@ -22,6 +22,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
  * to create and populate a Card instance.
  */
 @JsonInclude(NON_NULL)
+@SuppressWarnings("PMD.LinguisticNaming")
 public class Card {
     @JsonProperty("id")
     private UUID id;

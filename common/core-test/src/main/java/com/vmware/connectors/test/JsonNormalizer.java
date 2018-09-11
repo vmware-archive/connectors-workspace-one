@@ -12,6 +12,7 @@ import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 
 import static com.vmware.connectors.utils.IgnoredFieldsReplacer.*;
 
+@SuppressWarnings("PMD.ClassNamingConventions")
 public final class JsonNormalizer {
 
     private final static Configuration configuration = Configuration.builder()

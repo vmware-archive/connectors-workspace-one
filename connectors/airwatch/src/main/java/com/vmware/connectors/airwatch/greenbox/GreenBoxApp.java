@@ -5,13 +5,15 @@
 
 package com.vmware.connectors.airwatch.greenbox;
 
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * Created by harshas on 01/31/18.
  */
-@AutoProperty
 public class GreenBoxApp {
 
     private String name;
@@ -41,16 +43,16 @@ public class GreenBoxApp {
 
     @Override
     public boolean equals(Object obj) {
-        return Pojomatic.equals(this, obj);
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 
     @Override
     public int hashCode() {
-        return Pojomatic.hashCode(this);
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }

@@ -6,16 +6,16 @@
 package com.vmware.connectors.gitlab.pr.v4;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Date;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * https://docs.gitlab.com/ee/api/merge_requests.html
  */
 @SuppressWarnings("PMD.ExcessivePublicCount")
-@AutoProperty
 public class MergeRequest {
 
     @JsonProperty("sha")
@@ -49,8 +49,7 @@ public class MergeRequest {
     private String webUrl;
 
 
-    @AutoProperty
-    public static class User {
+     public static class User {
 
         @JsonProperty("username")
         private String username;
@@ -65,7 +64,7 @@ public class MergeRequest {
 
         @Override
         public String toString() {
-            return Pojomatic.toString(this);
+            return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
         }
 
     }
@@ -172,7 +171,7 @@ public class MergeRequest {
 
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 
 }
