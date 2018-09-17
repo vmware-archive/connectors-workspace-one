@@ -24,8 +24,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.CoreMatchers.*;
@@ -75,7 +74,11 @@ public class CardTest {
         builder.setTitle("Title of the Card");
         builder.setType("BOYBAND");
         builder.setDescription("The ultimate boy-band hero card");
-        builder.addContent(Collections.singletonMap("inspiration", "DaVinci's Notebook"));
+
+        final SortedMap<String, String> map = new TreeMap<>();
+        map.put("inspiration", "DaVinci's Notebook");
+
+        builder.addContent(Collections.unmodifiableSortedMap(map));
 
         CardBodyField fieldFromBuilder = builder.build();
         String jsonFromBuilder = mapper.writeValueAsString(fieldFromBuilder);

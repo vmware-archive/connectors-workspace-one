@@ -452,7 +452,10 @@ public class ServiceNowController {
                     item.getQuantity(),
                     item.getPrice()
             );
-            itemsBuilder.addContent(ImmutableMap.of("text", lineItem));
+
+            final SortedMap<String, String> sortedMap = new TreeMap<>();
+            sortedMap.put("text", lineItem);
+            itemsBuilder.addContent(sortedMap);
         }
 
         return body

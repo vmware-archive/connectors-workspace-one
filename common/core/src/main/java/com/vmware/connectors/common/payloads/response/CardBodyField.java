@@ -8,10 +8,7 @@ package com.vmware.connectors.common.payloads.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class represents a field in the body of a "hero card".
@@ -22,10 +19,13 @@ import java.util.Map;
 public class CardBodyField {
     @JsonProperty("type")
     private String type;
+
     @JsonProperty("title")
     private String title;
+
     @JsonProperty("description")
     private String description;
+
     @JsonProperty("content")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<Map<String, String>> content;
@@ -146,8 +146,8 @@ public class CardBodyField {
          * @param item the object to be added to the field's content
          * @return this Builder instance, for method chaining
          */
-        public Builder addContent(Map<String, String> item) {
-            field.content.add(Collections.unmodifiableMap(item));
+        public Builder addContent(SortedMap<String, String> item) {
+            field.content.add(Collections.unmodifiableSortedMap(item));
             return this;
         }
 

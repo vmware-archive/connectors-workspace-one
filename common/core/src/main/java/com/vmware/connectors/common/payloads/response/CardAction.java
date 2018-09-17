@@ -9,12 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.HttpMethod;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -71,7 +66,7 @@ public class CardAction {
     // Don't instantiate directly - use the Builder class below
     private CardAction() {
         this.type = HttpMethod.GET;
-        this.request = new HashMap<>();
+        this.request = new LinkedHashMap<>();
         this.userInput = new ArrayList<>();
         this.id = UUID.randomUUID();
         this.completedLabel = "Completed";

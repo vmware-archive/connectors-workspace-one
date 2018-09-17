@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -46,7 +46,7 @@ public class CardActionInputField {
 
     // Do not instantiate directly.
     private CardActionInputField() {
-        this.options = new HashMap<>();
+        this.options = new LinkedHashMap<>();
     }
 
     /**

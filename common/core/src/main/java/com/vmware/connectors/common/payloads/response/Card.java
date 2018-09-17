@@ -7,6 +7,8 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -58,12 +60,15 @@ public class Card {
     @JsonProperty("tags")
     private final Set<String> tags;
 
+    @JsonProperty("hash")
+    private String hash;
+
     // Don't instantiate directly -- use a Card.Builder
     private Card() {
         this.actions = new ArrayList<>();
         this.id = UUID.randomUUID();
         this.creationDate = OffsetDateTime.now();
-        this.tags = new HashSet<>();
+        this.tags = new LinkedHashSet<>();
     }
 
     /**
@@ -171,6 +176,14 @@ public class Card {
         return Collections.unmodifiableSet(tags);
     }
 
+    /**
+     * Return SHA-1 of the card header, body, and action.
+     *
+     * @return hash value
+     */
+    public String getHash() {
+        return this.hash;
+    }
 
     /**
      * This class allows the construction of Card objects. To use, create a Builder instance, call its methods
@@ -360,9 +373,35 @@ public class Card {
          */
         @SuppressWarnings("PMD.UnnecessaryLocalBeforeReturn")
         public Card build() {
+            // Compute hash and set the value.
+            card.hash = computeHash();
+
             Card completedCard = this.card;
             reset();
             return completedCard;
+        }
+
+        private String computeHash() {
+            String result = "";
+            if (card.name != null) {
+                result += card.name;
+            }
+
+            if (card.header != null) {
+                result += card.header.toString();
+            }
+
+            if (!CollectionUtils.isEmpty(card.actions)) {
+                for (CardAction action: card.actions) {
+                    result += action.toString();
+                }
+            }
+
+            if (card.body != null) {
+                result += card.body.toString();
+            }
+
+            return DigestUtils.sha1Hex(result);
         }
     }
 }

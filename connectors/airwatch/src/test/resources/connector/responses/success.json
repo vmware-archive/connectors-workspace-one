@@ -9,7 +9,7 @@
       },
       "header": {
         "title": "[AirWatch] vmware boxer",
-        "subtitle" : []
+        "subtitle": []
       },
       "body": {
         "description": "Please install this application for better interaction with the resource."
@@ -29,10 +29,11 @@
             "platform": "android"
           },
           "user_input": [],
-          "completed_label":"Installed",
+          "completed_label": "Installed",
           "allow_repeated": false
         }
-      ]
+      ],
+      "hash": "7f846b63431f35cf08e28ec0175db99e933625b9"
     }
   ]
 }

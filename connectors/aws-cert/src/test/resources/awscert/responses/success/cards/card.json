@@ -52,11 +52,11 @@
           "remove_card_on_completion": true,
           "request": {
             "validation_token": "test-validation-token-2",
-            "utf8": "\u2713",
+            "utf8": "✓",
             "context": "test-context-2",
             "commit": "I Approve",
             "authenticity_token": "test-csrf-token-2",
-            "hero_aws_cert_approval_url": "${backend_host}/approvals?code=test-auth-code-2&context=test-context-2"
+            "hero_aws_cert_approval_url": "http://localhost:60642//approvals?code=test-auth-code-2&context=test-context-2"
           },
           "user_input": [],
           "completed_label": "Approved",
@@ -79,7 +79,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "cf3c6a63fbf607a82b7c698e2e1c60f85951474c"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -133,11 +134,11 @@
           "remove_card_on_completion": true,
           "request": {
             "validation_token": "test-validation-token-1",
-            "utf8": "\u2713",
+            "utf8": "✓",
             "context": "test-context-1",
             "commit": "I Approve",
             "authenticity_token": "test-csrf-token-1",
-            "hero_aws_cert_approval_url": "${backend_host}/approvals?code=test-auth-code-1&context=test-context-1"
+            "hero_aws_cert_approval_url": "http://localhost:60642//approvals?code=test-auth-code-1&context=test-context-1"
           },
           "user_input": [],
           "completed_label": "Approved",
@@ -160,7 +161,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "fee36f22b725477b7c50b486334e60a390eb9d52"
     }
   ]
 }

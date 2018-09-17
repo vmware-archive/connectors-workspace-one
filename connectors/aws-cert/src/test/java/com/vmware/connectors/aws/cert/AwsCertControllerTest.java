@@ -124,6 +124,7 @@ class AwsCertControllerTest extends ControllerTestsBase {
                 .collect(Collectors.joining())
                 .map(JsonNormalizer::forCards)
                 .block();
+        System.out.println(responseFile + " " + body);
         assertThat(body, sameJSONAs(fromFile(responseFile)
                 .replace("${backend_host}", mockBackend.url(""))).allowingAnyArrayOrdering());
     }
@@ -150,6 +151,7 @@ class AwsCertControllerTest extends ControllerTestsBase {
                 .collect(Collectors.joining())
                 .map(JsonNormalizer::forCards)
                 .block();
+        System.out.println(backendStatus + " " + body);
         assertThat(body, sameJSONAs(fromFile("/awscert/responses/success/cards/single-card.json")
                 .replace("${backend_host}", mockBackend.url(""))).allowingAnyArrayOrdering());
     }

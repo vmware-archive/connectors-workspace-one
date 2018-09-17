@@ -29,10 +29,11 @@
             "platform": "android"
           },
           "user_input": [],
-          "completed_label":"INSTALLED",
+          "completed_label": "INSTALLED",
           "allow_repeated": false
         }
-      ]
+      ],
+      "hash": "1971cd15fc1c0a90b2dc13ff3405457f00b6ba8f"
     }
   ]
 }
