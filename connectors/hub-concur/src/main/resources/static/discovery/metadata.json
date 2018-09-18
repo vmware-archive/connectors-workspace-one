@@ -1,0 +1,20 @@
+{
+  "image": {
+    "href": "${CONNECTOR_HOST}/images/connector.png"
+  },
+  "object_types": {
+    "card": {
+      "doc": {
+        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "fields": {
+        "_temporary": {
+          "regex": "Expense Report Pending Your Approval"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/cards/requests"
+      }
+    }
+  }
+}

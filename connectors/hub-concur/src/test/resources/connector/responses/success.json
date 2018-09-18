@@ -1,0 +1,166 @@
+{
+  "objects": [
+    {
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "name": "Concur",
+      "header": {
+        "subtitle": [
+          "1000"
+        ],
+        "title": "[Concur] Expense Report One"
+      },
+      "id": "00000000-0000-0000-0000-000000000000",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "body": {
+        "fields": [
+          {
+            "description": "1970-01-01T00:00:00Z",
+            "type": "GENERAL",
+            "title": "Submitted On"
+          },
+          {
+            "description": "Ryan",
+            "type": "GENERAL",
+            "title": "Requested By"
+          },
+          {
+            "description": "R & D",
+            "type": "GENERAL",
+            "title": "Cost Center"
+          },
+          {
+            "description": "$100",
+            "type": "GENERAL",
+            "title": "Amount"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "format": "textarea",
+              "label": "Comment",
+              "id": "comment"
+            }
+          ],
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Approve",
+          "type": "POST",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions",
+          "url": {
+            "href": "https://hero/connectors/concur/api/expense/1/approve"
+          },
+          "primary": true,
+          "completed_label": "Approved"
+        },
+        {
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "format": "textarea",
+              "label": "Reason",
+              "id": "reason"
+            }
+          ],
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Decline",
+          "type": "POST",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions",
+          "url": {
+            "href": "https://hero/connectors/concur/api/expense/1/decline"
+          },
+          "completed_label": "Declined"
+        }
+      ]
+    },
+    {
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "name": "Concur",
+      "header": {
+        "subtitle": [
+          "2000"
+        ],
+        "title": "[Concur] Expense Report Four"
+      },
+      "id": "00000000-0000-0000-0000-000000000000",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "body": {
+        "fields": [
+          {
+            "description": "1970-01-01T00:00:00Z",
+            "type": "GENERAL",
+            "title": "Submitted On"
+          },
+          {
+            "description": "Jane",
+            "type": "GENERAL",
+            "title": "Requested By"
+          },
+          {
+            "description": "R & D",
+            "type": "GENERAL",
+            "title": "Cost Center"
+          },
+          {
+            "description": "$400",
+            "type": "GENERAL",
+            "title": "Amount"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "format": "textarea",
+              "label": "Comment",
+              "id": "comment"
+            }
+          ],
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Approve",
+          "type": "POST",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions",
+          "url": {
+            "href": "https://hero/connectors/concur/api/expense/4/approve"
+          },
+          "primary": true,
+          "completed_label": "Approved"
+        },
+        {
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "format": "textarea",
+              "label": "Reason",
+              "id": "reason"
+            }
+          ],
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Decline",
+          "type": "POST",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions",
+          "url": {
+            "href": "https://hero/connectors/concur/api/expense/4/decline"
+          },
+          "completed_label": "Declined"
+        }
+      ]
+    }
+  ]
+}
