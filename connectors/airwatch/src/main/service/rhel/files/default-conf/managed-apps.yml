@@ -10,28 +10,28 @@ airwatch:
 # Platform app id is used to know install status via device services API.
 # Platform app name is used to uniquely identify the app to install from GreenBox entitlements.
 #
-airwatch:
-  apps:
-    - app: Coupa
-      android:
-        name: Coupa Mobile
-        id: com.coupa.android.coupamobile
-      ios:
-        name: Coupa - Expenses & Approvals
-        id: com.coupa.push
-      keywords:
-        - coupa
-        - expense
-        - travel
-        - reimburse
-
-    - app: LinkedIn
-      android:
-        name: LinkedIn
-        id: com.linkedin.android
-      ios:
-        name: LinkedIn
-        id: com.linkedin.ios
-      keywords:
-        - linkedin
-        - professional network
+#airwatch:
+#  apps:
+#    - app: Coupa
+#      android:
+#        name: Coupa Mobile
+#        id: com.coupa.android.coupamobile
+#      ios:
+#        name: Coupa - Expenses & Approvals
+#        id: com.coupa.push
+#      keywords:
+#        - coupa
+#        - expense
+#        - travel
+#        - reimburse
+#
+#    - app: LinkedIn
+#      android:
+#        name: LinkedIn
+#        id: com.linkedin.android
+#      ios:
+#        name: LinkedIn
+#        id: com.linkedin.ios
+#      keywords:
+#        - linkedin
+#        - professional network

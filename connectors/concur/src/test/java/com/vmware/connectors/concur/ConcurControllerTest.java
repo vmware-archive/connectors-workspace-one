@@ -343,6 +343,7 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .collect(Collectors.joining())
                 .map(JsonNormalizer::forCards)
                 .block();
+        System.out.println(body);
         assertThat(body, sameJSONAs(fromFile("connector/responses/" + responseFile)
                 .replace("${concur_host}", mockBackend.url(""))).allowingAnyArrayOrdering());
     }

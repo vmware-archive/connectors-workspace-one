@@ -167,6 +167,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 .collect(Collectors.joining())
                 .map(JsonNormalizer::forCards)
                 .block();
+        System.out.println(body);
         assertThat(body, sameJSONAs(fromFile(responseFile)).allowingAnyArrayOrdering());
     }
 

@@ -11,88 +11,6 @@
       "header": {
         "title": "[AWS-CERT] CERTIFICATE REQUEST",
         "subtitle": [
-          "test-subdomain-1.acme.com"
-        ]
-      },
-      "body": {
-        "description": "REVIEW THE INFORMATION PRESENTED BELOW AND CLICK I APPROVE ONLY IF YOU RECOGNIZE THE REQUEST AND THE ACCOUNT REQUESTING IT.  BY CLICKING I APPROVE, YOU AUTHORIZE AMAZON TO REQUEST A CERTIFICATE FOR THE ABOVE DOMAIN NAME.",
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "DOMAIN NAME",
-            "description": "test-subdomain-1.acme.com"
-          },
-          {
-            "type": "GENERAL",
-            "title": "AWS ACCOUNT NUMBER",
-            "description": "test-aws-account-number-1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "AWS REGION",
-            "description": "test-aws-region-1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "CERTIFICATE IDENTIFIER",
-            "description": "test-certificate-id-1"
-          }
-        ]
-      },
-      "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "primary": true,
-          "label": "APPROVE",
-          "url": {
-            "href": "https://hero/connectors/aws-cert/api/v1/approve"
-          },
-          "type": "POST",
-          "action_key": "DIRECT",
-          "remove_card_on_completion": true,
-          "request": {
-            "validation_token": "test-validation-token-1",
-            "utf8": "✓",
-            "context": "test-context-1",
-            "commit": "I Approve",
-            "authenticity_token": "test-csrf-token-1",
-            "hero_aws_cert_approval_url": "http://localhost:60646//approvals?code=test-auth-code-1&context=test-context-1"
-          },
-          "user_input": [],
-          "completed_label": "APPROVED",
-          "allow_repeated": false
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "DISMISS",
-          "url": {
-            "href": "/dismiss"
-          },
-          "type": "GET",
-          "action_key": "DISMISS",
-          "remove_card_on_completion": true,
-          "request": {},
-          "user_input": [],
-          "completed_label": "DISMISS",
-          "allow_repeated": false
-        }
-      ],
-      "image": {
-        "href": "https://my-connector/images/connector.png"
-      },
-      "hash": "7d56f6bd9cd59701108a5179c392230e1dcd1bfc"
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "name": "AwsCert",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "expiration_date": "1970-01-01T00:00:00Z",
-      "template": {
-        "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
-      },
-      "header": {
-        "title": "[AWS-CERT] CERTIFICATE REQUEST",
-        "subtitle": [
           "test-subdomain-2.acme.com"
         ]
       },
@@ -134,11 +52,11 @@
           "remove_card_on_completion": true,
           "request": {
             "validation_token": "test-validation-token-2",
-            "utf8": "✓",
+            "utf8": "\u2713",
             "context": "test-context-2",
             "commit": "I Approve",
             "authenticity_token": "test-csrf-token-2",
-            "hero_aws_cert_approval_url": "http://localhost:60646//approvals?code=test-auth-code-2&context=test-context-2"
+            "hero_aws_cert_approval_url": "${backend_host}/approvals?code=test-auth-code-2&context=test-context-2"
           },
           "user_input": [],
           "completed_label": "APPROVED",
@@ -162,7 +80,89 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "f1df2de9e0c35660c095a86fd0a9321ec6c4a631"
+      "hash": "9f6ec5cb006524197b5d307bab3940e6f8cf21d9"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "AwsCert",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "expiration_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/aws-cert/templates/generic.hbs"
+      },
+      "header": {
+        "title": "[AWS-CERT] CERTIFICATE REQUEST",
+        "subtitle": [
+          "test-subdomain-1.acme.com"
+        ]
+      },
+      "body": {
+        "description": "REVIEW THE INFORMATION PRESENTED BELOW AND CLICK I APPROVE ONLY IF YOU RECOGNIZE THE REQUEST AND THE ACCOUNT REQUESTING IT.  BY CLICKING I APPROVE, YOU AUTHORIZE AMAZON TO REQUEST A CERTIFICATE FOR THE ABOVE DOMAIN NAME.",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "DOMAIN NAME",
+            "description": "test-subdomain-1.acme.com"
+          },
+          {
+            "type": "GENERAL",
+            "title": "AWS ACCOUNT NUMBER",
+            "description": "test-aws-account-number-1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "AWS REGION",
+            "description": "test-aws-region-1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "CERTIFICATE IDENTIFIER",
+            "description": "test-certificate-id-1"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "APPROVE",
+          "url": {
+            "href": "https://hero/connectors/aws-cert/api/v1/approve"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "remove_card_on_completion": true,
+          "request": {
+            "validation_token": "test-validation-token-1",
+            "utf8": "\u2713",
+            "context": "test-context-1",
+            "commit": "I Approve",
+            "authenticity_token": "test-csrf-token-1",
+            "hero_aws_cert_approval_url": "${backend_host}/approvals?code=test-auth-code-1&context=test-context-1"
+          },
+          "user_input": [],
+          "completed_label": "APPROVED",
+          "allow_repeated": false
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "DISMISS",
+          "url": {
+            "href": "/dismiss"
+          },
+          "type": "GET",
+          "action_key": "DISMISS",
+          "remove_card_on_completion": true,
+          "request": {},
+          "user_input": [],
+          "completed_label": "DISMISS",
+          "allow_repeated": false
+        }
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "hash": "d0af19946eda86c7f9901ff7dffa5a4f3dc8845b"
     }
   ]
 }

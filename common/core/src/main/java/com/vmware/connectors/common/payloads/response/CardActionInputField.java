@@ -7,10 +7,15 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringExclude;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * This class represents a user-supplied parameter that will be sent with the request fired by the client when the
@@ -34,7 +39,7 @@ public class CardActionInputField {
 
     @JsonProperty("options")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private final Map<String, String> options;
+    private final SortedMap<String, String> options;
 
     @JsonProperty("min_length")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -46,7 +51,7 @@ public class CardActionInputField {
 
     // Do not instantiate directly.
     private CardActionInputField() {
-        this.options = new LinkedHashMap<>();
+        this.options = new TreeMap<>();
     }
 
     /**
@@ -113,7 +118,7 @@ public class CardActionInputField {
      * @return The field's options
      */
     public Map<String, String> getOptions() {
-        return Collections.unmodifiableMap(options);
+        return Collections.unmodifiableSortedMap(options);
     }
 
     /**
@@ -239,5 +244,10 @@ public class CardActionInputField {
 
             return true;
         }
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }

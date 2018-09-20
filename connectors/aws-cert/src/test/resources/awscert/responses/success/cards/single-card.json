@@ -52,11 +52,11 @@
           "remove_card_on_completion": true,
           "request": {
             "validation_token": "test-validation-token-2",
-            "utf8": "✓",
+            "utf8": "\u2713",
             "context": "test-context-2",
             "commit": "I Approve",
             "authenticity_token": "test-csrf-token-2",
-            "hero_aws_cert_approval_url": "http://localhost:60730//approvals?code=test-auth-code-2&context=test-context-2"
+            "hero_aws_cert_approval_url": "${backend_host}/approvals?code=test-auth-code-2&context=test-context-2"
           },
           "user_input": [],
           "completed_label": "Approved",
@@ -80,7 +80,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "2dffc487c3f6e63eb34f41c63e48f3b84bcaf135"
+      "hash": "f4bb7c66f80afa6cab276bbc3373807cbe047870"
     }
   ]
 }

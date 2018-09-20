@@ -7,11 +7,14 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringExclude;
 import org.springframework.http.HttpMethod;
 
 import java.util.*;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * This class represents a single action that can be taken by the user to whom the containing Card is displayed.
@@ -26,6 +29,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 public class CardAction {
 
     @JsonProperty("id")
+    @ToStringExclude
     private UUID id;
 
     @JsonProperty("primary")
@@ -36,6 +40,7 @@ public class CardAction {
     private String label;
 
     @JsonProperty("url")
+    @ToStringExclude
     private Link url;
 
     @JsonProperty("type")
@@ -49,7 +54,8 @@ public class CardAction {
     private boolean removeCardOnCompletion;
 
     @JsonProperty("request")
-    private final Map<String, String> request;
+    @ToStringExclude
+    private final SortedMap<String, String> request;
 
     @JsonProperty("user_input")
     private final List<CardActionInputField> userInput;
@@ -66,7 +72,7 @@ public class CardAction {
     // Don't instantiate directly - use the Builder class below
     private CardAction() {
         this.type = HttpMethod.GET;
-        this.request = new LinkedHashMap<>();
+        this.request = new TreeMap<>();
         this.userInput = new ArrayList<>();
         this.id = UUID.randomUUID();
         this.completedLabel = "Completed";
@@ -148,8 +154,8 @@ public class CardAction {
      *
      * @return the request values
      */
-    public Map<String, String> getRequest() {
-        return Collections.unmodifiableMap(request);
+    public SortedMap<String, String> getRequest() {
+        return Collections.unmodifiableSortedMap(request);
     }
 
     /**
@@ -397,5 +403,10 @@ public class CardAction {
             reset();
             return completedAction;
         }
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }

@@ -26,8 +26,8 @@
           "user_input": [
             {
               "id": "message",
-              "format": "textarea",
               "label": "Comment",
+              "format": "textarea",
               "min_length": 1
             }
           ],
@@ -37,7 +37,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "bf6b40e4264caa0ae1df4984ddf655b441243ff8"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -78,8 +79,8 @@
           "user_input": [
             {
               "id": "message",
-              "format": "textarea",
               "label": "Comment",
+              "format": "textarea",
               "min_length": 1
             }
           ],
@@ -89,7 +90,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "7cedc4cd6606adc62ae1020ce9fc11b74b0e750f"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -117,8 +119,8 @@
           "user_input": [
             {
               "id": "message",
-              "format": "textarea",
               "label": "Comment",
+              "format": "textarea",
               "min_length": 1
             }
           ],
@@ -128,7 +130,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "f11a5525b2090aa8b8a79746781f4dededd8d9d1"
     }
   ]
 }
