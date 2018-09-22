@@ -25,15 +25,15 @@
           "action_key": "DIRECT",
           "request": {
             "app_name": "vmware boxer",
-            "udid": "ABCD",
-            "platform": "android"
+            "platform": "android",
+            "udid": "ABCD"
           },
           "user_input": [],
           "completed_label": "INSTALLED",
           "allow_repeated": false
         }
       ],
-      "hash": "54cb1b1baffd3571c72afa221064e726431b8441"
+      "hash": "5f64644d318007c2ccc35c8c9d9dda5da57fa512"
     }
   ]
 }

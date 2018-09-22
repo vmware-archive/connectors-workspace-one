@@ -430,16 +430,10 @@ public class SalesforceController {
                     .filter(feed -> Objects.nonNull(feed.read("$.Body")))  // Some feed items don't have a body.
                     .limit(COMMENTS_SIZE)
                     .map(feed -> feed.read("$.InsertedBy.Name") + " - " + feed.read("$.Body"))
-                    .forEach(comment -> cardFieldBuilder.addContent(convertIntoSortedMap("text", comment)));
+                    .forEach(comment -> cardFieldBuilder.addContent(ImmutableMap.of("text", comment)));
 
             cardBodyBuilder.addField(cardFieldBuilder.build());
         }
-    }
-
-    private SortedMap<String, String> convertIntoSortedMap(final String key, final String value) {
-        final SortedMap<String, String> sortedMap = new TreeMap<>();
-        sortedMap.put(key, value);
-        return sortedMap;
     }
 
     // Create card for showing information about the email sender, related opportunities.

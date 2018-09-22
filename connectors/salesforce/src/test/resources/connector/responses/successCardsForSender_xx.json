@@ -9,9 +9,7 @@
       },
       "header": {
         "title": "[SALESFORCE] CONTACT DETAIL",
-        "subtitle": [
-
-        ]
+        "subtitle": []
       },
       "body": {
         "description": "CONTACT DETAILS FROM YOUR SALESFORCE ACCOUNT",
@@ -35,7 +33,8 @@
       },
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "9b5d523280e6b892870d062b2d719612e3a66831"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -46,9 +45,7 @@
       },
       "header": {
         "title": "[SALESFORCE] MEM selling opp",
-        "subtitle": [
-
-        ]
+        "subtitle": []
       },
       "body": {
         "description": "OPPORTUNITY IS RELATED TO THE EMAIL SENDER.",
@@ -87,7 +84,8 @@
       },
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "237c80ba538dee0cea5702993a14aef44a88571b"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -98,9 +96,7 @@
       },
       "header": {
         "title": "[SALESFORCE] Shree Test Opportunity1",
-        "subtitle": [
-
-        ]
+        "subtitle": []
       },
       "body": {
         "description": "OPPORTUNITY IS RELATED TO THE EMAIL SENDER.",
@@ -158,8 +154,7 @@
           },
           "type": "POST",
           "action_key": "USER_INPUT",
-          "request": {
-          },
+          "request": {},
           "user_input": [
             {
               "id": "nextstep",
@@ -178,8 +173,7 @@
           },
           "type": "POST",
           "action_key": "USER_INPUT",
-          "request": {
-          },
+          "request": {},
           "user_input": [
             {
               "id": "closedate",
@@ -193,7 +187,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "610b240428f13414788b52f37a2ac78e7cef69db"
     }
   ]
 }

@@ -9,9 +9,7 @@
       },
       "header": {
         "title": "[Salesforce] Contact Detail",
-        "subtitle": [
-
-        ]
+        "subtitle": []
       },
       "body": {
         "description": "Contact Details from your Salesforce account",
@@ -35,7 +33,8 @@
       },
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "587b006d57aa267c86eccdf6d25112fa6c2bd583"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -46,9 +45,7 @@
       },
       "header": {
         "title": "[Salesforce] MEM selling opp",
-        "subtitle": [
-
-        ]
+        "subtitle": []
       },
       "body": {
         "description": "Opportunity is related to the email sender.",
@@ -87,7 +84,8 @@
       },
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "43f3f067c3432a21c46dcbd6bb711d504ebc89e4"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -98,9 +96,7 @@
       },
       "header": {
         "title": "[Salesforce] Shree Test Opportunity1",
-        "subtitle": [
-
-        ]
+        "subtitle": []
       },
       "body": {
         "description": "Opportunity is related to the email sender.",
@@ -158,8 +154,7 @@
           },
           "type": "POST",
           "action_key": "USER_INPUT",
-          "request": {
-          },
+          "request": {},
           "user_input": [
             {
               "id": "nextstep",
@@ -178,8 +173,7 @@
           },
           "type": "POST",
           "action_key": "USER_INPUT",
-          "request": {
-          },
+          "request": {},
           "user_input": [
             {
               "id": "closedate",
@@ -193,7 +187,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "432a124b77e8dffcfe00a951a7f9ffefc27e0ae8"
     }
   ]
 }

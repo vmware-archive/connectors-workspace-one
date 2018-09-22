@@ -4,41 +4,6 @@
       "id": "00000000-0000-0000-0000-000000000000",
       "creation_date": "1970-01-01T00:00:00Z",
       "header": {
-        "title": "[Bitbucket Server] Pull Request #236 from Sudharsan Sathiamoorthy",
-        "subtitle": [
-          "UFO/app-platform-server"
-        ]
-      },
-      "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Comment",
-          "url": {
-            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/236/comments"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {},
-          "user_input": [
-            {
-              "id": "comment",
-              "format": "textarea",
-              "label": "Comment",
-              "min_length": 1
-            }
-          ],
-          "completed_label": "Commented",
-          "allow_repeated": true
-        }
-      ],
-      "image": {
-        "href": "https://my-connector/images/connector.png"
-      }
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "header": {
         "title": "[Bitbucket Server] Pull Request #246 from Sudharsan Sathiamoorthy",
         "subtitle": [
           "UFO/app-platform-server"
@@ -70,8 +35,8 @@
           "user_input": [
             {
               "id": "comment",
-              "format": "textarea",
               "label": "Comment",
+              "format": "textarea",
               "min_length": 1
             }
           ],
@@ -81,7 +46,44 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "1ee70f02bd506095262b09bec319c0198b598bd1"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "[Bitbucket Server] Pull Request #236 from Sudharsan Sathiamoorthy",
+        "subtitle": [
+          "UFO/app-platform-server"
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Comment",
+          "url": {
+            "href": "https://hero/connectors/stash/api/v1/UFO/app-platform-server/236/comments"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "comment",
+              "label": "Comment",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Commented",
+          "allow_repeated": true
+        }
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "hash": "e42d50ff55645654edbb529afd3295aee2557e02"
     }
   ]
 }

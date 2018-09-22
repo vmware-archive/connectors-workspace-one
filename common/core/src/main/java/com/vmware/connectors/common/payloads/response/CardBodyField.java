@@ -9,7 +9,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
@@ -149,8 +152,8 @@ public class CardBodyField {
          * @param item the object to be added to the field's content
          * @return this Builder instance, for method chaining
          */
-        public Builder addContent(SortedMap<String, String> item) {
-            field.content.add(Collections.unmodifiableSortedMap(item));
+        public Builder addContent(Map<String, String> item) {
+            field.content.add(Collections.unmodifiableMap(item));
             return this;
         }
 

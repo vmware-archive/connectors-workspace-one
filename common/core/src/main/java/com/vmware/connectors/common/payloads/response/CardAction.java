@@ -55,7 +55,7 @@ public class CardAction {
 
     @JsonProperty("request")
     @ToStringExclude
-    private final SortedMap<String, String> request;
+    private final Map<String, String> request;
 
     @JsonProperty("user_input")
     private final List<CardActionInputField> userInput;
@@ -72,7 +72,7 @@ public class CardAction {
     // Don't instantiate directly - use the Builder class below
     private CardAction() {
         this.type = HttpMethod.GET;
-        this.request = new TreeMap<>();
+        this.request = new HashMap<>();
         this.userInput = new ArrayList<>();
         this.id = UUID.randomUUID();
         this.completedLabel = "Completed";
@@ -154,8 +154,8 @@ public class CardAction {
      *
      * @return the request values
      */
-    public SortedMap<String, String> getRequest() {
-        return Collections.unmodifiableSortedMap(request);
+    public Map<String, String> getRequest() {
+        return Collections.unmodifiableMap(request);
     }
 
     /**

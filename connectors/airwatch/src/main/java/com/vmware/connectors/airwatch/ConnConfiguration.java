@@ -18,9 +18,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 
-import javax.validation.Validator;
-import javax.validation.Validation;
 import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;

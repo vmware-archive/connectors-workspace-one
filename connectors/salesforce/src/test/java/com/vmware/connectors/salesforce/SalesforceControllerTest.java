@@ -106,7 +106,6 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @Value("classpath:salesforce/response/accWordHowardOpportunities.json")
     private Resource sfResponseWordHowardOpportunities;
 
-
     @ParameterizedTest
     @ValueSource(strings = {
             "/cards/requests",

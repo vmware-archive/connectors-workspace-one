@@ -209,7 +209,6 @@ class JiraControllerTest extends ControllerTestsBase {
                 .map(JsonNormalizer::forCards)
                 .map(json -> json.replaceAll("http://localhost:\\d+/", "https://jira.acme.com"))
                 .block();
-        System.out.println(body);
         assertThat(body,  sameJSONAs(fromFile("connector/responses/APF-27.json")));
     }
 
@@ -380,7 +379,6 @@ class JiraControllerTest extends ControllerTestsBase {
                 .map(json -> json.replaceAll("http://localhost:\\d+/", "https://jira.acme.com"))
                 .block();
         assertThat(body,  sameJSONAs(fromFile("connector/responses/" + responseFile)).allowingAnyArrayOrdering());
-
     }
 
     private WebTestClient.RequestHeadersSpec<?> requestCards(String authToken, String requestfile) throws IOException {

@@ -28,7 +28,8 @@
       },
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "7f8fa0b3b4caff14b53e1ae5c14342b87cce933a"
     }
   ]
 }

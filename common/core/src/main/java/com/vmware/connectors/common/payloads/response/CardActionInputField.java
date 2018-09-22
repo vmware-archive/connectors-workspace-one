@@ -11,9 +11,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringExclude;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
@@ -39,7 +38,8 @@ public class CardActionInputField {
 
     @JsonProperty("options")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private final SortedMap<String, String> options;
+    @ToStringExclude
+    private final Map<String, String> options;
 
     @JsonProperty("min_length")
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -51,7 +51,7 @@ public class CardActionInputField {
 
     // Do not instantiate directly.
     private CardActionInputField() {
-        this.options = new TreeMap<>();
+        this.options = new HashMap<>();
     }
 
     /**
@@ -118,7 +118,7 @@ public class CardActionInputField {
      * @return The field's options
      */
     public Map<String, String> getOptions() {
-        return Collections.unmodifiableSortedMap(options);
+        return Collections.unmodifiableMap(options);
     }
 
     /**

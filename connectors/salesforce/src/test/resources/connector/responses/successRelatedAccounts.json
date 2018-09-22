@@ -12,6 +12,50 @@
         "subtitle": []
       },
       "body": {
+        "description": "The sender's address, john.doe@abc.com, might be related to your Salesforce account named 'Word  Howard'. Would you like to add the sender as a contact?"
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Add contact",
+          "url": {
+            "href": "https://hero/connectors/salesforce/accounts/001Q0000012glcuIAA/contacts"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {
+            "contact_email": "john.doe@abc.com"
+          },
+          "user_input": [
+            {
+              "id": "first_name",
+              "label": "First name",
+              "min_length": 1
+            },
+            {
+              "id": "last_name",
+              "label": "Last name",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Contact added",
+          "allow_repeated": false
+        }
+      ],
+      "hash": "6ac92ea6185dbb827bc4eb2d16c8aa17a3adc522"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Salesforce",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/salesforce/templates/generic.hbs"
+      },
+      "header": {
+        "title": "Add a contact in Salesforce?",
+        "subtitle": []
+      },
+      "body": {
         "description": "The sender's address, john.doe@abc.com, might be related to your Salesforce account named 'Georce Michael'. Would you like to add the sender as a contact?"
       },
       "actions": [
@@ -50,7 +94,8 @@
           "completed_label": "Contact added",
           "allow_repeated": false
         }
-      ]
+      ],
+      "hash": "8b00a2e106350983da932d191e4f367e5abfe549"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -101,50 +146,8 @@
           "completed_label": "Contact added",
           "allow_repeated": false
         }
-      ]
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "name": "Salesforce",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "template": {
-        "href": "https://hero/connectors/salesforce/templates/generic.hbs"
-      },
-      "header": {
-        "title": "Add a contact in Salesforce?",
-        "subtitle": []
-      },
-      "body": {
-        "description": "The sender's address, john.doe@abc.com, might be related to your Salesforce account named 'Word  Howard'. Would you like to add the sender as a contact?"
-      },
-      "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Add contact",
-          "url": {
-            "href": "https://hero/connectors/salesforce/accounts/001Q0000012glcuIAA/contacts"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {
-            "contact_email": "john.doe@abc.com"
-          },
-          "user_input": [
-            {
-              "id": "first_name",
-              "label": "First name",
-              "min_length": 1
-            },
-            {
-              "id": "last_name",
-              "label": "Last name",
-              "min_length": 1
-            }
-          ],
-          "completed_label": "Contact added",
-          "allow_repeated": false
-        }
-      ]
+      ],
+      "hash": "5ec93344a85fa554125d3e935d7ef49701cb9b2f"
     }
   ]
 }

@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.jira;
 
+import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
@@ -222,16 +223,10 @@ public class JiraController {
             allComments.stream()
                     .limit(COMMENTS_SIZE)
                     .map(commentInfo -> ((Map<String, String>) commentInfo.get("author")).get("name") + " - " + commentInfo.get("body"))
-                    .forEach(comment -> cardFieldBuilder.addContent(convertIntoSortedMap("text",
+                    .forEach(comment -> cardFieldBuilder.addContent(ImmutableMap.of("text",
                             cardTextAccessor.getMessage("comments.content", locale, comment))));
             cardBodyBuilder.addField(cardFieldBuilder.build());
         }
-    }
-
-    private SortedMap<String, String> convertIntoSortedMap(final String key, final String value) {
-        final SortedMap<String, String> sortedMap = new TreeMap<>();
-        sortedMap.put(key, value);
-        return sortedMap;
     }
 
     private CardAction.Builder getCommentActionBuilder(JsonDocument jiraResponse, String routingPrefix, Locale locale) {

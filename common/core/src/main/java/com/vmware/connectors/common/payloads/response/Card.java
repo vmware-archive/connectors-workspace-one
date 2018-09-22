@@ -68,7 +68,7 @@ public class Card {
         this.actions = new ArrayList<>();
         this.id = UUID.randomUUID();
         this.creationDate = OffsetDateTime.now();
-        this.tags = new LinkedHashSet<>();
+        this.tags = new HashSet<>();
     }
 
     /**
