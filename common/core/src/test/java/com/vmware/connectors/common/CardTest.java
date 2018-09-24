@@ -9,7 +9,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.vmware.connectors.common.payloads.response.*;
+import com.vmware.connectors.common.payloads.response.Card;
+import com.vmware.connectors.common.payloads.response.CardAction;
+import com.vmware.connectors.common.payloads.response.CardActionInputField;
+import com.vmware.connectors.common.payloads.response.CardBody;
+import com.vmware.connectors.common.payloads.response.CardBodyField;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
@@ -21,8 +25,6 @@ import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.UUID;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -73,11 +75,7 @@ public class CardTest {
         builder.setTitle("Title of the Card");
         builder.setType("BOYBAND");
         builder.setDescription("The ultimate boy-band hero card");
-
-        final SortedMap<String, String> map = new TreeMap<>();
-        map.put("inspiration", "DaVinci's Notebook");
-
-        builder.addContent(Collections.unmodifiableSortedMap(map));
+        builder.addContent(Collections.singletonMap("inspiration", "DaVinci's Notebook"));
 
         CardBodyField fieldFromBuilder = builder.build();
         String jsonFromBuilder = mapper.writeValueAsString(fieldFromBuilder);

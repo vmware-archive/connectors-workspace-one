@@ -379,6 +379,7 @@ class JiraControllerTest extends ControllerTestsBase {
                 .map(json -> json.replaceAll("http://localhost:\\d+/", "https://jira.acme.com"))
                 .block();
         assertThat(body,  sameJSONAs(fromFile("connector/responses/" + responseFile)).allowingAnyArrayOrdering());
+
     }
 
     private WebTestClient.RequestHeadersSpec<?> requestCards(String authToken, String requestfile) throws IOException {

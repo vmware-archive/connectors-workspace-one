@@ -177,7 +177,7 @@ public class Card {
     }
 
     /**
-     * Return SHA-1 of the card header, body, and action.
+     * Return SHA-1 of the concatenated result of card name, header, body, and action.
      *
      * @return hash value
      */
@@ -373,7 +373,6 @@ public class Card {
          */
         @SuppressWarnings("PMD.UnnecessaryLocalBeforeReturn")
         public Card build() {
-            // Compute hash and set the value.
             card.hash = computeHash();
 
             Card completedCard = this.card;
