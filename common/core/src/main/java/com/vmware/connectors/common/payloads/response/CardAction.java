@@ -7,9 +7,11 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringExclude;
 import org.springframework.http.HttpMethod;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
@@ -29,7 +31,6 @@ import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 public class CardAction {
 
     @JsonProperty("id")
-    @ToStringExclude
     private UUID id;
 
     @JsonProperty("primary")
@@ -40,7 +41,6 @@ public class CardAction {
     private String label;
 
     @JsonProperty("url")
-    @ToStringExclude
     private Link url;
 
     @JsonProperty("type")
@@ -54,7 +54,6 @@ public class CardAction {
     private boolean removeCardOnCompletion;
 
     @JsonProperty("request")
-    @ToStringExclude
     private final Map<String, String> request;
 
     @JsonProperty("user_input")
@@ -176,7 +175,6 @@ public class CardAction {
      * Returns the "completed label". This is the text to be displayed to the user on successful
      * completion of the action.
      *
-
      * @return the completed label
      */
     public String getCompletedLabel() {
@@ -206,7 +204,7 @@ public class CardAction {
     /**
      * This class allows the construction of {@link CardAction} objects. To use, create a Builder instance, call its methods
      * to populate the {@link CardAction}, and call build() to receive the completed {@link CardAction} and reset the builder.
-     *
+     * <p>
      * A {@link CardAction} can be discarded during creation, returning the Builder to its initial state, by calling reset().
      * The build() method calls reset() internally.
      */
@@ -371,6 +369,7 @@ public class CardAction {
         /**
          * Set "allow repeated" value. If set to true, then the client can enable any card action
          * always irrespective of "completed label" value has been set or not.
+         *
          * @param allowRepeated the allowRepeated flag.
          * @return this Builder instance, for method chaining.
          */
@@ -381,7 +380,7 @@ public class CardAction {
 
         /**
          * Set "mutuallyExclusiveSetId" value. If set, performing a card action will disable other card actions.
-         *
+         * <p>
          * Only one card action can be performed at any point of time.
          *
          * @param mutuallyExclusiveSetId
@@ -403,6 +402,46 @@ public class CardAction {
             reset();
             return completedAction;
         }
+    }
+
+    public String hash() {
+        final StringBuilder result = new StringBuilder();
+
+        result.append(primary);
+
+        if (StringUtils.isNotBlank(label)) {
+            result.append(label);
+        }
+
+        if (url != null && StringUtils.isNotBlank(url.getHref())) {
+            result.append(url.getHref());
+        }
+
+        result.append(type.name());
+        if (StringUtils.isNotBlank(actionKey)) {
+            result.append(actionKey);
+        }
+
+        result.append(removeCardOnCompletion);
+        if (!CollectionUtils.isEmpty(request)) {
+            final Map<String, String> sortedMap = new TreeMap<>(request);
+            result.append(sortedMap.toString());
+        }
+
+        if (!CollectionUtils.isEmpty(userInput)) {
+            userInput.forEach(cardActionInputField -> result.append(cardActionInputField.hash()));
+        }
+
+        if (StringUtils.isNotBlank(completedLabel)) {
+            result.append(completedLabel);
+        }
+
+        result.append(allowRepeated);
+        if (StringUtils.isNotBlank(mutuallyExclusiveSetId)) {
+            result.append(mutuallyExclusiveSetId);
+        }
+
+        return DigestUtils.sha1Hex(result.toString());
     }
 
     @Override

@@ -8,46 +8,6 @@
         "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[GITLAB] MERGE REQUEST #3 FROM TestUser1",
-        "subtitle": [
-          "vmware/test-repo"
-        ]
-      },
-      "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "COMMENT",
-          "url": {
-            "href": "https://hero/connectors/gitlab-pr/api/v1/vmware/test-repo/3/comment"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {},
-          "user_input": [
-            {
-              "id": "message",
-              "label": "COMMENT",
-              "format": "textarea",
-              "min_length": 1
-            }
-          ],
-          "completed_label": "COMMENTED",
-          "allow_repeated": false
-        }
-      ],
-      "image": {
-        "href": "https://my-connector/images/connector.png"
-      },
-      "hash": "6d829a67bfdce46aca5c1bc0f63d7ffe53e10327"
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "name": "GitlabPr",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "template": {
-        "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
-      },
-      "header": {
         "title": "[GITLAB] MERGE REQUEST #1 FROM TestUser1",
         "subtitle": [
           "vmware/test-repo"
@@ -78,7 +38,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "0d322489a75610bd46f8a824c12abdc19008365b"
+      "hash": "f58500fa720b7ecf1f26b427613098333b671ffc"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -133,7 +93,47 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "ffab380cc4dcf181b9c4c0cb324ad11222e2b5c8"
+      "hash": "4ac3c307ca26250e1108aa1510f95c3edde2dc04"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "GitlabPr",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
+      },
+      "header": {
+        "title": "[GITLAB] MERGE REQUEST #3 FROM TestUser1",
+        "subtitle": [
+          "vmware/test-repo"
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "COMMENT",
+          "url": {
+            "href": "https://hero/connectors/gitlab-pr/api/v1/vmware/test-repo/3/comment"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "message",
+              "label": "COMMENT",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "COMMENTED",
+          "allow_repeated": false
+        }
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "hash": "80872d29cfbe13e2e166fb5ec87dcedbefcfc655"
     }
   ]
 }

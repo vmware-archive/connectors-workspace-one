@@ -209,6 +209,7 @@ class JiraControllerTest extends ControllerTestsBase {
                 .map(JsonNormalizer::forCards)
                 .map(json -> json.replaceAll("http://localhost:\\d+/", "https://jira.acme.com"))
                 .block();
+        body = body.replaceAll("[a-z0-9]{40,}", "test-hash");
         assertThat(body,  sameJSONAs(fromFile("connector/responses/APF-27.json")));
     }
 
@@ -378,6 +379,7 @@ class JiraControllerTest extends ControllerTestsBase {
                 .map(JsonNormalizer::forCards)
                 .map(json -> json.replaceAll("http://localhost:\\d+/", "https://jira.acme.com"))
                 .block();
+        body = body.replaceAll("[a-z0-9]{40,}", "test-hash");
         assertThat(body,  sameJSONAs(fromFile("connector/responses/" + responseFile)).allowingAnyArrayOrdering());
 
     }

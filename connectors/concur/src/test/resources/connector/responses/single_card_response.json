@@ -50,8 +50,8 @@
           "user_input": [
             {
               "id": "reason",
-              "label": "Reason for approval",
               "format": "textarea",
+              "label": "Reason for approval",
               "min_length": 1
             }
           ],
@@ -71,8 +71,8 @@
           "user_input": [
             {
               "id": "reason",
-              "label": "Reason for rejection",
               "format": "textarea",
+              "label": "Reason for rejection",
               "min_length": 1
             }
           ],
@@ -84,7 +84,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "8fac947120e415485105d5aff08cf6fbd4b34c60"
+      "hash": "20a60f1ad68b12f4fea8661f81c52aec12ef2c9a"
     }
   ]
 }

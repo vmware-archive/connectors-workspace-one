@@ -7,12 +7,15 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringExclude;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
@@ -38,7 +41,6 @@ public class CardActionInputField {
 
     @JsonProperty("options")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @ToStringExclude
     private final Map<String, String> options;
 
     @JsonProperty("min_length")
@@ -244,6 +246,30 @@ public class CardActionInputField {
 
             return true;
         }
+    }
+
+    public String hash() {
+        final StringBuilder result = new StringBuilder();
+        if (StringUtils.isNotBlank(id)) {
+            result.append(id);
+        }
+
+        if (StringUtils.isNotBlank(label)) {
+            result.append(label);
+        }
+
+        if (StringUtils.isNotBlank(format)) {
+            result.append(format);
+        }
+
+        if (!CollectionUtils.isEmpty(options)) {
+            final Map<String, String> sortedMap = new TreeMap<>(options);
+            result.append(sortedMap.toString());
+        }
+
+        result.append(minLength).append(maxLength);
+
+        return DigestUtils.sha1Hex(result.toString());
     }
 
     @Override

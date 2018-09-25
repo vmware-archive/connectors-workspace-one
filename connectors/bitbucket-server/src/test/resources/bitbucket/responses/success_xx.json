@@ -22,8 +22,8 @@
           "user_input": [
             {
               "id": "comment",
-              "label": "COMMENT",
               "format": "textarea",
+              "label": "COMMENT",
               "min_length": 1
             }
           ],
@@ -34,7 +34,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "aafc592f4f8d67403ca8b118193a00c05ece9ef9"
+      "hash": "24b022c8107d1d41c387e019aef1a42ada2ae88f"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -71,8 +71,8 @@
           "user_input": [
             {
               "id": "comment",
-              "label": "COMMENT",
               "format": "textarea",
+              "label": "COMMENT",
               "min_length": 1
             }
           ],
@@ -83,7 +83,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "e172fcaf94f0be11e55939f898d67fc7754fa6a9"
+      "hash": "3bc6293a1bd2067ff2e69b52d626f4a80b196cfe"
     }
   ]
 }

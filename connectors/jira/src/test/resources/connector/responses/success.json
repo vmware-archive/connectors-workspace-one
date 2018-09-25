@@ -87,7 +87,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "bd9173800b0f993461ce0cae88ca6494d307561f"
+      "hash": "test-hash"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -203,7 +203,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "2babb66002c1bab234b164d8cc4915b372a81c31"
+      "hash": "test-hash"
     }
   ]
 }

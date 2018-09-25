@@ -8,6 +8,7 @@ package com.vmware.connectors.common.payloads.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.time.OffsetDateTime;
@@ -367,40 +368,67 @@ public class Card {
         }
 
         /**
+         * Add SHA-1 of card fields.
+         *
+         * @param hash SHA-1 of card header, body, and action fields.
+         * @return this Builder instance, for method chaining
+         */
+        public Builder addHash(String hash) {
+            card.hash = hash;
+            return this;
+        }
+
+        /**
          * Return the Card under construction and reset the Builder to its initial state.
          *
          * @return The completed Card
          */
         @SuppressWarnings("PMD.UnnecessaryLocalBeforeReturn")
         public Card build() {
-            card.hash = computeHash();
+            // If the connector author has already set the hash, then do not override the hash value.
+            if (StringUtils.isBlank(card.hash)) {
+                card.hash = computeHash();
+            }
 
             Card completedCard = this.card;
             reset();
             return completedCard;
         }
 
-        private String computeHash() {
-            String result = "";
-            if (card.name != null) {
-                result += card.name;
+        public String computeHash() {
+            final StringBuilder result = new StringBuilder();
+            if (StringUtils.isNotBlank(card.name)) {
+                result.append(card.name);
+            }
+
+            if (card.template != null && StringUtils.isNotBlank(card.template.getHref())) {
+                result.append(card.template.getHref());
             }
 
             if (card.header != null) {
-                result += card.header.toString();
-            }
-
-            if (!CollectionUtils.isEmpty(card.actions)) {
-                for (CardAction action: card.actions) {
-                    result += action.toString();
-                }
+                result.append(card.header.hash());
             }
 
             if (card.body != null) {
-                result += card.body.toString();
+                result.append(card.body.hash());
             }
 
-            return DigestUtils.sha1Hex(result);
+            if (!CollectionUtils.isEmpty(card.actions)) {
+                card.actions.stream()
+                        .filter(Objects::nonNull)
+                        .forEach(cardAction -> result.append(cardAction.hash()));
+            }
+
+            if (card.image != null && StringUtils.isNotBlank(card.image.getHref())) {
+                result.append(card.image.getHref());
+            }
+
+            if (!CollectionUtils.isEmpty(card.tags)) {
+                final Set<String> sortedSet = new TreeSet<>(card.tags);
+                sortedSet.forEach(tag -> result.append(tag));
+            }
+
+            return DigestUtils.sha1Hex(result.toString());
         }
     }
 }

@@ -10,89 +10,6 @@
       "header": {
         "title": "[SERVICE NOW] APPROVAL REQUEST",
         "subtitle": [
-          "REQ0010003"
-        ]
-      },
-      "body": {
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "TOTAL PRICE",
-            "description": "$902.97"
-          },
-          {
-            "type": "GENERAL",
-            "title": "REQUESTER",
-            "description": "test-request-user-3"
-          },
-          {
-            "type": "GENERAL",
-            "title": "DUE BY",
-            "description": "test-due-date-3"
-          },
-          {
-            "type": "COMMENT",
-            "title": "ITEMS",
-            "content": [
-              {
-                "text": "Samsung Galaxy S7 Edge - 3 @ $300.99"
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "primary": true,
-          "label": "APPROVE",
-          "url": {
-            "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-3/approve"
-          },
-          "type": "POST",
-          "action_key": "DIRECT",
-          "request": {},
-          "user_input": [],
-          "completed_label": "APPROVED",
-          "allow_repeated": false,
-          "mutually_exclusive_set_id": "approval-actions"
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "REJECT",
-          "url": {
-            "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-3/reject"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {},
-          "user_input": [
-            {
-              "id": "reason",
-              "label": "REASON FOR REJECTION",
-              "min_length": 1
-            }
-          ],
-          "completed_label": "REJECTED",
-          "allow_repeated": false,
-          "mutually_exclusive_set_id": "approval-actions"
-        }
-      ],
-      "image": {
-        "href": "https://my-connector/images/connector.png"
-      },
-      "hash": "34ae03dc3e40d2e7fe608019b696ef0eb1c0fe25"
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "name": "ServiceNow",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "template": {
-        "href": "https://hero/connectors/servicenow/templates/generic.hbs"
-      },
-      "header": {
-        "title": "[SERVICE NOW] APPROVAL REQUEST",
-        "subtitle": [
           "REQ0010002"
         ]
       },
@@ -164,7 +81,90 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "b4efdabc34984be9b66c07d9957cd9d3ef25e5e3"
+      "hash": "cfaf51a73e5bca7483a14382a3e7cb39a4463571"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "ServiceNow",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/servicenow/templates/generic.hbs"
+      },
+      "header": {
+        "title": "[SERVICE NOW] APPROVAL REQUEST",
+        "subtitle": [
+          "REQ0010003"
+        ]
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "TOTAL PRICE",
+            "description": "$902.97"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REQUESTER",
+            "description": "test-request-user-3"
+          },
+          {
+            "type": "GENERAL",
+            "title": "DUE BY",
+            "description": "test-due-date-3"
+          },
+          {
+            "type": "COMMENT",
+            "title": "ITEMS",
+            "content": [
+              {
+                "text": "Samsung Galaxy S7 Edge - 3 @ $300.99"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "APPROVE",
+          "url": {
+            "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-3/approve"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {},
+          "user_input": [],
+          "completed_label": "APPROVED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "REJECT",
+          "url": {
+            "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-3/reject"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "REASON FOR REJECTION",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "REJECTED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        }
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "hash": "145f3f989aca28cefadec8a80974a58eb10b30f5"
     }
   ]
 }

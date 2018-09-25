@@ -7,12 +7,12 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
@@ -168,6 +168,33 @@ public class CardBodyField {
             reset();
             return completedField;
         }
+    }
+
+    public String hash() {
+        final StringBuilder result = new StringBuilder();
+
+        if (StringUtils.isNotBlank(type)) {
+            result.append(type);
+        }
+
+        if (StringUtils.isNotBlank(title)) {
+            result.append(title);
+        }
+
+        if (StringUtils.isNotBlank(description)) {
+            result.append(description);
+        }
+
+        if (!CollectionUtils.isEmpty(content)) {
+            for (Map<String, String> item: content) {
+                if (!CollectionUtils.isEmpty(item)) {
+                    final Map<String, String> sortedMap = new TreeMap<>(item);
+                    result.append(sortedMap.toString());
+                }
+            }
+        }
+
+        return DigestUtils.sha1Hex(result.toString());
     }
 
     @Override

@@ -8,7 +8,10 @@ package com.vmware.connectors.common.payloads.response;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -51,5 +54,21 @@ public class CardHeader {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
+    }
+
+    public String hash() {
+        final StringBuilder result = new StringBuilder();
+
+        if (StringUtils.isNotBlank(title)) {
+            result.append(title);
+        }
+
+        if (!CollectionUtils.isEmpty(subtitle)) {
+            for (String item: subtitle) {
+                result.append(item);
+            }
+        }
+
+        return DigestUtils.sha1Hex(result.toString());
     }
 }

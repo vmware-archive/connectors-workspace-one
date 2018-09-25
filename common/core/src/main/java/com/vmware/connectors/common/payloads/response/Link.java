@@ -7,9 +7,6 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 public class Link {
     private final String href;
@@ -21,10 +18,5 @@ public class Link {
 
     public String getHref() {
         return href;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }
