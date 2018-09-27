@@ -13,7 +13,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
@@ -403,27 +402,22 @@ public class Card {
             final List<String> actionHashList = new ArrayList<>();
             if (!CollectionUtils.isEmpty(card.actions)) {
                 card.actions.forEach(cardAction ->
-                        actionHashList.add(cardAction == null ? null : cardAction.hash())
+                        actionHashList.add(cardAction == null ? StringUtils.SPACE : cardAction.hash())
                 );
             }
 
-            List<String> tagList = new ArrayList<>();
-            if (!CollectionUtils.isEmpty(card.tags)) {
-                tagList = card.tags.stream()
-                        .sorted()
-                        .collect(Collectors.toList());
-            }
-
+            final List<String> tagList = CollectionUtils.isEmpty(card.tags) ? Collections.EMPTY_LIST : new ArrayList<>(card.tags);
             final String headerHash = card.header == null ? null : card.header.hash();
             final String bodyHash = card.body == null ? null : card.body.hash();
+
             return HashUtil.hash(
                     "name: ", card.name,
                     "template: ", templateUrl,
                     "header: ", headerHash,
                     "body: ", bodyHash,
-                    "actions: ", actionHashList.toString(),
+                    "actions: ", HashUtil.hashList(actionHashList),
                     "image: ", imageUrl,
-                    "tags: ", tagList.toString()
+                    "tags: ", HashUtil.hashList(tagList)
             );
         }
     }

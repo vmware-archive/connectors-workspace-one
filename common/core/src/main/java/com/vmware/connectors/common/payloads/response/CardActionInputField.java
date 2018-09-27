@@ -9,9 +9,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.connectors.common.utils.HashUtil;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
@@ -245,19 +246,13 @@ public class CardActionInputField {
     }
 
     public String hash() {
-        final List<String> optionList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(this.options)) {
-            final Map<String, String> sortedMap = new TreeMap<>(this.options);
-            optionList.add(sortedMap.toString());
-        }
-
         return HashUtil.hash(
                 "id: ", this.id,
                 "label: ", this.label,
                 "format: ", this.format,
-                "options: ", optionList.toString(),
-                "minLength: ", String.valueOf(this.minLength),
-                "maxLength: ", String.valueOf(this.maxLength)
+                "options: ", HashUtil.hashMap(this.options),
+                "minLength: ", this.minLength,
+                "maxLength: ", this.maxLength
         );
     }
 

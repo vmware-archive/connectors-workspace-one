@@ -34,7 +34,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "5cd59a02cfe4ce166216de5152779b1c564267a8"
+      "hash": "4423ba8d3e379239ab1b387882a7bc634c4e5a54"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -85,7 +85,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "1756b5fe4d03dc727547babd2673a1a8a24b6263"
+      "hash": "d950a30338959cf3b2d1e842753dd45fde317958"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -188,7 +188,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "3921695b80faee8ab388d53467372c92e473ac64"
+      "hash": "2ab38342cbeea83bc5ebf075a231a4e522e312e0"
     }
   ]
 }

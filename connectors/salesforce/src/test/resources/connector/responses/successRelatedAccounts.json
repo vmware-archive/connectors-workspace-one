@@ -42,7 +42,59 @@
           "allow_repeated": false
         }
       ],
-      "hash": "b2372a9b1cf2d2bb839230ff02bf1c0857c7e43d"
+      "hash": "98ec2b1b9a8bcd7b2d3be1de3241ecca546b9651"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Salesforce",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/salesforce/templates/generic.hbs"
+      },
+      "header": {
+        "title": "Add a contact in Salesforce?",
+        "subtitle": []
+      },
+      "body": {
+        "description": "The sender's address, john.doe@abc.com, might be related to your Salesforce account named 'Leo DCaprio'. Would you like to add the sender as a contact?"
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Add contact",
+          "url": {
+            "href": "https://hero/connectors/salesforce/accounts/001Q0000012gkPHIAY/contacts"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {
+            "contact_email": "john.doe@abc.com"
+          },
+          "user_input": [
+            {
+              "id": "first_name",
+              "label": "First name",
+              "min_length": 1
+            },
+            {
+              "id": "last_name",
+              "label": "Last name",
+              "min_length": 1
+            },
+            {
+              "id": "opportunity_ids",
+              "label": "Opportunity",
+              "format": "select",
+              "options": {
+                "0064100000BU5bCAAT": "MDM selling opportunity"
+              }
+            }
+          ],
+          "completed_label": "Contact added",
+          "allow_repeated": false
+        }
+      ],
+      "hash": "92b75f2d93bce9a5a5c1f7ca5b184f23f544c7f9"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -95,59 +147,7 @@
           "allow_repeated": false
         }
       ],
-      "hash": "c4b514f84f4458a23bddd95d8c5f9784d3571d26"
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "name": "Salesforce",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "template": {
-        "href": "https://hero/connectors/salesforce/templates/generic.hbs"
-      },
-      "header": {
-        "title": "Add a contact in Salesforce?",
-        "subtitle": []
-      },
-      "body": {
-        "description": "The sender's address, john.doe@abc.com, might be related to your Salesforce account named 'Leo DCaprio'. Would you like to add the sender as a contact?"
-      },
-      "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Add contact",
-          "url": {
-            "href": "https://hero/connectors/salesforce/accounts/001Q0000012gkPHIAY/contacts"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {
-            "contact_email": "john.doe@abc.com"
-          },
-          "user_input": [
-            {
-              "id": "first_name",
-              "label": "First name",
-              "min_length": 1
-            },
-            {
-              "id": "last_name",
-              "label": "Last name",
-              "min_length": 1
-            },
-            {
-              "id": "opportunity_ids",
-              "label": "Opportunity",
-              "format": "select",
-              "options": {
-                "0064100000BU5bCAAT": "MDM selling opportunity"
-              }
-            }
-          ],
-          "completed_label": "Contact added",
-          "allow_repeated": false
-        }
-      ],
-      "hash": "e75155d3e7a6564d3c3c9cc25206e90901c7920c"
+      "hash": "c10b8c45f571922bcbc1b1c9f652228af822f9b7"
     }
   ]
 }

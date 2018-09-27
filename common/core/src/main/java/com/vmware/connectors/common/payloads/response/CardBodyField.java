@@ -11,7 +11,10 @@ import com.vmware.connectors.common.utils.HashUtil;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
@@ -173,10 +176,7 @@ public class CardBodyField {
         final List<String> contentList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(content)) {
             for (Map<String, String> item : content) {
-                if (!CollectionUtils.isEmpty(item)) {
-                    final Map<String, String> sortedMap = new TreeMap<>(item);
-                    contentList.add(sortedMap.toString());
-                }
+                contentList.add(HashUtil.hashMap(item));
             }
         }
 
@@ -184,7 +184,7 @@ public class CardBodyField {
                 "type: ", this.type,
                 "title: ", this.title,
                 "description: ", this.description,
-                "content: ", contentList.toString()
+                "content: ", HashUtil.hashList(contentList)
         );
     }
 

@@ -8,6 +8,7 @@ package com.vmware.connectors.common.payloads.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.connectors.common.utils.HashUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
@@ -406,30 +407,24 @@ public class CardAction {
     public String hash() {
         final String url = this.url == null ? null : this.url.getHref();
 
-        final List<String> requestList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(request)) {
-            final Map<String, String> sortedMap = new TreeMap<>(request);
-            requestList.add(sortedMap.toString());
-        }
-
         final List<String> userInputHashList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(userInput)) {
             userInput.forEach(actionInput ->
-                    userInputHashList.add(actionInput == null ? null : actionInput.hash())
+                    userInputHashList.add(actionInput == null ? StringUtils.SPACE : actionInput.hash())
             );
         }
 
         return HashUtil.hash(
-                "primary: ", String.valueOf(this.primary),
+                "primary: ", this.primary,
                 "label: ", this.label,
                 "url: ", url,
                 "type: ", this.type.name(),
                 "action_key: ", this.actionKey,
-                "remove_card_on_completion: ", String.valueOf(this.removeCardOnCompletion),
-                "request: ", requestList.toString(),
-                "user_input: ", userInputHashList.toString(),
+                "remove_card_on_completion: ", this.removeCardOnCompletion,
+                "request: ", HashUtil.hashMap(this.request),
+                "user_input: ", HashUtil.hashList(userInputHashList),
                 "completed_label: ", this.completedLabel,
-                "allow_repeated: ", String.valueOf(this.allowRepeated),
+                "allow_repeated: ", this.allowRepeated,
                 "mutually_exclusive_set_id: ", this.mutuallyExclusiveSetId
         );
     }

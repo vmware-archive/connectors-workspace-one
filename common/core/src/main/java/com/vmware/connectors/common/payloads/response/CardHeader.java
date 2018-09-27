@@ -57,6 +57,6 @@ public class CardHeader {
     public String hash() {
         return HashUtil.hash(
                 "title: ", this.title,
-                "subtitle: ", subtitle.toString());
+                "subtitle: ", HashUtil.hashList(subtitle));
     }
 }
