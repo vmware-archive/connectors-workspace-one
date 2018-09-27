@@ -7,15 +7,11 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.vmware.connectors.common.utils.HashUtil;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
@@ -249,27 +245,20 @@ public class CardActionInputField {
     }
 
     public String hash() {
-        final StringBuilder result = new StringBuilder();
-        if (StringUtils.isNotBlank(id)) {
-            result.append(id);
+        final List<String> optionList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(this.options)) {
+            final Map<String, String> sortedMap = new TreeMap<>(this.options);
+            optionList.add(sortedMap.toString());
         }
 
-        if (StringUtils.isNotBlank(label)) {
-            result.append(label);
-        }
-
-        if (StringUtils.isNotBlank(format)) {
-            result.append(format);
-        }
-
-        if (!CollectionUtils.isEmpty(options)) {
-            final Map<String, String> sortedMap = new TreeMap<>(options);
-            result.append(sortedMap.toString());
-        }
-
-        result.append(minLength).append(maxLength);
-
-        return DigestUtils.sha1Hex(result.toString());
+        return HashUtil.hash(
+                "id: ", this.id,
+                "label: ", this.label,
+                "format: ", this.format,
+                "options: ", optionList.toString(),
+                "minLength: ", String.valueOf(this.minLength),
+                "maxLength: ", String.valueOf(this.maxLength)
+        );
     }
 
     @Override

@@ -7,8 +7,7 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.vmware.connectors.common.utils.HashUtil;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.CollectionUtils;
 
@@ -171,30 +170,22 @@ public class CardBodyField {
     }
 
     public String hash() {
-        final StringBuilder result = new StringBuilder();
-
-        if (StringUtils.isNotBlank(type)) {
-            result.append(type);
-        }
-
-        if (StringUtils.isNotBlank(title)) {
-            result.append(title);
-        }
-
-        if (StringUtils.isNotBlank(description)) {
-            result.append(description);
-        }
-
+        final List<String> contentList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(content)) {
-            for (Map<String, String> item: content) {
+            for (Map<String, String> item : content) {
                 if (!CollectionUtils.isEmpty(item)) {
                     final Map<String, String> sortedMap = new TreeMap<>(item);
-                    result.append(sortedMap.toString());
+                    contentList.add(sortedMap.toString());
                 }
             }
         }
 
-        return DigestUtils.sha1Hex(result.toString());
+        return HashUtil.hash(
+                "type: ", this.type,
+                "title: ", this.title,
+                "description: ", this.description,
+                "content: ", contentList.toString()
+        );
     }
 
     @Override

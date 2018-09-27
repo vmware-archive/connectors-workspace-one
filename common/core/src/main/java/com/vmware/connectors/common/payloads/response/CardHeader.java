@@ -8,10 +8,8 @@ package com.vmware.connectors.common.payloads.response;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.vmware.connectors.common.utils.HashUtil;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -33,7 +31,7 @@ public class CardHeader {
      * If a header lacks a title or subtitle, it is recommended to supply <code>null</code> for the missing
      * values rather than, e.g., an empty string.
      *
-     * @param title The title
+     * @param title    The title
      * @param subtitle The subtitle(s)
      */
     @JsonCreator
@@ -57,18 +55,8 @@ public class CardHeader {
     }
 
     public String hash() {
-        final StringBuilder result = new StringBuilder();
-
-        if (StringUtils.isNotBlank(title)) {
-            result.append(title);
-        }
-
-        if (!CollectionUtils.isEmpty(subtitle)) {
-            for (String item: subtitle) {
-                result.append(item);
-            }
-        }
-
-        return DigestUtils.sha1Hex(result.toString());
+        return HashUtil.hash(
+                "title: ", this.title,
+                "subtitle: ", subtitle.toString());
     }
 }

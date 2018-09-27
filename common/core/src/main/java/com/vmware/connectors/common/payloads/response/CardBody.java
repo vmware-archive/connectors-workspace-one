@@ -7,8 +7,7 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.vmware.connectors.common.utils.HashUtil;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.CollectionUtils;
 
@@ -125,16 +124,15 @@ public class CardBody {
     }
 
     public String hash() {
-        final StringBuilder result = new StringBuilder();
-        if (StringUtils.isNotBlank(description)) {
-            result.append(description);
-        }
-
+        final List<String> fieldsHashList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(fields)) {
-            fields.forEach(cardBodyField -> result.append(cardBodyField.hash()));
+            fields.forEach(cardBodyField -> fieldsHashList.add(cardBodyField.hash()));
         }
 
-        return DigestUtils.sha1Hex(result.toString());
+        return HashUtil.hash(
+                "description: ", this.description,
+                "fields: ", fieldsHashList.toString()
+        );
     }
 
     @Override

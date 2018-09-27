@@ -39,8 +39,6 @@
         <exclude name="TooManyMethods"/>
         <exclude name="TooManyFields"/>
         <exclude name="UseObjectForClearerAPI"/>
-        <exclude name="NPathComplexity"/>
-        <exclude name="CyclomaticComplexity"/>
     </rule>
 
     <rule ref="category/java/documentation.xml">
@@ -69,7 +67,7 @@
     <rule ref="category/java/design.xml/NcssCount">
         <properties>
             <property name="methodReportLevel">
-                <value>25</value>
+                <value>16</value>
             </property>
         </properties>
     </rule>

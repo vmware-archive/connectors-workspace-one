@@ -7,12 +7,13 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.codec.digest.DigestUtils;
+import com.vmware.connectors.common.utils.HashUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
@@ -368,12 +369,12 @@ public class Card {
         }
 
         /**
-         * Add SHA-1 of card fields.
+         * Set SHA-1 of card fields.
          *
          * @param hash SHA-1 of card header, body, and action fields.
          * @return this Builder instance, for method chaining
          */
-        public Builder addHash(String hash) {
+        public Builder setHash(String hash) {
             card.hash = hash;
             return this;
         }
@@ -385,7 +386,7 @@ public class Card {
          */
         @SuppressWarnings("PMD.UnnecessaryLocalBeforeReturn")
         public Card build() {
-            // If the connector author has already set the hash, then do not override the hash value.
+            // If the connector author has already set the hash, then do not override.
             if (StringUtils.isBlank(card.hash)) {
                 card.hash = computeHash();
             }
@@ -396,39 +397,34 @@ public class Card {
         }
 
         public String computeHash() {
-            final StringBuilder result = new StringBuilder();
-            if (StringUtils.isNotBlank(card.name)) {
-                result.append(card.name);
-            }
+            final String templateUrl = card.template == null ? null : card.template.getHref();
+            final String imageUrl = card.image == null ? null : card.image.getHref();
 
-            if (card.template != null && StringUtils.isNotBlank(card.template.getHref())) {
-                result.append(card.template.getHref());
-            }
-
-            if (card.header != null) {
-                result.append(card.header.hash());
-            }
-
-            if (card.body != null) {
-                result.append(card.body.hash());
-            }
-
+            final List<String> actionHashList = new ArrayList<>();
             if (!CollectionUtils.isEmpty(card.actions)) {
-                card.actions.stream()
-                        .filter(Objects::nonNull)
-                        .forEach(cardAction -> result.append(cardAction.hash()));
+                card.actions.forEach(cardAction ->
+                        actionHashList.add(cardAction == null ? null : cardAction.hash())
+                );
             }
 
-            if (card.image != null && StringUtils.isNotBlank(card.image.getHref())) {
-                result.append(card.image.getHref());
-            }
-
+            List<String> tagList = new ArrayList<>();
             if (!CollectionUtils.isEmpty(card.tags)) {
-                final Set<String> sortedSet = new TreeSet<>(card.tags);
-                sortedSet.forEach(tag -> result.append(tag));
+                tagList = card.tags.stream()
+                        .sorted()
+                        .collect(Collectors.toList());
             }
 
-            return DigestUtils.sha1Hex(result.toString());
+            final String headerHash = card.header == null ? null : card.header.hash();
+            final String bodyHash = card.body == null ? null : card.body.hash();
+            return HashUtil.hash(
+                    "name: ", card.name,
+                    "template: ", templateUrl,
+                    "header: ", headerHash,
+                    "body: ", bodyHash,
+                    "actions: ", actionHashList.toString(),
+                    "image: ", imageUrl,
+                    "tags: ", tagList.toString()
+            );
         }
     }
 }

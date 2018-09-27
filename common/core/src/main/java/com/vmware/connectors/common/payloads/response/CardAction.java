@@ -7,8 +7,7 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.vmware.connectors.common.utils.HashUtil;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
@@ -405,43 +404,34 @@ public class CardAction {
     }
 
     public String hash() {
-        final StringBuilder result = new StringBuilder();
+        final String url = this.url == null ? null : this.url.getHref();
 
-        result.append(primary);
-
-        if (StringUtils.isNotBlank(label)) {
-            result.append(label);
-        }
-
-        if (url != null && StringUtils.isNotBlank(url.getHref())) {
-            result.append(url.getHref());
-        }
-
-        result.append(type.name());
-        if (StringUtils.isNotBlank(actionKey)) {
-            result.append(actionKey);
-        }
-
-        result.append(removeCardOnCompletion);
+        final List<String> requestList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(request)) {
             final Map<String, String> sortedMap = new TreeMap<>(request);
-            result.append(sortedMap.toString());
+            requestList.add(sortedMap.toString());
         }
 
+        final List<String> userInputHashList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(userInput)) {
-            userInput.forEach(cardActionInputField -> result.append(cardActionInputField.hash()));
+            userInput.forEach(actionInput ->
+                    userInputHashList.add(actionInput == null ? null : actionInput.hash())
+            );
         }
 
-        if (StringUtils.isNotBlank(completedLabel)) {
-            result.append(completedLabel);
-        }
-
-        result.append(allowRepeated);
-        if (StringUtils.isNotBlank(mutuallyExclusiveSetId)) {
-            result.append(mutuallyExclusiveSetId);
-        }
-
-        return DigestUtils.sha1Hex(result.toString());
+        return HashUtil.hash(
+                "primary: ", String.valueOf(this.primary),
+                "label: ", this.label,
+                "url: ", url,
+                "type: ", this.type.name(),
+                "action_key: ", this.actionKey,
+                "remove_card_on_completion: ", String.valueOf(this.removeCardOnCompletion),
+                "request: ", requestList.toString(),
+                "user_input: ", userInputHashList.toString(),
+                "completed_label: ", this.completedLabel,
+                "allow_repeated: ", String.valueOf(this.allowRepeated),
+                "mutually_exclusive_set_id: ", this.mutuallyExclusiveSetId
+        );
     }
 
     @Override
