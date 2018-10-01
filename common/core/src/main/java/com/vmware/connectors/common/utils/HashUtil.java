@@ -2,7 +2,6 @@ package com.vmware.connectors.common.utils;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -10,7 +9,11 @@ import java.util.stream.Collectors;
 
 public final class HashUtil {
 
-    public static final String SPACE_SHA1_VALUE = DigestUtils.sha1Hex(StringUtils.SPACE);
+    private static final String EMPTY_LIST = DigestUtils.sha1Hex("empty-list");
+    private static final String NULL_LIST = DigestUtils.sha1Hex("null-list");
+
+    private static final String EMPTY_MAP = DigestUtils.sha1Hex("empty-map");
+    private static final String NULL_MAP = DigestUtils.sha1Hex("null-map");
 
     public static String hash(final Object... args) {
         final StringBuilder result = new StringBuilder();
@@ -23,8 +26,12 @@ public final class HashUtil {
     }
 
     public static String hashList(final List<String> argList) {
-        if (CollectionUtils.isEmpty(argList)) {
-            return SPACE_SHA1_VALUE;
+        if (argList == null) {
+            return NULL_LIST;
+        }
+
+        if (argList.isEmpty()) {
+            return EMPTY_LIST;
         }
 
         final List<String> result = argList.stream()
@@ -35,9 +42,14 @@ public final class HashUtil {
     }
 
     public static String hashMap(final Map<String, String> argMap) {
-        if (CollectionUtils.isEmpty(argMap)) {
-            return SPACE_SHA1_VALUE;
+        if (argMap == null) {
+            return NULL_MAP;
         }
+
+        if (argMap.isEmpty()) {
+            return EMPTY_MAP;
+        }
+
 
         final List<String> result = argMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())

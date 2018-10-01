@@ -9,7 +9,7 @@
   "author": {
     "username": "TestUser1"
   },
-  "sha": "1b5dfe4d9a073c8f062987790b8d68b0a56c6e2b",
+  "sha": "test-sha",
   "merge_commit_sha": null,
   "user_notes_count": 6,
   "changes_count": "2",

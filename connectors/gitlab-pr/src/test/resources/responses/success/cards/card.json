@@ -38,7 +38,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "9a7c5eb57484c17820c52e9c4ff18b5ea736d8b3"
+      "hash": "test-hash"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -63,7 +63,7 @@
           "type": "POST",
           "action_key": "DIRECT",
           "request": {
-            "sha": "d6dc43f74ee70a7390f02d779164eb4face2c8c6"
+            "sha": "test-sha"
           },
           "user_input": [],
           "completed_label": "Approved",
@@ -93,7 +93,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "f803544f7536a056796ed0565763705430e9658b"
+      "hash": "test-hash"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -133,7 +133,7 @@
       "image": {
         "href": "https://my-connector/images/connector.png"
       },
-      "hash": "2fe5c9f268aa95e3cbefea957a9e259b0f535806"
+      "hash": "test-hash"
     }
   ]
 }

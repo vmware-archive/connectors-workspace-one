@@ -42,7 +42,7 @@
           "allow_repeated": false
         }
       ],
-      "hash": "98ec2b1b9a8bcd7b2d3be1de3241ecca546b9651"
+      "hash": "test-hash"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -94,7 +94,7 @@
           "allow_repeated": false
         }
       ],
-      "hash": "92b75f2d93bce9a5a5c1f7ca5b184f23f544c7f9"
+      "hash": "test-hash"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -147,7 +147,7 @@
           "allow_repeated": false
         }
       ],
-      "hash": "c10b8c45f571922bcbc1b1c9f652228af822f9b7"
+      "hash": "test-hash"
     }
   ]
 }

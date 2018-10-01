@@ -417,6 +417,7 @@ public class Card {
                     "body: ", bodyHash,
                     "actions: ", HashUtil.hashList(actionHashList),
                     "image: ", imageUrl,
+                    "importance: ", card.importance,
                     "tags: ", HashUtil.hashList(tagList)
             );
         }
