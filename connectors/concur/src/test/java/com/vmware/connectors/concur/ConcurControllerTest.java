@@ -21,7 +21,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
-import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -343,6 +342,7 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .collect(Collectors.joining())
                 .map(JsonNormalizer::forCards)
                 .block();
+        body = body.replaceAll("[a-z0-9]{40,}", "test-hash");
         assertThat(body, sameJSONAs(fromFile("connector/responses/" + responseFile)
                 .replace("${concur_host}", mockBackend.url(""))).allowingAnyArrayOrdering());
     }

@@ -7,10 +7,14 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vmware.connectors.common.utils.HashUtil;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * This class represents a user-supplied parameter that will be sent with the request fired by the client when the
@@ -239,5 +243,21 @@ public class CardActionInputField {
 
             return true;
         }
+    }
+
+    public String hash() {
+        return HashUtil.hash(
+                "id: ", this.id,
+                "label: ", this.label,
+                "format: ", this.format,
+                "options: ", HashUtil.hashMap(this.options),
+                "minLength: ", this.minLength,
+                "maxLength: ", this.maxLength
+        );
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }

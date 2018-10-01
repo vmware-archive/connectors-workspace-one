@@ -80,7 +80,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "test-hash"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -162,8 +163,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "test-hash"
     }
-
   ]
 }

@@ -8,45 +8,6 @@
         "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[Github] Pull Request #1 from TestUser1",
-        "subtitle": [
-          "vmware/test-repo"
-        ]
-      },
-      "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Comment",
-          "url": {
-            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/1/comment"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {},
-          "user_input": [
-            {
-              "id": "message",
-              "format": "textarea",
-              "label": "Comment",
-              "min_length": 1
-            }
-          ],
-          "completed_label": "Commented",
-          "allow_repeated": false
-        }
-      ],
-      "image": {
-        "href": "https://my-connector/images/connector.png"
-      }
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "name": "GithubPr",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "template": {
-        "href": "https://hero/connectors/github-pr/templates/generic.hbs"
-      },
-      "header": {
         "title": "[Github] Pull Request #2 from TestUser1",
         "subtitle": [
           "vmware/test-repo"
@@ -78,8 +39,8 @@
           "user_input": [
             {
               "id": "message",
-              "format": "textarea",
               "label": "Comment",
+              "format": "textarea",
               "min_length": 1
             }
           ],
@@ -89,7 +50,48 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "test-hash"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "GithubPr",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/github-pr/templates/generic.hbs"
+      },
+      "header": {
+        "title": "[Github] Pull Request #1 from TestUser1",
+        "subtitle": [
+          "vmware/test-repo"
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Comment",
+          "url": {
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/1/comment"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "message",
+              "label": "Comment",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Commented",
+          "allow_repeated": false
+        }
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "hash": "test-hash"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -117,8 +119,8 @@
           "user_input": [
             {
               "id": "message",
-              "format": "textarea",
               "label": "Comment",
+              "format": "textarea",
               "min_length": 1
             }
           ],
@@ -128,7 +130,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "test-hash"
     }
   ]
 }

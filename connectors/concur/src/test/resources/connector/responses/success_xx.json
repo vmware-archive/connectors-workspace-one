@@ -12,6 +12,47 @@
         "subtitle": []
       },
       "body": {
+        "description": "Test Concur connector-2",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "APPROVAL STATUS",
+            "description": "Approved"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REPORT FROM",
+            "description": "Ajmera, Rahul"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REPORT PURPOSE",
+            "description": "Concur"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REPORT AMOUNT",
+            "description": "10000.00 INR"
+          }
+        ]
+      },
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "hash": "test-hash"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Concur",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/concur/templates/generic.hbs"
+      },
+      "header": {
+        "title": "[CONCUR] EXPENSE REPORT PENDING YOUR APPROVAL",
+        "subtitle": []
+      },
+      "body": {
         "description": "Test Concur connector-1",
         "fields": [
           {
@@ -50,8 +91,8 @@
           "user_input": [
             {
               "id": "reason",
-              "format": "textarea",
               "label": "REASON FOR APPROVAL",
+              "format": "textarea",
               "min_length": 1
             }
           ],
@@ -71,8 +112,8 @@
           "user_input": [
             {
               "id": "reason",
-              "format": "textarea",
               "label": "REASON FOR REJECTION",
+              "format": "textarea",
               "min_length": 1
             }
           ],
@@ -83,47 +124,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "name": "Concur",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "template": {
-        "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
-      "header": {
-        "title": "[CONCUR] EXPENSE REPORT PENDING YOUR APPROVAL",
-        "subtitle": []
-      },
-      "body": {
-        "description": "Test Concur connector-2",
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "APPROVAL STATUS",
-            "description": "Approved"
-          },
-          {
-            "type": "GENERAL",
-            "title": "REPORT FROM",
-            "description": "Ajmera, Rahul"
-          },
-          {
-            "type": "GENERAL",
-            "title": "REPORT PURPOSE",
-            "description": "Concur"
-          },
-          {
-            "type": "GENERAL",
-            "title": "REPORT AMOUNT",
-            "description": "10000.00 INR"
-          }
-        ]
-      },
-      "image": {
-        "href": "https://my-connector/images/connector.png"
-      }
+      "hash": "test-hash"
     }
   ]
 }

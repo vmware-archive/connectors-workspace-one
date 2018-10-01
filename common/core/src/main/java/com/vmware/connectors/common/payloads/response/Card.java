@@ -7,6 +7,9 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vmware.connectors.common.utils.HashUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -57,6 +60,9 @@ public class Card {
 
     @JsonProperty("tags")
     private final Set<String> tags;
+
+    @JsonProperty("hash")
+    private String hash;
 
     // Don't instantiate directly -- use a Card.Builder
     private Card() {
@@ -171,6 +177,14 @@ public class Card {
         return Collections.unmodifiableSet(tags);
     }
 
+    /**
+     * Return SHA-1 of the concatenated result of card name, header, body, and action.
+     *
+     * @return hash value
+     */
+    public String getHash() {
+        return this.hash;
+    }
 
     /**
      * This class allows the construction of Card objects. To use, create a Builder instance, call its methods
@@ -354,15 +368,58 @@ public class Card {
         }
 
         /**
+         * Set SHA-1 of card fields.
+         *
+         * @param hash SHA-1 of card header, body, and action fields.
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setHash(String hash) {
+            card.hash = hash;
+            return this;
+        }
+
+        /**
          * Return the Card under construction and reset the Builder to its initial state.
          *
          * @return The completed Card
          */
         @SuppressWarnings("PMD.UnnecessaryLocalBeforeReturn")
         public Card build() {
+            // If the connector author has already set the hash, then do not override.
+            if (StringUtils.isBlank(card.hash)) {
+                card.hash = computeHash();
+            }
+
             Card completedCard = this.card;
             reset();
             return completedCard;
+        }
+
+        public String computeHash() {
+            final String templateUrl = card.template == null ? null : card.template.getHref();
+            final String imageUrl = card.image == null ? null : card.image.getHref();
+
+            final List<String> actionHashList = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(card.actions)) {
+                card.actions.forEach(cardAction ->
+                        actionHashList.add(cardAction == null ? StringUtils.SPACE : cardAction.hash())
+                );
+            }
+
+            final List<String> tagList = CollectionUtils.isEmpty(card.tags) ? Collections.EMPTY_LIST : new ArrayList<>(card.tags);
+            final String headerHash = card.header == null ? null : card.header.hash();
+            final String bodyHash = card.body == null ? null : card.body.hash();
+
+            return HashUtil.hash(
+                    "name: ", card.name,
+                    "template: ", templateUrl,
+                    "header: ", headerHash,
+                    "body: ", bodyHash,
+                    "actions: ", HashUtil.hashList(actionHashList),
+                    "image: ", imageUrl,
+                    "importance: ", card.importance,
+                    "tags: ", HashUtil.hashList(tagList)
+            );
         }
     }
 }

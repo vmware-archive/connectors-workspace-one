@@ -8,8 +8,12 @@ package com.vmware.connectors.common.payloads.response;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vmware.connectors.common.utils.HashUtil;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * This class represents the header of a "hero card", which can contain a title and/or a subtitle.
@@ -27,7 +31,7 @@ public class CardHeader {
      * If a header lacks a title or subtitle, it is recommended to supply <code>null</code> for the missing
      * values rather than, e.g., an empty string.
      *
-     * @param title The title
+     * @param title    The title
      * @param subtitle The subtitle(s)
      */
     @JsonCreator
@@ -43,5 +47,16 @@ public class CardHeader {
 
     public List<String> getSubtitle() {
         return subtitle;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
+    }
+
+    public String hash() {
+        return HashUtil.hash(
+                "title: ", this.title,
+                "subtitle: ", HashUtil.hashList(subtitle));
     }
 }

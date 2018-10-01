@@ -83,7 +83,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "test-hash"
     }
   ]
 }

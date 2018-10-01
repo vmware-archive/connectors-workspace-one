@@ -7,11 +7,16 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vmware.connectors.common.utils.HashUtil;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * This class represents a field in the body of a "hero card".
@@ -22,10 +27,13 @@ import java.util.Map;
 public class CardBodyField {
     @JsonProperty("type")
     private String type;
+
     @JsonProperty("title")
     private String title;
+
     @JsonProperty("description")
     private String description;
+
     @JsonProperty("content")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<Map<String, String>> content;
@@ -162,5 +170,26 @@ public class CardBodyField {
             reset();
             return completedField;
         }
+    }
+
+    public String hash() {
+        final List<String> contentList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(content)) {
+            for (Map<String, String> item : content) {
+                contentList.add(HashUtil.hashMap(item));
+            }
+        }
+
+        return HashUtil.hash(
+                "type: ", this.type,
+                "title: ", this.title,
+                "description: ", this.description,
+                "content: ", HashUtil.hashList(contentList)
+        );
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }

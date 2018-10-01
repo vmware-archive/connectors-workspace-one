@@ -42,5 +42,6 @@
       "action_key": "TAKE_ARMS"
     }
   ],
-  "tags": ["cats", "fails"]
+  "tags": ["cats", "fails"],
+  "hash": "test-hash"
 }

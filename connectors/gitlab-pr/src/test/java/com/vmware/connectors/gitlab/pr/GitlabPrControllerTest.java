@@ -27,8 +27,10 @@ import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpMethod.*;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
@@ -167,6 +169,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 .collect(Collectors.joining())
                 .map(JsonNormalizer::forCards)
                 .block();
+        body = body.replaceAll("[a-z0-9]{40,}", "test-hash");
         assertThat(body, sameJSONAs(fromFile(responseFile)).allowingAnyArrayOrdering());
     }
 

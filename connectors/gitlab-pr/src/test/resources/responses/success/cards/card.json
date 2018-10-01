@@ -26,8 +26,8 @@
           "user_input": [
             {
               "id": "message",
-              "format": "textarea",
               "label": "Comment",
+              "format": "textarea",
               "min_length": 1
             }
           ],
@@ -37,7 +37,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "test-hash"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -62,7 +63,7 @@
           "type": "POST",
           "action_key": "DIRECT",
           "request": {
-            "sha": "d6dc43f74ee70a7390f02d779164eb4face2c8c6"
+            "sha": "test-sha"
           },
           "user_input": [],
           "completed_label": "Approved",
@@ -80,8 +81,8 @@
           "user_input": [
             {
               "id": "message",
-              "format": "textarea",
               "label": "Comment",
+              "format": "textarea",
               "min_length": 1
             }
           ],
@@ -91,7 +92,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "test-hash"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -119,8 +121,8 @@
           "user_input": [
             {
               "id": "message",
-              "format": "textarea",
               "label": "Comment",
+              "format": "textarea",
               "min_length": 1
             }
           ],
@@ -130,7 +132,8 @@
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "test-hash"
     }
   ]
 }

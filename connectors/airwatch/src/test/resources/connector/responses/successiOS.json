@@ -25,14 +25,15 @@
           "action_key": "DIRECT",
           "request": {
             "app_name": "vmware boxer",
-            "udid": "ABCD",
-            "platform": "iOS"
+            "platform": "iOS",
+            "udid": "ABCD"
           },
           "user_input": [],
           "completed_label": "Installed",
           "allow_repeated": false
         }
-      ]
+      ],
+      "hash": "test-hash"
     }
   ]
 }
