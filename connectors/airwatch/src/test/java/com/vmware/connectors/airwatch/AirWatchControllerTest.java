@@ -195,6 +195,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
         webClient.post()
                 .uri("/mdm/app/install")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header("X-Connector-Authorization", "Bearer vidm")
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .body(BodyInserters.fromFormData("app_name", "Concur")
@@ -221,6 +222,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
         webClient.post()
                 .uri("/mdm/app/install")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header("X-Connector-Authorization", "Bearer vidm")
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .body(BodyInserters.fromFormData("app_name", appName)
@@ -235,6 +237,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
         webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header("X-Connector-Authorization", "Bearer vidm")
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/airwatch/")
@@ -260,7 +263,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
     @Test
     void testRequestCardsForbidden() throws Exception {
         mockBackend.expect(times(2), requestTo(any(String.class)))
-                .andExpect(header(AUTHORIZATION, "Bearer " + accessToken()))
+                .andExpect(header(AUTHORIZATION, "Bearer vidm"))
                 .andExpect(method(GET))
                 .andRespond(withStatus(FORBIDDEN).body(awUserForbidden));
         requestCards("request.json")
@@ -331,6 +334,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
         return webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header("X-Connector-Authorization", "Bearer vidm")
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
@@ -341,14 +345,14 @@ class AirWatchControllerTest extends ControllerTestsBase {
     private ResponseActions expectAWRequest(String uri) {
         return mockBackend.expect(requestTo(uri))
                 .andExpect(method(GET))
-                .andExpect(header(AUTHORIZATION, "Bearer " + accessToken()));
+                .andExpect(header(AUTHORIZATION, "Bearer vidm"));
     }
 
     private void expectGBSessionRequests(String deviceType) {
         // eucToken
         mockGreenbox.expect(requestTo("/catalog-portal/services/auth/eucTokens?deviceUdid=ABCD&deviceType=" + deviceType))
                 .andExpect(method(POST))
-                .andExpect(header(COOKIE, "HZN=" + accessToken()))
+                .andExpect(header(COOKIE, "HZN=vidm"))
                 .andRespond(withStatus(CREATED).body(gbEucToken).contentType(HAL_JSON_UTF8));
 
         // CSRF token
