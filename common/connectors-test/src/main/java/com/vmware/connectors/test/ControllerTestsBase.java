@@ -80,7 +80,7 @@ public class ControllerTestsBase {
 
     @BeforeEach
     void setup() throws Exception {
-        auth = jwt.createAccessToken();
+        auth = jwt.createConnectorToken();
         mockBackend = new MockWebServerWrapper(new MockWebServer());
     }
 
@@ -104,7 +104,7 @@ public class ControllerTestsBase {
         // Try with expired token
         webClient.method(method)
                 .uri(uri)
-                .header(AUTHORIZATION, "Bearer " + jwt.createAccessToken(Instant.now()))
+                .header(AUTHORIZATION, "Bearer " + jwt.createConnectorToken(Instant.now()))
                 .exchange()
                 .expectStatus().isUnauthorized();
 
