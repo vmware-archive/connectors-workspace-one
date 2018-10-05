@@ -9,9 +9,10 @@
       },
       "fields": {
         "_temporary": {
-          "regex": "Expense Report Pending Your Approval"
+          "regex": "__test_hub_connectors__"
         }
       },
+      "pollable": true,
       "endpoint": {
         "href": "${CONNECTOR_HOST}/cards/requests"
       }

@@ -1,0 +1,4 @@
+<WorkflowAction xmlns="http://www.concursolutions.com/api/expense/expensereport/2011/03">
+    <Action>${action}</Action>
+    <Comment>${comment}</Comment>
+</WorkflowAction>
