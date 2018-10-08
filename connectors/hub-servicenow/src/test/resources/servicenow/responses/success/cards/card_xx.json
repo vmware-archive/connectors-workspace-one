@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "[SERVICE NOW] APPROVAL REQUEST",
+        "title": "[HUB SERVICE NOW] APPROVAL REQUEST",
         "subtitle": [
           "REQ0010003"
         ]
@@ -91,90 +91,7 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "[SERVICE NOW] APPROVAL REQUEST",
-        "subtitle": [
-          "REQ0010001"
-        ]
-      },
-      "body": {
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "TOTAL PRICE",
-            "description": "$100.99"
-          },
-          {
-            "type": "GENERAL",
-            "title": "REQUESTER",
-            "description": "test-request-user-1"
-          },
-          {
-            "type": "GENERAL",
-            "title": "DUE BY",
-            "description": "test-due-date-1"
-          },
-          {
-            "type": "COMMENT",
-            "title": "ITEMS",
-            "content": [
-              {
-                "text": "Apple iPhone 6 - 2 @ $100.99"
-              }
-            ]
-          }
-        ]
-      },
-      "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "primary": true,
-          "label": "APPROVE",
-          "url": {
-            "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-1/approve"
-          },
-          "type": "POST",
-          "action_key": "DIRECT",
-          "request": {},
-          "user_input": [],
-          "completed_label": "APPROVED",
-          "allow_repeated": false,
-          "mutually_exclusive_set_id": "approval-actions"
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "REJECT",
-          "url": {
-            "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-1/reject"
-          },
-          "type": "POST",
-          "action_key": "USER_INPUT",
-          "request": {},
-          "user_input": [
-            {
-              "id": "reason",
-              "label": "REASON FOR REJECTION",
-              "min_length": 1
-            }
-          ],
-          "completed_label": "REJECTED",
-          "allow_repeated": false,
-          "mutually_exclusive_set_id": "approval-actions"
-        }
-      ],
-      "image": {
-        "href": "https://my-connector/images/connector.png"
-      },
-      "hash": "test-hash"
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "name": "ServiceNow",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "template": {
-        "href": "https://hero/connectors/servicenow/templates/generic.hbs"
-      },
-      "header": {
-        "title": "[SERVICE NOW] APPROVAL REQUEST",
+        "title": "[HUB SERVICE NOW] APPROVAL REQUEST",
         "subtitle": [
           "REQ0010002"
         ]
@@ -228,6 +145,89 @@
           "label": "REJECT",
           "url": {
             "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-2/reject"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "REASON FOR REJECTION",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "REJECTED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        }
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "hash": "test-hash"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "ServiceNow",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/servicenow/templates/generic.hbs"
+      },
+      "header": {
+        "title": "[HUB SERVICE NOW] APPROVAL REQUEST",
+        "subtitle": [
+          "REQ0010001"
+        ]
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "TOTAL PRICE",
+            "description": "$100.99"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REQUESTER",
+            "description": "test-request-user-1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "DUE BY",
+            "description": "test-due-date-1"
+          },
+          {
+            "type": "COMMENT",
+            "title": "ITEMS",
+            "content": [
+              {
+                "text": "Apple iPhone 6 - 2 @ $100.99"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "APPROVE",
+          "url": {
+            "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-1/approve"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "request": {},
+          "user_input": [],
+          "completed_label": "APPROVED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "REJECT",
+          "url": {
+            "href": "https://hero/connectors/servicenow/api/v1/tickets/test-ticket-id-1/reject"
           },
           "type": "POST",
           "action_key": "USER_INPUT",
