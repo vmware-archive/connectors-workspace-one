@@ -218,14 +218,6 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testRequestCardsEmptyTicketsSuccess() throws Exception {
-        requestCards(SNOW_AUTH_TOKEN, "valid/cards/empty-tickets.json")
-                .expectStatus().isOk()
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("/servicenow/responses/success/cards/empty-tickets.json"));
-    }
-
-    @Test
     void testRequestCardsMissingEmailSuccess() throws Exception {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/missing-email.json")
                 .expectStatus().isOk()
