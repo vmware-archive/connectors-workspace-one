@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package com.vmware.connectors.hub.servicenow;
+package com.vmware.connectors.servicenow;
 
 /**
  * A class to hold API information (fields, states, etc.) for ServiceNow's sysapproval_approver table.

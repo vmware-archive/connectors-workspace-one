@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package com.vmware.connectors.hub.servicenow;
+package com.vmware.connectors.servicenow;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 

@@ -1,4 +1,4 @@
-package com.vmware.connectors.hub.servicenow;
+package com.vmware.connectors.servicenow;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.builder.ToStringBuilder;
