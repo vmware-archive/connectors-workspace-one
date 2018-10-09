@@ -7,7 +7,6 @@ package com.vmware.connectors.hub.servicenow;
 
 import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.json.JsonDocument;
-import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
@@ -18,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -25,7 +25,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -98,22 +97,20 @@ public class HubServiceNowController {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     public Mono<Cards> getCards(
-            @RequestHeader(AUTH_HEADER) String auth,
-            @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            @RequestHeader(ROUTING_PREFIX) String routingPrefix,
-            Locale locale,
-            @Valid @RequestBody CardRequest cardRequest,
+            @RequestHeader(AUTH_HEADER) final String auth,
+            @RequestHeader(BASE_URL_HEADER) final String baseUrl,
+            @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
+            final Locale locale,
+            @AuthenticationPrincipal final String userEmail,
             final HttpServletRequest request
     ) {
-        logger.trace("getCards called, baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
+        logger.trace("getCards called, baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
 
-        final String email = cardRequest.getTokenSingleValue("email");
-
-        if (StringUtils.isBlank(email)) {
+        if (StringUtils.isBlank(userEmail)) {
             return Mono.just(new Cards());
         }
 
-        return callForUserSysId(baseUrl, email, auth)
+        return callForUserSysId(baseUrl, userEmail, auth)
                 .flux()
                 .flatMap(userSysId -> callForApprovalRequests(baseUrl, auth, userSysId))
                 .flatMap(approvalRequest -> callForAndAggregateRequestInfo(baseUrl, auth, approvalRequest))

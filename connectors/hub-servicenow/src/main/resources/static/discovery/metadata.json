@@ -12,6 +12,7 @@
           "env": "USER_EMAIL"
         }
       },
+      "pollable": true,
       "endpoint": {
         "href": "${CONNECTOR_HOST}/cards/requests"
       }

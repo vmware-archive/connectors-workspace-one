@@ -143,7 +143,7 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
 
     @Test
     void testRequestCardsEmailNotFoundInServiceNow() throws Exception {
-        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&sysparm_limit=1&email=jbard@vmware.com"))
+        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&sysparm_limit=1&email=fred@acme"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/user-not-found.json"), APPLICATION_JSON));
@@ -176,7 +176,7 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
     }
 
     private void trainServiceNowForCards() throws Exception {
-        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&sysparm_limit=1&email=jbard@vmware.com"))
+        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&sysparm_limit=1&email=fred@acme"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/user.json"), APPLICATION_JSON));
@@ -215,30 +215,6 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/requested-items-3.json"), APPLICATION_JSON));
-    }
-
-    @Test
-    void testRequestCardsMissingEmailSuccess() throws Exception {
-        requestCards(SNOW_AUTH_TOKEN, "valid/cards/missing-email.json")
-                .expectStatus().isOk()
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("/servicenow/responses/success/cards/missing-email.json"));
-    }
-
-    @Test
-    void testRequestCardsEmptyTokens() throws Exception {
-        requestCards(SNOW_AUTH_TOKEN, "invalid/cards/empty-tokens.json")
-                .expectStatus().isBadRequest()
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("/servicenow/responses/error/cards/empty-tokens.json"));
-    }
-
-    @Test
-    void testRequestCardsMissingTokens() throws Exception {
-        requestCards(SNOW_AUTH_TOKEN, "invalid/cards/missing-tokens.json")
-                .expectStatus().isBadRequest()
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("/servicenow/responses/error/cards/missing-tokens.json"));
     }
 
     /////////////////////////////
