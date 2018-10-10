@@ -1,6 +1,5 @@
 package com.vmware.connectors.hub.servicenow;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.List;
@@ -16,7 +15,7 @@ class ApprovalRequestWithItems extends ApprovalRequestWithInfo {
             List<RequestedItem> items
     ) {
         super(request, request.getInfo());
-        this.items = ImmutableList.copyOf(items);
+        this.items = List.copyOf(items);
     }
 
     List<RequestedItem> getItems() {

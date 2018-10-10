@@ -5,7 +5,7 @@
 
 package com.vmware.connectors.hub.servicenow;
 
-import com.google.common.collect.ImmutableMap;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.jwt.JwtHelper;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -25,10 +25,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
@@ -39,6 +37,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 public class HubServiceNowController {
 
     private static final Logger logger = LoggerFactory.getLogger(HubServiceNowController.class);
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     /**
      * The JsonPath prefix for the ServiceNow results.
@@ -65,19 +65,7 @@ public class HubServiceNowController {
      */
     private static final String SNOW_SYS_PARAM_LIMIT = "sysparm_limit";
 
-    /**
-     * The maximum approval requests to fetch from ServiceNow.  Since we have
-     * to filter results out based on the ticket_id param passed in by the
-     * client, this has to be sufficiently large to not lose results.
-     * <p>
-     * I wasn't able to find a REST call that would allow me to bulk lookup the
-     * approval requests (or requests) by multiple request numbers
-     * (ex. REQ0010001,REQ0010002,REQ0010003), so I'm forced to do things a
-     * little less ideal than I would like (calling 1x per result of the
-     * sysapproval_approver call to be able to match it to the request numbers
-     * passed in by the client).
-     */
-    private static final int MAX_APPROVAL_RESULTS = 10000;
+    private static final int MAX_APPROVAL_RESULTS = 50;
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
@@ -97,24 +85,26 @@ public class HubServiceNowController {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     public Mono<Cards> getCards(
-            @RequestHeader(AUTH_HEADER) final String auth,
+            @RequestHeader(AUTHORIZATION) final String authorization,
+            @RequestHeader(AUTH_HEADER) final String connectorAuth,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
             final Locale locale,
-            @AuthenticationPrincipal final String userEmail,
             final HttpServletRequest request
-    ) {
-        logger.trace("getCards called, baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
+    ) throws IOException {
+        logger.trace("getCards called, baseUrl={}, routingPrefix={}", baseUrl, routingPrefix);
 
+        final String userEmail = extractUserEmail(authorization);
         if (StringUtils.isBlank(userEmail)) {
+            logger.error("User email (eml) is empty in jwt access token.");
             return Mono.just(new Cards());
         }
 
-        return callForUserSysId(baseUrl, userEmail, auth)
+        return callForUserSysId(baseUrl, userEmail, connectorAuth)
                 .flux()
-                .flatMap(userSysId -> callForApprovalRequests(baseUrl, auth, userSysId))
-                .flatMap(approvalRequest -> callForAndAggregateRequestInfo(baseUrl, auth, approvalRequest))
-                .flatMap(approvalRequestWithInfo -> callForAndAggregateRequestedItems(baseUrl, auth, approvalRequestWithInfo))
+                .flatMap(userSysId -> callForApprovalRequests(baseUrl, connectorAuth, userSysId))
+                .flatMap(approvalRequest -> callForAndAggregateRequestInfo(baseUrl, connectorAuth, approvalRequest))
+                .flatMap(approvalRequestWithInfo -> callForAndAggregateRequestedItems(baseUrl, connectorAuth, approvalRequestWithInfo))
                 .reduce(
                         new Cards(),
                         (cards, info) -> appendCard(cards, info, routingPrefix, locale, request)
@@ -143,7 +133,7 @@ public class HubServiceNowController {
                          */
                         .queryParam(SysUser.Fields.EMAIL.toString(), email)
                         .buildAndExpand(
-                                ImmutableMap.of(
+                                Map.of(
                                         "userTableName", SysUser.TABLE_NAME
                                 )
                         )
@@ -185,7 +175,7 @@ public class HubServiceNowController {
                         .queryParam(SysApprovalApprover.Fields.STATE.toString(), SysApprovalApprover.States.REQUESTED)
                         .queryParam(SysApprovalApprover.Fields.APPROVER.toString(), userSysId)
                         .buildAndExpand(
-                                ImmutableMap.of(
+                                Map.of(
                                         "apTableName", SysApprovalApprover.TABLE_NAME
                                 )
                         )
@@ -260,7 +250,7 @@ public class HubServiceNowController {
                         .path("/api/now/table/{scTableName}/{approvalSysId}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
                         .buildAndExpand(
-                                ImmutableMap.of(
+                                Map.of(
                                         "scTableName", ScRequest.TABLE_NAME,
                                         "approvalSysId", approvalRequest.getApprovalSysId()
                                 )
@@ -314,7 +304,7 @@ public class HubServiceNowController {
                         .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
                         .queryParam(ScRequestedItem.Fields.REQUEST.toString(), approvalRequest.getApprovalSysId())
                         .buildAndExpand(
-                                ImmutableMap.of(
+                                Map.of(
                                         "scTableName", ScRequestedItem.TABLE_NAME
                                 )
                         )
@@ -444,7 +434,7 @@ public class HubServiceNowController {
                     item.getQuantity(),
                     item.getPrice()
             );
-            itemsBuilder.addContent(ImmutableMap.of("text", lineItem));
+            itemsBuilder.addContent(Map.of("text", lineItem));
         }
 
         return body
@@ -479,8 +469,8 @@ public class HubServiceNowController {
     ) {
         logger.trace("updateState called: baseUrl={}, requestSysId={}, state={}", baseUrl, requestSysId, state);
 
-        ImmutableMap.Builder<String, String> body = new ImmutableMap.Builder<String, String>()
-                .put(SysApprovalApprover.Fields.STATE.toString(), state.toString());
+        final Map<String, String> body = new LinkedHashMap<>();
+        body.put(SysApprovalApprover.Fields.STATE.toString(), state.toString());
 
         if (StringUtils.isNotBlank(comments)) {
             body.put(SysApprovalApprover.Fields.COMMENTS.toString(), comments);
@@ -497,7 +487,7 @@ public class HubServiceNowController {
                         .path("/api/now/table/{apTableName}/{requestSysId}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, fields)
                         .buildAndExpand(
-                                ImmutableMap.of(
+                                Map.of(
                                         "apTableName", SysApprovalApprover.TABLE_NAME,
                                         "requestSysId", requestSysId
                                 )
@@ -506,10 +496,10 @@ public class HubServiceNowController {
                         .toUri())
                 .header(AUTHORIZATION, auth)
                 .contentType(APPLICATION_JSON)
-                .syncBody(body.build())
+                .syncBody(body)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(data -> ImmutableMap.of(
+                .map(data -> Map.of(
                         "approval_sys_id", data.read(RESULT_PREFIX + SysApprovalApprover.Fields.SYS_ID),
                         "approval_state", data.read(RESULT_PREFIX + SysApprovalApprover.Fields.STATE),
                         "approval_comments", data.read(RESULT_PREFIX + SysApprovalApprover.Fields.COMMENTS)
@@ -531,4 +521,9 @@ public class HubServiceNowController {
         return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, reason);
     }
 
+    private String extractUserEmail(final String authorization) throws IOException {
+        final String accessToken = authorization.replace("Bearer ", "").trim();
+        Map claims = mapper.readValue(JwtHelper.decode(accessToken).getClaims(), Map.class);
+        return (String) claims.get("eml");
+    }
 }

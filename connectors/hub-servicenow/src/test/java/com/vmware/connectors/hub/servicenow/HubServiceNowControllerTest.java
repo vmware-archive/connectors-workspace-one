@@ -143,7 +143,7 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
 
     @Test
     void testRequestCardsEmailNotFoundInServiceNow() throws Exception {
-        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&sysparm_limit=1&email=fred@acme"))
+        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&sysparm_limit=1&email=admin@acme.com"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/user-not-found.json"), APPLICATION_JSON));
@@ -176,12 +176,12 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
     }
 
     private void trainServiceNowForCards() throws Exception {
-        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&sysparm_limit=1&email=fred@acme"))
+        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&sysparm_limit=1&email=admin@acme.com"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/user.json"), APPLICATION_JSON));
 
-        mockBackend.expect(requestTo("/api/now/table/sysapproval_approver?sysparm_fields=sys_id,sysapproval,comments,due_date,sys_created_by&sysparm_limit=10000&source_table=sc_request&state=requested&approver=test-user-id"))
+        mockBackend.expect(requestTo("/api/now/table/sysapproval_approver?sysparm_fields=sys_id,sysapproval,comments,due_date,sys_created_by&sysparm_limit=50&source_table=sc_request&state=requested&approver=test-user-id"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/approval-requests.json"), APPLICATION_JSON));
@@ -201,17 +201,17 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/request-3.json"), APPLICATION_JSON));
 
-        mockBackend.expect(requestTo("/api/now/table/sc_req_item?sysparm_fields=sys_id,price,request,short_description,quantity&sysparm_limit=10000&request=test-sc-request-id-1"))
+        mockBackend.expect(requestTo("/api/now/table/sc_req_item?sysparm_fields=sys_id,price,request,short_description,quantity&sysparm_limit=50&request=test-sc-request-id-1"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/requested-items-1.json"), APPLICATION_JSON));
 
-        mockBackend.expect(requestTo("/api/now/table/sc_req_item?sysparm_fields=sys_id,price,request,short_description,quantity&sysparm_limit=10000&request=test-sc-request-id-2"))
+        mockBackend.expect(requestTo("/api/now/table/sc_req_item?sysparm_fields=sys_id,price,request,short_description,quantity&sysparm_limit=50&request=test-sc-request-id-2"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/requested-items-2.json"), APPLICATION_JSON));
 
-        mockBackend.expect(requestTo("/api/now/table/sc_req_item?sysparm_fields=sys_id,price,request,short_description,quantity&sysparm_limit=10000&request=test-sc-request-id-3"))
+        mockBackend.expect(requestTo("/api/now/table/sc_req_item?sysparm_fields=sys_id,price,request,short_description,quantity&sysparm_limit=50&request=test-sc-request-id-3"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/requested-items-3.json"), APPLICATION_JSON));
