@@ -5,9 +5,9 @@
 
 package com.vmware.connectors.hub.servicenow;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
+import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.jwt.JwtHelper;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -37,8 +36,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 public class HubServiceNowController {
 
     private static final Logger logger = LoggerFactory.getLogger(HubServiceNowController.class);
-
-    private final ObjectMapper mapper = new ObjectMapper();
 
     /**
      * The JsonPath prefix for the ServiceNow results.
@@ -94,7 +91,14 @@ public class HubServiceNowController {
     ) throws IOException {
         logger.trace("getCards called, baseUrl={}, routingPrefix={}", baseUrl, routingPrefix);
 
-        final String userEmail = extractUserEmail(authorization);
+        String userEmail = AuthUtil.extractUserEmail(authorization);
+
+        // TODO - remove this after APF-1686 is implemented
+        if (userEmail == null) {
+            // Eric Schroeder is in the approvals group and will allow us to test tickets in the ServiceNow dev instance
+            userEmail = "eric.schroeder@example.com";
+        }
+
         if (StringUtils.isBlank(userEmail)) {
             logger.error("User email (eml) is empty in jwt access token.");
             return Mono.just(new Cards());
@@ -521,9 +525,4 @@ public class HubServiceNowController {
         return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, reason);
     }
 
-    private String extractUserEmail(final String authorization) throws IOException {
-        final String accessToken = authorization.replace("Bearer ", "").trim();
-        Map claims = mapper.readValue(JwtHelper.decode(accessToken).getClaims(), Map.class);
-        return (String) claims.get("eml");
-    }
 }
