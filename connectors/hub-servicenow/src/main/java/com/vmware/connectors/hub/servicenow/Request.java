@@ -1,3 +1,8 @@
+/*
+ * Copyright © 2018 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 package com.vmware.connectors.hub.servicenow;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
