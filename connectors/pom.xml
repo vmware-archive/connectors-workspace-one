@@ -26,6 +26,7 @@
         <module>jira</module>
         <module>salesforce</module>
         <module>servicenow</module>
+        <module>hub-servicenow</module>
         <module>bitbucket-server</module>
     </modules>
 

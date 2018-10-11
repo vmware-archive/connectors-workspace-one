@@ -42,6 +42,7 @@ public final class JwtUtils {
 
         return Jwts.builder().setHeaderParam(TYPE, JWT_TYPE)
                 .claim("prn", "fred@acme")
+                .claim("eml", "admin@acme.com")
                 .setExpiration(Date.from(expiry))
                 .setIssuedAt(new Date())
                 .signWith(RS256, getSigner())
