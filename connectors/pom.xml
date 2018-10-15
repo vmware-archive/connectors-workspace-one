@@ -23,6 +23,7 @@
         <module>concur</module>
         <module>github-pr</module>
         <module>gitlab-pr</module>
+        <module>hub-concur</module>
         <module>jira</module>
         <module>salesforce</module>
         <module>servicenow</module>

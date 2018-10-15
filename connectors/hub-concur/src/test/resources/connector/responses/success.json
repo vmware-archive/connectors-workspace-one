@@ -1,0 +1,241 @@
+{
+  "objects": [
+    {
+      "actions": [
+        {
+          "action_key": "USER_INPUT",
+          "allow_repeated": false,
+          "completed_label": "Approved",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Approve",
+          "mutually_exclusive_set_id": "approval-actions",
+          "primary": true,
+          "request": {},
+          "type": "POST",
+          "url": {
+            "href": "https://hero/connectors/concur/api/expense/1D3BD2E14D144508B05F/approve"
+          },
+          "user_input": [
+            {
+              "format": "textarea",
+              "id": "comment",
+              "label": "Comment"
+            }
+          ]
+        },
+        {
+          "action_key": "USER_INPUT",
+          "allow_repeated": false,
+          "completed_label": "Declined",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Decline",
+          "mutually_exclusive_set_id": "approval-actions",
+          "request": {},
+          "type": "POST",
+          "url": {
+            "href": "https://hero/connectors/concur/api/expense/1D3BD2E14D144508B05F/decline"
+          },
+          "user_input": [
+            {
+              "format": "textarea",
+              "id": "reason",
+              "label": "Reason"
+            }
+          ]
+        }
+      ],
+      "body": {
+        "fields": [
+          {
+            "description": "1970-01-01T00:00:00Z",
+            "title": "Submitted On",
+            "type": "GENERAL"
+          },
+          {
+            "description": "Totla, Gaurav",
+            "title": "Requested By",
+            "type": "GENERAL"
+          },
+          {
+            "description": "(IN1019722)IT - Apps Cloud-1021",
+            "title": "Cost Center",
+            "type": "GENERAL"
+          },
+          {
+            "description": "$23,340.21",
+            "title": "Amount",
+            "type": "GENERAL"
+          }
+        ]
+      },
+      "creation_date": "1970-01-01T00:00:00Z",
+      "hash": "test-hash",
+      "header": {
+        "title": "[Concur] Meals & Entertainment"
+      },
+      "id": "00000000-0000-0000-0000-000000000000",
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "name": "Concur"
+    },
+    {
+      "actions": [
+        {
+          "action_key": "USER_INPUT",
+          "allow_repeated": false,
+          "completed_label": "Approved",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Approve",
+          "mutually_exclusive_set_id": "approval-actions",
+          "primary": true,
+          "request": {},
+          "type": "POST",
+          "url": {
+            "href": "https://hero/connectors/concur/api/expense/683105624FD74A1B9C13/approve"
+          },
+          "user_input": [
+            {
+              "format": "textarea",
+              "id": "comment",
+              "label": "Comment"
+            }
+          ]
+        },
+        {
+          "action_key": "USER_INPUT",
+          "allow_repeated": false,
+          "completed_label": "Declined",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Decline",
+          "mutually_exclusive_set_id": "approval-actions",
+          "request": {},
+          "type": "POST",
+          "url": {
+            "href": "https://hero/connectors/concur/api/expense/683105624FD74A1B9C13/decline"
+          },
+          "user_input": [
+            {
+              "format": "textarea",
+              "id": "reason",
+              "label": "Reason"
+            }
+          ]
+        }
+      ],
+      "body": {
+        "fields": [
+          {
+            "description": "1970-01-01T00:00:00Z",
+            "title": "Submitted On",
+            "type": "GENERAL"
+          },
+          {
+            "description": "Totla, Gaurav",
+            "title": "Requested By",
+            "type": "GENERAL"
+          },
+          {
+            "description": "(IN1019722)IT - Apps Cloud-1021",
+            "title": "Cost Center",
+            "type": "GENERAL"
+          },
+          {
+            "description": "$178,838.66",
+            "title": "Amount",
+            "type": "GENERAL"
+          }
+        ]
+      },
+      "creation_date": "1970-01-01T00:00:00Z",
+      "hash": "test-hash",
+      "header": {
+        "title": "[Concur] Campus Hiring Event 2018"
+      },
+      "id": "00000000-0000-0000-0000-000000000000",
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "name": "Concur"
+    },
+    {
+      "actions": [
+        {
+          "action_key": "USER_INPUT",
+          "allow_repeated": false,
+          "completed_label": "Approved",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Approve",
+          "mutually_exclusive_set_id": "approval-actions",
+          "primary": true,
+          "request": {},
+          "type": "POST",
+          "url": {
+            "href": "https://hero/connectors/concur/api/expense/A77D016732974B5F8E23/approve"
+          },
+          "user_input": [
+            {
+              "format": "textarea",
+              "id": "comment",
+              "label": "Comment"
+            }
+          ]
+        },
+        {
+          "action_key": "USER_INPUT",
+          "allow_repeated": false,
+          "completed_label": "Declined",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Decline",
+          "mutually_exclusive_set_id": "approval-actions",
+          "request": {},
+          "type": "POST",
+          "url": {
+            "href": "https://hero/connectors/concur/api/expense/A77D016732974B5F8E23/decline"
+          },
+          "user_input": [
+            {
+              "format": "textarea",
+              "id": "reason",
+              "label": "Reason"
+            }
+          ]
+        }
+      ],
+      "body": {
+        "fields": [
+          {
+            "description": "1970-01-01T00:00:00Z",
+            "title": "Submitted On",
+            "type": "GENERAL"
+          },
+          {
+            "description": "Totla, Gaurav",
+            "title": "Requested By",
+            "type": "GENERAL"
+          },
+          {
+            "description": "(IN1019722)IT - Apps Cloud-1021",
+            "title": "Cost Center",
+            "type": "GENERAL"
+          },
+          {
+            "description": "$183,838.66",
+            "title": "Amount",
+            "type": "GENERAL"
+          }
+        ]
+      },
+      "creation_date": "1970-01-01T00:00:00Z",
+      "hash": "test-hash",
+      "header": {
+        "title": "[Concur] Sales Kickoff Event"
+      },
+      "id": "00000000-0000-0000-0000-000000000000",
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "name": "Concur"
+    }
+  ]
+}

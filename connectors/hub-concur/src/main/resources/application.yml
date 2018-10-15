@@ -1,0 +1,12 @@
+server:
+  compression:
+     enabled: true
+     mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  server-header: hub-concur-connector
+
+connector:
+  hasTestAuth: true
+
+management:
+  endpoints:
+    web.base-path: /
