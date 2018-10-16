@@ -1,11 +1,11 @@
 {
   "image": {
-    "href": "${CONNECTOR_HOST}/images/connector.png"
+    "href": "https://watsonhubconnectors.ssdevrd.com/images/connector.png"
   },
   "object_types": {
     "card": {
       "doc": {
-        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
+        "href": "https://github.com/vmware/connectors-workspace-one/blob/watson_poc/connectors/servicenow/schema.json"
       },
       "fields": {
         "ticket_id": {
@@ -18,6 +18,220 @@
       },
       "endpoint": {
         "href": "${CONNECTOR_HOST}/cards/requests"
+      }
+    },
+    "catalogItem": {
+      "doc": {
+        "href": "https://github.com/vmware/connectors-workspace-one/blob/watson_poc/connectors/servicenow/schema.jsons"
+      },
+      "fields": {
+        "type": {
+          "env": "ITEM_TYPE"
+        },
+        "catalog": {
+          "env": "CATALOG_NAME"
+        },
+        "category": {
+          "env": "CATEGORY_NAME"
+        }
+      },
+      "query": {
+        "fields": [
+          {
+            "title": "limit",
+            "default": "10"
+          },
+          {
+            "title": "limit",
+            "default": "10"
+          }
+        ]
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/items/"
+      },
+      "cardHeader": {
+        "fields": [
+          {
+            "title" : "X-Connector-Authorization"
+          },
+          {
+            "title" : "X-Connector-Base-Url"
+          }
+        ]
+      },
+      "cardAction": {
+        "type": "POST"
+      }
+    },
+    "ticketType": {
+      "doc": {
+        "href": "https://github.com/vmware/connectors-workspace-one/blob/watson_poc/connectors/servicenow/schema.json"
+      },   
+      "query": {
+        "fields": [
+          {
+            "title": "limit",
+            "default": "10"
+          },
+          {
+            "title": "limit",
+            "default": "10"
+          }
+        ]
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/tickets/{ticketType}/"
+      },
+      "cardHeader": {
+        "fields": [
+          {
+            "title" : "X-Connector-Authorization"
+          },
+          {
+            "title" : "X-Connector-Base-Url"
+          }
+        ]
+      },
+      "cardAction": {
+        "type": "GET"
+      }
+    },
+    "createTicket": {
+      "doc": {
+        "href": "https://github.com/vmware/connectors-workspace-one/blob/watson_poc/connectors/servicenow/schema.json"
+      },
+      "fields": {
+        "details": {
+          "env": "DETAILS",
+          "description": "Json object of tiket details, encoded as a String"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/ticket/{ticketType}/{ticketNumber}"
+      },
+      "cardHeader": {
+        "fields": [
+          {
+            "title" : "X-Connector-Authorization"
+          },
+          {
+            "title" : "X-Connector-Base-Url"
+          }
+        ]
+      },
+      "cardAction": {
+        "type": "POST"
+      }
+    },
+    "ticketDetails": {
+      "doc": {
+        "href": "https://github.com/vmware/connectors-workspace-one/blob/watson_poc/connectors/servicenow/schema.json"
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/ticket/{ticketType}/{ticketNumber}"
+      },
+      "cardHeader": {
+        "fields": [
+          {
+            "title" : "X-Connector-Authorization"
+          },
+          {
+            "title" : "X-Connector-Base-Url"
+          }
+        ]
+      },
+      "cardAction": {
+        "type": "GET"
+      }
+    },
+    "checkout": {
+      "doc": {
+        "href": "https://github.com/vmware/connectors-workspace-one/blob/watson_poc/connectors/servicenow/schema.json"
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/checkout"
+      },
+      "cardHeader": {
+        "fields": [
+          {
+            "title" : "X-Connector-Authorization"
+          },
+          {
+            "title" : "X-Connector-Base-Url"
+          }
+        ]
+      },
+      "cardAction": {
+        "type": "POST"
+      }
+    },
+    "addCart": {
+      "doc": {
+        "href": "https://github.com/vmware/connectors-workspace-one/blob/watson_poc/connectors/servicenow/schema.json"
+      },
+      "fields": {
+        "itemsMap": {
+          "env": "ITEMS_MAP"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/cart"
+      },
+      "cardHeader": {
+        "fields": [
+          {
+            "title" : "X-Connector-Authorization"
+          },
+          {
+            "title" : "X-Connector-Base-Url"
+          }
+        ]
+      },
+      "cardAction": {
+        "type": "PUT"
+      }
+    },
+    "deleteCart": {
+      "doc": {
+        "href": "https://github.com/vmware/connectors-workspace-one/blob/watson_poc/connectors/servicenow/schema.json"
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/cart/{cart_item_id}"
+      },
+      "cardHeader": {
+        "fields": [
+          {
+            "title" : "X-Connector-Authorization"
+          },
+          {
+            "title" : "X-Connector-Base-Url"
+          }
+        ]
+      },
+      "cardAction": {
+        "type": "DELETE"
+      }
+    },
+    "lookupCart": {
+      "doc": {
+        "href": "https://github.com/vmware/connectors-workspace-one/blob/watson_poc/connectors/servicenow/schema.json"
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/cart/"
+      },
+      "cardHeader": {
+        "fields": [
+          {
+            "title" : "X-Connector-Authorization"
+          },
+          {
+            "title" : "X-Connector-Base-Url"
+          }
+        ]
+      },
+      "cardAction": {
+        "type": "GET"
       }
     }
   }

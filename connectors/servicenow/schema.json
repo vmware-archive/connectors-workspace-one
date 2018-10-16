@@ -1,0 +1,301 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "title": "Hero Card response schema",
+  "type": "object",
+  "properties": {
+    "objects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/card"
+      }
+    }
+  },
+  "definitions": {
+    "card": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique ID of the card",
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        "importance": {
+          "type": "integer",
+          "description": "The importance of the card. An importance of 0 is the highest importance and larger numbers indicate lower importance"
+        },
+        "image": {
+          "$ref": "#/definitions/link",
+          "description": "Link to an image to use for the card's icon"
+        },
+        "creation_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the card was created. In ISO 8601 format"
+        },
+        "expiration_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the card will expire. In ISO 8601 format"
+        },
+        "template": {
+          "$ref": "#/definitions/link",
+          "description": "Link to a Handlebars template for rendering the card"
+        },
+        "header": {
+          "$ref": "#/definitions/cardHeader",
+          "description": "The card's header"
+        },
+        "body": {
+          "$ref": "#/definitions/cardBody",
+          "description": "The card's body"
+        },
+        "hash": {
+          "type": "string",
+          "description": "A hash to help the Mobile Flows determine if this card is new or has been seen before"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cardAction"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Arbitrary tags applied to the card"
+        }
+      }
+    },
+    "link": {
+      "type": "object",
+      "properties": {
+        "href": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "href"
+      ]
+    },
+    "cardHeader": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fields": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/cardHeaderField"
+            },
+            "description": "The attributes for the header."
+        }
+      }
+    },
+    "query": {
+        "type": "object",
+        "properties": {
+            "description": {
+                "type": "string",
+                "description": "Query parameters in the request endpoint"
+            },
+            "fields": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/queryParameter"
+                }
+            }
+        }
+    },
+    "cardBody": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Description of the body. This would typically be rendered as plain body text near the top of the card"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cardBodyField"
+          },
+          "description": "The fields of the body, if any. Fields are rendered differently according to their type attribute"
+        }
+      }
+    },
+    "cardBodyField": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "The content of this field, which can consist of arbitrary JSON objects. The client will use the field's type attribute to determine how to parse the content."
+        }
+      }
+    },
+    "cardHeaderField": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "string"
+            },
+            "title": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "default": {
+                "type": "string"
+            }
+        }
+    },
+    "queryParameter": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "string"
+            },
+            "title": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            }
+        }
+    },
+    "cardAction": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$",
+          "description": "Unique ID of the action"
+        },
+        "action_key": {
+          "type": "string",
+          "description": "An arbitrary string used by the client to distinguish this action from other actions that may be sent"
+        },
+        "label": {
+          "type": "string",
+          "description": "A human-readable description of the action to be shown in the card"
+        },
+        "mutually_exclusive_set_id": {
+          "type": "string",
+          "description": "A string to allow grouping of actions. When an action in this group successfully completes, the other actions will hide."
+        },
+        "completed_label": {
+          "type": "string",
+          "description": "A human-readable message to display on successful completion of the action"
+        },
+        "primary": {
+          "type": "boolean",
+          "description": "Whether or not the action is a primary action and should be colored differently than the non-primary actions"
+        },
+        "url": {
+          "$ref": "#/definitions/link",
+          "description": "Link to the action. Optionally prefixed with X-Routing-Prefix. See Request Headers in wiki"
+        },
+        "type": {
+          "$ref": "#/definitions/httpMethods",
+          "description": "The HTTP method to use for submitting the action request"
+        },
+        "user_input": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/cardActionUserInput"
+          },
+          "description": "Allows the user to enter data to be submitted in this action"
+        },
+        "request": {
+          "type": "object",
+          "description": "Hard-coded fields to be sent with the action request"
+        },
+        "allow_repeated": {
+          "type": "boolean",
+          "description": "Whether or not the action can be clicked again after successfully completed"
+        },
+        "remove_card_on_completion": {
+          "type": "boolean",
+          "description": "Whether or not clients should remove the card upon successful completion of this action"
+        }
+      },
+      "required": [
+        "id",
+        "action_key",
+        "label",
+        "completed_label",
+        "url",
+        "type"
+      ]
+    },
+    "cardActionUserInput": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The field's ID, which will be used as the key when this field is submitted"
+        },
+        "label": {
+          "type": "string",
+          "description": "The field's label, which will be displayed to the user to describe the expected content of the field"
+        },
+        "format": {
+          "type": "string",
+          "description": "The type of the user input"
+        },
+        "options": {
+          "type": "object",
+          "description": "Options to present when format is select."
+        },
+        "min_length": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The minimum length of the field"
+        },
+        "max_length": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The maximum length of the field"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ]
+    },
+    "httpMethods": {
+      "type": "string",
+      "enum": [
+        "DELETE",
+        "GET",
+        "HEAD",
+        "OPTIONS",
+        "PATCH",
+        "POST",
+        "PUT",
+        "TRACE"
+      ]
+    }
+  }
+}

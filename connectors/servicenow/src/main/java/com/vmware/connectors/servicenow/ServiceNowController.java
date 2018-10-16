@@ -5,6 +5,8 @@
 
 package com.vmware.connectors.servicenow;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
@@ -12,6 +14,8 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
+import com.vmware.connectors.servicenow.domain.*;
+import com.vmware.connectors.servicenow.util.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +31,7 @@ import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,6 +61,12 @@ public class ServiceNowController {
      */
     private static final String SNOW_SYS_PARAM_FIELDS = "sysparm_fields";
 
+    private static final String SNOW_ADD_TO_CART_ENDPOINT = "/api/sn_sc/servicecatalog/items/{item_id}/add_to_cart";
+
+    private static final String SNOW_CHECKOUT_ENDPOINT = "/api/sn_sc/servicecatalog/cart/checkout";
+
+    private static final String SNOW_DELETE_CART_ENDPOINT = "/api/sn_sc/servicecatalog/cart/{cart_item_id}";
+
     /**
      * The query param to specify a limit of the results coming back in your
      * ServiceNow REST calls.
@@ -64,6 +75,17 @@ public class ServiceNowController {
      */
     private static final String SNOW_SYS_PARAM_LIMIT = "sysparm_limit";
 
+    private static final String SNOW_SYS_PARAM_TEXT = "sysparm_text";
+
+    private static final String SNOW_SYS_PARAM_CAT = "sysparm_category";
+
+    private static final String SNOW_SYS_PARAM_QUAN = "sysparm_quantity";
+
+    private static final String SNOW_SYS_PARAM_OFFSET = "sysparm_offset";
+
+    private static final String SNOW_SYS_PARAM_QUERY = "sysparm_query";
+
+    private final Map<String, String> cache = new HashMap<>();
     /**
      * The maximum approval requests to fetch from ServiceNow.  Since we have
      * to filter results out based on the ticket_id param passed in by the
@@ -539,4 +561,421 @@ public class ServiceNowController {
         return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, reason);
     }
 
+    @PostMapping(
+            path = "/api/v1/items/",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<ItemsResponse> getItems(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @RequestParam(name = "limit", required = false, defaultValue = "10") String limit,
+            @RequestParam(name = "offset", required = false, defaultValue = "0") String offset,
+            @Valid @RequestBody CardRequest cardRequest
+    ) {
+        logger.trace("getItems called: auth: {} baseUrl: {}", auth, baseUrl);
+        var catalog = cardRequest.getTokenSingleValue("catalog");
+        var category = cardRequest.getTokenSingleValue("category");
+        var type = cardRequest.getTokenSingleValue("type");
+        var catalogString = catalog.replace("_", " ");
+        logger.trace("catalog: {}, cateogry: {}, type: {}", catalog, category, type);
+
+        return getIDFrom("/api/sn_sc/servicecatalog/catalogs", catalogString, auth, baseUrl)
+                .flatMap(id -> getIDFrom("/api/sn_sc/servicecatalog/catalogs/" + id + "/categories", category, auth, baseUrl))
+                .map(id -> id)
+                .flatMap(id -> getItemsRequest("/api/sn_sc/servicecatalog/items", type, id, auth, baseUrl, limit, offset))
+                ;
+    }
+
+    private Mono<String> getIDFrom(String endpoint, String title, String auth, String baseUrl) {
+        String cacheResult = cache.get("getItems: " + endpoint + title + baseUrl);
+        if (cacheResult == null) {
+            return getIDFromAPI(endpoint, title, auth, baseUrl);
+        } else {
+            return Mono.just(cacheResult);
+        }
+    }
+
+    //returns id of service catalog
+    private Mono<String> getIDFromAPI(String endpoint, String title, String auth, String baseUrl) {
+        return rest.get()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .encode()
+                        .toUriString())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(data -> {
+                            String id = "";
+                            List<LinkedHashMap> result = data.read("$.result");
+                            for (LinkedHashMap<String, String> item : result) {
+                                String itemTitle = item.get("title");
+                                if (itemTitle.equals(title)) {
+                                    id = item.get("sys_id");
+                                }
+                            }
+
+                            cache.put("getItems: " + endpoint + title + baseUrl, id);
+                            return id;
+                        }
+                );
+    }
+
+    private Mono<ItemsResponse> getItemsRequest(String endpoint, String type, String categoryId, String auth, String baseUrl, String limit, String offset) {
+        logger.trace("getCatalogsRequest called: baseUrl={} filter_by_type={}", baseUrl, type);
+        return rest.get()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .queryParam(SNOW_SYS_PARAM_TEXT, type)
+                        .queryParam(SNOW_SYS_PARAM_CAT, categoryId)
+                        .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
+                        .queryParam(SNOW_SYS_PARAM_OFFSET, offset)
+                        .encode()
+                        .toUriString())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                            try {
+                                JsonNode node = new ObjectMapper().readTree(s.read(this.RESULT_PREFIX + "[*]").toString());
+                                return new ItemsResponse(node, baseUrl);
+                            } catch (IOException exe) {
+                                logger.error("getItemsRequest() -> readTree() -> {}", exe.getMessage());
+                            }
+
+                            return null;
+                        }
+                );
+    }
+
+    @GetMapping(
+            path = "/api/v1/tickets/{ticketType}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<TasksResponse> getTasks(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @PathVariable("ticketType") TaskKey ticketType,
+            @RequestParam(name = "limit", required = false, defaultValue = "10") String limit,
+            @RequestParam(name = "offset", required = false, defaultValue = "0") String offset) {
+
+        logger.trace("getTasks called: baseUrl={}, taskKey={}", baseUrl, ticketType);
+
+        return this.getTasksRequest("/api/now/table/" + ticketType, baseUrl, auth, limit, offset);
+    }
+
+    private Mono<TasksResponse> getTasksRequest(String endpoint, String baseUrl, String auth, String limit, String offset) {
+        logger.trace("getTasksRequest called: baseUrl={}", endpoint);
+
+        return rest.get()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
+                        .queryParam(SNOW_SYS_PARAM_OFFSET, offset)
+                        .encode()
+                        .toUriString())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                    try {
+                        JsonNode node = new ObjectMapper().readTree(s.read(this.RESULT_PREFIX + "[*]").toString());
+                        TasksResponse foo = new TasksResponse(node);
+                        return foo;
+                    } catch (IOException exe) {
+                        logger.error("getTasksRequest() -> readTree() -> {}", exe.getMessage());
+                    }
+
+                    return null;
+                });
+    }
+
+
+    @PostMapping(
+            path = "/api/v1/ticket/{ticketType}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<TaskDetailsResponse> createTicket(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @PathVariable("ticketType") TaskKey ticketType,
+            @Valid @RequestBody CardRequest cardRequest) {
+
+        logger.trace("createTask called: baseUrl={}, ticketType={}", baseUrl, ticketType);
+
+        final String detailsJson = cardRequest.getTokenSingleValue("details");
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            Map<String, String> jsonMap = mapper.convertValue(mapper.readTree(detailsJson), Map.class);
+
+            return this.createTaskRequest("/api/now/table/" + ticketType, baseUrl, auth, jsonMap);
+
+        } catch (IOException e) {
+            logger.error("json parsing failed -> {} ", detailsJson);
+        }
+
+        return null;
+    }
+
+    private Mono<TaskDetailsResponse> createTaskRequest(String endpoint, String baseUrl, String auth, Map<String, String> taskDetails) {
+        logger.trace("createTaskRequest called: baseUrl={}", endpoint);
+
+        ImmutableMap.Builder<String, String> body = new ImmutableMap.Builder<String, String>()
+                .putAll(taskDetails);
+
+        return rest.post()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .encode()
+                        .toUriString()
+                )
+                .header(AUTHORIZATION, auth)
+                .syncBody(body.build())
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                    try {
+                        logger.trace("createTaskRequest() -> map result : {}", s.toString());
+
+                        //JsonNode node = new ObjectMapper().readTree(s.read("$.result").toString());
+                        LinkedHashMap<String, Object> keyVals = s.read("$.result");
+
+                        String resultResponse = JsonUtil.readJsonFromMap(keyVals);
+
+                        JsonNode node = new ObjectMapper().readTree(resultResponse);
+                        TaskDetailsResponse detailsResponse = new TaskDetailsResponse(node);
+                        return detailsResponse;
+                    } catch (IOException exe) {
+                        logger.error("createTaskRequest() -> readTree() -> {}", exe.getMessage());
+                    }
+
+                    return null;
+                });
+    }
+
+    @GetMapping(
+            path = "/api/v1/ticket/{ticketType}/{ticketNumber}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<TaskDetailsResponse> getTaskDetails(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @PathVariable("ticketType") TaskKey ticketType,
+            @PathVariable("ticketNumber") String ticketNumber) {
+
+        logger.trace("getTaskDetails called: baseUrl={}, ticketType={}, ticketNumber={}", baseUrl, ticketType, ticketNumber);
+
+        String ticketNumberField = "number=";
+
+        return this.getTaskDetailsRequest("/api/now/table/" + ticketType, baseUrl, auth, ticketNumberField + ticketNumber);
+    }
+
+    private Mono<TaskDetailsResponse> getTaskDetailsRequest(String endpoint, String baseUrl, String auth, String query) {
+        logger.trace("getTaskDetailsRequest called: baseUrl={}", endpoint);
+
+        return rest.get()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .queryParam(SNOW_SYS_PARAM_QUERY, query)
+                        .encode()
+                        .toUriString())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                    try {
+                        logger.trace("getTaskDetailsResponse -> {}", s.toString());
+                        JsonNode node = new ObjectMapper().readTree(s.read("$.result").toString());
+                        // LinkedHashMap<String, String> keyVals = s.read("$.result");
+
+                        // String resultResponse = "{";
+                        // for (Entry<String, String> keyVal : keyVals.entrySet()) {
+                        //     resultResponse = resultResponse + "\"" + keyVal.getKey() + "\"" + ":" + "\"" + keyVal.getValue() + "\",";
+                        // }
+
+                        // resultResponse = resultResponse.substring(0, resultResponse.length()-1) + "}";
+
+                        // JsonNode node = new ObjectMapper().readTree(resultResponse);
+
+                        return new TaskDetailsResponse(node);
+                    } catch (IOException exe) {
+                        logger.error("getTaskDetailsRequest() -> readTree() -> {}", exe.getMessage());
+                    }
+
+                    return null;
+                });
+    }
+
+    @PostMapping(
+            path = "/api/v1/checkout",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<CheckoutResponse> checkout(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl) {
+
+        logger.trace("addItemsToCart called: baseUrl={}", baseUrl);
+        //final Stream<Entry<String, String>> entrySetStream;// = addToCartRequest.getItemsAndQuantities().entrySet().stream();
+
+        return this.checkoutRequest(auth, baseUrl);
+    }
+
+    @PutMapping(
+            path = "/api/v1/cart",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    // add to cart request
+    public Mono<AddToCartResponse> addToCart(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @Valid @RequestBody CardRequest cardRequest) {
+
+        logger.trace("addToCart calledf: baseUrl={}, itemsMap={}", baseUrl, cardRequest.toString());
+
+        // get the list of items from the cards request
+        final String itemsMapJson = cardRequest.getTokenSingleValue("itemsMap");
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            Map<String, String> jsonMap = mapper.convertValue(mapper.readTree(itemsMapJson), Map.class);
+
+            // convert items to a stream
+            var itemsStream = Flux.fromStream(jsonMap.entrySet().stream());
+            // map the items stream to a carts request
+            return itemsStream.flatMap(item ->
+                    this.addToCartRequest(item.getKey(), item.getValue(), auth, baseUrl))
+                    .map(s -> new AbstractMap.SimpleEntry<Integer, AddToCartResponse>(s.getItems().size(), s))
+                    .reduce((s, v) -> {
+                        if (s.getKey() > v.getKey()) {
+                            return s;
+                        } else {
+                            return v;
+                        }
+                    })
+                    .map(s -> s.getValue());
+
+        } catch (IOException e) {
+            logger.error("json parsing failed -> {} ", itemsMapJson);
+        }
+
+        return null;
+    }
+
+    private Mono<AddToCartResponse> addToCartRequest(String itemId, String quantity, String auth, String baseUrl) {
+
+        ImmutableMap.Builder<String, String> body = new ImmutableMap.Builder<String, String>()
+                .put(ServiceNowController.SNOW_SYS_PARAM_QUAN, quantity);
+
+        logger.trace("addToCartRequest called: baseUrl={}, item_id={}, quantity={}", baseUrl, itemId, quantity);
+        return rest.post()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(ServiceNowController.SNOW_ADD_TO_CART_ENDPOINT)
+                        .buildAndExpand(ImmutableMap.of("item_id", itemId))
+                        .encode()
+                        .toUri()
+                )
+                .header(AUTHORIZATION, auth)
+                .syncBody(body.build())
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                    AddToCartResponse cartResponse = new AddToCartResponse(s);
+                    logger.trace("addToCartRequest() -> map result : {}", cartResponse.toString());
+                    return cartResponse;
+                });
+    }
+
+    @DeleteMapping(
+            path = "/api/v1/cart/{cart_item_id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<String> deleteFromCart(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @PathVariable("cart_item_id") String cartItemId) {
+
+        logger.trace("deleteToCart called: baseUrl={}, itemId={}", baseUrl, cartItemId);
+
+        return this.deleteFromCartRequest(cartItemId, auth, baseUrl);
+    }
+
+    private Mono<String> deleteFromCartRequest(String cartItemId, String auth, String baseUrl) {
+
+        logger.trace("deleteFromCartRequest called: baseUrl={}, item_id={}", baseUrl, cartItemId);
+        return rest.delete()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(ServiceNowController.SNOW_DELETE_CART_ENDPOINT)
+                        .buildAndExpand(ImmutableMap.of("cart_item_id", cartItemId))
+                        .encode()
+                        .toUriString()
+                )
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> s.toString());
+    }
+
+    /*
+    Call checkout and update cart response with details from the checkout response
+    */
+    private Mono<CheckoutResponse> checkoutRequest(String auth, String baseUrl) {
+        logger.trace("checkoutRequest called: baseUrl={}", baseUrl);
+        return rest.post()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(ServiceNowController.SNOW_CHECKOUT_ENDPOINT)
+                        .encode()
+                        .toUriString()
+                )
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                    CheckoutResponse checkoutResult = new CheckoutResponse(s);
+                    logger.trace("checkoutRequest() -> map result : {}", checkoutResult.toString());
+                    return checkoutResult;
+                })
+                ;
+    }
+
+    @GetMapping(
+            path = "/api/v1/cart/",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<GetCartResponse> lookupCart(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl) {
+        return this.lookupCartRequest("/api/sn_sc/servicecatalog/cart", auth, baseUrl);
+    }
+
+    private Mono<GetCartResponse> lookupCartRequest(String endpoint, String auth, String baseUrl) {
+        logger.trace("lookupCartRequest called: baseUrl={}", baseUrl);
+        return rest.get()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .encode()
+                        .toUriString()
+                )
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                    logger.trace("cartRequest response -> {}", s);
+                    GetCartResponse response = new GetCartResponse(s);
+                    return response;
+                });
+    }
 }

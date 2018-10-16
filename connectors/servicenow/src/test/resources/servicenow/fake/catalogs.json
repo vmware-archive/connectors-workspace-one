@@ -1,0 +1,12 @@
+{
+  "result": [
+    {
+      "title": "Fake Catalog",
+      "sys_id": "sc-catalog-id-1",
+      "has_categories": true,
+      "has_items": true,
+      "description": "Fake Catalog Items",
+      "desktop_image": "sc-image-link.iix"
+    }
+  ]
+}
