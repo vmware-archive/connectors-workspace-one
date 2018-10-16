@@ -91,14 +91,7 @@ public class HubServiceNowController {
     ) throws IOException {
         logger.trace("getCards called, baseUrl={}, routingPrefix={}", baseUrl, routingPrefix);
 
-        String userEmail = AuthUtil.extractUserEmail(authorization);
-
-        // TODO - remove this after APF-1686 is implemented
-        if (userEmail == null) {
-            // Eric Schroeder is in the approvals group and will allow us to test tickets in the ServiceNow dev instance
-            userEmail = "eric.schroeder@example.com";
-        }
-
+        final String userEmail = AuthUtil.extractUserEmail(authorization);
         if (StringUtils.isBlank(userEmail)) {
             logger.error("User email (eml) is empty in jwt access token.");
             return Mono.just(new Cards());
