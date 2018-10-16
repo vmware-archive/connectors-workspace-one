@@ -44,6 +44,7 @@ public class HubConcurService {
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
     private final Resource concurRequestTemplate;
+    private final String approver;
     private final String serviceAccountAuthHeader;
 
     @Autowired
@@ -51,11 +52,13 @@ public class HubConcurService {
             WebClient rest,
             CardTextAccessor cardTextAccessor,
             @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate,
+            @Value("${concur.temporary.demo-user}") String approver,
             @Value("${concur.service-account-auth-header}") String serviceAccountAuthHeader
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.concurRequestTemplate = concurRequestTemplate;
+        this.approver = approver; // TODO - APF-1544: figure this out from info in the JWT
         this.serviceAccountAuthHeader = serviceAccountAuthHeader;
     }
 
@@ -64,14 +67,13 @@ public class HubConcurService {
 
         return fetchAllRequests(baseUrl)
                 .flatMapMany(expenses -> Flux.fromIterable(expenses.getPendingApprovals()))
-                // TODO - do we need to filter on anything else?
+                // TODO - APF-1545: do we need to filter on anything else?
                 .flatMap(expense -> fetchRequestData(baseUrl, expense.getId()))
                 .map(report -> makeCards(routingPrefix, locale, report, request))
                 .reduce(new Cards(), this::addCard);
     }
 
     private Mono<PendingApprovalResponse> fetchAllRequests(String baseUrl) {
-        String approver = "sdeswal@vmware-qa"; // TODO - change to user input
         int limit = 50;
         String userFilter = "all";
 
@@ -207,6 +209,7 @@ public class HubConcurService {
     }
 
     public Mono<String> makeConcurRequest(String reason, String baseUrl, String action, String reportId) throws IOException {
+        // TODO - APF-1546: privilege check based on the user in the JWT
         String concurRequestTemplate = getConcurRequestTemplate(reason, action);
         return fetchRequestData(baseUrl, reportId)
                 .map(ExpenseReportResponse::getWorkflowActionURL)
