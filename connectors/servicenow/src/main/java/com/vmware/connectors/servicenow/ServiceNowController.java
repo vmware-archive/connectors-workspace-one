@@ -12,6 +12,7 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
+import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -549,22 +550,19 @@ public class ServiceNowController {
     ) {
         logger.trace("getCatalogs called: baseUrl={}", baseUrl);
 
-        System.out.println("~~SNC~~: " + "here");
-        Mono<JsonDocument> results = getCatalogsRequest(auth, baseUrl);
+        System.out.println("~~SNC~~: " + "getCatalogs()");
+        Mono<Map<String, Object>> results = getCatalogsRequest(auth, baseUrl);
 
-        System.out.println("~~SNC~~: " + results.toString());
+        System.out.println("~~SNC~~: " + "getCatalogsRequest() ret -> " + results.toString());
 
-        return results
-                .map(data -> ImmutableMap.of(
-
-                ));
+        return results;
     }
 
-    public Mono<JsonDocument> getCatalogsRequest(String auth, String baseUrl) {
+    public Mono<Map<String, Object>> getCatalogsRequest(String auth, String baseUrl) {
             logger.trace("getCatalogsRequest: baseUrl={}", baseUrl);
 
         String endpoint = "/api/sn_sc/servicecatalog/catalogs";
-        System.out.println("~~SNC~~: " + "helper-func: " + baseUrl + endpoint);
+        System.out.println("~~SNC~~: " + "getCatalogsRequest() url -> " + baseUrl + endpoint);
         return rest.get()
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
@@ -573,7 +571,10 @@ public class ServiceNowController {
                         .toUriString())
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToMono(JsonDocument.class);
+                .bodyToMono(JsonDocument.class)
+                .map(data -> ImmutableMap.of(
+                    "result" , data.read(this.RESULT_PREFIX)
+                ));
     }
 
 }

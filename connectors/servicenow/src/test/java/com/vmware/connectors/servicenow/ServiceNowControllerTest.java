@@ -11,6 +11,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
+import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,8 +32,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -414,9 +414,6 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         JsonProvider jsonProvider = Configuration.defaultConfiguration().jsonProvider();
         JsonDocument responseDocument = new JsonDocument(jsonProvider.parse(fakeResponse));
 
-        //Mockito.doReturn(Mono.just(responseDocument)).when(this.serviceNowController.getCatalogs(ArgumentMatchers.contains("bearer "), ArgumentMatchers.contains("http://test-url.com")));
-        //when(this.serviceNowController.getCatalogsRequest(ArgumentMatchers.contains("bearer "), ArgumentMatchers.contains("http://test-url.com"))).thenReturn(Mono.just(responseDocument));
-
         String catalogsApiEndpoint = "http://test-url.com/api/sn_sc/servicecatalog/catalogs";
 
         MockClientHttpResponse mockResponse = new MockClientHttpResponse(HttpStatus.OK);
@@ -424,13 +421,19 @@ class ServiceNowControllerTest extends ControllerTestsBase {
 
         when(mockClientHttpConnector.connect(eq(HttpMethod.GET), eq(URI.create(catalogsApiEndpoint)), ArgumentMatchers.any()))
                 .thenReturn(Mono.just(mockResponse));
-        //when(mockClientHttpConnector.connect(eq(HttpMethod.POST), eq(URI.create(approvalUrl)), any()))
-          //      .thenReturn(Mono.just(new MockClientHttpResponse(HttpStatus.OK)));
 
+        System.out.println("~~TEST~~: testResponseForCatalogs() doc -> " + responseDocument.toString());
 
+        JSONArray catalogs = responseDocument.read("$.result");
+        Map<String, String> catalogToSysId = new HashMap<String, String>();
+        for (Object catalog : catalogs) {
+            LinkedHashMap<String, Object> catalogResult = (LinkedHashMap<String, Object>)catalog;
+            catalogToSysId.put(catalogResult.get("title").toString(), catalogResult.get("sys_id").toString());
+        }
 
-        System.out.println("~~TEST~~: " + responseDocument.toString());
-        this.controller.getCatalogs("bearer abcdefghijklmnop", "http://test-url.com");
+        System.out.println("~~TEST~~: testResponseForCatalogs() doc -> field -> " + catalogToSysId);
+        Mono<Map<String, Object>> catalogsResponse = this.controller.getCatalogs("bearer abcdefghijklmnop", "http://test-url.com");
 
+        System.out.println("~~TEST~~: testResponseForCatalogs() ret -> " + catalogsResponse.block());
     }
 }
