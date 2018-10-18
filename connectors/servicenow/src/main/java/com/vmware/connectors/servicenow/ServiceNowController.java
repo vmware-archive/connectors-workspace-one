@@ -12,7 +12,6 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
-import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,14 +20,17 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Signal;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
@@ -540,41 +542,67 @@ public class ServiceNowController {
         return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, reason);
     }
 
-    @PostMapping(
-            path="/api/sn_sc/servicecatalog/catalogs",
-            consumes = MediaType.APPLICATION_JSON_VALUE
+    @GetMapping(
+            path="/api/v1/items/{type}",
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<Map<String, Object>> getCatalogs(
+    public Mono<String> getItems(
             @RequestHeader(AUTH_HEADER) String auth,
-            @RequestHeader(BASE_URL_HEADER) String baseUrl
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @PathVariable("type") String type
     ) {
-        logger.trace("getCatalogs called: baseUrl={}", baseUrl);
-
-        System.out.println("~~SNC~~: " + "getCatalogs()");
-        Mono<Map<String, Object>> results = getCatalogsRequest(auth, baseUrl);
-
-        System.out.println("~~SNC~~: " + "getCatalogsRequest() ret -> " + results.toString());
-
-        return results;
+        return getCatalogs(auth, baseUrl);
+        //return getCatalogID(auth, baseUrl);
+        // Get category ID using catalog ID
+        // Get our list of items using search string {type} in the category we selected
+        // Return the list
     }
 
-    public Mono<Map<String, Object>> getCatalogsRequest(String auth, String baseUrl) {
-            logger.trace("getCatalogsRequest: baseUrl={}", baseUrl);
-
-        String endpoint = "/api/sn_sc/servicecatalog/catalogs";
-        System.out.println("~~SNC~~: " + "getCatalogsRequest() url -> " + baseUrl + endpoint);
+    private Mono<String> getCatalogs(String auth, String baseUrl) {
+        String endpoint = "/api/sn_sc/servicecatalog/items";
         return rest.get()
                 .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
-                        .path(endpoint)
-                        .encode()
-                        .toUriString())
+                .fromHttpUrl(baseUrl)
+                .path(endpoint)
+                .encode()
+                .toUriString())
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToMono(JsonDocument.class)
-                .map(data -> ImmutableMap.of(
-                    "result" , data.read(this.RESULT_PREFIX)
-                ));
+                .bodyToMono(String.class);
     }
+
+    // Function that
+
+//    private Mono<Map<String, Object>> getCatalogID(String auth, String baseUrl) {
+//        // We will want to find the catalog with title "Service Catalog"
+//        String catalogType = "Service Catalog";
+//        logger.trace("getCatalogs called: baseUrl={}", baseUrl);
+//
+//        System.out.println("~~SNC~~: " + "getCatalogID()");
+//        Mono<Map<String, Object>> results = getCatalogsRequest(auth, baseUrl);
+//
+//        System.out.println("~~SNC~~: " + "getCatalogsRequest() ret -> " + results.toString());
+//
+//        return results;
+//    }
+
+//    private Mono<Map<String, Object>> getCatalogsRequest(String auth, String baseUrl) {
+//            logger.trace("getCatalogsRequest: baseUrl={}", baseUrl);
+//
+//        String endpoint = "/api/sn_sc/servicecatalog/catalogs";
+//        System.out.println("~~SNC~~: " + "getCatalogsRequest() url -> " + baseUrl + endpoint);
+//        return rest.get()
+//                .uri(UriComponentsBuilder
+//                        .fromHttpUrl(baseUrl)
+//                        .path(endpoint)
+//                        .encode()
+//                        .toUriString())
+//                .header(AUTHORIZATION, auth)
+//                .retrieve()
+//                .bodyToMono(JsonDocument.class)
+//                .map(data -> ImmutableMap.of(
+//                    "result" , data.read(this.RESULT_PREFIX)
+//                ));
+//    }
 
 }
