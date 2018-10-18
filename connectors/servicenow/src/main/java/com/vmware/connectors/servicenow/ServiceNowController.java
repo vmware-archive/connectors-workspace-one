@@ -539,4 +539,41 @@ public class ServiceNowController {
         return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, reason);
     }
 
+    @PostMapping(
+            path="/api/sn_sc/servicecatalog/catalogs",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<Map<String, Object>> getCatalogs(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl
+    ) {
+        logger.trace("getCatalogs called: baseUrl={}", baseUrl);
+
+        System.out.println("~~SNC~~: " + "here");
+        Mono<JsonDocument> results = getCatalogsRequest(auth, baseUrl);
+
+        System.out.println("~~SNC~~: " + results.toString());
+
+        return results
+                .map(data -> ImmutableMap.of(
+
+                ));
+    }
+
+    public Mono<JsonDocument> getCatalogsRequest(String auth, String baseUrl) {
+            logger.trace("getCatalogsRequest: baseUrl={}", baseUrl);
+
+        String endpoint = "/api/sn_sc/servicecatalog/catalogs";
+        System.out.println("~~SNC~~: " + "helper-func: " + baseUrl + endpoint);
+        return rest.get()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .encode()
+                        .toUriString())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class);
+    }
+
 }

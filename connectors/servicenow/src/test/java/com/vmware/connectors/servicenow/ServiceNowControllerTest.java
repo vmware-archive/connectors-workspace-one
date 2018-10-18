@@ -5,24 +5,41 @@
 
 package com.vmware.connectors.servicenow;
 
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.spi.json.JsonProvider;
+import com.vmware.connectors.common.json.JsonDocument;
+import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.mock.http.client.reactive.MockClientHttpResponse;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.*;
@@ -36,6 +53,22 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 class ServiceNowControllerTest extends ControllerTestsBase {
 
     private static final String SNOW_AUTH_TOKEN = "test-GOOD-auth-token";
+
+    private ServiceNowController controller;
+
+    @Mock
+    private ClientHttpConnector mockClientHttpConnector;
+
+    @BeforeEach
+    void createController() {
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setFallbackToSystemLocale(false);
+        messageSource.setBasename("cards/text");
+
+        controller = new ServiceNowController(
+                WebClient.builder().clientConnector(mockClientHttpConnector).build(),
+                new CardTextAccessor(messageSource));
+    }
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -367,4 +400,37 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 .expectStatus().isBadRequest();
     }
 
+    @Test
+    void testResponseForCatalogs() throws Exception {
+        String fakeResponse = fromFile("/servicenow/fake/catalogs.json");
+
+        String expected = fromFile("/servicenow/responses/success/actions/approve.json");
+
+        mockBackend.expect(requestTo("/api/sn_sc/servicecatalog/catalogs"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fakeResponse, APPLICATION_JSON));
+
+        JsonProvider jsonProvider = Configuration.defaultConfiguration().jsonProvider();
+        JsonDocument responseDocument = new JsonDocument(jsonProvider.parse(fakeResponse));
+
+        //Mockito.doReturn(Mono.just(responseDocument)).when(this.serviceNowController.getCatalogs(ArgumentMatchers.contains("bearer "), ArgumentMatchers.contains("http://test-url.com")));
+        //when(this.serviceNowController.getCatalogsRequest(ArgumentMatchers.contains("bearer "), ArgumentMatchers.contains("http://test-url.com"))).thenReturn(Mono.just(responseDocument));
+
+        String catalogsApiEndpoint = "http://test-url.com/api/sn_sc/servicecatalog/catalogs";
+
+        MockClientHttpResponse mockResponse = new MockClientHttpResponse(HttpStatus.OK);
+        mockResponse.setBody(responseDocument.toString());
+
+        when(mockClientHttpConnector.connect(eq(HttpMethod.GET), eq(URI.create(catalogsApiEndpoint)), ArgumentMatchers.any()))
+                .thenReturn(Mono.just(mockResponse));
+        //when(mockClientHttpConnector.connect(eq(HttpMethod.POST), eq(URI.create(approvalUrl)), any()))
+          //      .thenReturn(Mono.just(new MockClientHttpResponse(HttpStatus.OK)));
+
+
+
+        System.out.println("~~TEST~~: " + responseDocument.toString());
+        this.controller.getCatalogs("bearer abcdefghijklmnop", "http://test-url.com");
+
+    }
 }
