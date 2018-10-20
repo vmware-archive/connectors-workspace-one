@@ -399,41 +399,4 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         reject(SNOW_AUTH_TOKEN, "invalid/actions/reject/missing-reason.form")
                 .expectStatus().isBadRequest();
     }
-
-    @Test
-    void testResponseForCatalogs() throws Exception {
-        String fakeResponse = fromFile("/servicenow/fake/catalogs.json");
-
-        String expected = fromFile("/servicenow/responses/success/actions/approve.json");
-
-        mockBackend.expect(requestTo("/api/sn_sc/servicecatalog/catalogs"))
-                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
-                .andExpect(method(GET))
-                .andRespond(withSuccess(fakeResponse, APPLICATION_JSON));
-
-        JsonProvider jsonProvider = Configuration.defaultConfiguration().jsonProvider();
-        JsonDocument responseDocument = new JsonDocument(jsonProvider.parse(fakeResponse));
-
-        String catalogsApiEndpoint = "http://test-url.com/api/sn_sc/servicecatalog/catalogs";
-
-        MockClientHttpResponse mockResponse = new MockClientHttpResponse(HttpStatus.OK);
-        mockResponse.setBody(responseDocument.toString());
-
-        when(mockClientHttpConnector.connect(eq(HttpMethod.GET), eq(URI.create(catalogsApiEndpoint)), ArgumentMatchers.any()))
-                .thenReturn(Mono.just(mockResponse));
-
-        System.out.println("~~TEST~~: testResponseForCatalogs() doc -> " + responseDocument.toString());
-
-        JSONArray catalogs = responseDocument.read("$.result");
-        Map<String, String> catalogToSysId = new HashMap<String, String>();
-        for (Object catalog : catalogs) {
-            LinkedHashMap<String, Object> catalogResult = (LinkedHashMap<String, Object>)catalog;
-            catalogToSysId.put(catalogResult.get("title").toString(), catalogResult.get("sys_id").toString());
-        }
-
-        System.out.println("~~TEST~~: testResponseForCatalogs() doc -> field -> " + catalogToSysId);
-        Mono<Map<String, Object>> catalogsResponse = this.controller.getCatalogs("bearer abcdefghijklmnop", "http://test-url.com");
-
-        System.out.println("~~TEST~~: testResponseForCatalogs() ret -> " + catalogsResponse.block());
-    }
 }

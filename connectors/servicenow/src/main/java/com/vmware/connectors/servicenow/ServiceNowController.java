@@ -5,6 +5,9 @@
 
 package com.vmware.connectors.servicenow;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
@@ -12,6 +15,7 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
+import com.vmware.connectors.servicenow.Domain.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +33,7 @@ import reactor.core.publisher.Signal;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -67,6 +72,10 @@ public class ServiceNowController {
      */
     private static final String SNOW_SYS_PARAM_LIMIT = "sysparm_limit";
 
+    private static final String SNOW_SYS_PARAM_TEXT = "sysparm_text";
+
+    private static final String SNOW_SYS_PARAM_CAT = "sysparm_category";
+
     /**
      * The maximum approval requests to fetch from ServiceNow.  Since we have
      * to filter results out based on the ticket_id param passed in by the
@@ -91,6 +100,8 @@ public class ServiceNowController {
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
+
+
     }
 
     @PostMapping(
@@ -546,63 +557,70 @@ public class ServiceNowController {
             path="/api/v1/items/{type}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<String> getItems(
+    public Mono<ItemsResponse> getItems(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @PathVariable("type") String type
     ) {
-        return getCatalogs(auth, baseUrl);
+        return getIDFrom("/api/sn_sc/servicecatalog/catalogs", "Service Catalog", auth, baseUrl)
+                .flatMap(id -> getIDFrom("/api/sn_sc/servicecatalog/catalogs/" + id + "/categories", "Hardware", auth, baseUrl))
+                .map(id -> id)
+                .flatMap(id -> getItemsRequest("/api/sn_sc/servicecatalog/items", type, id, auth, baseUrl))
+                ;
         //return getCatalogID(auth, baseUrl);
         // Get category ID using catalog ID
         // Get our list of items using search string {type} in the category we selected
         // Return the list
     }
 
-    private Mono<String> getCatalogs(String auth, String baseUrl) {
-        String endpoint = "/api/sn_sc/servicecatalog/items";
+    //returns id of service c atalog
+    private Mono<String>getIDFrom(String endpoint, String title, String auth, String baseURL) {
         return rest.get()
                 .uri(UriComponentsBuilder
-                .fromHttpUrl(baseUrl)
-                .path(endpoint)
-                .encode()
-                .toUriString())
+                        .fromHttpUrl(baseURL)
+                        .path(endpoint)
+                        .encode()
+                        .toUriString())
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(JsonDocument.class)
+                .map(data -> {
+                            String id = "";
+                            List<LinkedHashMap> result = data.read("$.result");
+                            for (LinkedHashMap<String, String> item : result) {
+                                String itemTitle = item.get("title");
+                                if (itemTitle.equals(title)) {
+                                    id = item.get("sys_id");
+                                }
+                            }
+                            return id;
+                        }
+                );
     }
 
-    // Function that
+    private Mono<ItemsResponse> getItemsRequest(String endpoint, String type, String categoryId, String auth, String baseUrl) {
+        logger.trace("getCatalogsRequest called: baseUrl={} filter_by_type={}", baseUrl, type);
+        return rest.get()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .queryParam(SNOW_SYS_PARAM_TEXT, type)
+                        .queryParam(SNOW_SYS_PARAM_CAT, categoryId)
+                        .encode()
+                        .toUriString())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                            try {
+                                JsonNode node = new ObjectMapper().readTree(s.read(this.RESULT_PREFIX + "[*]").toString());
+                                return new ItemsResponse(node);
+                            } catch(IOException exe) {
+                                logger.error("getItemsRequest() -> readTree() -> {}" + exe.getMessage());
+                            }
 
-//    private Mono<Map<String, Object>> getCatalogID(String auth, String baseUrl) {
-//        // We will want to find the catalog with title "Service Catalog"
-//        String catalogType = "Service Catalog";
-//        logger.trace("getCatalogs called: baseUrl={}", baseUrl);
-//
-//        System.out.println("~~SNC~~: " + "getCatalogID()");
-//        Mono<Map<String, Object>> results = getCatalogsRequest(auth, baseUrl);
-//
-//        System.out.println("~~SNC~~: " + "getCatalogsRequest() ret -> " + results.toString());
-//
-//        return results;
-//    }
-
-//    private Mono<Map<String, Object>> getCatalogsRequest(String auth, String baseUrl) {
-//            logger.trace("getCatalogsRequest: baseUrl={}", baseUrl);
-//
-//        String endpoint = "/api/sn_sc/servicecatalog/catalogs";
-//        System.out.println("~~SNC~~: " + "getCatalogsRequest() url -> " + baseUrl + endpoint);
-//        return rest.get()
-//                .uri(UriComponentsBuilder
-//                        .fromHttpUrl(baseUrl)
-//                        .path(endpoint)
-//                        .encode()
-//                        .toUriString())
-//                .header(AUTHORIZATION, auth)
-//                .retrieve()
-//                .bodyToMono(JsonDocument.class)
-//                .map(data -> ImmutableMap.of(
-//                    "result" , data.read(this.RESULT_PREFIX)
-//                ));
-//    }
-
+                            return new ItemsResponse();
+                        }
+                );
+    }
 }
