@@ -18,7 +18,7 @@ public class ItemDetailsResponse {
     private final static String localizedPriceField = "localized_price";
     private final static String nameField = "name";
 
-    public ItemDetailsResponse(JsonNode jsonSource) {
+    public ItemDetailsResponse(JsonNode jsonSource, String baseUrl) {
         if(jsonSource.has(ItemDetailsResponse.shortDescriptionField)) {
             this.shortDescription = jsonSource.get(ItemDetailsResponse.shortDescriptionField).asText();
         }
@@ -28,7 +28,7 @@ public class ItemDetailsResponse {
         }
 
         if(jsonSource.has(ItemDetailsResponse.pictureField)) {
-            this.picture = jsonSource.get(ItemDetailsResponse.pictureField).asText();
+            this.picture = baseUrl + "/" + jsonSource.get(ItemDetailsResponse.pictureField).asText();
         }
 
         if(jsonSource.has(ItemDetailsResponse.sysIdField)) {

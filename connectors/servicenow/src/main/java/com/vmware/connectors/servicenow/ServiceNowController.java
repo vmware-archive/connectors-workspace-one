@@ -574,10 +574,10 @@ public class ServiceNowController {
     }
 
     //returns id of service c atalog
-    private Mono<String>getIDFrom(String endpoint, String title, String auth, String baseURL) {
+    private Mono<String>getIDFrom(String endpoint, String title, String auth, String baseUrl) {
         return rest.get()
                 .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseURL)
+                        .fromHttpUrl(baseUrl)
                         .path(endpoint)
                         .encode()
                         .toUriString())
@@ -614,7 +614,7 @@ public class ServiceNowController {
                 .map(s -> {
                             try {
                                 JsonNode node = new ObjectMapper().readTree(s.read(this.RESULT_PREFIX + "[*]").toString());
-                                return new ItemsResponse(node);
+                                return new ItemsResponse(node, baseUrl);
                             } catch(IOException exe) {
                                 logger.error("getItemsRequest() -> readTree() -> {}" + exe.getMessage());
                             }

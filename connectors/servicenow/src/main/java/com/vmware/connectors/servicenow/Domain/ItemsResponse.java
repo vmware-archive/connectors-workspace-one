@@ -11,11 +11,11 @@ import java.util.List;
 @SuppressWarnings("PMD.LinguisticNaming")
 public class ItemsResponse {
 
-    public ItemsResponse(JsonNode jsonSource) {
+    public ItemsResponse(JsonNode jsonSource, String baseUrl) {
         this.result = new LinkedList<>();
         if (jsonSource.isArray()) {
             jsonSource.elements().forEachRemaining(s ->
-                    this.result.add(new ItemDetailsResponse(s))
+                    this.result.add(new ItemDetailsResponse(s, baseUrl))
             );
         }
     }
