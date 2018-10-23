@@ -76,6 +76,8 @@ public class ServiceNowController {
 
     private static final String SNOW_SYS_PARAM_CAT = "sysparm_category";
 
+    private static final String SNOW_SYS_PARAM_QUAN = "sysparm_quantity";
+
     /**
      * The maximum approval requests to fetch from ServiceNow.  Since we have
      * to filter results out based on the ticket_id param passed in by the
@@ -560,10 +562,14 @@ public class ServiceNowController {
     public Mono<ItemsResponse> getItems(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            @PathVariable("type") String type
+            @PathVariable("type") String type,
+            @RequestParam("catalog") String catalog,
+            @RequestParam("category") String category
     ) {
-        return getIDFrom("/api/sn_sc/servicecatalog/catalogs", "Service Catalog", auth, baseUrl)
-                .flatMap(id -> getIDFrom("/api/sn_sc/servicecatalog/catalogs/" + id + "/categories", "Hardware", auth, baseUrl))
+        //TODO> Camel case?
+        var catalogString = catalog.replace("_", " ");
+        return getIDFrom("/api/sn_sc/servicecatalog/catalogs", catalogString, auth, baseUrl)
+                .flatMap(id -> getIDFrom("/api/sn_sc/servicecatalog/catalogs/" + id + "/categories", category, auth, baseUrl))
                 .map(id -> id)
                 .flatMap(id -> getItemsRequest("/api/sn_sc/servicecatalog/items", type, id, auth, baseUrl))
                 ;
@@ -573,7 +579,7 @@ public class ServiceNowController {
         // Return the list
     }
 
-    //returns id of service c atalog
+    //returns id of service catalog
     private Mono<String>getIDFrom(String endpoint, String title, String auth, String baseUrl) {
         return rest.get()
                 .uri(UriComponentsBuilder
@@ -623,4 +629,87 @@ public class ServiceNowController {
                         }
                 );
     }
+
+    @PostMapping(
+            path="/api/v1/cart/{item_id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<String> addToCart(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @PathVariable("item_id") String itemId,
+            @RequestParam("quantity") String quantity) {
+
+        //TODO> Verify item_id is proper (regex/length check)
+        return this.addToCartRequest("/api/sn_sc/servicecatalog/items/{item_id}/add_to_cart", itemId, quantity, auth, baseUrl);
+    }
+
+    private Mono<String> addToCartRequest(String endpoint, String itemId, String quantity, String auth, String baseUrl) {
+
+        ImmutableMap.Builder<String, String> body = new ImmutableMap.Builder<String, String>()
+                .put(ServiceNowController.SNOW_SYS_PARAM_QUAN, quantity);
+
+        logger.trace("addToCartRequest called: baseUrl={}, item_id={}", baseUrl, itemId);
+        return rest.post()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .buildAndExpand(ImmutableMap.of("item_id" , itemId))
+                        .encode()
+                        .toUri()
+                )
+                .header(AUTHORIZATION, auth)
+                .syncBody(body.build())
+                .retrieve()
+                .bodyToMono(String.class);
+    }
+
+    @GetMapping(
+            path="/api/v1/cart/",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<String> lookupCart(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl) {
+        return this.lookupCartRequest("/api/sn_sc/servicecatalog/cart", auth, baseUrl);
+    }
+
+    private Mono<String> lookupCartRequest(String endpoint, String auth, String baseUrl) {
+            logger.trace("addToCartRequest called: baseUrl={}, item_id={}", baseUrl);
+        return rest.post()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .encode()
+                        .toUriString()
+                )
+                        .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(String.class);
+    }
+
+    @PostMapping(
+            path="/api/v1/cart/checkout",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<String> checkout(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl) {
+        return this.checkoutRequest("/api/sn_sc/servicecatalog/cart/checkout", auth, baseUrl);
+    }
+
+    private Mono<String> checkoutRequest(String endpoint, String auth, String baseUrl) {
+        logger.trace("String called: baseUrl={}, item_id={}", baseUrl);
+        return rest.post()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .encode()
+                        .toUriString()
+                )
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(String.class);
+    }
+
 }

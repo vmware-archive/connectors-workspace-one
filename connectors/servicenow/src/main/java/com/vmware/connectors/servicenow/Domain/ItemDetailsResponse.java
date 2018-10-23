@@ -58,36 +58,37 @@ public class ItemDetailsResponse {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceNowController.class);
 
-    @JsonProperty("short_description")
+    @JsonProperty(shortDescriptionField)
     public String getShortDescription() { return shortDescription;}
 
     public void setShortDescription(String shortDescription) { this.shortDescription = shortDescription; }
 
 
-    @JsonProperty("description")
+    @JsonProperty(descriptionField)
     public String getDescription() { return description; }
 
     public void setDescription(String description) { this.description = description; }
 
 
-    @JsonProperty("picture")
+    @JsonProperty(pictureField)
     public String getPicture() { return picture; }
 
     public void setPicture(String picture) { this.picture = picture; }
 
 
-    @JsonProperty("sys_id") public String getSysId() { return sysId; }
+    @JsonProperty(sysIdField)
+    public String getSysId() { return sysId; }
 
     public void setSysId(String sysId) { this.sysId = sysId; }
 
 
-    @JsonProperty("localized_price")
+    @JsonProperty(localizedPriceField)
     public String getLocalizedPrice() {return localizedPrice;}
 
     public void setLocalizedPrice(String localizedPrice) {this.localizedPrice = localizedPrice;}
 
 
-    @JsonProperty("name")
+    @JsonProperty(nameField)
     public String getName() { return name; }
 
     public void setName(String name) { this.name = name; }
