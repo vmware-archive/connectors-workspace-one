@@ -634,11 +634,12 @@
                             <doctitle>Workspace ONE Connectors API</doctitle>
                             <excludePackageNames>
                                 com.vmware.connectors.airwatch*,
-                                com.vmware.connectors.bitbucket*,
-                                com.vmware.connectors.gitlab*,
                                 com.vmware.connectors.aws*,
+                                com.vmware.connectors.bitbucket*,
                                 com.vmware.connectors.concur*,
                                 com.vmware.connectors.github*,
+                                com.vmware.connectors.gitlab*,
+                                com.vmware.connectors.hub*,
                                 com.vmware.connectors.jira*,
                                 com.vmware.connectors.salesforce*,
                                 com.vmware.connectors.servicenow*,

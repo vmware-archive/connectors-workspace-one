@@ -1,0 +1,14 @@
+{
+  "result": [
+    {
+      "price": "100.99",
+      "request": {
+        "link": "http://something/task/test-sc-request-id-1",
+        "value": "test-sc-request-id-1"
+      },
+      "short_description": "Apple iPhone 6",
+      "sys_id": "test-sc-req-item-id-1",
+      "quantity": "2"
+    }
+  ]
+}
