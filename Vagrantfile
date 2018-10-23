@@ -65,7 +65,11 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     yum update -y
-    yum install -y git rpm-build vim nmap-ncat java-1.8.0-openjdk-devel
+    yum install -y git rpm-build vim nmap-ncat wget
+    wget https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz
+    tar xvf openjdk-11*_bin.tar.gz
+    mv jdk-11.0.1 /usr/local/share/
+    ln -s /usr/local/share/jdk-11.0.1/bin/java /usr/local/bin/java
     curl -fsSL get.docker.com -o get-docker.sh
     sh get-docker.sh
     usermod -aG docker vagrant
