@@ -49,7 +49,6 @@
                             <artifactId>docker-maven-plugin</artifactId>
 
                             <configuration>
-                                <registry>registry.hub.docker.com</registry>
                                 <authConfig>
                                     <username>${docker.hub.username}</username>
                                     <password>${docker.hub.password}</password>
