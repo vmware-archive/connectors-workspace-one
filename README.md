@@ -65,7 +65,7 @@ Use the below command from within the repository directory to build the RPMs:
 
 Each connector has its own RPM. For example, `jira-connector-1.0.0.noarch.rpm`. This can be found at `connectors/jira/target/rpm/jira-connector/RPMS/noarch/`.
 
-Java 10 is a prerequisite. Installation instructions can be found [here](http://openjdk.java.net/install/).
+Java 11 is a prerequisite. Installation instructions can be found [here](http://openjdk.java.net/install/).
 
 Once the JDK is downloaded and unpacked, a soft link should be created. For example:
 
