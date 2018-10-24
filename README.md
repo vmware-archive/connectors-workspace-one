@@ -33,7 +33,7 @@ docker run --name jira-connector \
            -d \
            ws1connectors/jira-connector \
            --server.port=8080 \
-           --security.oauth2.resource.jwt.key-uri="https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem"
+           --security.oauth2.resource.jwt.key-uri="https://prod.hero.vmwservices.com/security/public-key"
 ```
 
 ## RPM
@@ -84,7 +84,7 @@ Before the service can be run, some configuration is required. The connectors au
 For example, for the Jira connector:
 
 ```
-echo "security.oauth2.resource.jwt.key-uri=https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem" \
+echo "security.oauth2.resource.jwt.key-uri=https://prod.hero.vmwservices.com/security/public-key" \
 > /etc/opt/vmware/connectors/jira/application.properties
 ```
 
@@ -161,7 +161,7 @@ java -server \
      -jar \
      connectors/jira/target/jira-connector-2.1-SNAPSHOT.jar \
      --server.port=8080 \
-     --security.oauth2.resource.jwt.key-uri="https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem"
+     --security.oauth2.resource.jwt.key-uri="https://prod.hero.vmwservices.com/security/public-key"
 ```
 
 ## Troubleshooting
