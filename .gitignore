@@ -46,3 +46,8 @@ buildNumber.properties
 hs_err_pid*
 
 run_connectors.sh
+
+# VS Code files #
+*.classpath
+*.project
+*.settings

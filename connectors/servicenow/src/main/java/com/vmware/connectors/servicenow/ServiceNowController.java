@@ -8,6 +8,7 @@ package com.vmware.connectors.servicenow;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.core.JsonParser;
 import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
@@ -35,8 +36,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -64,6 +67,11 @@ public class ServiceNowController {
      */
     private static final String SNOW_SYS_PARAM_FIELDS = "sysparm_fields";
 
+    private static final String SNOW_ITEMS_ENDPOINT = ";";
+    
+    private static final String SNOW_ADD_TO_CART_ENDPOINT = "/api/sn_sc/servicecatalog/items/{item_id}/add_to_cart";
+
+    private static final String SNOW_CHECKOUT_ENDPOINT = "/api/sn_sc/servicecatalog/cart/checkout";
     /**
      * The query param to specify a limit of the results coming back in your
      * ServiceNow REST calls.
@@ -631,29 +639,46 @@ public class ServiceNowController {
     }
 
     @PostMapping(
-            path="/api/v1/cart/{item_id}",
+            path="/api/v1/cart",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<String> addToCart(
+    public Mono<CartResponse> addItemsToCart(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            @PathVariable("item_id") String itemId,
-            @RequestParam("quantity") String quantity) {
+            @Valid @RequestBody AddToCartRequest addToCartRequest) {
 
-        //TODO> Verify item_id is proper (regex/length check)
-        return this.addToCartRequest("/api/sn_sc/servicecatalog/items/{item_id}/add_to_cart", itemId, quantity, auth, baseUrl);
+        logger.trace("addItemsToCart called: baseUrl={}, itemsMap={}", baseUrl, addToCartRequest.getItemsAndQuantities().toString());
+        final Stream<Entry<String, String>> entrySetStream = addToCartRequest.getItemsAndQuantities().entrySet().stream();
+        
+        var itemsAndQuantities = Flux.fromStream(entrySetStream);
+        
+        //TODO> Instead of keeping responses from each add-item request, we could instead make a single get-cart request at the end
+        Mono<CartResponse> cartResponse = itemsAndQuantities.flatMap(itemAndQuantity -> 
+        this.addToCartRequest(itemAndQuantity.getKey(), itemAndQuantity.getValue(), auth, baseUrl))
+        .map(s -> new AbstractMap.SimpleEntry<Integer, CartResponse>(s.getItems().size(), s))
+        .reduce((s,v) -> {
+                if (s.getKey() > v.getKey()) return s;
+                else return v;
+        })
+        .map(s -> s.getValue())
+        .flatMap(response ->
+                        this.checkoutRequest(auth, baseUrl, response));
+                        //cartResponse.setCartId(checkoutResponse)
+                
+        ;
+        return cartResponse;
     }
 
-    private Mono<String> addToCartRequest(String endpoint, String itemId, String quantity, String auth, String baseUrl) {
+    private Mono<CartResponse> addToCartRequest(String itemId, String quantity, String auth, String baseUrl) {
 
         ImmutableMap.Builder<String, String> body = new ImmutableMap.Builder<String, String>()
                 .put(ServiceNowController.SNOW_SYS_PARAM_QUAN, quantity);
 
-        logger.trace("addToCartRequest called: baseUrl={}, item_id={}", baseUrl, itemId);
+        logger.trace("addToCartRequest called: baseUrl={}, item_id={}, quantity={}", baseUrl, itemId, quantity);
         return rest.post()
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
-                        .path(endpoint)
+                        .path(ServiceNowController.SNOW_ADD_TO_CART_ENDPOINT)
                         .buildAndExpand(ImmutableMap.of("item_id" , itemId))
                         .encode()
                         .toUri()
@@ -661,7 +686,35 @@ public class ServiceNowController {
                 .header(AUTHORIZATION, auth)
                 .syncBody(body.build())
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                            return new CartResponse(s);
+                    });
+    }
+
+    /*
+    Call checkout and update cart response with details from the checkout response
+    */
+    private Mono<CartResponse> checkoutRequest(String auth, String baseUrl, CartResponse cartResponse) {
+        logger.trace("String called: baseUrl={}, item_id={}", baseUrl);
+        return rest.post()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(ServiceNowController.SNOW_CHECKOUT_ENDPOINT)
+                        .encode()
+                        .toUriString()
+                )
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                        Map<String, Object> result = s.read("$.result");
+                        if (result.containsKey("request_number")) {
+                                cartResponse.setCartId(result.get("request_number").toString());
+                        }
+                        return cartResponse;
+                })
+                ;
     }
 
     @GetMapping(
@@ -687,29 +740,4 @@ public class ServiceNowController {
                 .retrieve()
                 .bodyToMono(String.class);
     }
-
-    @PostMapping(
-            path="/api/v1/cart/checkout",
-            consumes = MediaType.APPLICATION_JSON_VALUE
-    )
-    public Mono<String> checkout(
-            @RequestHeader(AUTH_HEADER) String auth,
-            @RequestHeader(BASE_URL_HEADER) String baseUrl) {
-        return this.checkoutRequest("/api/sn_sc/servicecatalog/cart/checkout", auth, baseUrl);
-    }
-
-    private Mono<String> checkoutRequest(String endpoint, String auth, String baseUrl) {
-        logger.trace("String called: baseUrl={}, item_id={}", baseUrl);
-        return rest.post()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
-                        .path(endpoint)
-                        .encode()
-                        .toUriString()
-                )
-                .header(AUTHORIZATION, auth)
-                .retrieve()
-                .bodyToMono(String.class);
-    }
-
 }
