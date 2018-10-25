@@ -42,7 +42,7 @@ The connectors can be built, installed, and run as [RPMs](http://rpm.org/).
 
 ### Prerequisites
 
-* [Java 10](https://www.java.com/en/download/help/index_installing.xml)
+* [Java 11](https://www.java.com/en/download/help/index_installing.xml)
 * [Vagrant](https://www.vagrantup.com/) (use this [Vagrantfile](https://github.com/vmware/connectors-workspace-one/blob/master/Vagrantfile))
 
 Vagrant isn't necessary if you're using an RPM-based OS, such as CentOS or RHEL. You will need the following packages though:
@@ -70,7 +70,7 @@ Java 11 is a prerequisite. Installation instructions can be found [here](http://
 Once the JDK is downloaded and unpacked, a soft link should be created. For example:
 
 ```
-ln -s /usr/lib/jvm/jdk-10.0.2/bin/java /usr/bin/java 
+ln -s /usr/lib/jvm/jdk-11.0.1/bin/java /usr/bin/java
 ```
 
 The next step is to use the RPM to install the connector as a service. For example:
@@ -140,7 +140,7 @@ The connectors can also be built and run as [executable "fat" jars](https://docs
 
 ### Prerequisites
 
-* [Java 10](https://www.java.com/en/download/help/index_installing.xml)
+* [Java 11](https://www.java.com/en/download/help/index_installing.xml)
 
 ### Building
 
