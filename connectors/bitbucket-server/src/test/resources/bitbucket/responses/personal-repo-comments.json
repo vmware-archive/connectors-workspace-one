@@ -1,0 +1,32 @@
+{
+  "properties": {
+    "repositoryId": 2805
+  },
+  "id": 589949,
+  "version": 0,
+  "text": "abc",
+  "author": {
+    "name": "jbard",
+    "emailAddress": "jbard@vmware.com",
+    "id": 58466,
+    "displayName": "John Bard",
+    "active": true,
+    "slug": "jbard",
+    "type": "NORMAL",
+    "links": {
+      "self": [
+        {
+          "href": "https://stash.air-watch.com/users/jbard"
+        }
+      ]
+    }
+  },
+  "createdDate": 1540926073279,
+  "updatedDate": 1540926073279,
+  "comments": [],
+  "tasks": [],
+  "permittedOperations": {
+    "editable": true,
+    "deletable": true
+  }
+}

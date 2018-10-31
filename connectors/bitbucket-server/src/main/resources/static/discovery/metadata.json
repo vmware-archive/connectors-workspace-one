@@ -11,9 +11,13 @@
         "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
       },
       "fields": {
-        "pr_email_subject": {
+        "projects_pr_email_subject": {
           "capture_group": 1,
           "regex": "((?:[a-zA-Z0-9]+)\/(?:[a-zA-Z0-9-]+) - Pull request #(?:[0-9]+):[ ])"
+        },
+        "users_pr_email_subject": {
+          "capture_group": 1,
+          "regex": "(?:[~])((?:[a-zA-Z0-9]+)\/(?:[a-zA-Z0-9-]+) - Pull request #(?:[0-9]+):[ ])"
         }
       },
       "endpoint": {

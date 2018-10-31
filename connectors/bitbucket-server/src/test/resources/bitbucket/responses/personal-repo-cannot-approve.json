@@ -1,0 +1,9 @@
+{
+  "errors": [
+    {
+      "context": null,
+      "message": "Authors may not update their status.",
+      "exceptionName": "com.atlassian.bitbucket.pull.InvalidPullRequestRoleException"
+    }
+  ]
+}
