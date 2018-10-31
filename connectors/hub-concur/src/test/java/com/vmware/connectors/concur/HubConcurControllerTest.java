@@ -36,7 +36,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
-class HubHubConcurControllerTest extends ControllerTestsBase {
+class HubConcurControllerTest extends ControllerTestsBase {
 
     @ParameterizedTest
     @ValueSource(strings = {
