@@ -93,7 +93,7 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
     @Test
     void regex() throws Exception {
         List<String> expectedProjectsRepos = List.of(
-                // Project Name/ Repository Plug/ Pull request id.
+                // Project Name / Repository Slug / Pull Request ID
                 "UFO/app-platform-server - Pull request #244: ",
                 "UFO/app-platform-server - Pull request #245: ",
                 "UFO/app-platform-server - Pull request #241: ",
@@ -104,7 +104,7 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
         testRegex("projects_pr_email_subject", fromFile("/regex/pr-email-subject.txt"), expectedProjectsRepos);
 
         List<String> expectedUsersRepos = List.of(
-                // Project Name/ Repository Plug/ Pull request id.
+                // Username / Repository Slug / Pull Request ID
                 "JBARD/test-repo - Pull request #1: "
         );
 
