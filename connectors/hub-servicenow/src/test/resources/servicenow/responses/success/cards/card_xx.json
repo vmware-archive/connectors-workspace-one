@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "[HUB SERVICE NOW] APPROVAL REQUEST",
+        "title": "APPROVAL REQUEST",
         "subtitle": [
           "REQ0010003"
         ]
@@ -91,7 +91,7 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "[HUB SERVICE NOW] APPROVAL REQUEST",
+        "title": "APPROVAL REQUEST",
         "subtitle": [
           "REQ0010002"
         ]
@@ -174,7 +174,7 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "[HUB SERVICE NOW] APPROVAL REQUEST",
+        "title": "APPROVAL REQUEST",
         "subtitle": [
           "REQ0010001"
         ]
