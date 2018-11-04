@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @Configuration
 @EnableWebSecurity
 @EnableScheduling
+@SuppressWarnings("PMD.UseUtilityClass")
 public class HubSalesForceConnectorApplication {
     public static void main(final String[] args) {
         SpringApplication.run(HubSalesForceConnectorApplication.class, args);

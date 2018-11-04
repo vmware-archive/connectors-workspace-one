@@ -3,6 +3,7 @@ package com.vmware.connector.hub.salesforce;
 import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
+import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +30,6 @@ import java.util.stream.Collectors;
 
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
@@ -46,8 +46,11 @@ public class HubSalesForceController {
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
 
-    private final String WORK_ITEMS_QUERY = "SELECT Id,TargetObjectid, Status,(select id,actor.name, actor.id, actor.email, actor.username from Workitems Where actor.email = '%s'),(SELECT Id, StepStatus, Comments,Actor.Name, Actor.Id, actor.email, actor.username FROM Steps) FROM ProcessInstance Where Status = 'Pending'";
-    private final String OPPORTUNITY_QUERY = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name FROM opportunity WHERE Id IN ('%s')";
+    private final static String REASON = "reason";
+    private final static String USER_ID = "userId";
+
+    private final static String WORK_ITEMS_QUERY = "SELECT Id,TargetObjectid, Status,(select id,actor.name, actor.id, actor.email, actor.username from Workitems Where actor.email = '%s'),(SELECT Id, StepStatus, Comments,Actor.Name, Actor.Id, actor.email, actor.username FROM Steps) FROM ProcessInstance Where Status = 'Pending'";
+    private final static String OPPORTUNITY_QUERY = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name FROM opportunity WHERE Id IN ('%s')";
 
     private final String sfSoqlQueryPath;
     private final String workflowPath;
@@ -78,14 +81,13 @@ public class HubSalesForceController {
     ) throws IOException {
         logger.trace("getCards called with baseUrl: {} and routingPrefix: {}", baseUrl, routingPrefix);
 
-        // final String userEmail = AuthUtil.extractUserEmail(auth);
-        final String userEmail = "ssathiamoort@vmware.com";
+        final String userEmail = AuthUtil.extractUserEmail(auth);
         if (StringUtils.isBlank(userEmail)) {
             logger.error("User email (eml) is empty in jwt access token.");
             return Mono.just(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
         }
 
-        return retrieveWorkItems(connectorAuth, baseUrl, userEmail)
+        return retrieveWorkItems(connectorAuth, baseUrl, "ssathiamoort@vmware.com")
                 .flatMapMany(result -> processWorkItemResult(result, baseUrl, connectorAuth, locale, routingPrefix, request))
                 .collectList()
                 .map(this::toCards)
@@ -99,8 +101,8 @@ public class HubSalesForceController {
     public Mono<Void> approveWorkFlow(
             @RequestHeader(AUTH_HEADER) final String connectorAuth,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
-            @RequestParam("reason") final String comment,
-            @PathVariable("userId") final String userId
+            @RequestParam(REASON) final String comment,
+            @PathVariable(USER_ID) final String userId
     ) {
         final ApprovalRequest request = new ApprovalRequest();
         request.setActionType(ApprovalRequestType.APPROVE.getType());
@@ -126,8 +128,8 @@ public class HubSalesForceController {
     public Mono<Void> rejectWorkFlow(
             @RequestHeader(AUTH_HEADER) final String connectorAuth,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
-            @RequestParam("reason") final String reason,
-            @PathVariable("userId") final String userId
+            @RequestParam(REASON) final String reason,
+            @PathVariable(USER_ID) final String userId
     ) {
         final ApprovalRequest request = new ApprovalRequest();
         request.setContextId(userId);
@@ -273,18 +275,6 @@ public class HubSalesForceController {
                 .build();
     }
 
-    private Mono<JsonDocument> getOpportunityInformation(final String opportunityId,
-                                                         final String baseUrl,
-                                                         final String connectorAuth) {
-
-        final String sql = String.format(OPPORTUNITY_QUERY, opportunityId);
-        return rest.get()
-                .uri(makeSoqlQueryUri(baseUrl, sql))
-                .header(AUTHORIZATION, connectorAuth)
-                .retrieve()
-                .bodyToMono(JsonDocument.class);
-    }
-
     private Mono<JsonDocument> retrieveWorkItems(final String connectorAuth,
                                                  final String baseUrl,
                                                  final String userEmail) {
@@ -308,5 +298,4 @@ public class HubSalesForceController {
                 .build()
                 .toUri();
     }
-
 }
