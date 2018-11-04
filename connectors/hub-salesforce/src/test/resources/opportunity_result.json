@@ -1,0 +1,28 @@
+{
+  "totalSize": 1,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v44.0/sobjects/Opportunity/0064100000aVTHAAA4"
+      },
+      "Id": "0064100000aVTHAAA4",
+      "Name": "Salesforce Discount approval",
+      "ExpectedRevenue": "$200,000.00",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v44.0/sobjects/Account/0014100001zqbP8AAI"
+        },
+        "Owner": {
+          "attributes": {
+            "type": "User",
+            "url": "/services/data/v44.0/sobjects/User/00541000008FSW2AAO"
+          },
+          "Name": "opportunity user"
+        }
+      }
+    }
+  ]
+}
