@@ -1,6 +1,6 @@
 {
   "image": {
-    "href": "${CONNECTOR_HOST}/images/connector.png"
+    "href": "https://watsonhubconnectors.ssdevrd.com/images/connector.png"
   },
   "object_types": {
     "card": {
@@ -17,7 +17,23 @@
         }
       },
       "endpoint": {
-        "href": "${CONNECTOR_HOST}/cards/requests"
+        "href": "https://watsonhubconnectors.ssdevrd.com/cards/requests"
+      }
+    },
+    "catalogItem": {
+      "fields": {
+        "type": {
+          "env": "ITEM_TYPE"
+        },
+        "catalog": {
+          "env": "CATALOG_NAME"
+        },
+        "category": {
+          "env": "CATEGORY_NAME"
+        }
+      },
+      "endpoint": {
+        "href": "https://watsonhubconnectors.ssdevrd.com/cards/getItems"
       }
     }
   }

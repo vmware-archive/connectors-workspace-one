@@ -7,8 +7,6 @@ package com.vmware.connectors.servicenow;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.core.JsonParser;
 import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
@@ -25,19 +23,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Signal;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,8 +62,6 @@ public class ServiceNowController {
      */
     private static final String SNOW_SYS_PARAM_FIELDS = "sysparm_fields";
 
-    private static final String SNOW_ITEMS_ENDPOINT = ";";
-    
     private static final String SNOW_ADD_TO_CART_ENDPOINT = "/api/sn_sc/servicecatalog/items/{item_id}/add_to_cart";
 
     private static final String SNOW_CHECKOUT_ENDPOINT = "/api/sn_sc/servicecatalog/cart/checkout";
@@ -563,28 +556,26 @@ public class ServiceNowController {
         return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, reason);
     }
 
-    @GetMapping(
-            path="/api/v1/items/{type}",
-            produces = MediaType.APPLICATION_JSON_VALUE
+    @PostMapping(
+            path="/api/v1/items/",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
     )
     public Mono<ItemsResponse> getItems(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            @PathVariable("type") String type,
-            @RequestParam("catalog") String catalog,
-            @RequestParam("category") String category
+            @Valid @RequestBody CardRequest cardRequest
     ) {
-        //TODO> Camel case?
+        var catalog = cardRequest.getTokenSingleValue("catalog");
+        var category = cardRequest.getTokenSingleValue("category");
+        var type = cardRequest.getTokenSingleValue("type");
         var catalogString = catalog.replace("_", " ");
+
         return getIDFrom("/api/sn_sc/servicecatalog/catalogs", catalogString, auth, baseUrl)
                 .flatMap(id -> getIDFrom("/api/sn_sc/servicecatalog/catalogs/" + id + "/categories", category, auth, baseUrl))
                 .map(id -> id)
                 .flatMap(id -> getItemsRequest("/api/sn_sc/servicecatalog/items", type, id, auth, baseUrl))
                 ;
-        //return getCatalogID(auth, baseUrl);
-        // Get category ID using catalog ID
-        // Get our list of items using search string {type} in the category we selected
-        // Return the list
     }
 
     //returns id of service catalog
