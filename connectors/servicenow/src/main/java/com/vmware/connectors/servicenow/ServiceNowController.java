@@ -624,7 +624,7 @@ public class ServiceNowController {
                                 logger.error("getItemsRequest() -> readTree() -> {}" + exe.getMessage());
                             }
 
-                            return new ItemsResponse();
+                            return null;
                         }
                 );
     }

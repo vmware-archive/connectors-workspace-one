@@ -12,26 +12,22 @@ import java.util.List;
 public class ItemsResponse {
 
     public ItemsResponse(JsonNode jsonSource, String baseUrl) {
-        this.result = new LinkedList<>();
+        this.objects = new LinkedList<>();
         if (jsonSource.isArray()) {
             jsonSource.elements().forEachRemaining(s ->
-                    this.result.add(new ItemDetailsResponse(s, baseUrl))
+                    this.objects.add(new ItemDetailsResponse(s, baseUrl))
             );
         }
     }
 
-    public ItemsResponse() {
-        this.result = new LinkedList<>();
+    private List<ItemDetailsResponse>  objects;
+
+    @JsonProperty("objects")
+    public List<ItemDetailsResponse> getObjects() {
+        return objects;
     }
 
-    private List<ItemDetailsResponse>  result;
-
-    @JsonProperty("result")
-    public List<ItemDetailsResponse> getResult() {
-        return result;
-    }
-
-    public void setResult(List<ItemDetailsResponse> result) {
-        this.result= result;
+    public void setObjects(List<ItemDetailsResponse> result) {
+        this.objects= result;
     }
 }
