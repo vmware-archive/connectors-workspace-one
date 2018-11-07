@@ -566,10 +566,12 @@ public class ServiceNowController {
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @Valid @RequestBody CardRequest cardRequest
     ) {
+        logger.trace("getItems called: auth: {} baseUrl: {}", auth, baseUrl);
         var catalog = cardRequest.getTokenSingleValue("catalog");
         var category = cardRequest.getTokenSingleValue("category");
         var type = cardRequest.getTokenSingleValue("type");
         var catalogString = catalog.replace("_", " ");
+        logger.trace("catalog: {}, cateogry: {}, type: {}", catalog, category, type);
 
         return getIDFrom("/api/sn_sc/servicecatalog/catalogs", catalogString, auth, baseUrl)
                 .flatMap(id -> getIDFrom("/api/sn_sc/servicecatalog/catalogs/" + id + "/categories", category, auth, baseUrl))
