@@ -61,7 +61,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 	}
 
 	@ParameterizedTest
-	@CsvSource({ ", success.json", "xx, success_xx.json" })
+	@CsvSource({"xx, success_xx.json" })
 	void testCardsRequests(String lang, String expected) throws Exception {
 
 		mockConcurRequests();
