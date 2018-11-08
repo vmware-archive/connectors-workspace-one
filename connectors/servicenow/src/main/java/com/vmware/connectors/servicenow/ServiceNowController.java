@@ -649,16 +649,18 @@ public class ServiceNowController {
     public Mono<CartResponse> addItemsToCart(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            @Valid @RequestBody AddToCartRequest addToCartRequest) {
+            @Valid @RequestBody CardRequest cardRequest) {
 
-        logger.trace("addItemsToCart called: baseUrl={}, itemsMap={}", baseUrl, addToCartRequest.getItemsAndQuantities().toString());
-        final Stream<Entry<String, String>> entrySetStream = addToCartRequest.getItemsAndQuantities().entrySet().stream();
-        
-        var itemsAndQuantities = Flux.fromStream(entrySetStream);
-        
+        logger.trace("addItemsToCart called: baseUrl={}, itemsMap={}", baseUrl, cardRequest.toString());
+        //final Stream<Entry<String, String>> entrySetStream;// = addToCartRequest.getItemsAndQuantities().entrySet().stream();
+        final Stream<String> itemsStream = cardRequest.getTokens("items").stream();
+
+        //var itemsAndQuantities = Flux.fromStream(entrySetStream);
+        var items = Flux.fromStream(itemsStream);
+
         //TODO> Instead of keeping responses from each add-item request, we could instead make a single get-cart request at the end
-        Mono<CartResponse> cartResponse = itemsAndQuantities.flatMap(itemAndQuantity -> 
-        this.addToCartRequest(itemAndQuantity.getKey(), itemAndQuantity.getValue(), auth, baseUrl))
+        Mono<CartResponse> cartResponse = items.flatMap(item -> 
+        this.addToCartRequest(item, "1", auth, baseUrl))
         .map(s -> new AbstractMap.SimpleEntry<Integer, CartResponse>(s.getItems().size(), s))
         .reduce((s,v) -> {
                 if (s.getKey() > v.getKey()) return s;
