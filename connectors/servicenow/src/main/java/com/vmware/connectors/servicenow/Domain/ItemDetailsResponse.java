@@ -28,7 +28,7 @@ public class ItemDetailsResponse {
             this.description = jsonSource.get(ItemDetailsResponse.shortDescriptionField).asText();
         }
 
-        if(jsonSource.has(ItemDetailsResponse.pictureField)) {
+        if(jsonSource.has(ItemDetailsResponse.pictureField) && jsonSource.get(ItemDetailsResponse.pictureField).asText().length() > 0) {
             this.picture = baseUrl + "/" + jsonSource.get(ItemDetailsResponse.pictureField).asText();
         }
 
