@@ -11,6 +11,10 @@ import java.util.List;
 @SuppressWarnings("PMD.LinguisticNaming")
 public class ItemsResponse {
 
+    public ItemsResponse() {
+        this.objects = new LinkedList<>();
+    }
+
     public ItemsResponse(JsonNode jsonSource, String baseUrl) {
         this.objects = new LinkedList<>();
         if (jsonSource.isArray()) {
