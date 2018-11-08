@@ -24,7 +24,8 @@ public class ItemDetailsResponse {
         }
 
         if(jsonSource.has(ItemDetailsResponse.descriptionField)) {
-            this.description = jsonSource.get(ItemDetailsResponse.descriptionField).asText();
+            // TODO: Modified description to be same as short description for now as we work out issues with Watson context limits
+            this.description = jsonSource.get(ItemDetailsResponse.shortDescriptionField).asText();
         }
 
         if(jsonSource.has(ItemDetailsResponse.pictureField)) {
