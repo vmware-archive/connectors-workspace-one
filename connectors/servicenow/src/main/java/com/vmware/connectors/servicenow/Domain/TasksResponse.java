@@ -9,29 +9,29 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @SuppressWarnings("PMD.LinguisticNaming")
-public class ItemsResponse {
+public class TasksResponse {
+    
+    private List<TaskDetailsResponse> objects;
 
-    private List<ItemDetailsResponse>  objects;
-
-    public ItemsResponse() {
+    public TasksResponse() {
         this.objects = new LinkedList<>();
     }
 
-    public ItemsResponse(JsonNode jsonSource, String baseUrl) {
+    public TasksResponse(JsonNode jsonSource) {
         this.objects = new LinkedList<>();
         if (jsonSource.isArray()) {
             jsonSource.elements().forEachRemaining(s ->
-                    this.objects.add(new ItemDetailsResponse(s, baseUrl))
+                this.objects.add(new TaskDetailsResponse(s))
             );
         }
     }
 
     @JsonProperty("objects")
-    public List<ItemDetailsResponse> getObjects() {
+    public List<TaskDetailsResponse> getObjects() {
         return this.objects;
     }
 
-    public void setObjects(List<ItemDetailsResponse> result) {
-        this.objects= result;
+    public void setObjects(List<TaskDetailsResponse> result) {
+        this.objects = result;
     }
 }
