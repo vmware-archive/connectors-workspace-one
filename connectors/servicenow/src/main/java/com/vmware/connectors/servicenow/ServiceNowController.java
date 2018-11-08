@@ -7,6 +7,8 @@ package com.vmware.connectors.servicenow;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.core.JsonParser;
 import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
@@ -23,16 +25,19 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Signal;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,6 +67,8 @@ public class ServiceNowController {
      */
     private static final String SNOW_SYS_PARAM_FIELDS = "sysparm_fields";
 
+    private static final String SNOW_ITEMS_ENDPOINT = ";";
+    
     private static final String SNOW_ADD_TO_CART_ENDPOINT = "/api/sn_sc/servicecatalog/items/{item_id}/add_to_cart";
 
     private static final String SNOW_CHECKOUT_ENDPOINT = "/api/sn_sc/servicecatalog/cart/checkout";
@@ -103,6 +110,8 @@ public class ServiceNowController {
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
+
+
     }
 
     @PostMapping(
@@ -554,43 +563,32 @@ public class ServiceNowController {
         return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, reason);
     }
 
-    @PostMapping(
-            path="/api/v1/items/",
-            produces = MediaType.APPLICATION_JSON_VALUE,
-            consumes = MediaType.APPLICATION_JSON_VALUE
+    @GetMapping(
+            path="/api/v1/items/{type}",
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public Mono<ItemsResponse> getItems(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            @Valid @RequestBody CardRequest cardRequest
+            @PathVariable("type") String type,
+            @RequestParam("catalog") String catalog,
+            @RequestParam("category") String category
     ) {
-        logger.trace("getItems called: auth: {} baseUrl: {}", auth, baseUrl);
-        var catalog = cardRequest.getTokenSingleValue("catalog");
-        var category = cardRequest.getTokenSingleValue("category");
-        var type = cardRequest.getTokenSingleValue("type");
+        //TODO> Camel case?
         var catalogString = catalog.replace("_", " ");
-        logger.trace("catalog: {}, cateogry: {}, type: {}", catalog, category, type);
-
         return getIDFrom("/api/sn_sc/servicecatalog/catalogs", catalogString, auth, baseUrl)
                 .flatMap(id -> getIDFrom("/api/sn_sc/servicecatalog/catalogs/" + id + "/categories", category, auth, baseUrl))
                 .map(id -> id)
                 .flatMap(id -> getItemsRequest("/api/sn_sc/servicecatalog/items", type, id, auth, baseUrl))
                 ;
-    }
-
-    private HashMap<String, String> cache = new HashMap<>();
-
-    private Mono<String>getIDFrom(String endpoint, String title, String auth, String baseUrl) {
-        String cacheResult = cache.get("getItems: " + endpoint + title + baseUrl);
-        if (cacheResult != null) {
-            return Mono.just(cacheResult);
-        } else {
-            return getIDFromAPI(endpoint, title, auth, baseUrl);
-        }
+        //return getCatalogID(auth, baseUrl);
+        // Get category ID using catalog ID
+        // Get our list of items using search string {type} in the category we selected
+        // Return the list
     }
 
     //returns id of service catalog
-    private Mono<String>getIDFromAPI(String endpoint, String title, String auth, String baseUrl) {
+    private Mono<String>getIDFrom(String endpoint, String title, String auth, String baseUrl) {
         return rest.get()
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
@@ -609,8 +607,6 @@ public class ServiceNowController {
                                     id = item.get("sys_id");
                                 }
                             }
-
-                            cache.put("getItems: " + endpoint + title + baseUrl, id);
                             return id;
                         }
                 );
@@ -637,7 +633,7 @@ public class ServiceNowController {
                                 logger.error("getItemsRequest() -> readTree() -> {}" + exe.getMessage());
                             }
 
-                            return null;
+                            return new ItemsResponse();
                         }
                 );
     }
@@ -649,16 +645,18 @@ public class ServiceNowController {
     public Mono<CartResponse> addItemsToCart(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            @Valid @RequestBody AddToCartRequest addToCartRequest) {
+            @Valid @RequestBody CardRequest cardRequest) {
 
-        logger.trace("addItemsToCart called: baseUrl={}, itemsMap={}", baseUrl, addToCartRequest.getItemsAndQuantities().toString());
-        final Stream<Entry<String, String>> entrySetStream = addToCartRequest.getItemsAndQuantities().entrySet().stream();
-        
-        var itemsAndQuantities = Flux.fromStream(entrySetStream);
-        
+        logger.trace("addItemsToCart called: baseUrl={}, itemsMap={}", baseUrl, cardRequest.toString());
+        //final Stream<Entry<String, String>> entrySetStream;// = addToCartRequest.getItemsAndQuantities().entrySet().stream();
+        final Stream<String> itemsStream = cardRequest.getTokens("items").stream();
+
+        //var itemsAndQuantities = Flux.fromStream(entrySetStream);
+        var items = Flux.fromStream(itemsStream);
+
         //TODO> Instead of keeping responses from each add-item request, we could instead make a single get-cart request at the end
-        Mono<CartResponse> cartResponse = itemsAndQuantities.flatMap(itemAndQuantity -> 
-        this.addToCartRequest(itemAndQuantity.getKey(), itemAndQuantity.getValue(), auth, baseUrl))
+        Mono<CartResponse> cartResponse = items.flatMap(item -> 
+        this.addToCartRequest(item, "1", auth, baseUrl))
         .map(s -> new AbstractMap.SimpleEntry<Integer, CartResponse>(s.getItems().size(), s))
         .reduce((s,v) -> {
                 if (s.getKey() > v.getKey()) return s;
