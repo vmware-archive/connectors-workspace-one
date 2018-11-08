@@ -35,6 +35,16 @@
       "endpoint": {
         "href": "https://watsonhubconnectors.ssdevrd.com/api/v1/items/"
       }
+    },
+    "serviceRequest": {
+      "fields": {
+        "items": {
+          "env": "ITEMS_LIST"
+        }
+      },
+      "endpoint": {
+        "href": "https://watsonhubconnectors.ssdevrd.com/api/v1/cart"
+      }
     }
   }
 }

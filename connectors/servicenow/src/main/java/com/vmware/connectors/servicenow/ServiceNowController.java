@@ -103,8 +103,6 @@ public class ServiceNowController {
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
-
-
     }
 
     @PostMapping(
@@ -580,8 +578,19 @@ public class ServiceNowController {
                 ;
     }
 
-    //returns id of service catalog
+    private HashMap<String, String> cache = new HashMap<>();
+
     private Mono<String>getIDFrom(String endpoint, String title, String auth, String baseUrl) {
+        String cacheResult = cache.get("getItems: " + endpoint + title + baseUrl);
+        if (cacheResult != null) {
+            return Mono.just(cacheResult);
+        } else {
+            return getIDFromAPI(endpoint, title, auth, baseUrl);
+        }
+    }
+
+    //returns id of service catalog
+    private Mono<String>getIDFromAPI(String endpoint, String title, String auth, String baseUrl) {
         return rest.get()
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
@@ -600,6 +609,8 @@ public class ServiceNowController {
                                     id = item.get("sys_id");
                                 }
                             }
+
+                            cache.put("getItems: " + endpoint + title + baseUrl, id);
                             return id;
                         }
                 );
