@@ -20,41 +20,71 @@ import java.util.Map;
 @SuppressWarnings("PMD.LinguisticNaming")
 public class CheckoutResponse {
 
-    private final static String cartIdField = "order_id";
-    private final static String subtotalField = "subtotal";
+    private List<CheckoutResponseDetails> objects;
 
-    private String cartId;
-    private String cartTotal;
 
     private static final Logger logger = LoggerFactory.getLogger(CheckoutResponse.class);
 
+    public CheckoutResponse(CheckoutResponseDetails details) {
+
+        this.objects = new LinkedList<CheckoutResponseDetails>();
+        this.objects.add(details);
+    }
+
     public CheckoutResponse(JsonDocument jsonSource) {
+        CheckoutResponseDetails details = new CheckoutResponseDetails(jsonSource);
 
-        Map<String, Object> root = jsonSource.read("$.result");
-
-        if (root.containsKey("request_number")) {
-            this.setCartId(root.get("request_number").toString());
-        }
+        this.objects = new LinkedList<CheckoutResponseDetails>();
+        this.objects.add(details);
     }
 
-    public CheckoutResponse() {
+    @JsonProperty("objects")
+    public List<CheckoutResponseDetails> getObjects() {
+        return this.objects;
     }
 
-    @JsonProperty(CheckoutResponse.cartIdField)
-    public String getCartId() {
-        return this.cartId;
-    }
-
-    public void setCartId(String cartId) {
-        this.cartId = cartId;
-    }
-
-    @JsonProperty(CheckoutResponse.subtotalField)
-    public String getCartTotal() {
-        return this.cartTotal;
+    public void setObjects(List<CheckoutResponseDetails> result) {
+        this.objects= result;
     }
 
     public void setCartTotal(String cartTotal) {
-       this.cartTotal = cartTotal;
+        for (CheckoutResponseDetails object : this.objects) {
+            object.setCartTotal(cartTotal);
+        }
+     }
+
+    class CheckoutResponseDetails {
+
+        public CheckoutResponseDetails(JsonDocument jsonSource) {
+            Map<String, Object> root = jsonSource.read("$.result");
+
+            if (root.containsKey("request_number")) {
+                this.setCartId(root.get("request_number").toString());
+            }
+        }
+
+        private final static String cartIdField = "order_id";
+        private final static String subtotalField = "subtotal";
+
+        private String cartId;
+        private String cartTotal;
+        
+        @JsonProperty(CheckoutResponseDetails.cartIdField)
+        public String getCartId() {
+            return this.cartId;
+        }
+    
+        public void setCartId(String cartId) {
+            this.cartId = cartId;
+        }
+    
+        @JsonProperty(CheckoutResponseDetails.subtotalField)
+        public String getCartTotal() {
+            return this.cartTotal;
+        }
+    
+        public void setCartTotal(String cartTotal) {
+           this.cartTotal = cartTotal;
+        }
     }
 }

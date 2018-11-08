@@ -28,7 +28,7 @@ public class ItemsResponse {
 
     @JsonProperty("objects")
     public List<ItemDetailsResponse> getObjects() {
-        return objects;
+        return this.objects;
     }
 
     public void setObjects(List<ItemDetailsResponse> result) {
