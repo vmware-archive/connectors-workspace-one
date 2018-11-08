@@ -28,12 +28,12 @@ public class CartResponse {
 
     private String cartId;
     private String cartTotal;
-    private Map<String, Integer> items;
+    private Map<String, String> items;
 
     private static final Logger logger = LoggerFactory.getLogger(CartResponse.class);
 
     public CartResponse(JsonDocument jsonSource) {
-        this.items = new LinkedHashMap<String, Integer>();
+        this.items = new LinkedHashMap<String, String>();
 
         Map<String, Object> root = jsonSource.read("$.result");
 
@@ -48,7 +48,7 @@ public class CartResponse {
                 itemsNode.elements().forEachRemaining(item -> {
                     if (item.has(CartResponse.itemIdField) && item.has(CartResponse.itemQuantityField)) {
                         String itemId = item.get(CartResponse.itemIdField).asText();
-                        int itemQ  = Integer.parseInt(item.get(CartResponse.itemQuantityField).asText());
+                        String itemQ  = item.get(CartResponse.itemQuantityField).asText();
 
                         if (this.items.containsKey(itemId))
                             itemQ = this.items.get(itemId);
@@ -62,7 +62,7 @@ public class CartResponse {
     }
 
     public CartResponse() {
-        this.items = new LinkedHashMap<String, Integer>();
+        this.items = new LinkedHashMap<String, String>();
     }
 
     @JsonProperty(CartResponse.cartIdField)
@@ -84,11 +84,11 @@ public class CartResponse {
     }
 
     @JsonProperty("items")
-    public Map<String, Integer> getItems() {
+    public Map<String, String> getItems() {
         return this.items;
     }
 
-    public void setItems(Map<String, Integer> items) {
+    public void setItems(Map<String, String> items) {
         this.items = items;
     }
 }
