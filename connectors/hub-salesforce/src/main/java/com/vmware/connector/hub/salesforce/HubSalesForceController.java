@@ -50,20 +50,29 @@ public class HubSalesForceController {
     private final static String USER_ID = "userId";
 
     private final static String WORK_ITEMS_QUERY = "SELECT Id,TargetObjectid, Status,(select id,actor.name, actor.id, actor.email, actor.username from Workitems Where actor.email = '%s'),(SELECT Id, StepStatus, Comments,Actor.Name, Actor.Id, actor.email, actor.username FROM Steps) FROM ProcessInstance Where Status = 'Pending'";
-    private final static String OPPORTUNITY_QUERY = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name FROM opportunity WHERE Id IN ('%s')";
+    private final static String OPPORTUNITY_QUERY_1 = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name";
+    private final static String OPPORTUNITY_QUERY_2 = " FROM opportunity WHERE Id IN ('%s')";
+
+    private final static String FIELD_FORMAT = ", %s";
 
     private final String sfSoqlQueryPath;
     private final String workflowPath;
+    private final String discountPercentage;
+    private final String reasonForDiscount;
 
     @Autowired
     public HubSalesForceController(final WebClient rest,
                                    final CardTextAccessor cardTextAccessor,
                                    @Value("${sf.soqlQueryPath}") final String sfSoqlQueryPath,
-                                   @Value("${sf.workflowPath}") final String workflowPath) {
+                                   @Value("${sf.workflowPath}") final String workflowPath,
+                                   @Value("${custom-fields.discount-percentage}") final String discountPercentage,
+                                   @Value("${custom-fields.reason-for-discount}") final String reasonForDiscount) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.sfSoqlQueryPath = sfSoqlQueryPath;
         this.workflowPath = workflowPath;
+        this.discountPercentage = discountPercentage;
+        this.reasonForDiscount = reasonForDiscount;
     }
 
     @PostMapping(
@@ -87,7 +96,7 @@ public class HubSalesForceController {
             return Mono.just(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
         }
 
-        return retrieveWorkItems(connectorAuth, baseUrl, "ssathiamoort@vmware.com")
+        return retrieveWorkItems(connectorAuth, baseUrl, userEmail)
                 .flatMapMany(result -> processWorkItemResult(result, baseUrl, connectorAuth, locale, routingPrefix, request))
                 .collectList()
                 .map(this::toCards)
@@ -106,7 +115,7 @@ public class HubSalesForceController {
     ) {
         final ApprovalRequest request = new ApprovalRequest();
         request.setActionType(ApprovalRequestType.APPROVE.getType());
-        request.setComments(comment);
+        request.setComment(comment);
         request.setContextId(userId);
 
         final ApprovalRequests requests = new ApprovalRequests();
@@ -133,7 +142,7 @@ public class HubSalesForceController {
     ) {
         final ApprovalRequest request = new ApprovalRequest();
         request.setContextId(userId);
-        request.setComments(reason);
+        request.setComment(reason);
         request.setActionType(ApprovalRequestType.REJECT.getType());
 
         final ApprovalRequests requests = new ApprovalRequests();
@@ -147,7 +156,6 @@ public class HubSalesForceController {
                 .retrieve()
                 .bodyToMono(Void.class);
     }
-
 
     private Cards toCards(final List<Card> cardList) {
         final Cards cards = new Cards();
@@ -171,7 +179,18 @@ public class HubSalesForceController {
         final String idsFormat = opportunityIds.stream()
                 .collect(Collectors.joining(","));
 
-        String soql = String.format(OPPORTUNITY_QUERY, idsFormat);
+        String sql = OPPORTUNITY_QUERY_1;
+        if (StringUtils.isNotBlank(this.discountPercentage)) {
+            sql += String.format(FIELD_FORMAT, discountPercentage);
+        }
+
+        if (StringUtils.isNotBlank(this.reasonForDiscount)) {
+            sql += String.format(FIELD_FORMAT, reasonForDiscount);
+        }
+
+        sql = sql + OPPORTUNITY_QUERY_2;
+
+        String soql = String.format(sql, idsFormat);
         return rest.get()
                 .uri(makeSoqlQueryUri(baseUrl, soql))
                 .header(AUTHORIZATION, connectorAuth)
@@ -198,6 +217,16 @@ public class HubSalesForceController {
                     .addField(buildCardBodyField("customer.name", opportunityName, locale))
                     .addField(buildCardBodyField("opportunity.owner", opportunityOwnerName, locale))
                     .addField(buildCardBodyField("revenue.opportunity", expectedRevenue, locale));
+
+            if (StringUtils.isNotBlank(this.discountPercentage)) {
+                final Double discountPercent = opportunityResponse.read(String.format("$.records[%s].%s", i, this.discountPercentage));
+                cardBodyBuilder.addField(buildCardBodyField("discount.percent", String.valueOf(discountPercent), locale));
+            }
+
+            if (StringUtils.isNotBlank(this.reasonForDiscount)) {
+                final String reasonForDiscount = opportunityResponse.read(String.format("$.records[%s].%s", i, this.reasonForDiscount));
+                cardBodyBuilder.addField(buildCardBodyField("reason.for.discount", reasonForDiscount, locale));
+            }
 
             final Card.Builder card = new Card.Builder()
                     .setName("Salesforce for WS1 Hub")

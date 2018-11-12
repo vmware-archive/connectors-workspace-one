@@ -1,0 +1,63 @@
+{
+  "totalSize": 1,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "ProcessInstance",
+        "url": "/services/data/v39.0/sobjects/ProcessInstance/04g41000002bpUdAAI"
+      },
+      "Id": "04g41000002bpUdAAI",
+      "TargetObjectId": "0064100000aVTHAAA4",
+      "Status": "Pending",
+      "Workitems": {
+        "totalSize": 1,
+        "done": true,
+        "records": [
+          {
+            "attributes": {
+              "type": "ProcessInstanceWorkitem",
+              "url": "/services/data/v39.0/sobjects/ProcessInstanceWorkitem/04i41000003haWDAAY"
+            },
+            "Id": "04i41000003haWDAAY",
+            "Actor": {
+              "attributes": {
+                "type": "Name",
+                "url": "/services/data/v39.0/sobjects/User/00541000008FSVsAAO"
+              },
+              "Name": "Courtney Brown",
+              "Id": "00541000008FSVsAAO",
+              "Email": "ssathiamoort@vmware.com",
+              "Username": "ssathiamoort1@vmware.com"
+            }
+          }
+        ]
+      },
+      "Steps": {
+        "totalSize": 1,
+        "done": true,
+        "records": [
+          {
+            "attributes": {
+              "type": "ProcessInstanceStep",
+              "url": "/services/data/v39.0/sobjects/ProcessInstanceStep/04h41000002uHdeAAE"
+            },
+            "Id": "04h41000002uHdeAAE",
+            "StepStatus": "Started",
+            "Comments": null,
+            "Actor": {
+              "attributes": {
+                "type": "Name",
+                "url": "/services/data/v39.0/sobjects/User/00541000000osYgAAI"
+              },
+              "Name": "Jeff Jones",
+              "Id": "00541000000osYgAAI",
+              "Email": "jjeff@vmware.com",
+              "Username": "jjeff@vmware.com"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

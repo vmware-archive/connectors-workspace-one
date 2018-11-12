@@ -12,8 +12,8 @@ public class ApprovalRequest {
     @JsonProperty("contextId")
     private String contextId;
 
-    @JsonProperty("comments")
-    private String comments;
+    @JsonProperty("comment")
+    private String comment;
 
     public String getActionType() {
         return actionType;
@@ -31,11 +31,11 @@ public class ApprovalRequest {
         this.contextId = contextId;
     }
 
-    public String getComments() {
-        return comments;
+    public String getComment() {
+        return comment;
     }
 
-    public void setComments(String comments) {
-        this.comments = comments;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

@@ -1,0 +1,85 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Salesforce for WS1 Hub",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/salesforce/templates/generic.hbs"
+      },
+      "header": {
+        "title": "SALESFORCE DISCOUNT APPROVAL REQUEST",
+        "subtitle": []
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "CUSTOMER NAME",
+            "description": "Salesforce Discount approval"
+          },
+          {
+            "type": "GENERAL",
+            "title": "OPPORTUNITY OWNER",
+            "description": "opportunity user"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REVENUE OPPORTUNITY",
+            "description": "$200,000.00"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "APPROVE",
+          "url": {
+            "href": "https://hero/connectors/salesforce//api/expense/approve/04i41000003haWDAAY"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "REASON FOR APPROVAL",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "APPROVED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "REJECT",
+          "url": {
+            "href": "https://hero/connectors/salesforce//api/expense/reject/04i41000003haWDAAY"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "REASON FOR REJECTION",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "REJECTED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        }
+      ],
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "hash": "test-hash"
+    }
+  ]
+}
