@@ -1,3 +1,8 @@
+/*
+ * Copyright © 2018 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 package com.vmware.connector.hub.salesforce;
 
 public enum ApprovalRequestType {

@@ -12,7 +12,8 @@ management:
   endpoints:
     web.base-path: /
 
-# The below are optional custom fields which can be configured to be used for salesforce discount workflow approval.
+# The below are optional custom fields which can be configured with their API names to be used for salesforce discount workflow approval.
+# If configured, these fields will appear on the notification in WS1.
 custom-fields:
   discount-percentage:
   reason-for-discount:
