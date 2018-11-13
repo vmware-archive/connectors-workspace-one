@@ -15,6 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -170,6 +171,10 @@ public class HubSalesForceController {
                                              final String routingPrefix,
                                              final HttpServletRequest request) {
         final List<String> opportunityIds = workItemResponse.read("$.records[*].TargetObjectId");
+        if (CollectionUtils.isEmpty(opportunityIds)) {
+            logger.warn("TargetObjectIds are empty.");
+            return Flux.empty();
+        }
 
         return retrieveOpportunities(baseUrl, opportunityIds, connectorAuth)
                 .flatMapMany(opportunityResponse -> buildCards(workItemResponse, opportunityResponse, locale, routingPrefix, request));
@@ -177,7 +182,7 @@ public class HubSalesForceController {
 
     private Mono<JsonDocument> retrieveOpportunities(String baseUrl, List<String> opportunityIds, String connectorAuth) {
         final String idsFormat = opportunityIds.stream()
-                .collect(Collectors.joining(","));
+                .collect(Collectors.joining("', '"));
 
         String sql = OPPORTUNITY_QUERY_1;
         if (StringUtils.isNotBlank(this.discountPercentage)) {
@@ -207,32 +212,13 @@ public class HubSalesForceController {
         final List<Card> cardList = new ArrayList<>();
 
         for (int i = 0; i < totalSize; i++) {
-            final String opportunityName = opportunityResponse.read(String.format("$.records[%s].Name", i));
-            final String opportunityOwnerName = opportunityResponse.read(String.format("$.records[%s].Account.Owner.Name", i));
-            final String expectedRevenue = opportunityResponse.read(String.format("$.records[%s].ExpectedRevenue", i));
-
             final String userId = workItemResponse.read(String.format("$.records[%s].Workitems.records[0].Id", i));
-
-            final CardBody.Builder cardBodyBuilder = new CardBody.Builder()
-                    .addField(buildCardBodyField("customer.name", opportunityName, locale))
-                    .addField(buildCardBodyField("opportunity.owner", opportunityOwnerName, locale))
-                    .addField(buildCardBodyField("revenue.opportunity", expectedRevenue, locale));
-
-            if (StringUtils.isNotBlank(this.discountPercentage)) {
-                final Double discountPercent = opportunityResponse.read(String.format("$.records[%s].%s", i, this.discountPercentage));
-                cardBodyBuilder.addField(buildCardBodyField("discount.percent", String.valueOf(discountPercent), locale));
-            }
-
-            if (StringUtils.isNotBlank(this.reasonForDiscount)) {
-                final String reasonForDiscount = opportunityResponse.read(String.format("$.records[%s].%s", i, this.reasonForDiscount));
-                cardBodyBuilder.addField(buildCardBodyField("reason.for.discount", reasonForDiscount, locale));
-            }
 
             final Card.Builder card = new Card.Builder()
                     .setName("Salesforce for WS1 Hub")
                     .setTemplate(routingPrefix + "templates/generic.hbs")
                     .setHeader(this.cardTextAccessor.getMessage("ws1.sf.card.header", locale))
-                    .setBody(cardBodyBuilder.build())
+                    .setBody(buildCardBody(opportunityResponse, i, locale))
                     .addAction(buildApproveAction(routingPrefix, locale, userId))
                     .addAction(buildRejectAction(routingPrefix, locale, userId));
 
@@ -244,10 +230,35 @@ public class HubSalesForceController {
         return Flux.fromIterable(cardList);
     }
 
+    private CardBody buildCardBody(final JsonDocument opportunityResponse,
+                                           final int index,
+                                           final Locale locale) {
+        final String opportunityName = opportunityResponse.read(String.format("$.records[%s].Name", index));
+        final String opportunityOwnerName = opportunityResponse.read(String.format("$.records[%s].Account.Owner.Name", index));
+        final String expectedRevenue = opportunityResponse.read(String.format("$.records[%s].ExpectedRevenue", index));
+
+        final CardBody.Builder cardBodyBuilder = new CardBody.Builder()
+                .addField(buildCardBodyField("customer.name", opportunityName, locale))
+                .addField(buildCardBodyField("opportunity.owner", opportunityOwnerName, locale))
+                .addField(buildCardBodyField("revenue.opportunity", expectedRevenue, locale));
+
+        if (StringUtils.isNotBlank(this.discountPercentage)) {
+            final Double discountPercent = opportunityResponse.read(String.format("$.records[%s].%s", index, this.discountPercentage));
+            cardBodyBuilder.addField(buildCardBodyField("discount.percent", String.valueOf(discountPercent), locale));
+        }
+
+        if (StringUtils.isNotBlank(this.reasonForDiscount)) {
+            final String reasonForDiscount = opportunityResponse.read(String.format("$.records[%s].%s", index, this.reasonForDiscount));
+            cardBodyBuilder.addField(buildCardBodyField("reason.for.discount", reasonForDiscount, locale));
+        }
+
+        return cardBodyBuilder.build();
+    }
+
     private CardAction buildApproveAction(final String routingPrefix,
                                           final Locale locale,
                                           final String userId) {
-        final String approveUrl = "/api/expense/approve/" + userId;
+        final String approveUrl = "api/expense/approve/" + userId;
 
         return new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getActionLabel("ws1.sf.approve", locale))
@@ -270,7 +281,7 @@ public class HubSalesForceController {
     private CardAction buildRejectAction(final String routingPrefix,
                                          final Locale locale,
                                          final String userId) {
-        final String rejectUrl = "/api/expense/reject/" + userId;
+        final String rejectUrl = "api/expense/reject/" + userId;
 
         return new CardAction.Builder()
                 .setLabel(this.cardTextAccessor.getActionLabel("ws1.sf.reject", locale))
@@ -278,7 +289,7 @@ public class HubSalesForceController {
                 .setActionKey(CardActionKey.USER_INPUT)
                 .setType(HttpMethod.POST)
                 .setUrl(routingPrefix + rejectUrl)
-                .setPrimary(true)
+                .setPrimary(false)
                 .setMutuallyExclusiveSetId(APPROVAL_ACTIONS)
                 .addUserInputField(
                         new CardActionInputField.Builder()

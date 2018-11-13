@@ -12,7 +12,7 @@ public class ApprovalRequest {
     @JsonProperty("contextId")
     private String contextId;
 
-    @JsonProperty("comment")
+    @JsonProperty("comments")
     private String comment;
 
     public String getActionType() {

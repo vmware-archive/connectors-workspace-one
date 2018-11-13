@@ -1,15 +1,15 @@
 {
-  "totalSize": 1,
+  "totalSize": 2,
   "done": true,
   "records": [
     {
       "attributes": {
         "type": "Opportunity",
-        "url": "/services/data/v44.0/sobjects/Opportunity/0064100000aVTHAAA4"
+        "url": "/services/data/v44.0/sobjects/Opportunity/0064100000b9S8EAAU"
       },
-      "Id": "0064100000aVTHAAA4",
-      "Name": "Salesforce Discount approval",
-      "ExpectedRevenue": "$200,000.00",
+      "Id": "0064100000b9S8EAAU",
+      "Name": "Google Opportunity",
+      "ExpectedRevenue": "$600,000.00",
       "Account": {
         "attributes": {
           "type": "Account",
@@ -21,6 +21,28 @@
             "url": "/services/data/v44.0/sobjects/User/00541000008FSW2AAO"
           },
           "Name": "opportunity user"
+        }
+      }
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v44.0/sobjects/Opportunity/0064100000b9dQsAAI"
+      },
+      "Id": "0064100000b9dQsAAI",
+      "Name": "Palo Alto Networks",
+      "ExpectedRevenue": "$89,898,898.90",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v44.0/sobjects/Account/0014100000F4WlhAAF"
+        },
+        "Owner": {
+          "attributes": {
+            "type": "User",
+            "url": "/services/data/v44.0/sobjects/User/00541000000osYgAAI"
+          },
+          "Name": "Jeff Jones"
         }
       }
     }

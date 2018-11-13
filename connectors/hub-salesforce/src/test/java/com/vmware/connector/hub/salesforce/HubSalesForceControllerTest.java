@@ -4,7 +4,6 @@ package com.vmware.connector.hub.salesforce;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -12,9 +11,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -23,18 +22,11 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
-
-import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
@@ -51,6 +43,9 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
 
     @Value("classpath:opportunity_result.json")
     private Resource opportunityResult;
+
+    @Value("classpath:/connector/responses/empty_workflow.json")
+    private Resource emptyWorkflow;
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -78,6 +73,20 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
                 .expectBody().consumeWith(body -> assertThat(body.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
     }
 
+    @Test
+    public void testMissingRequestHeaders() throws IOException {
+        webClient.post()
+                .uri("/cards/requests")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .header("X-Connector-Authorization", "Bearer abc")
+                .syncBody(fromFile("request.json"))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.message").isEqualTo("Missing request header 'X-Connector-Base-Url' for method parameter of type String");
+    }
+
     @ParameterizedTest
     @CsvSource({
             StringUtils.EMPTY + ",success.json",
@@ -87,17 +96,64 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
         expectSalesforceRequest(String.format(WORK_ITEMS_QUERY, "admin@acme.com"))
                 .andRespond(withSuccess(workflowStepApproval, APPLICATION_JSON));
 
-        expectSalesforceRequest(String.format(OPPORTUNITY_QUERY, "0064100000aVTHAAA4"))
+        expectSalesforceRequest(String.format(OPPORTUNITY_QUERY, "0064100000b9dQsAAI', '0064100000b9S8EAAU"))
                 .andRespond(withSuccess(opportunityResult, APPLICATION_JSON));
 
-        testRequestCards("request.json", responseFile, lang);
+        testRequestCards(responseFile, lang);
     }
 
-    private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
-        WebTestClient.RequestHeadersSpec<?> spec = requestCards("abc", requestFile);
+    @Test
+    void testApproveRequest() {
+        setupMock();
+
+        webClient.post()
+                .uri("/api/expense/approve/00541000000osYgAAI")
+                .contentType(APPLICATION_JSON)
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(X_AUTH_HEADER, "Bearer abc")
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .body(BodyInserters.fromFormData("reason", "Approved"))
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    void testRejectRequest() {
+        setupMock();
+
+        webClient.post()
+                .uri("/api/expense/reject/00541000000osYgAAI")
+                .contentType(APPLICATION_JSON)
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(X_AUTH_HEADER, "Bearer abc")
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .body(BodyInserters.fromFormData("reason", "discount approval rejected"))
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    void testCardRequestWithEmptyWorkflow() throws Exception {
+        expectSalesforceRequest(String.format(WORK_ITEMS_QUERY, "admin@acme.com"))
+                .andRespond(withSuccess(emptyWorkflow, APPLICATION_JSON));
+
+        testRequestCards("empty_card_response.json", StringUtils.EMPTY);
+    }
+
+    private void setupMock() {
+        mockBackend.expect(requestTo("/services/data/v44.0/process/approvals/"))
+                .andExpect(method(POST))
+                .andExpect(header(AUTHORIZATION, "Bearer abc"))
+                .andExpect(header(CONTENT_TYPE, APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess());
+    }
+
+    private void testRequestCards(String responseFile, String acceptLanguage) throws Exception {
+        WebTestClient.RequestHeadersSpec<?> spec = requestCards("abc", "request.json");
         if (acceptLanguage != null) {
             spec = spec.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
+
         String body = spec.exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
@@ -107,7 +163,6 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
                 .map(JsonNormalizer::forCards)
                 .block();
         body = body.replaceAll("[a-z0-9]{40,}", "test-hash");
-        System.out.println(body);
         assertThat(body, sameJSONAs(fromFile("connector/responses/" + responseFile)).allowingAnyArrayOrdering());
     }
 
