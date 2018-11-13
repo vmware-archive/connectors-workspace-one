@@ -187,6 +187,7 @@ public class HubSalesForceController {
 
     private Mono<JsonDocument> retrieveOpportunities(String baseUrl, List<String> opportunityIds, String connectorAuth) {
         final String idsFormat = opportunityIds.stream()
+                .map(this::soqlEscape)
                 .collect(Collectors.joining("', '"));
 
         String sql = OPPORTUNITY_QUERY_1;
@@ -342,5 +343,9 @@ public class HubSalesForceController {
                 .queryParam("q", soql)
                 .build()
                 .toUri();
+    }
+
+    private String soqlEscape(String value) {
+        return value.replace("\\", "\\\\").replace("\'", "\\\'");
     }
 }
