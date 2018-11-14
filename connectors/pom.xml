@@ -29,6 +29,7 @@
         <module>servicenow</module>
         <module>hub-servicenow</module>
         <module>bitbucket-server</module>
+        <module>hub-salesforce</module>
     </modules>
 
     <profiles>
