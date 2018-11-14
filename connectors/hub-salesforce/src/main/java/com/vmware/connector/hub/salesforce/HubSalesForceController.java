@@ -5,7 +5,6 @@
 
 package com.vmware.connector.hub.salesforce;
 
-import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
@@ -53,7 +52,6 @@ public class HubSalesForceController {
     private final CardTextAccessor cardTextAccessor;
 
     private final static String REASON = "reason";
-    private final static String USER_ID = "userId";
 
     private final static String WORK_ITEMS_QUERY = "SELECT Id,TargetObjectid, Status,(select id,actor.name, actor.id, actor.email, actor.username from Workitems Where actor.email = '%s'),(SELECT Id, StepStatus, Comments,Actor.Name, Actor.Id, actor.email, actor.username FROM Steps) FROM ProcessInstance Where Status = 'Pending'";
     private final static String OPPORTUNITY_QUERY_1 = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name";
@@ -63,22 +61,22 @@ public class HubSalesForceController {
 
     private final String sfSoqlQueryPath;
     private final String workflowPath;
-    private final String discountPercentage;
-    private final String reasonForDiscount;
+    private final String discountPercentageField;
+    private final String reasonForDiscountField;
 
     @Autowired
     public HubSalesForceController(final WebClient rest,
                                    final CardTextAccessor cardTextAccessor,
                                    @Value("${sf.soqlQueryPath}") final String sfSoqlQueryPath,
                                    @Value("${sf.workflowPath}") final String workflowPath,
-                                   @Value("${custom-fields.discount-percentage}") final String discountPercentage,
-                                   @Value("${custom-fields.reason-for-discount}") final String reasonForDiscount) {
+                                   @Value("${custom-fields.discount-percentage}") final String discountPercentageField,
+                                   @Value("${custom-fields.reason-for-discount}") final String reasonForDiscountField) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.sfSoqlQueryPath = sfSoqlQueryPath;
         this.workflowPath = workflowPath;
-        this.discountPercentage = discountPercentage;
-        this.reasonForDiscount = reasonForDiscount;
+        this.discountPercentageField = discountPercentageField;
+        this.reasonForDiscountField = reasonForDiscountField;
     }
 
     @PostMapping(
@@ -117,7 +115,7 @@ public class HubSalesForceController {
             @RequestHeader(AUTH_HEADER) final String connectorAuth,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
             @RequestParam(REASON) final String comment,
-            @PathVariable(USER_ID) final String userId
+            @PathVariable("userId") final String userId
     ) {
         final ApprovalRequest request = new ApprovalRequest();
         request.setActionType(ApprovalRequestType.APPROVE.getType());
@@ -125,7 +123,7 @@ public class HubSalesForceController {
         request.setContextId(userId);
 
         final ApprovalRequests requests = new ApprovalRequests();
-        requests.setRequests(ImmutableList.of(request));
+        requests.setRequests(List.of(request));
 
         return rest.post()
                 .uri(fromHttpUrl(baseUrl).path(workflowPath).build().toUri())
@@ -144,7 +142,7 @@ public class HubSalesForceController {
             @RequestHeader(AUTH_HEADER) final String connectorAuth,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
             @RequestParam(REASON) final String reason,
-            @PathVariable(USER_ID) final String userId
+            @PathVariable("userId") final String userId
     ) {
         final ApprovalRequest request = new ApprovalRequest();
         request.setContextId(userId);
@@ -152,7 +150,7 @@ public class HubSalesForceController {
         request.setActionType(ApprovalRequestType.REJECT.getType());
 
         final ApprovalRequests requests = new ApprovalRequests();
-        requests.setRequests(ImmutableList.of(request));
+        requests.setRequests(List.of(request));
 
         return rest.post()
                 .uri(fromHttpUrl(baseUrl).path(workflowPath).build().toUri())
@@ -189,12 +187,12 @@ public class HubSalesForceController {
                                                      final List<String> opportunityIds,
                                                      final String connectorAuth) {
         String sql = OPPORTUNITY_QUERY_1;
-        if (StringUtils.isNotBlank(this.discountPercentage)) {
-            sql += String.format(FIELD_FORMAT, soqlEscape(this.discountPercentage));
+        if (StringUtils.isNotBlank(this.discountPercentageField)) {
+            sql += String.format(FIELD_FORMAT, soqlEscape(this.discountPercentageField));
         }
 
-        if (StringUtils.isNotBlank(this.reasonForDiscount)) {
-            sql += String.format(FIELD_FORMAT, soqlEscape(this.reasonForDiscount));
+        if (StringUtils.isNotBlank(this.reasonForDiscountField)) {
+            sql += String.format(FIELD_FORMAT, soqlEscape(this.reasonForDiscountField));
         }
 
         sql = sql + OPPORTUNITY_QUERY_2;
@@ -250,13 +248,13 @@ public class HubSalesForceController {
                 .addField(buildCardBodyField("opportunity.owner", opportunityOwnerName, locale))
                 .addField(buildCardBodyField("revenue.opportunity", expectedRevenue, locale));
 
-        if (StringUtils.isNotBlank(this.discountPercentage)) {
-            final Double discountPercent = opportunityResponse.read(String.format("$.records[%s].%s", index, this.discountPercentage));
+        if (StringUtils.isNotBlank(this.discountPercentageField)) {
+            final Double discountPercent = opportunityResponse.read(String.format("$.records[%s].%s", index, this.discountPercentageField));
             cardBodyBuilder.addField(buildCardBodyField("discount.percent", String.valueOf(discountPercent), locale));
         }
 
-        if (StringUtils.isNotBlank(this.reasonForDiscount)) {
-            final String reasonForDiscount = opportunityResponse.read(String.format("$.records[%s].%s", index, this.reasonForDiscount));
+        if (StringUtils.isNotBlank(this.reasonForDiscountField)) {
+            final String reasonForDiscount = opportunityResponse.read(String.format("$.records[%s].%s", index, this.reasonForDiscountField));
             cardBodyBuilder.addField(buildCardBodyField("reason.for.discount", reasonForDiscount, locale));
         }
 
@@ -278,7 +276,7 @@ public class HubSalesForceController {
                 .setMutuallyExclusiveSetId(APPROVAL_ACTIONS)
                 .addUserInputField(
                         new CardActionInputField.Builder()
-                                .setId("reason")
+                                .setId(REASON)
                                 .setMinLength(1)
                                 .setFormat("textarea")
                                 .setLabel(cardTextAccessor.getMessage("ws1.sf.approve.reason.label", locale))
@@ -301,7 +299,7 @@ public class HubSalesForceController {
                 .setMutuallyExclusiveSetId(APPROVAL_ACTIONS)
                 .addUserInputField(
                         new CardActionInputField.Builder()
-                                .setId("reason")
+                                .setId(REASON)
                                 .setMinLength(1)
                                 .setFormat("textarea")
                                 .setLabel(cardTextAccessor.getMessage("ws1.sf.reject.reason.label", locale))
