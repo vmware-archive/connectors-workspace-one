@@ -185,21 +185,23 @@ public class HubSalesForceController {
                 .flatMapMany(opportunityResponse -> buildCards(workItemResponse, opportunityResponse, locale, routingPrefix, request));
     }
 
-    private Mono<JsonDocument> retrieveOpportunities(String baseUrl, List<String> opportunityIds, String connectorAuth) {
-        final String idsFormat = opportunityIds.stream()
-                .map(this::soqlEscape)
-                .collect(Collectors.joining("', '"));
-
+    private Mono<JsonDocument> retrieveOpportunities(final String baseUrl,
+                                                     final List<String> opportunityIds,
+                                                     final String connectorAuth) {
         String sql = OPPORTUNITY_QUERY_1;
         if (StringUtils.isNotBlank(this.discountPercentage)) {
-            sql += String.format(FIELD_FORMAT, discountPercentage);
+            sql += String.format(FIELD_FORMAT, soqlEscape(this.discountPercentage));
         }
 
         if (StringUtils.isNotBlank(this.reasonForDiscount)) {
-            sql += String.format(FIELD_FORMAT, reasonForDiscount);
+            sql += String.format(FIELD_FORMAT, soqlEscape(this.reasonForDiscount));
         }
 
         sql = sql + OPPORTUNITY_QUERY_2;
+
+        final String idsFormat = opportunityIds.stream()
+                .map(this::soqlEscape)
+                .collect(Collectors.joining("', '"));
 
         String soql = String.format(sql, idsFormat);
         return rest.get()
@@ -324,7 +326,7 @@ public class HubSalesForceController {
     private Mono<JsonDocument> retrieveWorkItems(final String connectorAuth,
                                                  final String baseUrl,
                                                  final String userEmail) {
-        final String sql = String.format(WORK_ITEMS_QUERY, userEmail);
+        final String sql = String.format(WORK_ITEMS_QUERY, soqlEscape(userEmail));
 
         return rest.get()
                 .uri(makeSoqlQueryUri(baseUrl, sql))
