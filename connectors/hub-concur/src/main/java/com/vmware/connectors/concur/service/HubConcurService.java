@@ -1,18 +1,16 @@
 package com.vmware.connectors.concur.service;
 
-import com.vmware.connectors.common.payloads.response.Card;
-import com.vmware.connectors.common.payloads.response.CardAction;
-import com.vmware.connectors.common.payloads.response.CardActionInputField;
-import com.vmware.connectors.common.payloads.response.CardActionKey;
-import com.vmware.connectors.common.payloads.response.CardBody;
-import com.vmware.connectors.common.payloads.response.CardBodyField;
-import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
-import com.vmware.connectors.common.payloads.response.Cards;
-import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.CommonUtils;
-import com.vmware.connectors.concur.domain.ExpenseReportResponse;
-import com.vmware.connectors.concur.domain.PendingApprovalResponse;
-import com.vmware.connectors.concur.util.HubConcurUtil;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_XML;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
+import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,18 +21,25 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.HtmlUtils;
+
+import com.vmware.connectors.common.payloads.response.Card;
+import com.vmware.connectors.common.payloads.response.CardAction;
+import com.vmware.connectors.common.payloads.response.CardActionInputField;
+import com.vmware.connectors.common.payloads.response.CardActionKey;
+import com.vmware.connectors.common.payloads.response.CardBody;
+import com.vmware.connectors.common.payloads.response.CardBodyField;
+import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
+import com.vmware.connectors.common.payloads.response.Cards;
+import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.CommonUtils;
+import com.vmware.connectors.common.web.UserException;
+import com.vmware.connectors.concur.domain.ExpenseReportResponse;
+import com.vmware.connectors.concur.domain.PendingApprovalResponse;
+import com.vmware.connectors.concur.domain.PendingApprovalsVO;
+import com.vmware.connectors.concur.util.HubConcurUtil;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.text.NumberFormat;
-import java.util.Locale;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_XML;
 
 @Service
 public class HubConcurService {
@@ -68,12 +73,12 @@ public class HubConcurService {
 	}
 
 	private Mono<PendingApprovalResponse> fetchAllRequests(String baseUrl, String userEmail) {
+
 		int limit = 50;
 		String userFilter = "all";
-
 		return rest.get()
 				.uri(baseUrl
-						+ "/api/v3.0/expense/reportdigests?approverLoginID={approver}&limit={limit}&user={userFilter}",
+						+ "/api/v3.0/expense/reportdigests?approverLoginID={userEmail}&limit={limit}&user={userFilter}",
 						userEmail, limit, userFilter)
 				.header(AUTHORIZATION, serviceAccountAuthHeader).accept(APPLICATION_JSON).retrieve()
 				.bodyToMono(PendingApprovalResponse.class);
@@ -123,10 +128,10 @@ public class HubConcurService {
 	private CardBodyField makeExpenseAmountField(Locale locale, ExpenseReportResponse report) {
 		return new CardBodyField.Builder().setType(CardBodyFieldType.GENERAL)
 				.setTitle(cardTextAccessor.getMessage("hub.concur.expenseAmount", locale))
-				.setDescription(formatCurrency(report.getReportTotal(), locale)).build();
+				.setDescription(formatCurrency(report.getReportTotal(), locale, report.getCurrencyCode())).build();
 	}
 
-	private String formatCurrency(String amount, Locale locale) {
+	private String formatCurrency(String amount, Locale locale, String currencyCode) {
 		Locale localeToUse;
 		if (Locale.ENGLISH.equals(locale)) {
 			// Defaulting "en" locale to "en-US" if they didn't specify country
@@ -136,7 +141,12 @@ public class HubConcurService {
 		}
 		// TODO - does it make sense to format this as currency when we don't really
 		// know the unit?
-		return NumberFormat.getCurrencyInstance(localeToUse).format(Double.parseDouble(amount));
+
+		// APF-1547 As suggested appending the currency code with the amount
+
+		return String.format("%s %s", currencyCode,
+				NumberFormat.getNumberInstance(localeToUse).format(Double.parseDouble(amount)));
+
 	}
 
 	private CardBodyField makeSubmissionDateField(Locale locale, ExpenseReportResponse report) {
@@ -174,14 +184,41 @@ public class HubConcurService {
 		return cards;
 	}
 
-	public Mono<String> makeConcurRequest(String reason, String baseUrl, String action, String reportId)
-			throws IOException {
+	public Mono<String> makeConcurRequest(String reason, String baseUrl, String action, String reportId,
+			String userEmail) throws IOException {
 		// TODO - APF-1546: privilege check based on the user in the JWT
 		String concurRequestTemplate = getConcurRequestTemplate(reason, action);
-		return fetchRequestData(baseUrl, reportId).map(ExpenseReportResponse::getWorkflowActionURL)
+
+		return validateUser(reason, baseUrl, action, reportId, userEmail)
+				.flatMap(expense -> fetchRequestData(baseUrl, reportId))
+				.map(ExpenseReportResponse::getWorkflowActionURL)
 				.flatMap(url -> rest.post().uri(url).header(AUTHORIZATION, serviceAccountAuthHeader)
 						.contentType(APPLICATION_XML).accept(APPLICATION_JSON).syncBody(concurRequestTemplate)
 						.retrieve().bodyToMono(String.class));
+
+	}
+
+	/**
+	 * Method to validate the user privilege on the action requested
+	 * 
+	 * @param reason
+	 * @param baseUrl
+	 * @param action
+	 * @param reportId
+	 * @param userEmail
+	 * @return
+	 * @throws IOException
+	 */
+	public Mono<PendingApprovalsVO> validateUser(String reason, String baseUrl, String action, String reportId,
+			String userEmail) throws IOException {
+		// APF-1546: privilege check based on the user in the JWT
+
+		return fetchAllRequests(baseUrl, userEmail)
+				.flatMapMany(expenses -> Flux.fromIterable(expenses.getPendingApprovals()))
+				// Check if the approverlogin and report is equal to that passed in the request
+				.filter(expense -> expense.getId().equals(reportId) && expense.getApproverLoginID().equals(userEmail))
+				.next().switchIfEmpty(Mono.error(new UserException("Not Found")));// CustomException
+
 	}
 
 	private String getConcurRequestTemplate(String reason, String concurAction) throws IOException {

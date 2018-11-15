@@ -5,21 +5,6 @@
 
 package com.vmware.connectors.concur;
 
-import com.vmware.connectors.test.ControllerTestsBase;
-import com.vmware.connectors.test.JsonNormalizer;
-
-import uk.co.datumedge.hamcrest.json.SameJSONAs;
-
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.BodyInserters;
-
-import java.util.stream.Collectors;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.ACCEPT;
@@ -38,6 +23,20 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
+
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
+
+import com.vmware.connectors.test.ControllerTestsBase;
+import com.vmware.connectors.test.JsonNormalizer;
+
 
 class HubConcurControllerTest extends ControllerTestsBase {
 
@@ -61,7 +60,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"xx, success_xx.json" })
+	@CsvSource({ StringUtils.EMPTY + ", success.json", "xx, success_xx.json" })
 	void testCardsRequests(String lang, String expected) throws Exception {
 
 		mockConcurRequests();
@@ -82,7 +81,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 				.map(JsonNormalizer::forCards).block()
 				.replaceAll("[0-9]{4}[-][0-9]{2}[-][0-9]{2}T[0-9]{2}[:][0-9]{2}[:][0-9]{2}Z?", "1970-01-01T00:00:00Z")
 				.replaceAll("[a-z0-9]{40,}", "test-hash");
-		
+
 		assertThat(body, sameJSONAs(fromFile("connector/responses/" + expected)).allowingAnyArrayOrdering()
 				.allowingExtraUnexpectedFields());
 	}
@@ -113,6 +112,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 	}
 
 	private void mockReport1() throws Exception {
+
 		mockBackend.expect(requestTo("/api/expense/expensereport/v2.0/report/1D3BD2E14D144508B05F"))
 				.andExpect(method(GET)).andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
 				.andRespond(withSuccess(fromFile("/fake/report-1.json").replace("${concur_host}", mockBackend.url("")),
@@ -127,6 +127,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 
 	@Test
 	void testApproveRequest() throws Exception {
+		mockReportsDigest();
 		mockReport1();
 		mockReport1Action();
 
@@ -138,6 +139,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 
 	@Test
 	void testRejectRequest() throws Exception {
+		mockReportsDigest();
 		mockReport1();
 		mockReport1Action();
 
@@ -145,6 +147,17 @@ class HubConcurControllerTest extends ControllerTestsBase {
 				.header(AUTHORIZATION, "Bearer " + accessToken()).header(X_AUTH_HEADER, "Bearer vidm-token")
 				.header(X_BASE_URL_HEADER, mockBackend.url("")).contentType(APPLICATION_FORM_URLENCODED)
 				.body(BodyInserters.fromFormData("reason", "Decline Done")).exchange().expectStatus().isOk();
+	}
+
+	@Test
+	void testUnAuthorizedApproveRequest() throws Exception {
+		mockReportsDigest();
+
+		webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B0")
+				.header(AUTHORIZATION, "Bearer " + accessToken()).header(X_AUTH_HEADER, "Bearer vidm-token")
+				.header(X_BASE_URL_HEADER, mockBackend.url("")).contentType(APPLICATION_FORM_URLENCODED)
+				.body(BodyInserters.fromFormData("comment", "Approval Done")).exchange().expectStatus()
+				.isNotFound();
 	}
 
 }

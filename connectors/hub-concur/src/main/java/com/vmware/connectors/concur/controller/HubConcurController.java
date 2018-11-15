@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -70,10 +69,12 @@ public class HubConcurController {
 		final String userEmail = AuthUtil.extractUserEmail(authorization);
 		if (StringUtils.isBlank(userEmail)) {
 			logger.error("User email  is empty in jwt access token.");
+			//TODO: This returns an empty object,can we throw an exception or return it as a bad request?
 			return Mono.just(new Cards());
 		}
+
 		logger.debug("getCards called: baseUrl={}, userEmail={}", baseUrl, userEmail);
-		return service.fetchCards(baseUrl, locale, routingPrefix, request, userEmail);
+		return service.fetchCards(baseUrl, locale, routingPrefix, request,userEmail);
 	}
 
 	/**
@@ -86,16 +87,23 @@ public class HubConcurController {
 	 * @param comment
 	 *            comments for the approval
 	 * @return success or error message
-	 * @throws IOException
+	 * @throws Exception
 	 */
 	@PostMapping(path = "/api/expense/{id}/approve", consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = APPLICATION_JSON_VALUE)
-	public Mono<String> approveRequest(@AuthenticationPrincipal String username,
+	public Mono<String> approveRequest(@RequestHeader(AUTHORIZATION) final String authorization,
 			@RequestHeader(X_AUTH_HEADER) String vidmAuthHeader, @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
 			@PathVariable("id") String id, @RequestParam(HubConcurUtil.COMMENT_KEY) String comment) throws IOException {
-		logger.debug("approveRequest called: baseUrl={}, username={}, id={}, comment={}", baseUrl, username, id,
-				comment);
+		logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, comment);
 
-		return service.makeConcurRequest(comment, baseUrl, HubConcurUtil.APPROVE, id);
+		final String userEmail = AuthUtil.extractUserEmail(authorization);
+		if (StringUtils.isBlank(userEmail)) {
+			logger.error("User email  is empty in jwt access token.");
+			// Can I throw an exception here if useremail isnt found in the token or return it as a bad request?
+			return Mono.empty();
+		}
+
+		return service.makeConcurRequest(comment, baseUrl, HubConcurUtil.APPROVE, id,userEmail);
+
 	}
 
 	/**
@@ -108,12 +116,22 @@ public class HubConcurController {
 	 * @throws IOException
 	 */
 	@PostMapping(path = "/api/expense/{id}/decline", consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = APPLICATION_JSON_VALUE)
-	public Mono<String> declineRequest(@AuthenticationPrincipal String username,
+	public Mono<String> declineRequest(@RequestHeader(AUTHORIZATION) final String authorization,
 			@RequestHeader(X_AUTH_HEADER) String vidmAuthHeader, @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
 			@PathVariable("id") String id, @RequestParam(HubConcurUtil.REASON_KEY) String reason) throws IOException {
-		logger.debug("declineRequest called: baseUrl={}, username={}, id={}, reason={}", baseUrl, username, id, reason);
+		logger.debug("declineRequest called: baseUrl={}, id={}, reason={}", baseUrl, id, reason);
 
-		return service.makeConcurRequest(reason, baseUrl, HubConcurUtil.REJECT, id);
+		final String userEmail = AuthUtil.extractUserEmail(authorization);
+		if (StringUtils.isBlank(userEmail)) {
+			logger.error("User email  is empty in jwt access token.");
+			//TODO:  Can I throw an exception here if useremail isnt found in the token or return it as a bad request?
+			return Mono.empty();
+		}
+
+		return service.makeConcurRequest(reason, baseUrl, HubConcurUtil.REJECT, id,userEmail);
 	}
+
+	
+	
 
 }
