@@ -61,7 +61,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 
 	@ParameterizedTest
 	@CsvSource({ StringUtils.EMPTY + ", success.json", "xx, success_xx.json" })
-	//TODO : Now that we are not basing the currency on locale,both the above test cases looks redundant - Remove one?
+	//In the first test case : Even when locale is passed as empty ->its taking my system preferences and locale goes as en_IN instead of en_US which is the default value ?
 	void testCardsRequests(String lang, String expected) throws Exception {
 
 		mockConcurRequests();
