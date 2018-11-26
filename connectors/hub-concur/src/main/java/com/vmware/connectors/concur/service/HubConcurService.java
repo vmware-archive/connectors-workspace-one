@@ -36,6 +36,7 @@ import com.vmware.connectors.common.web.UserException;
 import com.vmware.connectors.concur.domain.ExpenseReportResponse;
 import com.vmware.connectors.concur.domain.PendingApprovalResponse;
 import com.vmware.connectors.concur.domain.PendingApprovalsVO;
+import com.vmware.connectors.concur.domain.UserDetailsResponse;
 import com.vmware.connectors.concur.util.HubConcurUtil;
 
 import reactor.core.publisher.Flux;
@@ -66,10 +67,14 @@ public class HubConcurService {
 		logger.debug("fetchCards called: baseUrl={}, routingPrefix={} for userName = {}", baseUrl, routingPrefix,
 				userEmail);
 
-		return fetchAllRequests(baseUrl, userEmail)
-				.flatMapMany(expenses -> Flux.fromIterable(expenses.getPendingApprovals()))
-				.flatMap(expense -> fetchRequestData(baseUrl, expense.getId()))
-				.map(report -> makeCards(routingPrefix, locale, report, request)).reduce(new Cards(), this::addCard);
+		return fetchLoginIdFromUserEmail(userEmail, baseUrl)
+				.flatMapMany(userDetails -> Flux.fromIterable(userDetails.getItems()))
+				.flatMap(userDetail -> fetchAllRequests(baseUrl, userDetail.getLoginId())
+						.flatMapMany(expenses -> Flux.fromIterable(expenses.getPendingApprovals()))
+						.flatMap(expense -> fetchRequestData(baseUrl, expense.getId()))
+						.map(report -> makeCards(routingPrefix, locale, report, request))
+						.reduce(new Cards(), this::addCard))
+				.next();
 	}
 
 	private Mono<PendingApprovalResponse> fetchAllRequests(String baseUrl, String userEmail) {
@@ -142,7 +147,7 @@ public class HubConcurService {
 		// TODO - does it make sense to format this as currency when we don't really
 		// know the unit?
 
-		// APF-1547 As suggested appending the currency code with the amount
+		// APF-1547 As suggested appending the currency code with the amount -
 
 		return String.format("%s %s", currencyCode,
 				NumberFormat.getNumberInstance(localeToUse).format(Double.parseDouble(amount)));
@@ -189,12 +194,15 @@ public class HubConcurService {
 		// TODO - APF-1546: privilege check based on the user in the JWT
 		String concurRequestTemplate = getConcurRequestTemplate(reason, action);
 
-		return validateUser(reason, baseUrl, action, reportId, userEmail)
+		return fetchLoginIdFromUserEmail(userEmail, baseUrl)
+				.flatMapMany(userDetails -> Flux.fromIterable(userDetails.getItems()))
+				.flatMap(userDetail -> validateUser(reason, baseUrl, action, reportId, userDetail.getLoginId()))
 				.flatMap(expense -> fetchRequestData(baseUrl, reportId))
 				.map(ExpenseReportResponse::getWorkflowActionURL)
 				.flatMap(url -> rest.post().uri(url).header(AUTHORIZATION, serviceAccountAuthHeader)
 						.contentType(APPLICATION_XML).accept(APPLICATION_JSON).syncBody(concurRequestTemplate)
-						.retrieve().bodyToMono(String.class));
+						.retrieve().bodyToMono(String.class))
+				.next();
 
 	}
 
@@ -210,7 +218,7 @@ public class HubConcurService {
 	 * @throws IOException
 	 */
 	public Mono<PendingApprovalsVO> validateUser(String reason, String baseUrl, String action, String reportId,
-			String userEmail) throws IOException {
+			String userEmail) {
 		// APF-1546: privilege check based on the user in the JWT
 
 		return fetchAllRequests(baseUrl, userEmail)
@@ -224,6 +232,19 @@ public class HubConcurService {
 	private String getConcurRequestTemplate(String reason, String concurAction) throws IOException {
 		return IOUtils.toString(concurRequestTemplate.getInputStream(), StandardCharsets.UTF_8)
 				.replace("${action}", concurAction).replace("${comment}", HtmlUtils.htmlEscape(reason));
+	}
+
+	/**
+	 * Function to derive the concur loginId of the user
+	 * 
+	 * @param userEmail
+	 * @param baseUrl
+	 * @return
+	 */
+	public Mono<UserDetailsResponse> fetchLoginIdFromUserEmail(String userEmail, String baseUrl) {
+		return rest.get().uri(baseUrl + "/api/v3.0/common/users?primaryEmail={userEmail}", userEmail)
+				.header(AUTHORIZATION, serviceAccountAuthHeader).accept(APPLICATION_JSON).retrieve()
+				.bodyToMono(UserDetailsResponse.class);
 	}
 
 }

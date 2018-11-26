@@ -69,12 +69,13 @@ public class HubConcurController {
 		final String userEmail = AuthUtil.extractUserEmail(authorization);
 		if (StringUtils.isBlank(userEmail)) {
 			logger.error("User email  is empty in jwt access token.");
-			//TODO: This returns an empty object,can we throw an exception or return it as a bad request?
+			// TODO: This returns an empty object,can we throw an exception or return it as
+			// a bad request?
 			return Mono.just(new Cards());
 		}
 
 		logger.debug("getCards called: baseUrl={}, userEmail={}", baseUrl, userEmail);
-		return service.fetchCards(baseUrl, locale, routingPrefix, request,userEmail);
+		return service.fetchCards(baseUrl, locale, routingPrefix, request, userEmail);
 	}
 
 	/**
@@ -98,11 +99,12 @@ public class HubConcurController {
 		final String userEmail = AuthUtil.extractUserEmail(authorization);
 		if (StringUtils.isBlank(userEmail)) {
 			logger.error("User email  is empty in jwt access token.");
-			// Can I throw an exception here if useremail isnt found in the token or return it as a bad request?
+			// Can I throw an exception here if useremail isnt found in the token or return
+			// it as a bad request?
 			return Mono.empty();
 		}
 
-		return service.makeConcurRequest(comment, baseUrl, HubConcurUtil.APPROVE, id,userEmail);
+		return service.makeConcurRequest(comment, baseUrl, HubConcurUtil.APPROVE, id, userEmail);
 
 	}
 
@@ -124,14 +126,12 @@ public class HubConcurController {
 		final String userEmail = AuthUtil.extractUserEmail(authorization);
 		if (StringUtils.isBlank(userEmail)) {
 			logger.error("User email  is empty in jwt access token.");
-			//TODO:  Can I throw an exception here if useremail isnt found in the token or return it as a bad request?
+			// TODO: Can I throw an exception here if useremail isnt found in the token or
+			// return it as a bad request?
 			return Mono.empty();
 		}
 
-		return service.makeConcurRequest(reason, baseUrl, HubConcurUtil.REJECT, id,userEmail);
+		return service.makeConcurRequest(reason, baseUrl, HubConcurUtil.REJECT, id, userEmail);
 	}
-
-	
-	
 
 }

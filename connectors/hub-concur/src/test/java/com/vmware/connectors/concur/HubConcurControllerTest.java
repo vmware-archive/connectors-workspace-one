@@ -37,7 +37,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 
-
 class HubConcurControllerTest extends ControllerTestsBase {
 
 	@ParameterizedTest
@@ -61,7 +60,9 @@ class HubConcurControllerTest extends ControllerTestsBase {
 
 	@ParameterizedTest
 	@CsvSource({ StringUtils.EMPTY + ", success.json", "xx, success_xx.json" })
-	//In the first test case : Even when locale is passed as empty ->its taking my system preferences and locale goes as en_IN instead of en_US which is the default value ?
+	// In the first test case : Even when locale is passed as empty ->its taking my
+	// system preferences and locale goes as en_IN instead of en_US which is the
+	// default value ?
 	void testCardsRequests(String lang, String expected) throws Exception {
 
 		mockConcurRequests();
@@ -88,6 +89,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 	}
 
 	private void mockConcurRequests() throws Exception {
+
 		mockReportsDigest();
 
 		mockReport1();
@@ -104,6 +106,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 	}
 
 	private void mockReportsDigest() throws Exception {
+		mockUserDetailReport();
 		mockBackend
 				.expect(requestTo("/api/v3.0/expense/reportdigests?approverLoginID=admin@acme.com&limit=50&user=all"))
 				.andExpect(method(GET)).andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
@@ -120,6 +123,15 @@ class HubConcurControllerTest extends ControllerTestsBase {
 						APPLICATION_JSON));
 	}
 
+	//
+	private void mockUserDetailReport() throws Exception {
+		mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin@acme.com")).andExpect(method(GET))
+				.andExpect(header(ACCEPT, APPLICATION_JSON_VALUE)).andRespond(
+						withSuccess(fromFile("/fake/user-details.json").replace("${concur_host}", mockBackend.url("")),
+								APPLICATION_JSON));
+
+	}
+
 	private void mockReport1Action() {
 		mockBackend.expect(requestTo(
 				"/api/expense/expensereport/v1.1/report/gWqmsMJ27KYsYDsraMCRfUtd5Y9ha96y0lRUG0nBXhO0/WorkFlowAction"))
@@ -128,6 +140,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 
 	@Test
 	void testApproveRequest() throws Exception {
+		// mockUserDetailReport();
 		mockReportsDigest();
 		mockReport1();
 		mockReport1Action();
@@ -157,8 +170,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 		webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B0")
 				.header(AUTHORIZATION, "Bearer " + accessToken()).header(X_AUTH_HEADER, "Bearer vidm-token")
 				.header(X_BASE_URL_HEADER, mockBackend.url("")).contentType(APPLICATION_FORM_URLENCODED)
-				.body(BodyInserters.fromFormData("comment", "Approval Done")).exchange().expectStatus()
-				.isNotFound();
+				.body(BodyInserters.fromFormData("comment", "Approval Done")).exchange().expectStatus().isNotFound();
 	}
 
 }
