@@ -115,7 +115,7 @@ systemctl status jira-connector
 Also check the logs if there are problems:
 
 ```
-less /var/log/vmware/connectors/jira/jira-connector.log
+less /var/log/vmware/connectors/jira/connector.log
 ```
 
 ### Updating
