@@ -1,0 +1,101 @@
+{
+    "objects": [
+        {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "name": "Coupa",
+            "creation_date": "1970-01-01T00:00:00Z",
+            "header": {
+                "title": "[Coupa] AppBuilder Q1 PO",
+                "subtitle": [
+                    "1000"
+                ]
+            },
+            "body": {
+                "fields": [
+                    {
+                        "type": "GENERAL",
+                        "title": "Order date",
+                        "description": "1970-01-01T00:00:00Z-07:00"
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "Requester Cost Center",
+                        "description": "IN1019722"
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "Requisition number",
+                        "description": "182964"
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "Requisition description",
+                        "description": ""
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "Requester",
+                        "description": "Gaurav Totla"
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "Total Price",
+                        "description": "43,840.00"
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "Justification ",
+                        "description": ""
+                    }
+                ]
+            },
+            "actions": [
+                {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "primary": true,
+                    "label": "Approve",
+                    "url": {
+                        "href": "https://my-connector/api/approve/6609559"
+                    },
+                    "type": "POST",
+                    "action_key": "USER_INPUT",
+                    "request": {},
+                    "user_input": [
+                        {
+                            "id": "comment",
+                            "label": "Comment",
+                            "format": "textarea"
+                        }
+                    ],
+                    "completed_label": "Approved",
+                    "allow_repeated": false,
+                    "mutually_exclusive_set_id": "approval-actions"
+                },
+                {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "label": "Decline",
+                    "url": {
+                        "href": "https://my-connector/api/decline/6609559"
+                    },
+                    "type": "POST",
+                    "action_key": "USER_INPUT",
+                    "request": {},
+                    "user_input": [
+                        {
+                            "id": "comment",
+                            "label": "Reason",
+                            "format": "textarea"
+                        }
+                    ],
+                    "completed_label": "Declined",
+                    "allow_repeated": false,
+                    "mutually_exclusive_set_id": "approval-actions"
+                }
+            ],
+            "image": {
+                "href": "https://my-connector/images/connector.png"
+            },
+            "hash": "test-hash"
+        }
+    ]
+}

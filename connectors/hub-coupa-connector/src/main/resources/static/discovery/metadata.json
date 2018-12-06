@@ -1,0 +1,20 @@
+{
+	"image": {
+		"href": "${CONNECTOR_HOST}/images/connector.png"
+	},
+	"object_types": {
+		"card": {
+			"doc": {
+				"href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
+			},
+			"fields": {
+				"user_email": {
+					"env": "USER_EMAIL"
+				}
+			},
+			"endpoint": {
+				"href": "${CONNECTOR_HOST}/cards/requests"
+			}
+		}
+	}
+}

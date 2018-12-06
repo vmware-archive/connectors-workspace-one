@@ -1,0 +1,19 @@
+server:
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  server-header: hub-coupa-connector
+  port: 9990
+connector:
+  hasTestAuth: true
+management:
+  endpoints:
+    web.base-path: /
+
+coupa: 
+  url: 
+    webservice:
+      userdetails: /api/users?login=
+      requisitions: /api/requisitions?id=
+      pendingapprovals: /api/approvals?approver_id=
+      action: /api/approvals/
