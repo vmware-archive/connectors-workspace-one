@@ -1,5 +1,7 @@
 package com.vmware.connectors.coupa.controller;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import java.io.IOException;
 import java.util.Locale;
 
@@ -25,7 +27,6 @@ import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.connectors.coupa.service.HubCoupaService;
 import com.vmware.connectors.coupa.util.HubCoupaUtil;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import reactor.core.publisher.Mono;
 
@@ -47,14 +48,13 @@ public class HubCoupaController {
 	}
 
 	@PostMapping(path = "/cards/requests", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Mono<Cards> getCards(@AuthenticationPrincipal String username,
-			@RequestHeader(name = "AUTHORIZATION") String vidmAuthHeader,
+	public Mono<Cards> getCards(@RequestHeader(AUTHORIZATION) String vidmAuthHeader,
 			@RequestHeader(name = X_BASE_URL_HEADER) String baseUrl,
 			@RequestHeader(name = "X-Routing-Prefix") String routingPrefix, Locale locale,
 			@Valid @RequestBody CardRequest cardRequest, HttpServletRequest request) {
-		
+
 		String user = cardRequest.getTokenSingleValue("user_email");
-		logger.debug("User email: {} for concur server: {} ", user, baseUrl);
+		logger.debug("User email: {} for coupa server: {} ", user, baseUrl);
 
 		if (StringUtils.isEmpty(user)) {
 			logger.warn("user email is blank for url: {}", baseUrl);
@@ -65,8 +65,7 @@ public class HubCoupaController {
 	}
 
 	@GetMapping(path = "/api/approve/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Mono<String> approveRequest(@AuthenticationPrincipal String username,
-			@RequestHeader(name = "AUTHORIZATION") String vidmAuthHeader,
+	public Mono<String> approveRequest(@RequestHeader(AUTHORIZATION) String vidmAuthHeader,
 			@RequestHeader(name = X_BASE_URL_HEADER) String baseUrl,
 			@RequestHeader(name = "X-Routing-Prefix") String routingPrefix, @RequestParam("comment") String comment,
 			@PathVariable(name = "id") String id) throws IOException {
@@ -75,8 +74,7 @@ public class HubCoupaController {
 	}
 
 	@GetMapping(path = "/api/decline/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Mono<String> declineRequest(@AuthenticationPrincipal String username,
-			@RequestHeader(name = "AUTHORIZATION") String vidmAuthHeader,
+	public Mono<String> declineRequest(@RequestHeader(AUTHORIZATION) String vidmAuthHeader,
 			@RequestHeader(name = X_BASE_URL_HEADER) String baseUrl,
 			@RequestHeader(name = "X-Routing-Prefix") String routingPrefix, @RequestParam("comment") String comment,
 			@PathVariable(name = "id") String id) throws IOException {
