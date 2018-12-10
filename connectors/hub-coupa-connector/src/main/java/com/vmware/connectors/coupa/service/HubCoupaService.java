@@ -1,4 +1,8 @@
 package com.vmware.connectors.coupa.service;
+/*
+ * Copyright © 2018 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +31,7 @@ import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
 import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
+import com.vmware.connectors.common.web.UserException;
 import com.vmware.connectors.coupa.domain.ApprovalDetails;
 import com.vmware.connectors.coupa.domain.RequisitionDetails;
 import com.vmware.connectors.coupa.domain.UserDetails;
@@ -45,18 +50,6 @@ public class HubCoupaService {
 	private final WebClient rest;
 	private final CardTextAccessor cardTextAccessor;
 
-	@Value("${coupa.url.webservice.userdetails}")
-	private String userUrl;
-
-	@Value("${coupa.url.webservice.pendingapprovals}")
-	private String pendingApprovalUrl;
-
-	@Value("${coupa.url.webservice.requisitions}")
-	private String requistionUrl;
-
-	@Value("${coupa.url.webservice.action}")
-	private String actionUrl;
-
 	@Autowired
 	public HubCoupaService(WebClient rest, CardTextAccessor cardTextAccessor,
 
@@ -66,39 +59,54 @@ public class HubCoupaService {
 		this.systemToken = systemToken;
 	}
 
-	public Mono<Cards> getPendingApprovals(String user, String baseUrl, String routingPrefix,
+	/**
+	 * Get the list of pending requests of the logged in user
+	 * @param userEmail
+	 * @param baseUrl
+	 * @param routingPrefix
+	 * @param request
+	 * @param locale
+	 * @return
+	 */
+	public Mono<Cards> getPendingApprovals(String userEmail, String baseUrl, String routingPrefix,
 			HttpServletRequest request, Locale locale) {
 
-		logger.info("Getting user id of {}", user);
-		String url = baseUrl + userUrl + user;
+		logger.info("Getting user id of {}", userEmail);
 
-		return rest.get().uri(url).accept(MediaType.APPLICATION_JSON)
+		return rest.get().uri(baseUrl + "/api/users?email={userEmail}", userEmail).accept(MediaType.APPLICATION_JSON)
 				.header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, systemToken).retrieve().bodyToFlux(UserDetails.class)
-				.flatMap(u -> getApprovalDetails(systemToken, baseUrl, u.getId()))
+				.flatMap(u -> getApprovalDetails(systemToken, baseUrl, u.getId(), userEmail))
 				.map(req -> makeCards(routingPrefix, locale, req, request)).reduce(new Cards(), this::addCard);
 
 	}
 
-	private Flux<RequisitionDetails> getApprovalDetails(String auth, String baseUrl, String userId) {
+	/**
+	 * Function to get the list of pending request details for a particular userId
+	 * @param auth
+	 * @param baseUrl
+	 * @param userId
+	 * @param userEmail
+	 * @return
+	 */
+	private Flux<RequisitionDetails> getApprovalDetails(String auth, String baseUrl, String userId, String userEmail) {
 
 		logger.info("Getting approval details for the user id :: {}", userId);
-		String url = baseUrl + pendingApprovalUrl + userId + "&status=pending_approval";
-		logger.info("Pending approvals url :: {}", url);
 
-		return rest.get().uri(url).accept(MediaType.APPLICATION_JSON)
-				.header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, auth).retrieve().bodyToFlux(ApprovalDetails.class)
-				.flatMap(ad -> getRequisitionDetails(auth, baseUrl, ad));
+		return rest.get().uri(baseUrl + "/api/approvals?approver_id={userId}&status=pending_approval", userId)
+				.accept(MediaType.APPLICATION_JSON).header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, auth).retrieve()
+				.bodyToFlux(ApprovalDetails.class)
+				.flatMap(ad -> getRequisitionDetails(auth, baseUrl, ad.getApprovableId(), userEmail));
 	}
 
-	private Flux<RequisitionDetails> getRequisitionDetails(String auth, String baseUrl, ApprovalDetails appr) {
+	private Flux<RequisitionDetails> getRequisitionDetails(String auth, String baseUrl, String approvableId,
+			String userEmail) {
 
-		String url = baseUrl + requistionUrl + appr.getApprovableId() + "&status=pending_approval";
-		logger.info("Requisition details Url :: {}", url);
+		logger.info("Fetching Requisition details for {} and user {} ", approvableId, userEmail);
 
-		return rest.get().uri(url).accept(MediaType.APPLICATION_JSON)
-				.header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, auth).retrieve().bodyToFlux(RequisitionDetails.class)
-				.filter(requisition -> appr.getApprover().getId()
-						.equals(requisition.getCurrentApproval().getApprover().getId()));
+		return rest.get().uri(baseUrl + "/api/requisitions?id={approvableId}&status=pending_approval", approvableId)
+				.accept(MediaType.APPLICATION_JSON).header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, auth).retrieve()
+				.bodyToFlux(RequisitionDetails.class)
+				.filter(requisition -> userEmail.equals(requisition.getCurrentApproval().getApprover().getEmail()));
 
 	}
 
@@ -119,15 +127,14 @@ public class HubCoupaService {
 	private Card makeCards(String routingPrefix, Locale locale, RequisitionDetails requestDetails,
 			HttpServletRequest request) {
 
-		String requestId = requestDetails.getCurrentApproval().getId();
+		String requestId = requestDetails.getId();
 		String reportName = requestDetails.getRequisitionLinesList().get(0).getDescription();
-		String projectNumber = "1000"; // definition?
 
 		logger.debug("makeCard called: routingPrefix={}, requestId={}, reportName={}", routingPrefix, requestId,
 				reportName);
 
 		Card.Builder builder = new Card.Builder().setName("Coupa")
-				.setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale, reportName), projectNumber)
+				.setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale, reportName))
 				.setBody(new CardBody.Builder().addField(makeOrderDateField(locale, requestDetails))
 						.addField(makeCostCenterField(locale, requestDetails))
 						.addField(makeRequisitionNumberField(locale, requestDetails))
@@ -209,27 +216,41 @@ public class HubCoupaService {
 				.setDescription(requestDetails.getJustification()).build();
 	}
 
-	public Mono<String> makeCoupaRequest(String reason, String baseUrl, String action, String id) throws IOException {
+	/**
+	 * Verifies if the logged in user has the right to approve/reject the requestId ->If yes,proceeds with approve/reject action else
+	 * throws Exception
+	 * 
+	 * @param reason
+	 * @param baseUrl
+	 * @param action
+	 * @param approvableId
+	 * @param userEmail
+	 * @return
+	 * @throws IOException
+	 */
+	public Mono<String> makeCoupaRequest(String reason, String baseUrl, String action, String approvableId,
+			String userEmail) throws IOException {
 
-		String requestUrl = null;
-		if (action.equalsIgnoreCase(HubCoupaUtil.APPROVE)) {
-			requestUrl = baseUrl + actionUrl + id + "/approve?reason=" + reason;
-		} else {
-			requestUrl = baseUrl + actionUrl + id + "/reject?reason=" + reason;
-		}
+		return getRequisitionDetails(systemToken, baseUrl, approvableId, userEmail)
+				.switchIfEmpty(Mono.error(new UserException("User Not Authorized")))
+				.flatMap(requisitionDetails -> makeActionRequest(requisitionDetails.getCurrentApproval().getId(),
+						baseUrl, action, reason))
+				.next();
 
-		logger.info("Request Url : {} ", requestUrl);
+	}
 
-		return rest.put().uri(requestUrl).header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, systemToken)
-				.accept(MediaType.APPLICATION_JSON).retrieve().bodyToMono(String.class)
+	private Mono<String> makeActionRequest(String id, String baseUrl, String action, String reason) {
+
+		return rest.put().uri(baseUrl + "/api/approvals/{id}/{action}?reason={reason}", id, action, reason)
+				.header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, systemToken).accept(MediaType.APPLICATION_JSON)
+				.retrieve().bodyToMono(String.class)
 
 				.onErrorMap(WebClientResponseException.class, e -> handleForbiddenError(e));
-
 	}
 
 	private Throwable handleForbiddenError(WebClientResponseException e) {
 
-		logger.info("Exception caught");
+		logger.info("Exception caught : : {} ", e.getMessage());
 		if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
 			return new WebClientResponseException(e.getMessage(), HttpStatus.UNAUTHORIZED.value(), e.getStatusText(),
 					e.getHeaders(), e.getResponseBodyAsByteArray(), StandardCharsets.UTF_8);

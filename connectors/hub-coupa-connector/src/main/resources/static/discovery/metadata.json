@@ -8,8 +8,8 @@
 				"href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
 			},
 			"fields": {
-				"user_email": {
-					"env": "USER_EMAIL"
+				"_temporary": {
+					"regex": "__test_hub_connectors__"
 				}
 			},
 			"endpoint": {

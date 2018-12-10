@@ -3,9 +3,6 @@ server:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain
   server-header: hub-coupa-connector
-  port: 9990
-connector:
-  hasTestAuth: true
 management:
   endpoints:
     web.base-path: /
@@ -13,7 +10,15 @@ management:
 coupa: 
   url: 
     webservice:
-      userdetails: /api/users?login=
+      userdetails: /api/users?email=
       requisitions: /api/requisitions?id=
       pendingapprovals: /api/approvals?approver_id=
       action: /api/approvals/
+  oauth-token: cloneee4c2851148642683795a908508cf1b34df59b
+  
+security:
+  oauth2:
+    resource: 
+      jwt:
+        key-uri: https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem
+    

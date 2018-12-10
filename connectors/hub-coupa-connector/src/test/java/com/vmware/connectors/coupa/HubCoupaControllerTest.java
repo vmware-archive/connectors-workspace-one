@@ -1,9 +1,9 @@
+
+package com.vmware.connectors.coupa;
 /*
  * Copyright © 2018 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
-
-package com.vmware.connectors.coupa;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -33,7 +33,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 
-class HubHubCoupaControllerTest extends ControllerTestsBase {
+class HubCoupaControllerTest extends ControllerTestsBase {
 
 	@ParameterizedTest
 	@ValueSource(strings = { "/cards/requests", "/api/approve/123", "/api/reject/123" })
@@ -48,8 +48,8 @@ class HubHubCoupaControllerTest extends ControllerTestsBase {
 
 	@Test
 	void testGetImage() {
-		webClient.get().uri("/images/connector.png").exchange().expectStatus().isOk().expectHeader().contentLength(16375)
-				.expectHeader().contentType(IMAGE_PNG_VALUE).expectBody()
+		webClient.get().uri("/images/connector.png").exchange().expectStatus().isOk().expectHeader()
+				.contentLength(16375).expectHeader().contentType(IMAGE_PNG_VALUE).expectBody()
 				.consumeWith(body -> assertThat(body.getResponseBody(),
 						equalTo(bytesFromFile("/static/images/connector.png"))));
 	}
@@ -64,8 +64,7 @@ class HubHubCoupaControllerTest extends ControllerTestsBase {
 				.header(AUTHORIZATION, "Bearer " + accessToken()).header(X_AUTH_HEADER, "Bearer vidm-token")
 				.header(X_BASE_URL_HEADER, mockBackend.url(""))
 				.header("x-routing-prefix", "https://hero/connectors/coupa/").headers(ControllerTestsBase::headers)
-				.contentType(APPLICATION_JSON).accept(APPLICATION_JSON)
-				.syncBody(fromFile("/connector/requests/request.json"));
+				.contentType(APPLICATION_JSON).accept(APPLICATION_JSON);
 
 		if (StringUtils.isNotBlank(lang)) {
 			spec.header(ACCEPT_LANGUAGE, lang);
@@ -90,7 +89,7 @@ class HubHubCoupaControllerTest extends ControllerTestsBase {
 	}
 
 	private void mockUserDetails() throws Exception {
-		mockBackend.expect(requestTo("/api/users?login=sdeswal")).andExpect(method(GET))
+		mockBackend.expect(requestTo("/api/users?email=admin@acme.com")).andExpect(method(GET))
 				.andExpect(header(ACCEPT, APPLICATION_JSON_VALUE)).andRespond(
 						withSuccess(fromFile("/fake/user-details.json").replace("${coupa_host}", mockBackend.url("")),
 								APPLICATION_JSON));
@@ -113,4 +112,40 @@ class HubHubCoupaControllerTest extends ControllerTestsBase {
 
 	}
 
+	@Test
+	void testApproveRequest() throws Exception {
+		mockRequisitionDetails();
+		mockApproveAction();
+
+		webClient.get().uri("/api/approve/{id}?comment=Approved", "182964")
+				.header(AUTHORIZATION, "Bearer " + accessToken()).header(X_AUTH_HEADER, "Bearer vidm-token")
+				.header(X_BASE_URL_HEADER, mockBackend.url("")).accept(APPLICATION_JSON).exchange().expectStatus()
+				.isOk();
+
+	}
+	
+	@Test
+	void testRejectRequest() throws Exception {
+		mockRequisitionDetails();
+		mockRejectAction();
+
+		webClient.get().uri("/api/decline/{id}?comment=Declined", "182964")
+				.header(AUTHORIZATION, "Bearer " + accessToken()).header(X_AUTH_HEADER, "Bearer vidm-token")
+				.header(X_BASE_URL_HEADER, mockBackend.url("")).accept(APPLICATION_JSON).exchange().expectStatus()
+				.isOk();
+
+	}
+
+	private void mockApproveAction() throws Exception {
+		mockBackend.expect(requestTo("/api/approvals/6609559/approve?reason=Approved"))
+				.andExpect(method(org.springframework.http.HttpMethod.PUT))
+				.andExpect(header(ACCEPT, APPLICATION_JSON_VALUE)).andRespond(withSuccess());
+	}
+
+	private void mockRejectAction() throws Exception {
+		mockBackend.expect(requestTo("/api/approvals/6609559/reject?reason=Declined"))
+				.andExpect(method(org.springframework.http.HttpMethod.PUT))
+				.andExpect(header(ACCEPT, APPLICATION_JSON_VALUE)).andRespond(withSuccess());
+	}
+	
 }

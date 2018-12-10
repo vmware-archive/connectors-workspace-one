@@ -1,11 +1,11 @@
 [Unit]
-Description=Coupa Connector Service
+Description=Hub Coupa Connector Service
 After=network.target
 
 [Service]
 Type=simple
 User=roswell
-ExecStart=/bin/bash /opt/vmware/connectors/coupa/start.sh
+ExecStart=/bin/bash /opt/vmware/connectors/hub-coupa/start.sh
 Restart=on-abort
 
 [Install]

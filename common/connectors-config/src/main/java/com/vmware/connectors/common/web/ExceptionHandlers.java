@@ -46,9 +46,8 @@ public class ExceptionHandlers {
 	@ExceptionHandler(UserException.class)
 	@ResponseBody
 	public ResponseEntity<Object> handleValidationExceptions(UserException e) {
-		logger.error("UserException occured while approving/declining a request");
 		Map<String, String> body = Collections.singletonMap("error", e.getMessage());
-		return ResponseEntity.status(NOT_FOUND).contentType(APPLICATION_JSON).body(body);
+		return ResponseEntity.status(UNAUTHORIZED).contentType(APPLICATION_JSON).body(body);
 	}
 
 	@ExceptionHandler

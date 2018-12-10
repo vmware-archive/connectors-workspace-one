@@ -1,6 +1,6 @@
 #!/bin/bash
 
-connector_name='coupa'
+connector_name='hub-coupa'
 install_path="/opt/vmware/connectors/$connector_name"
 etc_path="/etc/opt/vmware/connectors/$connector_name"
 

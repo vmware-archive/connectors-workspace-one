@@ -1,6 +1,6 @@
 # Coupa Connector for WS1 Hub
 
-The Coupa connector presents cards inviting the user to approve or reject an  report.
+The Coupa connector presents cards inviting the user to approve or reject a report.
 
 Approving and rejecting a report are the actions supported by this connector.
 
