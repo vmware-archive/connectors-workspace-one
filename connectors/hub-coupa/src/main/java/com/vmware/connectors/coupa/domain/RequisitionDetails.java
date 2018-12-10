@@ -1,8 +1,9 @@
-package com.vmware.connectors.coupa.domain;
+
 /*
  * Copyright © 2018 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
+package com.vmware.connectors.coupa.domain;
 
 import java.util.List;
 

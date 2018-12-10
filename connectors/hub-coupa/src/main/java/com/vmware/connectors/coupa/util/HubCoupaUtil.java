@@ -1,8 +1,10 @@
-package com.vmware.connectors.coupa.util;
+
 /*
  * Copyright © 2018 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
+package com.vmware.connectors.coupa.util;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
@@ -30,7 +32,7 @@ public final class HubCoupaUtil {
 
 	public static String getRequestorName(
 			com.vmware.connectors.coupa.domain.RequisitionDetails requisitionDetailsClientResponse) {
-		String requestorName = "";//StringBuilder trial
+		String requestorName = "";// StringBuilder trial
 		if (requisitionDetailsClientResponse.getRequestedBy() != null
 				&& StringUtils.isNotEmpty(requisitionDetailsClientResponse.getRequestedBy().getFirstName())) {
 			requestorName = requisitionDetailsClientResponse.getRequestedBy().getFirstName() + " "

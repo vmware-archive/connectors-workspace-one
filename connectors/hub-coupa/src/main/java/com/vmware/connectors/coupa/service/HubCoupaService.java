@@ -1,8 +1,10 @@
-package com.vmware.connectors.coupa.service;
+
 /*
  * Copyright © 2018 VMware, Inc. All Rights Reserved.
+
  * SPDX-License-Identifier: BSD-2-Clause
  */
+package com.vmware.connectors.coupa.service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

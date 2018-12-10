@@ -1,8 +1,9 @@
-package com.vmware.connectors.coupa.controller;
 /*
  * Copyright © 2018 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
+
+package com.vmware.connectors.coupa.controller;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -86,9 +87,8 @@ public class HubCoupaController {
 		return service.makeCoupaRequest(comment, baseUrl, HubCoupaUtil.REJECT, id, userEmail);
 	}
 
-	
 	private void validateEmailAddress(String userEmail) {
-		//If email is not found in the token,throw Exception
+		// If email is not found in the token,throw Exception
 		if (StringUtils.isBlank(userEmail)) {
 			logger.error("User email  is empty in jwt access token.");
 			throw new UserException("User Not Found");
