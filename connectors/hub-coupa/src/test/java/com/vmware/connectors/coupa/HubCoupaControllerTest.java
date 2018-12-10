@@ -1,9 +1,8 @@
-
-package com.vmware.connectors.coupa;
 /*
  * Copyright © 2018 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
+package com.vmware.connectors.coupa;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -123,7 +122,7 @@ class HubCoupaControllerTest extends ControllerTestsBase {
 				.isOk();
 
 	}
-	
+
 	@Test
 	void testRejectRequest() throws Exception {
 		mockRequisitionDetails();
@@ -147,5 +146,5 @@ class HubCoupaControllerTest extends ControllerTestsBase {
 				.andExpect(method(org.springframework.http.HttpMethod.PUT))
 				.andExpect(header(ACCEPT, APPLICATION_JSON_VALUE)).andRespond(withSuccess());
 	}
-	
+
 }
