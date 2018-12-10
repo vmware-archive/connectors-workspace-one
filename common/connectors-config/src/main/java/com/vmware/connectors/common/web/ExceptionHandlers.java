@@ -47,7 +47,7 @@ public class ExceptionHandlers {
 	@ResponseBody
 	public ResponseEntity<Object> handleValidationExceptions(UserException e) {
 		Map<String, String> body = Collections.singletonMap("error", e.getMessage());
-		return ResponseEntity.status(UNAUTHORIZED).contentType(APPLICATION_JSON).body(body);
+		return ResponseEntity.status(NOT_FOUND).contentType(APPLICATION_JSON).body(body);
 	}
 
 	@ExceptionHandler

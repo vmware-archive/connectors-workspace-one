@@ -232,7 +232,7 @@ public class HubCoupaService {
 			String userEmail) throws IOException {
 
 		return getRequisitionDetails(systemToken, baseUrl, approvableId, userEmail)
-				.switchIfEmpty(Mono.error(new UserException("User Not Authorized")))
+				.switchIfEmpty(Mono.error(new UserException("User Not Found")))
 				.flatMap(requisitionDetails -> makeActionRequest(requisitionDetails.getCurrentApproval().getId(),
 						baseUrl, action, reason))
 				.next();
