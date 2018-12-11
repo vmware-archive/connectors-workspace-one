@@ -1,4 +1,3 @@
-
 /*
  * Copyright © 2018 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
@@ -32,7 +31,7 @@ public final class HubCoupaUtil {
 
 	public static String getRequestorName(
 			com.vmware.connectors.coupa.domain.RequisitionDetails requisitionDetailsClientResponse) {
-		String requestorName = "";// StringBuilder trial
+		String requestorName = "";
 		if (requisitionDetailsClientResponse.getRequestedBy() != null
 				&& StringUtils.isNotEmpty(requisitionDetailsClientResponse.getRequestedBy().getFirstName())) {
 			requestorName = requisitionDetailsClientResponse.getRequestedBy().getFirstName() + " "
