@@ -68,17 +68,6 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testConnectorImage() {
-        webClient.get()
-                .uri("/images/connector.png")
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(IMAGE_PNG_VALUE)
-                .expectHeader().contentLength(7314)
-                .expectBody().consumeWith(body -> assertThat(body.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
-    }
-
-    @Test
     public void testMissingRequestHeaders() throws IOException {
         webClient.post()
                 .uri("/cards/requests")

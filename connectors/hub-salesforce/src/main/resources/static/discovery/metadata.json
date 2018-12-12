@@ -1,6 +1,6 @@
 {
   "image": {
-    "href": "${CONNECTOR_HOST}/images/connector.png"
+    "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-salesforce.png"
   },
   "object_types": {
     "card": {
