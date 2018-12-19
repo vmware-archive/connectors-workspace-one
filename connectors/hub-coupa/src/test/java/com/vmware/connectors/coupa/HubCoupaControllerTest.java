@@ -11,6 +11,7 @@ import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
@@ -62,18 +63,23 @@ class HubCoupaControllerTest extends ControllerTestsBase {
 		WebTestClient.RequestHeadersSpec<?> spec = webClient.post().uri("/cards/requests")
 				.header(AUTHORIZATION, "Bearer " + accessToken()).header(X_AUTH_HEADER, "Bearer vidm-token")
 				.header(X_BASE_URL_HEADER, mockBackend.url(""))
-				.header("x-routing-prefix", "https://hero/connectors/coupa/").headers(ControllerTestsBase::headers)
+				.header("x-routing-prefix", "https://hero/connectors/coupa/")
+				.headers(ControllerTestsBase::headers)
 				.contentType(APPLICATION_JSON).accept(APPLICATION_JSON);
 
 		if (StringUtils.isNotBlank(lang)) {
 			spec.header(ACCEPT_LANGUAGE, lang);
 		}
 
-		String body = spec.exchange().expectStatus().isOk().expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-				.returnResult(String.class).getResponseBody().collect(Collectors.joining())
-				.map(JsonNormalizer::forCards).block()
-				.replaceAll("[0-9]{4}[-][0-9]{2}[-][0-9]{2}T[0-9]{2}[:][0-9]{2}[:][0-9]{2}Z?", "1970-01-01T00:00:00Z")
-				.replaceAll("[a-z0-9]{40,}", "test-hash");
+		String body = spec.exchange()
+				          .expectStatus().isOk()
+				          .expectHeader()
+				          .contentTypeCompatibleWith(APPLICATION_JSON)
+				          .returnResult(String.class)
+				          .getResponseBody().collect(Collectors.joining())
+				          .map(JsonNormalizer::forCards).block()
+				          .replaceAll("[0-9]{4}[-][0-9]{2}[-][0-9]{2}T[0-9]{2}[:][0-9]{2}[:][0-9]{2}Z?", "1970-01-01T00:00:00Z")
+				          .replaceAll("[a-z0-9]{40,}", "test-hash");
 
 		assertThat(body, sameJSONAs(fromFile("connector/responses/" + expected)).allowingAnyArrayOrdering()
 				.allowingExtraUnexpectedFields());
@@ -88,25 +94,27 @@ class HubCoupaControllerTest extends ControllerTestsBase {
 	}
 
 	private void mockUserDetails() throws Exception {
-		mockBackend.expect(requestTo("/api/users?email=admin@acme.com")).andExpect(method(GET))
-				.andExpect(header(ACCEPT, APPLICATION_JSON_VALUE)).andRespond(
-						withSuccess(fromFile("/fake/user-details.json").replace("${coupa_host}", mockBackend.url("")),
+		mockBackend.expect(requestTo("/api/users?email=admin@acme.com"))
+		           .andExpect(method(GET))
+				   .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+				   .andRespond(withSuccess(fromFile("/fake/user-details.json").replace("${coupa_host}", mockBackend.url("")),
 								APPLICATION_JSON));
 	}
 
 	private void mockApproval() throws Exception {
-		mockBackend.expect(requestTo("/api/approvals?approver_id=15882&status=pending_approval")).andExpect(method(GET))
-				.andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
-				.andRespond(withSuccess(fromFile("/fake/approvals.json").replace("${coupa_host}", mockBackend.url("")),
+		mockBackend.expect(requestTo("/api/approvals?approver_id=15882&status=pending_approval"))
+		           .andExpect(method(GET))
+				   .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+				   .andRespond(withSuccess(fromFile("/fake/approvals.json").replace("${coupa_host}", mockBackend.url("")),
 						APPLICATION_JSON));
 
 	}
 
 	private void mockRequisitionDetails() throws Exception {
-		mockBackend.expect(requestTo("/api/requisitions?id=182964&status=pending_approval")).andExpect(method(GET))
-				.andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
-				.andRespond(withSuccess(
-						fromFile("/fake/requisition-details.json").replace("${coupa_host}", mockBackend.url("")),
+		mockBackend.expect(requestTo("/api/requisitions?id=182964&status=pending_approval"))
+		           .andExpect(method(GET))
+				   .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+				   .andRespond(withSuccess(fromFile("/fake/requisition-details.json").replace("${coupa_host}", mockBackend.url("")),
 						APPLICATION_JSON));
 
 	}
@@ -116,10 +124,12 @@ class HubCoupaControllerTest extends ControllerTestsBase {
 		mockRequisitionDetails();
 		mockApproveAction();
 
-		webClient.get().uri("/api/approve/{id}?comment=Approved", "182964")
-				.header(AUTHORIZATION, "Bearer " + accessToken()).header(X_AUTH_HEADER, "Bearer vidm-token")
-				.header(X_BASE_URL_HEADER, mockBackend.url("")).accept(APPLICATION_JSON).exchange().expectStatus()
-				.isOk();
+		webClient.post().uri("/api/approve/{id}?comment=Approved", "182964")
+				 .header(AUTHORIZATION, "Bearer " + accessToken())
+				 .header(X_AUTH_HEADER, "Bearer vidm-token")
+				 .header(X_BASE_URL_HEADER, mockBackend.url(""))
+				 .contentType(APPLICATION_FORM_URLENCODED).exchange().expectStatus()
+				 .isOk();
 
 	}
 
@@ -128,23 +138,27 @@ class HubCoupaControllerTest extends ControllerTestsBase {
 		mockRequisitionDetails();
 		mockRejectAction();
 
-		webClient.get().uri("/api/decline/{id}?comment=Declined", "182964")
-				.header(AUTHORIZATION, "Bearer " + accessToken()).header(X_AUTH_HEADER, "Bearer vidm-token")
-				.header(X_BASE_URL_HEADER, mockBackend.url("")).accept(APPLICATION_JSON).exchange().expectStatus()
-				.isOk();
+		webClient.post().uri("/api/decline/{id}?comment=Declined", "182964")
+				 .header(AUTHORIZATION, "Bearer " + accessToken())
+				 .header(X_AUTH_HEADER, "Bearer vidm-token")
+				 .header(X_BASE_URL_HEADER, mockBackend.url(""))
+				 .contentType(APPLICATION_FORM_URLENCODED).exchange().expectStatus()
+				 .isOk();
 
 	}
 
 	private void mockApproveAction() throws Exception {
 		mockBackend.expect(requestTo("/api/approvals/6609559/approve?reason=Approved"))
-				.andExpect(method(org.springframework.http.HttpMethod.PUT))
-				.andExpect(header(ACCEPT, APPLICATION_JSON_VALUE)).andRespond(withSuccess());
+				   .andExpect(method(org.springframework.http.HttpMethod.PUT))
+				   .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+				   .andRespond(withSuccess());
 	}
 
 	private void mockRejectAction() throws Exception {
 		mockBackend.expect(requestTo("/api/approvals/6609559/reject?reason=Declined"))
-				.andExpect(method(org.springframework.http.HttpMethod.PUT))
-				.andExpect(header(ACCEPT, APPLICATION_JSON_VALUE)).andRespond(withSuccess());
+				   .andExpect(method(org.springframework.http.HttpMethod.PUT))
+				   .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+				   .andRespond(withSuccess());
 	}
 
 }

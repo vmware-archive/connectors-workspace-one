@@ -5,7 +5,6 @@
 package com.vmware.connectors.coupa.service;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,6 +60,7 @@ public class HubCoupaService {
 
 	/**
 	 * Get the list of pending requests of the logged in user
+	 * 
 	 * @param userEmail
 	 * @param baseUrl
 	 * @param routingPrefix
@@ -71,17 +71,23 @@ public class HubCoupaService {
 	public Mono<Cards> getPendingApprovals(String userEmail, String baseUrl, String routingPrefix,
 			HttpServletRequest request, Locale locale) {
 
-		logger.info("Getting user id of {}", userEmail);
+		logger.debug("Getting user id of {}", userEmail);
 
-		return rest.get().uri(baseUrl + "/api/users?email={userEmail}", userEmail).accept(MediaType.APPLICATION_JSON)
-				.header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, systemToken).retrieve().bodyToFlux(UserDetails.class)
-				.flatMap(u -> getApprovalDetails(systemToken, baseUrl, u.getId(), userEmail))
-				.map(req -> makeCards(routingPrefix, locale, req, request)).reduce(new Cards(), this::addCard);
+		return  rest.get()
+					.uri(baseUrl + "/api/users?email={userEmail}", userEmail)
+					.accept(MediaType.APPLICATION_JSON)
+					.header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, systemToken)
+					.retrieve()
+					.bodyToFlux(UserDetails.class)
+					.flatMap(u -> getApprovalDetails(systemToken, baseUrl, u.getId(), userEmail))
+					.map(req -> makeCards(routingPrefix, locale, req, request))
+					.reduce(new Cards(), this::addCard);
 
 	}
 
 	/**
 	 * Function to get the list of pending request details for a particular userId
+	 * 
 	 * @param auth
 	 * @param baseUrl
 	 * @param userId
@@ -90,23 +96,31 @@ public class HubCoupaService {
 	 */
 	private Flux<RequisitionDetails> getApprovalDetails(String auth, String baseUrl, String userId, String userEmail) {
 
-		logger.info("Getting approval details for the user id :: {}", userId);
+		logger.debug("Getting approval details for the user id :: {}", userId);
 
-		return rest.get().uri(baseUrl + "/api/approvals?approver_id={userId}&status=pending_approval", userId)
-				.accept(MediaType.APPLICATION_JSON).header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, auth).retrieve()
-				.bodyToFlux(ApprovalDetails.class)
-				.flatMap(ad -> getRequisitionDetails(auth, baseUrl, ad.getApprovableId(), userEmail));
+		return  rest.get()
+					.uri(baseUrl + "/api/approvals?approver_id={userId}&status=pending_approval", userId)
+					.accept(MediaType.APPLICATION_JSON)
+					.header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, auth)
+					.retrieve()
+					.bodyToFlux(ApprovalDetails.class)
+					.flatMap(ad -> getRequisitionDetails(auth, baseUrl, ad.getApprovableId(), userEmail));
 	}
 
 	private Flux<RequisitionDetails> getRequisitionDetails(String auth, String baseUrl, String approvableId,
 			String userEmail) {
 
-		logger.info("Fetching Requisition details for {} and user {} ", approvableId, userEmail);
+		logger.debug("Fetching Requisition details for {} and user {} ", approvableId, userEmail);
 
-		return rest.get().uri(baseUrl + "/api/requisitions?id={approvableId}&status=pending_approval", approvableId)
-				.accept(MediaType.APPLICATION_JSON).header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, auth).retrieve()
-				.bodyToFlux(RequisitionDetails.class)
-				.filter(requisition -> userEmail.equals(requisition.getCurrentApproval().getApprover().getEmail()));
+		return  rest.get()
+					.uri(baseUrl + "/api/requisitions?id={approvableId}&status=pending_approval", approvableId)
+					.accept(MediaType.APPLICATION_JSON)
+					.header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, auth)
+					.retrieve()
+					.bodyToFlux(RequisitionDetails.class)
+					.filter(requisition -> userEmail.equals(requisition.getCurrentApproval()
+																	   .getApprover()
+																	   .getEmail()));
 
 	}
 
@@ -128,22 +142,28 @@ public class HubCoupaService {
 			HttpServletRequest request) {
 
 		String requestId = requestDetails.getId();
-		String reportName = requestDetails.getRequisitionLinesList().get(0).getDescription();
+		String reportName = requestDetails.getRequisitionLinesList()
+										  .get(0)
+										  .getDescription();
 
 		logger.debug("makeCard called: routingPrefix={}, requestId={}, reportName={}", routingPrefix, requestId,
 				reportName);
 
-		Card.Builder builder = new Card.Builder().setName("Coupa")
-				.setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale, reportName))
-				.setBody(new CardBody.Builder().addField(makeOrderDateField(locale, requestDetails))
-						.addField(makeCostCenterField(locale, requestDetails))
-						.addField(makeRequisitionNumberField(locale, requestDetails))
-						.addField(makeRequisitionDescriptionField(locale, requestDetails))
-						.addField(makeRequesterField(locale, requestDetails))
-						.addField(makeTotalAmountField(locale, requestDetails))
-						.addField(makeJustificationField(locale, requestDetails)).build())
-				.addAction(makeApproveAction(locale, requestId, request))
-				.addAction(makeDeclineAction(locale, requestId, request));
+		Card.Builder builder = new Card.Builder()
+			 .setName("Coupa")
+			 .setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale,
+						reportName))
+			 .setBody(new CardBody.Builder()
+								.addField(makeOrderDateField(locale,requestDetails))
+								.addField(makeCostCenterField(locale, requestDetails))
+								.addField(makeRequisitionNumberField(locale,requestDetails))
+								.addField(makeRequisitionDescriptionField(locale,requestDetails))
+								.addField(makeRequesterField(locale,requestDetails))
+								.addField(makeTotalAmountField(locale, requestDetails))
+								.addField(makeJustificationField(locale, requestDetails))
+								.build())
+			 .addAction(makeApproveAction(locale, requestId, request))
+			 .addAction(makeDeclineAction(locale, requestId, request));
 
 		CommonUtils.buildConnectorImageUrl(builder, request);
 
@@ -151,74 +171,99 @@ public class HubCoupaService {
 	}
 
 	private CardAction makeApproveAction(Locale locale, String requestId, HttpServletRequest request) {
-		return new CardAction.Builder().setActionKey(CardActionKey.USER_INPUT)
-				.setLabel(cardTextAccessor.getMessage("hub.coupa.approve.label", locale))
-				.setCompletedLabel(cardTextAccessor.getMessage("hub.coupa.approve.completedLabel", locale))
-				.setPrimary(true).setMutuallyExclusiveSetId("approval-actions").setType(HttpMethod.POST)
-				.setUrl(CommonUtils.buildConnectorUrl(request, null) + "/api/approve/" + requestId)
-				.addUserInputField(new CardActionInputField.Builder().setFormat("textarea")
-						.setId(HubCoupaUtil.COMMENT_KEY)
-						.setLabel(cardTextAccessor.getMessage("hub.coupa.approve.comment.label", locale)).build())
-				.build();
+		return new CardAction.Builder()
+			.setActionKey(CardActionKey.USER_INPUT)
+			.setLabel(cardTextAccessor.getMessage("hub.coupa.approve.label", locale))
+			.setCompletedLabel(
+					cardTextAccessor.getMessage("hub.coupa.approve.completedLabel", locale))
+			.setPrimary(true)
+			.setMutuallyExclusiveSetId("approval-actions")
+			.setType(HttpMethod.POST)
+			.setUrl(CommonUtils.buildConnectorUrl(request, null) + "/api/approve/"
+					+ requestId)
+			.addUserInputField(new CardActionInputField.Builder().setFormat("textarea")
+																 .setId(HubCoupaUtil.COMMENT_KEY)
+																 .setLabel(cardTextAccessor.getMessage("hub.coupa.approve.comment.label",locale))
+																 .build())
+			.build();
 	}
 
 	private CardAction makeDeclineAction(Locale locale, String requestId, HttpServletRequest request) {
-		return new CardAction.Builder().setActionKey(CardActionKey.USER_INPUT)
-				.setLabel(cardTextAccessor.getMessage("hub.coupa.decline.label", locale))
-				.setCompletedLabel(cardTextAccessor.getMessage("hub.coupa.decline.completedLabel", locale))
-				.setPrimary(false).setMutuallyExclusiveSetId("approval-actions").setType(HttpMethod.POST)
-				.setUrl(CommonUtils.buildConnectorUrl(request, null) + "/api/decline/" + requestId)
-				.addUserInputField(new CardActionInputField.Builder().setFormat("textarea")
-						.setId(HubCoupaUtil.COMMENT_KEY)
-						.setLabel(cardTextAccessor.getMessage("hub.coupa.decline.reason.label", locale)).build())
-				.build();
+		return new CardAction.Builder()
+			.setActionKey(CardActionKey.USER_INPUT)
+			.setLabel(cardTextAccessor.getMessage("hub.coupa.decline.label", locale))
+			.setCompletedLabel(
+					cardTextAccessor.getMessage("hub.coupa.decline.completedLabel", locale))
+			.setPrimary(false)
+			.setMutuallyExclusiveSetId("approval-actions")
+			.setType(HttpMethod.POST)
+			.setUrl(CommonUtils.buildConnectorUrl(request, null) + "/api/decline/"
+					+ requestId)
+			.addUserInputField(new CardActionInputField.Builder().setFormat("textarea")
+																 .setId(HubCoupaUtil.COMMENT_KEY)
+																 .setLabel(cardTextAccessor.getMessage("hub.coupa.decline.reason.label",locale))
+																 .build())
+			.build();
 	}
 
 	private CardBodyField makeOrderDateField(Locale locale, RequisitionDetails requestDetails) {
 		return new CardBodyField.Builder().setType(CardBodyFieldType.GENERAL)
-				.setTitle(cardTextAccessor.getMessage("hub.coupa.submissionDate", locale))
-				.setDescription(requestDetails.getSubmittedAt()).build();
+										  .setTitle(cardTextAccessor.getMessage("hub.coupa.submissionDate", locale))
+										  .setDescription(requestDetails.getSubmittedAt())
+										  .build();
 	}
 
 	private CardBodyField makeCostCenterField(Locale locale, RequisitionDetails requestDetails) {
-		return new CardBodyField.Builder().setType(CardBodyFieldType.GENERAL)
-				.setTitle(cardTextAccessor.getMessage("hub.coupa.costCenter", locale))
-				.setDescription(requestDetails.getRequestorCostCenter()).build();
+		return new CardBodyField.Builder()
+			  .setType(CardBodyFieldType.GENERAL)
+			  .setTitle(cardTextAccessor.getMessage("hub.coupa.costCenter", locale))
+			  .setDescription(requestDetails.getRequestorCostCenter())
+			  .build();
 	}
 
 	private CardBodyField makeRequisitionNumberField(Locale locale, RequisitionDetails requestDetails) {
-		return new CardBodyField.Builder().setType(CardBodyFieldType.GENERAL)
-				.setTitle(cardTextAccessor.getMessage("hub.coupa.requestId", locale))
-				.setDescription(requestDetails.getId()).build();
+		return new CardBodyField.Builder()
+			  .setType(CardBodyFieldType.GENERAL)
+			  .setTitle(cardTextAccessor.getMessage("hub.coupa.requestId", locale))
+			  .setDescription(requestDetails.getId())
+			  .build();
 	}
 
 	private CardBodyField makeRequisitionDescriptionField(Locale locale, RequisitionDetails requestDetails) {
-		return new CardBodyField.Builder().setType(CardBodyFieldType.GENERAL)
-				.setTitle(cardTextAccessor.getMessage("hub.coupa.requestDescription", locale))
-				.setDescription(requestDetails.getRequisitionDescription()).build();
+		return new CardBodyField.Builder()
+			  .setType(CardBodyFieldType.GENERAL)
+			  .setTitle(cardTextAccessor.getMessage("hub.coupa.requestDescription", locale))
+			  .setDescription(requestDetails.getRequisitionDescription())
+			  .build();
 	}
 
 	private CardBodyField makeRequesterField(Locale locale, RequisitionDetails requestDetails) {
-		return new CardBodyField.Builder().setType(CardBodyFieldType.GENERAL)
-				.setTitle(cardTextAccessor.getMessage("hub.coupa.requester", locale))
-				.setDescription(HubCoupaUtil.getRequestorName(requestDetails)).build();
+		return new CardBodyField.Builder()
+			  .setType(CardBodyFieldType.GENERAL)
+			  .setTitle(cardTextAccessor.getMessage("hub.coupa.requester", locale))
+			  .setDescription(HubCoupaUtil.getRequestorName(requestDetails))
+			  .build();
 	}
 
 	private CardBodyField makeTotalAmountField(Locale locale, RequisitionDetails requestDetails) {
-		return new CardBodyField.Builder().setType(CardBodyFieldType.GENERAL)
-				.setTitle(cardTextAccessor.getMessage("hub.coupa.expenseAmount", locale))
-				.setDescription(HubCoupaUtil.getFormattedAmount(requestDetails.getMobileTotal())).build();
+		return new CardBodyField.Builder()
+			  .setType(CardBodyFieldType.GENERAL)
+			  .setTitle(cardTextAccessor.getMessage("hub.coupa.expenseAmount", locale))
+			  .setDescription(HubCoupaUtil.getFormattedAmount(requestDetails.getMobileTotal()))
+			  .build();
 	}
 
 	private CardBodyField makeJustificationField(Locale locale, RequisitionDetails requestDetails) {
-		return new CardBodyField.Builder().setType(CardBodyFieldType.GENERAL)
-				.setTitle(cardTextAccessor.getMessage("hub.coupa.justification", locale))
-				.setDescription(requestDetails.getJustification()).build();
+		return new CardBodyField.Builder()
+			  .setType(CardBodyFieldType.GENERAL)
+			  .setTitle(cardTextAccessor.getMessage("hub.coupa.justification", locale))
+			  .setDescription(requestDetails.getJustification())
+			  .build();
 	}
 
 	/**
-	 * Verifies if the logged in user has the right to approve/reject the requestId ->If yes,proceeds with approve/reject action else
-	 * throws Exception
+	 * Verifies if the logged in user has the right to approve/reject the requestId
+	 * ->If yes,proceeds with approve/reject action else throws Exception
 	 * 
 	 * @param reason
 	 * @param baseUrl
@@ -231,29 +276,36 @@ public class HubCoupaService {
 	public Mono<String> makeCoupaRequest(String reason, String baseUrl, String action, String approvableId,
 			String userEmail) throws IOException {
 
+		logger.debug("makeCoupaRequest called for user: userEmail={}, approvableId={}, action={}", userEmail,
+				approvableId, action);
+
 		return getRequisitionDetails(systemToken, baseUrl, approvableId, userEmail)
-				.switchIfEmpty(Mono.error(new UserException("User Not Found")))
-				.flatMap(requisitionDetails -> makeActionRequest(requisitionDetails.getCurrentApproval().getId(),
-						baseUrl, action, reason))
-				.next();
+			       .switchIfEmpty(Mono.error(new UserException("User Not Found")))
+		           .flatMap(requisitionDetails -> makeActionRequest(requisitionDetails.getCurrentApproval()
+									                                                  .getId(),
+				                                                                       baseUrl, action, reason))
+		           .next();
+			     
+																
 
 	}
 
 	private Mono<String> makeActionRequest(String id, String baseUrl, String action, String reason) {
 
-		return rest.put().uri(baseUrl + "/api/approvals/{id}/{action}?reason={reason}", id, action, reason)
-				.header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, systemToken).accept(MediaType.APPLICATION_JSON)
-				.retrieve().bodyToMono(String.class)
+		return rest	.put()
+					.uri(baseUrl + "/api/approvals/{id}/{action}?reason={reason}", id, action, reason)
+					.header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, systemToken)
+					.accept(MediaType.APPLICATION_JSON)
+					.retrieve()
+					.bodyToMono(String.class)
+					.onErrorMap(WebClientResponseException.class, e -> handleClientError(e));
 
-				.onErrorMap(WebClientResponseException.class, e -> handleForbiddenError(e));
 	}
 
-	private Throwable handleForbiddenError(WebClientResponseException e) {
-
-		logger.info("Exception caught : : {} ", e.getMessage());
-		if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
-			return new WebClientResponseException(e.getMessage(), HttpStatus.UNAUTHORIZED.value(), e.getStatusText(),
-					e.getHeaders(), e.getResponseBodyAsByteArray(), StandardCharsets.UTF_8);
+	private Throwable handleClientError(WebClientResponseException e) {
+		logger.error("Exception caught : : {} ", e.getMessage());
+		if (HttpStatus.BAD_REQUEST.equals(e.getStatusCode())) {
+			return new UserException("Bad Request", e.getStatusCode());
 		}
 
 		return e;

@@ -5,6 +5,16 @@
 
 package com.vmware.connectors.common.web;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +26,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.springframework.http.HttpStatus.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 /**
  * Created by Rob Worsnop on 4/11/17.
@@ -47,6 +50,10 @@ public class ExceptionHandlers {
 	@ResponseBody
 	public ResponseEntity<Object> handleValidationExceptions(UserException e) {
 		Map<String, String> body = Collections.singletonMap("error", e.getMessage());
+		//To be decided on what status should be returned
+		if (e.getStatus() == BAD_REQUEST) {
+			return ResponseEntity.status(BAD_REQUEST).contentType(APPLICATION_JSON).body(body);
+		}
 		return ResponseEntity.status(NOT_FOUND).contentType(APPLICATION_JSON).body(body);
 	}
 

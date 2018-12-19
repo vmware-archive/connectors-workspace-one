@@ -30,6 +30,7 @@
         <module>hub-servicenow</module>
         <module>bitbucket-server</module>
         <module>hub-salesforce</module>
+        <module>hub-coupa</module>
     </modules>
 
     <profiles>

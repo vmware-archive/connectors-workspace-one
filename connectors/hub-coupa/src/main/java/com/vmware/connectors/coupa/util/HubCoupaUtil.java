@@ -24,11 +24,6 @@ public final class HubCoupaUtil {
 	private HubCoupaUtil() {
 	}
 
-	public static String parseUsernameFromPrincipal(String principal) {
-		return StringUtils.substringBeforeLast(principal, "@");
-
-	}
-
 	public static String getRequestorName(
 			com.vmware.connectors.coupa.domain.RequisitionDetails requisitionDetailsClientResponse) {
 		String requestorName = "";
