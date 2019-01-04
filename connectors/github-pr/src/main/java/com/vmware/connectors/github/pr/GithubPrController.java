@@ -7,7 +7,11 @@ package com.vmware.connectors.github.pr;
 
 import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.payloads.request.CardRequest;
-import com.vmware.connectors.common.payloads.response.*;
+import com.vmware.connectors.common.payloads.response.Card;
+import com.vmware.connectors.common.payloads.response.CardAction;
+import com.vmware.connectors.common.payloads.response.CardActionInputField;
+import com.vmware.connectors.common.payloads.response.Cards;
+import com.vmware.connectors.common.payloads.response.CardActionKey;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
