@@ -9,12 +9,11 @@ import java.text.DecimalFormat;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.vmware.connectors.coupa.domain.RequisitionDetails;
+
 public final class HubCoupaUtil {
 
-	public static final String BEARER = "Bearer ";
-
 	public static final String COMMENT_KEY = "comment";
-	public static final String REASON_KEY = "reason";
 
 	public static final String APPROVE = "approve";
 	public static final String REJECT = "reject";
@@ -25,12 +24,15 @@ public final class HubCoupaUtil {
 	}
 
 	public static String getRequestorName(
-			com.vmware.connectors.coupa.domain.RequisitionDetails requisitionDetailsClientResponse) {
+		RequisitionDetails requisitionDetailsClientResponse) {
 		String requestorName = "";
 		if (requisitionDetailsClientResponse.getRequestedBy() != null
-				&& StringUtils.isNotEmpty(requisitionDetailsClientResponse.getRequestedBy().getFirstName())) {
-			requestorName = requisitionDetailsClientResponse.getRequestedBy().getFirstName() + " "
-					+ requisitionDetailsClientResponse.getRequestedBy().getLastName();
+			&& StringUtils.isNotEmpty(requisitionDetailsClientResponse.getRequestedBy()
+																	  .getFirstName())) {
+			requestorName = requisitionDetailsClientResponse.getRequestedBy()
+															.getFirstName()
+				+ " " + requisitionDetailsClientResponse.getRequestedBy()
+														.getLastName();
 		}
 		return requestorName;
 	}

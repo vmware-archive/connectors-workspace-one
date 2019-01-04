@@ -63,7 +63,7 @@ public class HubCoupaController {
 	@PostMapping(path = "/api/approve/{id}", consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = APPLICATION_JSON_VALUE)
 	public Mono<String> approveRequest(@RequestHeader(AUTHORIZATION) final String authorization,
 			@RequestHeader(X_AUTH_HEADER) String vidmAuthHeader,
-			@RequestHeader(name = X_BASE_URL_HEADER) String baseUrl, @RequestParam("comment") String comment,
+			@RequestHeader(name = X_BASE_URL_HEADER) String baseUrl, @RequestParam(HubCoupaUtil.COMMENT_KEY) String comment,
 			@PathVariable(name = "id") String id) throws IOException, UserException {
 
 		final String userEmail = AuthUtil.extractUserEmail(authorization);
@@ -75,7 +75,7 @@ public class HubCoupaController {
 	@PostMapping(path = "/api/decline/{id}", consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = APPLICATION_JSON_VALUE)
 	public Mono<String> declineRequest(@RequestHeader(AUTHORIZATION) final String authorization,
 			@RequestHeader(X_AUTH_HEADER) String vidmAuthHeader,
-			@RequestHeader(name = X_BASE_URL_HEADER) String baseUrl, @RequestParam("comment") String comment,
+			@RequestHeader(name = X_BASE_URL_HEADER) String baseUrl, @RequestParam(HubCoupaUtil.COMMENT_KEY) String comment,
 			@PathVariable(name = "id") String id) throws IOException, UserException {
 
 		final String userEmail = AuthUtil.extractUserEmail(authorization);

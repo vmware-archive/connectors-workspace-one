@@ -162,15 +162,15 @@ public class HubCoupaService {
 								.addField(makeTotalAmountField(locale, requestDetails))
 								.addField(makeJustificationField(locale, requestDetails))
 								.build())
-			 .addAction(makeApproveAction(locale, requestId, request))
-			 .addAction(makeDeclineAction(locale, requestId, request));
+			 .addAction(makeApproveAction(locale, requestId, routingPrefix))
+			 .addAction(makeDeclineAction(locale, requestId, routingPrefix));
 
 		CommonUtils.buildConnectorImageUrl(builder, request);
 
 		return builder.build();
 	}
 
-	private CardAction makeApproveAction(Locale locale, String requestId, HttpServletRequest request) {
+	private CardAction makeApproveAction(Locale locale, String requestId,String routingPrefix) {
 		return new CardAction.Builder()
 			.setActionKey(CardActionKey.USER_INPUT)
 			.setLabel(cardTextAccessor.getMessage("hub.coupa.approve.label", locale))
@@ -179,7 +179,7 @@ public class HubCoupaService {
 			.setPrimary(true)
 			.setMutuallyExclusiveSetId("approval-actions")
 			.setType(HttpMethod.POST)
-			.setUrl(CommonUtils.buildConnectorUrl(request, null) + "/api/approve/"
+			.setUrl(routingPrefix + "api/approve/"
 					+ requestId)
 			.addUserInputField(new CardActionInputField.Builder().setFormat("textarea")
 																 .setId(HubCoupaUtil.COMMENT_KEY)
@@ -188,7 +188,7 @@ public class HubCoupaService {
 			.build();
 	}
 
-	private CardAction makeDeclineAction(Locale locale, String requestId, HttpServletRequest request) {
+	private CardAction makeDeclineAction(Locale locale, String requestId, String routingPrefix) {
 		return new CardAction.Builder()
 			.setActionKey(CardActionKey.USER_INPUT)
 			.setLabel(cardTextAccessor.getMessage("hub.coupa.decline.label", locale))
@@ -197,7 +197,7 @@ public class HubCoupaService {
 			.setPrimary(false)
 			.setMutuallyExclusiveSetId("approval-actions")
 			.setType(HttpMethod.POST)
-			.setUrl(CommonUtils.buildConnectorUrl(request, null) + "/api/decline/"
+			.setUrl(routingPrefix + "api/decline/"
 					+ requestId)
 			.addUserInputField(new CardActionInputField.Builder().setFormat("textarea")
 																 .setId(HubCoupaUtil.COMMENT_KEY)
