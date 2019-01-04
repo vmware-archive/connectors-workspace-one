@@ -52,7 +52,7 @@ public class HubCoupaService {
 	@Autowired
 	public HubCoupaService(WebClient rest, CardTextAccessor cardTextAccessor,
 
-			@Value("${coupa.oauth-token}") final String systemToken) {
+			@Value("${coupa.api-key}") final String systemToken) {
 		this.rest = rest;
 		this.cardTextAccessor = cardTextAccessor;
 		this.systemToken = systemToken;
@@ -60,7 +60,7 @@ public class HubCoupaService {
 
 	/**
 	 * Get the list of pending requests of the logged in user
-	 * 
+	 *
 	 * @param userEmail
 	 * @param baseUrl
 	 * @param routingPrefix
@@ -87,7 +87,7 @@ public class HubCoupaService {
 
 	/**
 	 * Function to get the list of pending request details for a particular userId
-	 * 
+	 *
 	 * @param auth
 	 * @param baseUrl
 	 * @param userId
@@ -131,10 +131,10 @@ public class HubCoupaService {
 
 	/**
 	 * Function to build the card response
-	 * 
+	 *
 	 * @param routingPrefix
 	 * @param locale
-	 * @param expResponse
+	 * @param requestDetails
 	 * @param request
 	 * @return
 	 */
@@ -264,7 +264,7 @@ public class HubCoupaService {
 	/**
 	 * Verifies if the logged in user has the right to approve/reject the requestId
 	 * ->If yes,proceeds with approve/reject action else throws Exception
-	 * 
+	 *
 	 * @param reason
 	 * @param baseUrl
 	 * @param action
@@ -285,8 +285,8 @@ public class HubCoupaService {
 									                                                  .getId(),
 				                                                                       baseUrl, action, reason))
 		           .next();
-			     
-																
+
+
 
 	}
 
