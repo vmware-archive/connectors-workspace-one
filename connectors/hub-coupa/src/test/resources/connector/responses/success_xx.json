@@ -1,0 +1,99 @@
+{
+    "objects": [
+        {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "name": "Coupa",
+            "creation_date": "1970-01-01T00:00:00Z",
+            "header": {
+                "title": "[Coupa] AppBuilder Q1 PO",
+                "subtitle": []
+            },
+            "body": {
+                "fields": [
+                    {
+                        "type": "GENERAL",
+                        "title": "ORDER DATE",
+                        "description": "1970-01-01T00:00:00Z-07:00"
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "REQUESTER COST CENTER",
+                        "description": "IN1019722"
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "REQUISITION NUMBER",
+                        "description": "182964"
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "REQUISITION DESCRIPTION",
+                        "description": ""
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "REQUESTER",
+                        "description": "Gaurav Totla"
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "TOTAL PRICE",
+                        "description": "43,840.00"
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "JUSTIFICATION ",
+                        "description": ""
+                    }
+                ]
+            },
+            "actions": [
+                {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "primary": true,
+                    "label": "APPROVE",
+                    "url": {
+                        "href": "https://hero/connectors/coupa/api/approve/182964"
+                    },
+                    "type": "POST",
+                    "action_key": "USER_INPUT",
+                    "request": {},
+                    "user_input": [
+                        {
+                            "id": "comment",
+                            "label": "COMMENT",
+                            "format": "textarea"
+                        }
+                    ],
+                    "completed_label": "APPROVED",
+                    "allow_repeated": false,
+                    "mutually_exclusive_set_id": "approval-actions"
+                },
+                {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "label": "DECLINE",
+                    "url": {
+                        "href": "https://hero/connectors/coupa/api/decline/182964"
+                    },
+                    "type": "POST",
+                    "action_key": "USER_INPUT",
+                    "request": {},
+                    "user_input": [
+                        {
+                            "id": "comment",
+                            "label": "REASON",
+                            "format": "textarea"
+                        }
+                    ],
+                    "completed_label": "DECLINED",
+                    "allow_repeated": false,
+                    "mutually_exclusive_set_id": "approval-actions"
+                }
+            ],
+            "image": {
+                "href": "https://my-connector/images/connector.png"
+            },
+            "hash": "test-hash"
+        }
+    ]
+}
