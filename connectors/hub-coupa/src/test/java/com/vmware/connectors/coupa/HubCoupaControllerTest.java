@@ -61,7 +61,7 @@ class HubCoupaControllerTest extends ControllerTestsBase {
 		mockCoupaRequest();
 
 		WebTestClient.RequestHeadersSpec<?> spec = webClient.post().uri("/cards/requests")
-				.header(AUTHORIZATION, "Bearer " + accessToken()).header(X_AUTH_HEADER, "Bearer vidm-token")
+				.header(AUTHORIZATION, "Bearer " + accessToken())
 				.header(X_BASE_URL_HEADER, mockBackend.url(""))
 				.header("x-routing-prefix", "https://hero/connectors/coupa/")
 				.headers(ControllerTestsBase::headers)
@@ -126,7 +126,6 @@ class HubCoupaControllerTest extends ControllerTestsBase {
 
 		webClient.post().uri("/api/approve/{id}?comment=Approved", "182964")
 				 .header(AUTHORIZATION, "Bearer " + accessToken())
-				 .header(X_AUTH_HEADER, "Bearer vidm-token")
 				 .header(X_BASE_URL_HEADER, mockBackend.url(""))
 				 .contentType(APPLICATION_FORM_URLENCODED).exchange().expectStatus()
 				 .isOk();
@@ -140,7 +139,6 @@ class HubCoupaControllerTest extends ControllerTestsBase {
 
 		webClient.post().uri("/api/decline/{id}?comment=Declined", "182964")
 				 .header(AUTHORIZATION, "Bearer " + accessToken())
-				 .header(X_AUTH_HEADER, "Bearer vidm-token")
 				 .header(X_BASE_URL_HEADER, mockBackend.url(""))
 				 .contentType(APPLICATION_FORM_URLENCODED).exchange().expectStatus()
 				 .isOk();

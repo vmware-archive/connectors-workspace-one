@@ -38,7 +38,6 @@ public class HubCoupaController {
 	private static final Logger logger = LoggerFactory.getLogger(HubCoupaController.class);
 
 	private static final String X_BASE_URL_HEADER = "X-Connector-Base-Url";
-	private static final String X_AUTH_HEADER = "X-Connector-Authorization";
 
 	private final HubCoupaService service;
 
@@ -48,8 +47,7 @@ public class HubCoupaController {
 	}
 
 	@PostMapping(path = "/cards/requests", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-	public Mono<Cards> getCards(@RequestHeader(AUTHORIZATION) final String authorization,
-			@RequestHeader(X_AUTH_HEADER) String vidmAuthHeader, @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
+	public Mono<Cards> getCards(@RequestHeader(AUTHORIZATION) final String authorization,@RequestHeader(X_BASE_URL_HEADER) String baseUrl,
 			@RequestHeader("X-Routing-Prefix") String routingPrefix, Locale locale, HttpServletRequest request)
 			throws IOException {
 
@@ -62,7 +60,6 @@ public class HubCoupaController {
 
 	@PostMapping(path = "/api/approve/{id}", consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = APPLICATION_JSON_VALUE)
 	public Mono<String> approveRequest(@RequestHeader(AUTHORIZATION) final String authorization,
-			@RequestHeader(X_AUTH_HEADER) String vidmAuthHeader,
 			@RequestHeader(name = X_BASE_URL_HEADER) String baseUrl, @RequestParam(HubCoupaUtil.COMMENT_KEY) String comment,
 			@PathVariable(name = "id") String id) throws IOException, UserException {
 
@@ -74,7 +71,6 @@ public class HubCoupaController {
 
 	@PostMapping(path = "/api/decline/{id}", consumes = APPLICATION_FORM_URLENCODED_VALUE, produces = APPLICATION_JSON_VALUE)
 	public Mono<String> declineRequest(@RequestHeader(AUTHORIZATION) final String authorization,
-			@RequestHeader(X_AUTH_HEADER) String vidmAuthHeader,
 			@RequestHeader(name = X_BASE_URL_HEADER) String baseUrl, @RequestParam(HubCoupaUtil.COMMENT_KEY) String comment,
 			@PathVariable(name = "id") String id) throws IOException, UserException {
 
