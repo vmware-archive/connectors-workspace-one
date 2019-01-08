@@ -57,6 +57,10 @@ public class ServiceNowController {
 
     private static final String REASON_PARAM_KEY = "reason";
 
+    private static final String LIMIT_PARAM_KEY = "limit";
+
+    private static final String OFFSET_PARAM_KEY = "offset";
+
     /**
      * The query param to specify which fields you want to come back in your
      * ServiceNow REST calls.
@@ -79,6 +83,8 @@ public class ServiceNowController {
     private static final String SNOW_SYS_PARAM_CAT = "sysparm_category";
 
     private static final String SNOW_SYS_PARAM_QUAN = "sysparm_quantity";
+
+    private static final String SNOW_SYS_PARAM_OFFSET = "sysparm_offset";
 
     /**
      * The maximum approval requests to fetch from ServiceNow.  Since we have
@@ -563,6 +569,8 @@ public class ServiceNowController {
     public Mono<ItemsResponse> getItems(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @RequestParam(name = "limit", required = false, defaultValue = "10") String limit,
+            @RequestParam(name = "offset", required = false, defaultValue = "0") String offset,
             @Valid @RequestBody CardRequest cardRequest
     ) {
         logger.trace("getItems called: auth: {} baseUrl: {}", auth, baseUrl);
@@ -575,7 +583,7 @@ public class ServiceNowController {
         return getIDFrom("/api/sn_sc/servicecatalog/catalogs", catalogString, auth, baseUrl)
                 .flatMap(id -> getIDFrom("/api/sn_sc/servicecatalog/catalogs/" + id + "/categories", category, auth, baseUrl))
                 .map(id -> id)
-                .flatMap(id -> getItemsRequest("/api/sn_sc/servicecatalog/items", type, id, auth, baseUrl))
+                .flatMap(id -> getItemsRequest("/api/sn_sc/servicecatalog/items", type, id, auth, baseUrl, limit, offset))
                 ;
     }
 
@@ -617,7 +625,7 @@ public class ServiceNowController {
                 );
     }
 
-    private Mono<ItemsResponse> getItemsRequest(String endpoint, String type, String categoryId, String auth, String baseUrl) {
+    private Mono<ItemsResponse> getItemsRequest(String endpoint, String type, String categoryId, String auth, String baseUrl, String limit, String offset) {
         logger.trace("getCatalogsRequest called: baseUrl={} filter_by_type={}", baseUrl, type);
         return rest.get()
                 .uri(UriComponentsBuilder
@@ -625,6 +633,8 @@ public class ServiceNowController {
                         .path(endpoint)
                         .queryParam(SNOW_SYS_PARAM_TEXT, type)
                         .queryParam(SNOW_SYS_PARAM_CAT, categoryId)
+                        .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
+                        .queryParam(SNOW_SYS_PARAM_OFFSET, offset)
                         .encode()
                         .toUriString())
                 .header(AUTHORIZATION, auth)
