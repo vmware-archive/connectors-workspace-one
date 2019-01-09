@@ -108,7 +108,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 	private void mockReportsDigest() throws Exception {
 		mockUserDetailReport();
 		mockBackend
-				.expect(requestTo("/api/v3.0/expense/reportdigests?approverLoginID=admin@acme.com&limit=50&user=all"))
+				.expect(requestTo("/api/v3.0/expense/reportdigests?approverLoginID=admin%40acme.com&limit=50&user=all"))
 				.andExpect(method(GET)).andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
 				.andRespond(withSuccess(
 						fromFile("/fake/report-digests.json").replace("${concur_host}", mockBackend.url("")),
@@ -125,7 +125,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 
 	//
 	private void mockUserDetailReport() throws Exception {
-		mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin@acme.com")).andExpect(method(GET))
+		mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin%40acme.com")).andExpect(method(GET))
 				.andExpect(header(ACCEPT, APPLICATION_JSON_VALUE)).andRespond(
 						withSuccess(fromFile("/fake/user-details.json").replace("${concur_host}", mockBackend.url("")),
 								APPLICATION_JSON));

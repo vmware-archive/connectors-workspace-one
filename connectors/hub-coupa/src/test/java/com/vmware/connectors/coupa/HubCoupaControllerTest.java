@@ -94,7 +94,7 @@ class HubCoupaControllerTest extends ControllerTestsBase {
 	}
 
 	private void mockUserDetails() throws Exception {
-		mockBackend.expect(requestTo("/api/users?email=admin@acme.com"))
+		mockBackend.expect(requestTo("/api/users?email=admin%40acme.com"))
 		           .andExpect(method(GET))
 				   .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
 				   .andRespond(withSuccess(fromFile("/fake/user-details.json").replace("${coupa_host}", mockBackend.url("")),
