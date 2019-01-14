@@ -653,6 +653,48 @@ public class ServiceNowController {
                 );
     }
 
+    @GetMapping(
+            path = "/api/v1/tickets/{ticketType}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    private Mono<TasksResponse> getTasks(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @PathVariable("ticketType") TaskKey ticketType,
+            @RequestParam(name = "limit", required = false, defaultValue = "10") String limit,
+            @RequestParam(name = "offset", required = false, defaultValue = "0") String offset) {
+
+        logger.trace("getTasks called: baseUrl={}, taskKey={}", baseUrl, ticketType);
+
+        return this.getTasksRequest("/api/now/table/" + ticketType, baseUrl, auth, limit, offset);
+        }
+
+    private Mono<TasksResponse> getTasksRequest(String endpoint, String baseUrl, String auth, String limit, String offset) {
+            logger.trace("getTasksRequest called: baseUrl={}", endpoint);
+
+            return rest.get()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
+                        .queryParam(SNOW_SYS_PARAM_OFFSET, offset)
+                        .encode()
+                        .toUriString())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                        try {
+                                JsonNode node = new ObjectMapper().readTree(s.read(this.RESULT_PREFIX + "[*]").toString());
+                                return new TasksResponse(node);
+                        } catch(IOException exe) {
+                                logger.error("getTasksRequest() -> readTree() -> {}" + exe.getMessage());
+                        }
+
+                        return null;
+                });
+    }
+
     @PostMapping(
             path="/api/v1/cart",
             consumes = MediaType.APPLICATION_JSON_VALUE
