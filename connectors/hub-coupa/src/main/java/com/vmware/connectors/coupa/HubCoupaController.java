@@ -2,22 +2,8 @@
  * Copyright © 2019 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
-package com.vmware.connectors.coupa.service;
 
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+package com.vmware.connectors.coupa;
 
 import com.vmware.connectors.common.payloads.response.Card;
 import com.vmware.connectors.common.payloads.response.CardAction;
@@ -27,38 +13,91 @@ import com.vmware.connectors.common.payloads.response.CardBody;
 import com.vmware.connectors.common.payloads.response.CardBodyField;
 import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
 import com.vmware.connectors.common.payloads.response.Cards;
+import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.web.UserException;
 import com.vmware.connectors.coupa.domain.ApprovalDetails;
 import com.vmware.connectors.coupa.domain.RequisitionDetails;
 import com.vmware.connectors.coupa.domain.UserDetails;
-import com.vmware.connectors.coupa.util.HubCoupaUtil;
-
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Service
-public class HubCoupaService {
+import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.Locale;
 
-    private static final Logger logger = LoggerFactory.getLogger(HubCoupaService.class);
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-    private final String systemToken;
+@RestController
+public class HubCoupaController {
+
+    private static final Logger logger = LoggerFactory.getLogger(HubCoupaController.class);
+
+    private static final String COMMENT_KEY = "comment";
+    private static final String AUTHORIZATION_HEADER_NAME = "X-COUPA-API-KEY";
+
+    private static final String X_BASE_URL_HEADER = "X-Connector-Base-Url";
+
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
+    private final String apiKey;
 
     @Autowired
-    public HubCoupaService(
+    public HubCoupaController(
             WebClient rest,
             CardTextAccessor cardTextAccessor,
-            @Value("${coupa.api-key}") String systemToken
+            @Value("${coupa.api-key}") String apiKey
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
-        this.systemToken = systemToken;
+        this.apiKey = apiKey;
     }
 
-    public Mono<Cards> getPendingApprovals(
+    @PostMapping(
+            path = "/cards/requests",
+            consumes = APPLICATION_JSON_VALUE,
+            produces = APPLICATION_JSON_VALUE
+    )
+    public Mono<Cards> getCards(
+            @RequestHeader(AUTHORIZATION) String authorization,
+            @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
+            @RequestHeader("X-Routing-Prefix") String routingPrefix,
+            Locale locale,
+            HttpServletRequest request
+    ) {
+        String userEmail = AuthUtil.extractUserEmail(authorization);
+        validateEmailAddress(userEmail);
+
+        return getPendingApprovals(userEmail, baseUrl, routingPrefix, request, locale);
+    }
+
+    private void validateEmailAddress(String userEmail) {
+        if (StringUtils.isBlank(userEmail)) {
+            logger.error("User email  is empty in jwt access token.");
+            throw new UserException("User Not Found");
+        }
+    }
+
+    private Mono<Cards> getPendingApprovals(
             String userEmail,
             String baseUrl,
             String routingPrefix,
@@ -70,10 +109,10 @@ public class HubCoupaService {
         return rest.get()
                 .uri(baseUrl + "/api/users?email={userEmail}", userEmail)
                 .accept(MediaType.APPLICATION_JSON)
-                .header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, systemToken)
+                .header(AUTHORIZATION_HEADER_NAME, apiKey)
                 .retrieve()
                 .bodyToFlux(UserDetails.class)
-                .flatMap(u -> getApprovalDetails(systemToken, baseUrl, u.getId(), userEmail))
+                .flatMap(u -> getApprovalDetails(apiKey, baseUrl, u.getId(), userEmail))
                 .map(req -> makeCards(routingPrefix, locale, req, request))
                 .reduce(new Cards(), this::addCard);
     }
@@ -89,7 +128,7 @@ public class HubCoupaService {
         return rest.get()
                 .uri(baseUrl + "/api/approvals?approver_id={userId}&status=pending_approval", userId)
                 .accept(MediaType.APPLICATION_JSON)
-                .header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, auth)
+                .header(AUTHORIZATION_HEADER_NAME, auth)
                 .retrieve()
                 .bodyToFlux(ApprovalDetails.class)
                 .flatMap(ad -> getRequisitionDetails(auth, baseUrl, ad.getApprovableId(), userEmail));
@@ -106,18 +145,10 @@ public class HubCoupaService {
         return rest.get()
                 .uri(baseUrl + "/api/requisitions?id={approvableId}&status=pending_approval", approvableId)
                 .accept(MediaType.APPLICATION_JSON)
-                .header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, auth)
+                .header(AUTHORIZATION_HEADER_NAME, auth)
                 .retrieve()
                 .bodyToFlux(RequisitionDetails.class)
                 .filter(requisition -> userEmail.equals(requisition.getCurrentApproval().getApprover().getEmail()));
-    }
-
-    private Cards addCard(
-            Cards cards,
-            Card card
-    ) {
-        cards.getCards().add(card);
-        return cards;
     }
 
     private Card makeCards(
@@ -152,52 +183,6 @@ public class HubCoupaService {
         CommonUtils.buildConnectorImageUrl(builder, request);
 
         return builder.build();
-    }
-
-    private CardAction makeApproveAction(
-            Locale locale,
-            String requestId,
-            String routingPrefix
-    ) {
-        return new CardAction.Builder()
-                .setActionKey(CardActionKey.USER_INPUT)
-                .setLabel(cardTextAccessor.getMessage("hub.coupa.approve.label", locale))
-                .setCompletedLabel(cardTextAccessor.getMessage("hub.coupa.approve.completedLabel", locale))
-                .setPrimary(true)
-                .setMutuallyExclusiveSetId("approval-actions")
-                .setType(HttpMethod.POST)
-                .setUrl(routingPrefix + "api/approve/" + requestId)
-                .addUserInputField(
-                        new CardActionInputField.Builder()
-                                .setFormat("textarea")
-                                .setId(HubCoupaUtil.COMMENT_KEY)
-                                .setLabel(cardTextAccessor.getMessage("hub.coupa.approve.comment.label", locale))
-                                .build()
-                )
-                .build();
-    }
-
-    private CardAction makeDeclineAction(
-            Locale locale,
-            String requestId,
-            String routingPrefix
-    ) {
-        return new CardAction.Builder()
-                .setActionKey(CardActionKey.USER_INPUT)
-                .setLabel(cardTextAccessor.getMessage("hub.coupa.decline.label", locale))
-                .setCompletedLabel(cardTextAccessor.getMessage("hub.coupa.decline.completedLabel", locale))
-                .setPrimary(false)
-                .setMutuallyExclusiveSetId("approval-actions")
-                .setType(HttpMethod.POST)
-                .setUrl(routingPrefix + "api/decline/" + requestId)
-                .addUserInputField(
-                        new CardActionInputField.Builder()
-                                .setFormat("textarea")
-                                .setId(HubCoupaUtil.COMMENT_KEY)
-                                .setLabel(cardTextAccessor.getMessage("hub.coupa.decline.reason.label", locale))
-                                .build()
-                )
-                .build();
     }
 
     private CardBodyField makeOrderDateField(
@@ -251,8 +236,21 @@ public class HubCoupaService {
         return new CardBodyField.Builder()
                 .setType(CardBodyFieldType.GENERAL)
                 .setTitle(cardTextAccessor.getMessage("hub.coupa.requester", locale))
-                .setDescription(HubCoupaUtil.getRequestorName(requestDetails))
+                .setDescription(getRequestorName(requestDetails))
                 .build();
+    }
+
+    private static String getRequestorName(RequisitionDetails requisitionDetailsClientResponse) {
+        String requestorName = "";
+
+        if (
+                requisitionDetailsClientResponse.getRequestedBy() != null
+                        && StringUtils.isNotEmpty(requisitionDetailsClientResponse.getRequestedBy().getFirstName())
+        ) {
+            requestorName = requisitionDetailsClientResponse.getRequestedBy().getFirstName() + " " + requisitionDetailsClientResponse.getRequestedBy().getLastName();
+        }
+
+        return requestorName;
     }
 
     private CardBodyField makeTotalAmountField(
@@ -262,8 +260,19 @@ public class HubCoupaService {
         return new CardBodyField.Builder()
                 .setType(CardBodyFieldType.GENERAL)
                 .setTitle(cardTextAccessor.getMessage("hub.coupa.expenseAmount", locale))
-                .setDescription(HubCoupaUtil.getFormattedAmount(requestDetails.getMobileTotal()))
+                .setDescription(getFormattedAmount(requestDetails.getMobileTotal()))
                 .build();
+    }
+
+    private static String getFormattedAmount(String amount) {
+        if (StringUtils.isBlank(amount)) {
+            return amount;
+        }
+
+        BigDecimal amt = new BigDecimal(amount);
+        DecimalFormat formatter = new DecimalFormat("#,###.00");
+
+        return formatter.format(amt);
     }
 
     private CardBodyField makeJustificationField(
@@ -277,7 +286,78 @@ public class HubCoupaService {
                 .build();
     }
 
-    public Mono<String> makeCoupaRequest(
+    private CardAction makeApproveAction(
+            Locale locale,
+            String requestId,
+            String routingPrefix
+    ) {
+        return new CardAction.Builder()
+                .setActionKey(CardActionKey.USER_INPUT)
+                .setLabel(cardTextAccessor.getMessage("hub.coupa.approve.label", locale))
+                .setCompletedLabel(cardTextAccessor.getMessage("hub.coupa.approve.completedLabel", locale))
+                .setPrimary(true)
+                .setMutuallyExclusiveSetId("approval-actions")
+                .setType(HttpMethod.POST)
+                .setUrl(routingPrefix + "api/approve/" + requestId)
+                .addUserInputField(
+                        new CardActionInputField.Builder()
+                                .setFormat("textarea")
+                                .setId(COMMENT_KEY)
+                                .setLabel(cardTextAccessor.getMessage("hub.coupa.approve.comment.label", locale))
+                                .build()
+                )
+                .build();
+    }
+
+    private CardAction makeDeclineAction(
+            Locale locale,
+            String requestId,
+            String routingPrefix
+    ) {
+        return new CardAction.Builder()
+                .setActionKey(CardActionKey.USER_INPUT)
+                .setLabel(cardTextAccessor.getMessage("hub.coupa.decline.label", locale))
+                .setCompletedLabel(cardTextAccessor.getMessage("hub.coupa.decline.completedLabel", locale))
+                .setPrimary(false)
+                .setMutuallyExclusiveSetId("approval-actions")
+                .setType(HttpMethod.POST)
+                .setUrl(routingPrefix + "api/decline/" + requestId)
+                .addUserInputField(
+                        new CardActionInputField.Builder()
+                                .setFormat("textarea")
+                                .setId(COMMENT_KEY)
+                                .setLabel(cardTextAccessor.getMessage("hub.coupa.decline.reason.label", locale))
+                                .build()
+                )
+                .build();
+    }
+
+    private Cards addCard(
+            Cards cards,
+            Card card
+    ) {
+        cards.getCards().add(card);
+        return cards;
+    }
+
+    @PostMapping(
+            path = "/api/approve/{id}",
+            consumes = APPLICATION_FORM_URLENCODED_VALUE,
+            produces = APPLICATION_JSON_VALUE
+    )
+    public Mono<String> approveRequest(
+            @RequestHeader(AUTHORIZATION) String authorization,
+            @RequestHeader(name = X_BASE_URL_HEADER) String baseUrl,
+            @RequestParam(COMMENT_KEY) String comment,
+            @PathVariable(name = "id") String id
+    ) {
+        String userEmail = AuthUtil.extractUserEmail(authorization);
+        validateEmailAddress(userEmail);
+
+        return makeCoupaRequest(comment, baseUrl, "approve", id, userEmail);
+    }
+
+    private Mono<String> makeCoupaRequest(
             String reason,
             String baseUrl,
             String action,
@@ -287,7 +367,7 @@ public class HubCoupaService {
         logger.debug("makeCoupaRequest called for user: userEmail={}, approvableId={}, action={}",
                 userEmail, approvableId, action);
 
-        return getRequisitionDetails(systemToken, baseUrl, approvableId, userEmail)
+        return getRequisitionDetails(apiKey, baseUrl, approvableId, userEmail)
                 .switchIfEmpty(Mono.error(new UserException("User Not Found")))
                 .flatMap(requisitionDetails -> makeActionRequest(requisitionDetails.getCurrentApproval().getId(), baseUrl, action, reason))
                 .next();
@@ -301,7 +381,7 @@ public class HubCoupaService {
     ) {
         return rest.put()
                 .uri(baseUrl + "/api/approvals/{id}/{action}?reason={reason}", id, action, reason)
-                .header(HubCoupaUtil.AUTHORIZATION_HEADER_NAME, systemToken)
+                .header(AUTHORIZATION_HEADER_NAME, apiKey)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
@@ -316,6 +396,23 @@ public class HubCoupaService {
         }
 
         return e;
+    }
+
+    @PostMapping(
+            path = "/api/decline/{id}",
+            consumes = APPLICATION_FORM_URLENCODED_VALUE,
+            produces = APPLICATION_JSON_VALUE
+    )
+    public Mono<String> declineRequest(
+            @RequestHeader(AUTHORIZATION) String authorization,
+            @RequestHeader(name = X_BASE_URL_HEADER) String baseUrl,
+            @RequestParam(COMMENT_KEY) String comment,
+            @PathVariable(name = "id") String id
+    ) {
+        String userEmail = AuthUtil.extractUserEmail(authorization);
+        validateEmailAddress(userEmail);
+
+        return makeCoupaRequest(comment, baseUrl, "reject", id, userEmail);
     }
 
 }
