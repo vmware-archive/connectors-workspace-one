@@ -4,7 +4,6 @@
  */
 package com.vmware.connectors.coupa.service;
 
-import java.io.IOException;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,23 +51,13 @@ public class HubCoupaService {
     public HubCoupaService(
             WebClient rest,
             CardTextAccessor cardTextAccessor,
-            @Value("${coupa.api-key}") final String systemToken
+            @Value("${coupa.api-key}") String systemToken
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.systemToken = systemToken;
     }
 
-    /**
-     * Get the list of pending requests of the logged in user
-     *
-     * @param userEmail
-     * @param baseUrl
-     * @param routingPrefix
-     * @param request
-     * @param locale
-     * @return
-     */
     public Mono<Cards> getPendingApprovals(
             String userEmail,
             String baseUrl,
@@ -89,15 +78,6 @@ public class HubCoupaService {
                 .reduce(new Cards(), this::addCard);
     }
 
-    /**
-     * Function to get the list of pending request details for a particular userId
-     *
-     * @param auth
-     * @param baseUrl
-     * @param userId
-     * @param userEmail
-     * @return
-     */
     private Flux<RequisitionDetails> getApprovalDetails(
             String auth,
             String baseUrl,
@@ -130,7 +110,6 @@ public class HubCoupaService {
                 .retrieve()
                 .bodyToFlux(RequisitionDetails.class)
                 .filter(requisition -> userEmail.equals(requisition.getCurrentApproval().getApprover().getEmail()));
-
     }
 
     private Cards addCard(
@@ -141,15 +120,6 @@ public class HubCoupaService {
         return cards;
     }
 
-    /**
-     * Function to build the card response
-     *
-     * @param routingPrefix
-     * @param locale
-     * @param requestDetails
-     * @param request
-     * @return
-     */
     private Card makeCards(
             String routingPrefix,
             Locale locale,
@@ -307,25 +277,13 @@ public class HubCoupaService {
                 .build();
     }
 
-    /**
-     * Verifies if the logged in user has the right to approve/reject the requestId
-     * ->If yes,proceeds with approve/reject action else throws Exception
-     *
-     * @param reason
-     * @param baseUrl
-     * @param action
-     * @param approvableId
-     * @param userEmail
-     * @return
-     * @throws IOException
-     */
     public Mono<String> makeCoupaRequest(
             String reason,
             String baseUrl,
             String action,
             String approvableId,
             String userEmail
-    ) throws IOException {
+    ) {
         logger.debug("makeCoupaRequest called for user: userEmail={}, approvableId={}, action={}",
                 userEmail, approvableId, action);
 
@@ -348,7 +306,6 @@ public class HubCoupaService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .onErrorMap(WebClientResponseException.class, e -> handleClientError(e));
-
     }
 
     private Throwable handleClientError(WebClientResponseException e) {

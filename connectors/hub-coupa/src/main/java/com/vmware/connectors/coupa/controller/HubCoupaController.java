@@ -9,7 +9,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import java.io.IOException;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,13 +51,13 @@ public class HubCoupaController {
             produces = APPLICATION_JSON_VALUE
     )
     public Mono<Cards> getCards(
-            @RequestHeader(AUTHORIZATION) final String authorization,
+            @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
             Locale locale,
             HttpServletRequest request
-    ) throws IOException {
-        final String userEmail = AuthUtil.extractUserEmail(authorization);
+    ) {
+        String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
         return service.getPendingApprovals(userEmail, baseUrl, routingPrefix, request, locale);
@@ -70,12 +69,12 @@ public class HubCoupaController {
             produces = APPLICATION_JSON_VALUE
     )
     public Mono<String> approveRequest(
-            @RequestHeader(AUTHORIZATION) final String authorization,
+            @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(name = X_BASE_URL_HEADER) String baseUrl,
             @RequestParam(HubCoupaUtil.COMMENT_KEY) String comment,
             @PathVariable(name = "id") String id
-    ) throws IOException, UserException {
-        final String userEmail = AuthUtil.extractUserEmail(authorization);
+    ) {
+        String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
         return service.makeCoupaRequest(comment, baseUrl, HubCoupaUtil.APPROVE, id, userEmail);
@@ -87,19 +86,18 @@ public class HubCoupaController {
             produces = APPLICATION_JSON_VALUE
     )
     public Mono<String> declineRequest(
-            @RequestHeader(AUTHORIZATION) final String authorization,
+            @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(name = X_BASE_URL_HEADER) String baseUrl,
             @RequestParam(HubCoupaUtil.COMMENT_KEY) String comment,
             @PathVariable(name = "id") String id
-    ) throws IOException, UserException {
-        final String userEmail = AuthUtil.extractUserEmail(authorization);
+    ) {
+        String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
         return service.makeCoupaRequest(comment, baseUrl, HubCoupaUtil.REJECT, id, userEmail);
     }
 
-    private void validateEmailAddress(String userEmail) throws UserException {
-        // If email is not found in the token,throw Exception
+    private void validateEmailAddress(String userEmail) {
         if (StringUtils.isBlank(userEmail)) {
             logger.error("User email  is empty in jwt access token.");
             throw new UserException("User Not Found");
