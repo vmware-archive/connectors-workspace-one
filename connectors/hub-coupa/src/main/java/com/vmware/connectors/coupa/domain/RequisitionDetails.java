@@ -12,166 +12,180 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RequisitionDetails {
 
-	@JsonProperty("id")
-	private String id;
-	@JsonProperty("justification")
-	private String justification;
-	@JsonProperty("status")
-	private String status;
-	@JsonProperty("submitted-at")
-	private String submittedAt;
-	@JsonProperty("ship-to-attention")
-	private String shipToAttention;
-	@JsonProperty("mobile-total")
-	private String mobileTotal;
-	@JsonProperty("requisition-description")
-	private String requisitionDescription;
-	@JsonProperty("currency")
-	private Currency currency;
-	@JsonProperty("requested-by")
-	private UserDetails requestedBy;
-	@JsonProperty("current-approval")
-	private Approval currentApproval;
-	@JsonProperty("approvals")
-	private List<Approval> approvals;
-	@JsonProperty("created-by")
-	private UserDetails createdBy;
-	@JsonProperty("updated-by")
-	private UserDetails updatedBy;
-	@JsonProperty("mobile-currency")
-	private Currency mobileCurrency;
-	@JsonProperty("requestors-cost-center")
-	private String requestorCostCenter;
+    @JsonProperty("id")
+    private String id;
 
-	@JsonProperty("requisition-lines")
-	private List<RequisitionLineDetails> requisitionLinesList;
+    @JsonProperty("justification")
+    private String justification;
 
-	public String getId() {
-		return id;
-	}
+    @JsonProperty("status")
+    private String status;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    @JsonProperty("submitted-at")
+    private String submittedAt;
 
-	public String getSubmittedAt() {
-		return submittedAt;
-	}
+    @JsonProperty("ship-to-attention")
+    private String shipToAttention;
 
-	public void setSubmittedAt(String submittedAt) {
-		this.submittedAt = submittedAt;
-	}
+    @JsonProperty("mobile-total")
+    private String mobileTotal;
 
-	public String getShipToAttention() {
-		return shipToAttention;
-	}
+    @JsonProperty("requisition-description")
+    private String requisitionDescription;
 
-	public void setShipToAttention(String shipToAttention) {
-		this.shipToAttention = shipToAttention;
-	}
+    @JsonProperty("currency")
+    private Currency currency;
 
-	public String getMobileTotal() {
-		return mobileTotal;
-	}
+    @JsonProperty("requested-by")
+    private UserDetails requestedBy;
 
-	public void setMobileTotal(String mobileTotal) {
-		this.mobileTotal = mobileTotal;
-	}
+    @JsonProperty("current-approval")
+    private Approval currentApproval;
 
-	public Currency getCurrency() {
-		return currency;
-	}
+    @JsonProperty("approvals")
+    private List<Approval> approvals;
 
-	public void setCurrency(Currency currency) {
-		this.currency = currency;
-	}
+    @JsonProperty("created-by")
+    private UserDetails createdBy;
 
-	public UserDetails getRequestedBy() {
-		return requestedBy;
-	}
+    @JsonProperty("updated-by")
+    private UserDetails updatedBy;
 
-	public void setRequestedBy(UserDetails requestedBy) {
-		this.requestedBy = requestedBy;
-	}
+    @JsonProperty("mobile-currency")
+    private Currency mobileCurrency;
 
-	public List<Approval> getApprovals() {
-		return approvals;
-	}
+    @JsonProperty("requestors-cost-center")
+    private String requestorCostCenter;
 
-	public void setApprovals(List<Approval> approvals) {
-		this.approvals = approvals;
-	}
+    @JsonProperty("requisition-lines")
+    private List<RequisitionLineDetails> requisitionLinesList;
 
-	public UserDetails getCreatedBy() {
-		return createdBy;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setCreatedBy(UserDetails createdBy) {
-		this.createdBy = createdBy;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public UserDetails getUpdatedBy() {
-		return updatedBy;
-	}
+    public String getSubmittedAt() {
+        return submittedAt;
+    }
 
-	public void setUpdatedBy(UserDetails updatedBy) {
-		this.updatedBy = updatedBy;
-	}
+    public void setSubmittedAt(String submittedAt) {
+        this.submittedAt = submittedAt;
+    }
 
-	public Currency getMobileCurrency() {
-		return mobileCurrency;
-	}
+    public String getShipToAttention() {
+        return shipToAttention;
+    }
 
-	public void setMobileCurrency(Currency mobileCurrency) {
-		this.mobileCurrency = mobileCurrency;
-	}
+    public void setShipToAttention(String shipToAttention) {
+        this.shipToAttention = shipToAttention;
+    }
 
-	public String getJustification() {
-		return justification;
-	}
+    public String getMobileTotal() {
+        return mobileTotal;
+    }
 
-	public void setJustification(String justification) {
-		this.justification = justification;
-	}
+    public void setMobileTotal(String mobileTotal) {
+        this.mobileTotal = mobileTotal;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public Currency getCurrency() {
+        return currency;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
+    }
 
-	public String getRequisitionDescription() {
-		return requisitionDescription;
-	}
+    public UserDetails getRequestedBy() {
+        return requestedBy;
+    }
 
-	public void setRequisitionDescription(String requisitionDescription) {
-		this.requisitionDescription = requisitionDescription;
-	}
+    public void setRequestedBy(UserDetails requestedBy) {
+        this.requestedBy = requestedBy;
+    }
 
-	public Approval getCurrentApproval() {
-		return currentApproval;
-	}
+    public List<Approval> getApprovals() {
+        return approvals;
+    }
 
-	public void setCurrentApproval(Approval currentApproval) {
-		this.currentApproval = currentApproval;
-	}
+    public void setApprovals(List<Approval> approvals) {
+        this.approvals = approvals;
+    }
 
-	public String getRequestorCostCenter() {
-		return requestorCostCenter;
-	}
+    public UserDetails getCreatedBy() {
+        return createdBy;
+    }
 
-	public void setRequestorCostCenter(String requestorCostCenter) {
-		this.requestorCostCenter = requestorCostCenter;
-	}
+    public void setCreatedBy(UserDetails createdBy) {
+        this.createdBy = createdBy;
+    }
 
-	public List<RequisitionLineDetails> getRequisitionLinesList() {
-		return requisitionLinesList;
-	}
+    public UserDetails getUpdatedBy() {
+        return updatedBy;
+    }
 
-	public void setRequisitionLinesList(List<RequisitionLineDetails> requisitionLinesList) {
-		this.requisitionLinesList = requisitionLinesList;
-	}
+    public void setUpdatedBy(UserDetails updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public Currency getMobileCurrency() {
+        return mobileCurrency;
+    }
+
+    public void setMobileCurrency(Currency mobileCurrency) {
+        this.mobileCurrency = mobileCurrency;
+    }
+
+    public String getJustification() {
+        return justification;
+    }
+
+    public void setJustification(String justification) {
+        this.justification = justification;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getRequisitionDescription() {
+        return requisitionDescription;
+    }
+
+    public void setRequisitionDescription(String requisitionDescription) {
+        this.requisitionDescription = requisitionDescription;
+    }
+
+    public Approval getCurrentApproval() {
+        return currentApproval;
+    }
+
+    public void setCurrentApproval(Approval currentApproval) {
+        this.currentApproval = currentApproval;
+    }
+
+    public String getRequestorCostCenter() {
+        return requestorCostCenter;
+    }
+
+    public void setRequestorCostCenter(String requestorCostCenter) {
+        this.requestorCostCenter = requestorCostCenter;
+    }
+
+    public List<RequisitionLineDetails> getRequisitionLinesList() {
+        return requisitionLinesList;
+    }
+
+    public void setRequisitionLinesList(List<RequisitionLineDetails> requisitionLinesList) {
+        this.requisitionLinesList = requisitionLinesList;
+    }
 
 }
