@@ -4,6 +4,17 @@
  */
 package com.vmware.connectors.coupa;
 
+import com.vmware.connectors.test.ControllerTestsBase;
+import com.vmware.connectors.test.JsonNormalizer;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+import java.util.stream.Collectors;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.ACCEPT;
@@ -11,6 +22,7 @@ import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -20,18 +32,6 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
-
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.test.web.reactive.server.WebTestClient;
-
-import com.vmware.connectors.test.ControllerTestsBase;
-import com.vmware.connectors.test.JsonNormalizer;
 
 class HubCoupaControllerTest extends ControllerTestsBase {
 
@@ -164,16 +164,16 @@ class HubCoupaControllerTest extends ControllerTestsBase {
                 .exchange().expectStatus().isOk();
     }
 
-    private void mockApproveAction() throws Exception {
+    private void mockApproveAction() {
         mockBackend.expect(requestTo("/api/approvals/6609559/approve?reason=Approved"))
-                .andExpect(method(org.springframework.http.HttpMethod.PUT))
+                .andExpect(method(PUT))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andRespond(withSuccess());
     }
 
-    private void mockRejectAction() throws Exception {
+    private void mockRejectAction() {
         mockBackend.expect(requestTo("/api/approvals/6609559/reject?reason=Declined"))
-                .andExpect(method(org.springframework.http.HttpMethod.PUT))
+                .andExpect(method(PUT))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andRespond(withSuccess());
     }

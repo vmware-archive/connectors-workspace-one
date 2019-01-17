@@ -54,7 +54,6 @@ public class HubCoupaController {
 
     private static final String COMMENT_KEY = "comment";
     private static final String AUTHORIZATION_HEADER_NAME = "X-COUPA-API-KEY";
-
     private static final String X_BASE_URL_HEADER = "X-Connector-Base-Url";
 
     private final WebClient rest;
@@ -168,100 +167,45 @@ public class HubCoupaController {
                 .setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale, reportName))
                 .setBody(
                         new CardBody.Builder()
-                                .addField(makeOrderDateField(locale, requestDetails))
-                                .addField(makeCostCenterField(locale, requestDetails))
-                                .addField(makeRequisitionNumberField(locale, requestDetails))
-                                .addField(makeRequisitionDescriptionField(locale, requestDetails))
-                                .addField(makeRequesterField(locale, requestDetails))
-                                .addField(makeTotalAmountField(locale, requestDetails))
-                                .addField(makeJustificationField(locale, requestDetails))
+                                .addField(makeGeneralField(locale, "hub.coupa.submissionDate", requestDetails.getSubmittedAt()))
+                                .addField(makeGeneralField(locale, "hub.coupa.costCenter", requestDetails.getRequestorCostCenter()))
+                                .addField(makeGeneralField(locale, "hub.coupa.requestId", requestDetails.getId()))
+                                .addField(makeGeneralField(locale, "hub.coupa.requestDescription", requestDetails.getRequisitionDescription()))
+                                .addField(makeGeneralField(locale, "hub.coupa.requester", getRequestorName(requestDetails)))
+                                .addField(makeGeneralField(locale, "hub.coupa.expenseAmount", getFormattedAmount(requestDetails.getMobileTotal())))
+                                .addField(makeGeneralField(locale, "hub.coupa.justification", requestDetails.getJustification()))
                                 .build()
                 )
-                .addAction(makeApproveAction(locale, requestId, routingPrefix))
-                .addAction(makeDeclineAction(locale, requestId, routingPrefix));
+                .addAction(makeApprovalAction(routingPrefix, requestId, locale,
+                        true, "api/approve/", "hub.coupa.approve", "hub.coupa.approve.comment.label"))
+                .addAction(makeApprovalAction(routingPrefix, requestId, locale,
+                        false, "api/decline/", "hub.coupa.decline", "hub.coupa.decline.reason.label"));
 
         CommonUtils.buildConnectorImageUrl(builder, request);
 
         return builder.build();
     }
 
-    private CardBodyField makeOrderDateField(
+    private CardBodyField makeGeneralField(
             Locale locale,
-            RequisitionDetails requestDetails
+            String labelKey,
+            String value
     ) {
         return new CardBodyField.Builder()
                 .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.coupa.submissionDate", locale))
-                .setDescription(requestDetails.getSubmittedAt())
+                .setTitle(cardTextAccessor.getMessage(labelKey, locale))
+                .setDescription(value)
                 .build();
     }
 
-    private CardBodyField makeCostCenterField(
-            Locale locale,
-            RequisitionDetails requestDetails
-    ) {
-        return new CardBodyField.Builder()
-                .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.coupa.costCenter", locale))
-                .setDescription(requestDetails.getRequestorCostCenter())
-                .build();
-    }
+    private static String getRequestorName(RequisitionDetails reqDetails) {
+        UserDetails requestedBy = reqDetails.getRequestedBy();
 
-    private CardBodyField makeRequisitionNumberField(
-            Locale locale,
-            RequisitionDetails requestDetails
-    ) {
-        return new CardBodyField.Builder()
-                .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.coupa.requestId", locale))
-                .setDescription(requestDetails.getId())
-                .build();
-    }
-
-    private CardBodyField makeRequisitionDescriptionField(
-            Locale locale,
-            RequisitionDetails requestDetails
-    ) {
-        return new CardBodyField.Builder()
-                .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.coupa.requestDescription", locale))
-                .setDescription(requestDetails.getRequisitionDescription())
-                .build();
-    }
-
-    private CardBodyField makeRequesterField(
-            Locale locale,
-            RequisitionDetails requestDetails
-    ) {
-        return new CardBodyField.Builder()
-                .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.coupa.requester", locale))
-                .setDescription(getRequestorName(requestDetails))
-                .build();
-    }
-
-    private static String getRequestorName(RequisitionDetails requisitionDetailsClientResponse) {
-        String requestorName = "";
-
-        if (
-                requisitionDetailsClientResponse.getRequestedBy() != null
-                        && StringUtils.isNotEmpty(requisitionDetailsClientResponse.getRequestedBy().getFirstName())
-        ) {
-            requestorName = requisitionDetailsClientResponse.getRequestedBy().getFirstName() + " " + requisitionDetailsClientResponse.getRequestedBy().getLastName();
+        if (requestedBy == null || StringUtils.isEmpty(requestedBy.getFirstName())) {
+            return "";
         }
 
-        return requestorName;
-    }
-
-    private CardBodyField makeTotalAmountField(
-            Locale locale,
-            RequisitionDetails requestDetails
-    ) {
-        return new CardBodyField.Builder()
-                .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.coupa.expenseAmount", locale))
-                .setDescription(getFormattedAmount(requestDetails.getMobileTotal()))
-                .build();
+        return requestedBy.getFirstName() + " " + requestedBy.getLastName();
     }
 
     private static String getFormattedAmount(String amount) {
@@ -275,58 +219,28 @@ public class HubCoupaController {
         return formatter.format(amt);
     }
 
-    private CardBodyField makeJustificationField(
-            Locale locale,
-            RequisitionDetails requestDetails
-    ) {
-        return new CardBodyField.Builder()
-                .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.coupa.justification", locale))
-                .setDescription(requestDetails.getJustification())
-                .build();
-    }
-
-    private CardAction makeApproveAction(
-            Locale locale,
+    private CardAction makeApprovalAction(
+            String routingPrefix,
             String requestId,
-            String routingPrefix
+            Locale locale,
+            boolean primary,
+            String apiPath,
+            String buttonLabelKey,
+            String commentLabelKey
     ) {
         return new CardAction.Builder()
                 .setActionKey(CardActionKey.USER_INPUT)
-                .setLabel(cardTextAccessor.getMessage("hub.coupa.approve.label", locale))
-                .setCompletedLabel(cardTextAccessor.getMessage("hub.coupa.approve.completedLabel", locale))
-                .setPrimary(true)
+                .setLabel(cardTextAccessor.getActionLabel(buttonLabelKey, locale))
+                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel(buttonLabelKey, locale))
+                .setPrimary(primary)
                 .setMutuallyExclusiveSetId("approval-actions")
                 .setType(HttpMethod.POST)
-                .setUrl(routingPrefix + "api/approve/" + requestId)
+                .setUrl(routingPrefix + apiPath + requestId)
                 .addUserInputField(
                         new CardActionInputField.Builder()
                                 .setFormat("textarea")
                                 .setId(COMMENT_KEY)
-                                .setLabel(cardTextAccessor.getMessage("hub.coupa.approve.comment.label", locale))
-                                .build()
-                )
-                .build();
-    }
-
-    private CardAction makeDeclineAction(
-            Locale locale,
-            String requestId,
-            String routingPrefix
-    ) {
-        return new CardAction.Builder()
-                .setActionKey(CardActionKey.USER_INPUT)
-                .setLabel(cardTextAccessor.getMessage("hub.coupa.decline.label", locale))
-                .setCompletedLabel(cardTextAccessor.getMessage("hub.coupa.decline.completedLabel", locale))
-                .setPrimary(false)
-                .setMutuallyExclusiveSetId("approval-actions")
-                .setType(HttpMethod.POST)
-                .setUrl(routingPrefix + "api/decline/" + requestId)
-                .addUserInputField(
-                        new CardActionInputField.Builder()
-                                .setFormat("textarea")
-                                .setId(COMMENT_KEY)
-                                .setLabel(cardTextAccessor.getMessage("hub.coupa.decline.reason.label", locale))
+                                .setLabel(cardTextAccessor.getMessage(commentLabelKey, locale))
                                 .build()
                 )
                 .build();
@@ -385,7 +299,7 @@ public class HubCoupaController {
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
-                .onErrorMap(WebClientResponseException.class, e -> handleClientError(e));
+                .onErrorMap(WebClientResponseException.class, this::handleClientError);
     }
 
     private Throwable handleClientError(WebClientResponseException e) {
