@@ -1,4 +1,9 @@
-package com.vmware.connectors.concur.service;
+/*
+ * Copyright © 2019 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
+package com.vmware.connectors.concur;
 
 import com.vmware.connectors.common.payloads.response.Card;
 import com.vmware.connectors.common.payloads.response.CardAction;
@@ -8,6 +13,7 @@ import com.vmware.connectors.common.payloads.response.CardBody;
 import com.vmware.connectors.common.payloads.response.CardBodyField;
 import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
 import com.vmware.connectors.common.payloads.response.Cards;
+import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.web.UserException;
@@ -15,15 +21,19 @@ import com.vmware.connectors.concur.domain.ExpenseReportResponse;
 import com.vmware.connectors.concur.domain.PendingApprovalResponse;
 import com.vmware.connectors.concur.domain.PendingApprovalsVO;
 import com.vmware.connectors.concur.domain.UserDetailsResponse;
-import com.vmware.connectors.concur.util.HubConcurUtil;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.HtmlUtils;
 import reactor.core.publisher.Flux;
@@ -36,13 +46,24 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_XML;
 
-@Service
-public class HubConcurService {
+@RestController
+public class HubConcurController {
 
-    private static final Logger logger = LoggerFactory.getLogger(HubConcurService.class);
+    private static final Logger logger = LoggerFactory.getLogger(HubConcurController.class);
+
+    private static final String X_AUTH_HEADER = "X-Connector-Authorization";
+    private static final String X_BASE_URL_HEADER = "X-Connector-Base-Url";
+
+    private static final String COMMENT_KEY = "comment";
+    private static final String REASON_KEY = "reason";
+
+    private static final String APPROVE = "APPROVE";
+    private static final String REJECT = "Send Back to Employee";
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
@@ -50,7 +71,7 @@ public class HubConcurService {
     private final String serviceAccountAuthHeader;
 
     @Autowired
-    public HubConcurService(
+    public HubConcurController(
             WebClient rest,
             CardTextAccessor cardTextAccessor,
             @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate,
@@ -62,7 +83,32 @@ public class HubConcurService {
         this.serviceAccountAuthHeader = serviceAccountAuthHeader;
     }
 
-    public Mono<Cards> fetchCards(
+    @PostMapping(
+            path = "/cards/requests",
+            produces = APPLICATION_JSON_VALUE,
+            consumes = APPLICATION_JSON_VALUE
+    )
+    public Mono<Cards> getCards(
+            @RequestHeader(AUTHORIZATION) String authorization,
+            @RequestHeader(X_AUTH_HEADER) String vidmAuthHeader,
+            @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
+            @RequestHeader("X-Routing-Prefix") String routingPrefix,
+            Locale locale,
+            HttpServletRequest request
+    ) {
+        String userEmail = AuthUtil.extractUserEmail(authorization);
+        if (StringUtils.isBlank(userEmail)) {
+            logger.error("User email  is empty in jwt access token.");
+            // TODO: This returns an empty object,can we throw an exception or return it as
+            // a bad request?
+            return Mono.just(new Cards());
+        }
+
+        logger.debug("getCards called: baseUrl={}, userEmail={}", baseUrl, userEmail);
+        return fetchCards(baseUrl, locale, routingPrefix, request, userEmail);
+    }
+
+    private Mono<Cards> fetchCards(
             String baseUrl,
             Locale locale,
             String routingPrefix,
@@ -82,6 +128,18 @@ public class HubConcurService {
                                         .reduce(new Cards(), this::addCard)
                 )
                 .next();
+    }
+
+    private Mono<UserDetailsResponse> fetchLoginIdFromUserEmail(
+            String userEmail,
+            String baseUrl
+    ) {
+        return rest.get()
+                .uri(baseUrl + "/api/v3.0/common/users?primaryEmail={userEmail}", userEmail)
+                .header(AUTHORIZATION, serviceAccountAuthHeader)
+                .accept(APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(UserDetailsResponse.class);
     }
 
     private Mono<PendingApprovalResponse> fetchAllRequests(
@@ -143,6 +201,17 @@ public class HubConcurService {
         return builder.build();
     }
 
+    private CardBodyField makeSubmissionDateField(
+            Locale locale,
+            ExpenseReportResponse report
+    ) {
+        return new CardBodyField.Builder()
+                .setType(CardBodyFieldType.GENERAL)
+                .setTitle(cardTextAccessor.getMessage("hub.concur.submissionDate", locale))
+                .setDescription(report.getSubmitDate())
+                .build();
+    }
+
     private CardBodyField makeRequestedByField(
             Locale locale,
             ExpenseReportResponse report
@@ -201,17 +270,6 @@ public class HubConcurService {
 
     }
 
-    private CardBodyField makeSubmissionDateField(
-            Locale locale,
-            ExpenseReportResponse report
-    ) {
-        return new CardBodyField.Builder()
-                .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.concur.submissionDate", locale))
-                .setDescription(report.getSubmitDate())
-                .build();
-    }
-
     private CardAction makeApproveAction(
             String routingPrefix,
             Locale locale,
@@ -227,7 +285,7 @@ public class HubConcurService {
                 .setUrl(routingPrefix + "api/expense/" + reportId + "/approve")
                 .addUserInputField(
                         new CardActionInputField.Builder().setFormat("textarea")
-                                .setId(HubConcurUtil.COMMENT_KEY)
+                                .setId(COMMENT_KEY)
                                 .setLabel(cardTextAccessor.getMessage("hub.concur.approve.comment.label", locale))
                                 .build()
                 )
@@ -249,7 +307,7 @@ public class HubConcurService {
                 .setUrl(routingPrefix + "api/expense/" + reportId + "/decline")
                 .addUserInputField(
                         new CardActionInputField.Builder().setFormat("textarea")
-                                .setId(HubConcurUtil.REASON_KEY)
+                                .setId(REASON_KEY)
                                 .setLabel(cardTextAccessor.getMessage("hub.concur.decline.reason.label", locale))
                                 .build()
                 )
@@ -264,7 +322,32 @@ public class HubConcurService {
         return cards;
     }
 
-    public Mono<String> makeConcurRequest(
+    @PostMapping(
+            path = "/api/expense/{id}/approve",
+            consumes = APPLICATION_FORM_URLENCODED_VALUE,
+            produces = APPLICATION_JSON_VALUE
+    )
+    public Mono<String> approveRequest(
+            @RequestHeader(AUTHORIZATION) String authorization,
+            @RequestHeader(X_AUTH_HEADER) String vidmAuthHeader,
+            @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
+            @PathVariable("id") String id,
+            @RequestParam(COMMENT_KEY) String comment
+    ) {
+        logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, comment);
+
+        String userEmail = AuthUtil.extractUserEmail(authorization);
+        if (StringUtils.isBlank(userEmail)) {
+            logger.error("User email  is empty in jwt access token.");
+            // Can I throw an exception here if useremail isnt found in the token or return
+            // it as a bad request?
+            return Mono.empty();
+        }
+
+        return makeConcurRequest(comment, baseUrl, APPROVE, id, userEmail);
+    }
+
+    private Mono<String> makeConcurRequest(
             String reason,
             String baseUrl,
             String action,
@@ -276,7 +359,7 @@ public class HubConcurService {
 
         return fetchLoginIdFromUserEmail(userEmail, baseUrl)
                 .flatMapMany(userDetails -> Flux.fromIterable(userDetails.getItems()))
-                .flatMap(userDetail -> validateUser(reason, baseUrl, action, reportId, userDetail.getLoginId()))
+                .flatMap(userDetail -> validateUser(baseUrl, reportId, userDetail.getLoginId()))
                 .flatMap(expense -> fetchRequestData(baseUrl, reportId))
                 .map(ExpenseReportResponse::getWorkflowActionURL)
                 .flatMap(
@@ -293,23 +376,6 @@ public class HubConcurService {
                 .next();
     }
 
-    public Mono<PendingApprovalsVO> validateUser(
-            String reason,
-            String baseUrl,
-            String action,
-            String reportId,
-            String userEmail
-    ) {
-        // APF-1546: privilege check based on the user in the JWT
-
-        return fetchAllRequests(baseUrl, userEmail)
-                .flatMapMany(expenses -> Flux.fromIterable(expenses.getPendingApprovals()))
-                // Check if the approverlogin and report is equal to that passed in the request
-                .filter(expense -> expense.getId().equals(reportId) && expense.getApproverLoginID().equals(userEmail))
-                .next()
-                .switchIfEmpty(Mono.error(new UserException("Not Found"))); // CustomException
-    }
-
     private String getConcurRequestTemplate(
             String reason,
             String concurAction
@@ -323,16 +389,44 @@ public class HubConcurService {
         }
     }
 
-    public Mono<UserDetailsResponse> fetchLoginIdFromUserEmail(
-            String userEmail,
-            String baseUrl
+    private Mono<PendingApprovalsVO> validateUser(
+            String baseUrl,
+            String reportId,
+            String userEmail
     ) {
-        return rest.get()
-                .uri(baseUrl + "/api/v3.0/common/users?primaryEmail={userEmail}", userEmail)
-                .header(AUTHORIZATION, serviceAccountAuthHeader)
-                .accept(APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(UserDetailsResponse.class);
+        // APF-1546: privilege check based on the user in the JWT
+
+        return fetchAllRequests(baseUrl, userEmail)
+                .flatMapMany(expenses -> Flux.fromIterable(expenses.getPendingApprovals()))
+                // Check if the approverlogin and report is equal to that passed in the request
+                .filter(expense -> expense.getId().equals(reportId) && expense.getApproverLoginID().equals(userEmail))
+                .next()
+                .switchIfEmpty(Mono.error(new UserException("Not Found"))); // CustomException
+    }
+
+    @PostMapping(
+            path = "/api/expense/{id}/decline",
+            consumes = APPLICATION_FORM_URLENCODED_VALUE,
+            produces = APPLICATION_JSON_VALUE
+    )
+    public Mono<String> declineRequest(
+            @RequestHeader(AUTHORIZATION) String authorization,
+            @RequestHeader(X_AUTH_HEADER) String vidmAuthHeader,
+            @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
+            @PathVariable("id") String id,
+            @RequestParam(REASON_KEY) String reason
+    ) {
+        logger.debug("declineRequest called: baseUrl={}, id={}, reason={}", baseUrl, id, reason);
+
+        String userEmail = AuthUtil.extractUserEmail(authorization);
+        if (StringUtils.isBlank(userEmail)) {
+            logger.error("User email  is empty in jwt access token.");
+            // TODO: Can I throw an exception here if useremail isnt found in the token or
+            // return it as a bad request?
+            return Mono.empty();
+        }
+
+        return makeConcurRequest(reason, baseUrl, REJECT, id, userEmail);
     }
 
 }
