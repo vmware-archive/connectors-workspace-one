@@ -1,0 +1,362 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Salesforce",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/salesforce/templates/generic.hbs"
+      },
+      "header": {
+        "title": "Uber IT Account",
+        "subtitle": [
+          "ADD ACTIVITY"
+        ]
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "ACCOUNT OWNER",
+            "description": "Jeff Jones"
+          },
+          {
+            "type": "GENERAL",
+            "title": "SE DESCRIPTION",
+            "description": "AW Sales Engineer Description"
+          },
+          {
+            "type": "GENERAL",
+            "title": "SE STAGE",
+            "description": "Evaluation, Won, Lost"
+          },
+          {
+            "type": "GENERAL",
+            "title": "SE STATUS",
+            "description": "AW SE Status"
+          },
+          {
+            "type": "GENERAL",
+            "title": "ACCOUNT ISSUES",
+            "description": "AW Account Issues"
+          },
+          {
+            "type": "GENERAL",
+            "title": "PRODUCT ISSUES",
+            "description": "AW Product Issues"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE SE STAGE",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_SE_Stage__c/0064100000O93EVAAZ"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "UPDATE SE STAGE",
+              "format": "select",
+              "options": {
+                "20. Planning / Pre-Reqs": "20. Planning / Pre-Reqs",
+                "50. Evaluation": "50. Evaluation",
+                "80. Production / Support": "80. Production / Support",
+                "90. Inactive": "90. Inactive",
+                "70. Negotiation / Prod Review": "70. Negotiation / Prod Review",
+                "10. Sales Support": "10. Sales Support",
+                "30. Install / Config": "30. Install / Config",
+                "00. Assigned": "00. Assigned"
+              },
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE SE DESCRIPTION",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_Sales_Engineer_Description__c/0064100000O93EVAAZ"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "UPDATE SE DESCRIPTION",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE ACCOUNT ISSUES",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_Account_Issues__c/0064100000O93EVAAZ"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "UPDATE ACCOUNT ISSUES",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE SE STATUS",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_SE_Status__c/0064100000O93EVAAZ"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "UPDATE SE STATUS",
+              "format": "select",
+              "options": {
+                "Red": "Red",
+                "Yellow": "Yellow",
+                "Green": "Green"
+              },
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "OPEN OPPORTUNITY",
+          "url": {
+            "href": "https://salesforce.acme.com/0064100000O93EVAAZ"
+          },
+          "type": "GET",
+          "action_key": "OPEN_IN",
+          "request": {},
+          "user_input": [],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE PRODUCT ISSUES",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_Product_Issues__c/0064100000O93EVAAZ"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "UPDATE PRODUCT ISSUES",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        }
+      ],
+      "hash": "test-hash"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Salesforce",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/salesforce/templates/generic.hbs"
+      },
+      "header": {
+        "title": "Google IT account",
+        "subtitle": [
+          "ADD ACTIVITY"
+        ]
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "ACCOUNT OWNER",
+            "description": "Jeff Jones"
+          },
+          {
+            "type": "GENERAL",
+            "title": "SE DESCRIPTION",
+            "description": "AW Sales Engineer Description"
+          },
+          {
+            "type": "GENERAL",
+            "title": "SE STAGE",
+            "description": "Evaluation, Won, Lost"
+          },
+          {
+            "type": "GENERAL",
+            "title": "SE STATUS",
+            "description": "AW SE Status"
+          },
+          {
+            "type": "GENERAL",
+            "title": "ACCOUNT ISSUES",
+            "description": "AW Account Issues"
+          },
+          {
+            "type": "GENERAL",
+            "title": "PRODUCT ISSUES",
+            "description": "some issues in connectors updated"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE SE STAGE",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_SE_Stage__c/0064100000O9DnXAAV"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "UPDATE SE STAGE",
+              "format": "select",
+              "options": {
+                "20. Planning / Pre-Reqs": "20. Planning / Pre-Reqs",
+                "50. Evaluation": "50. Evaluation",
+                "80. Production / Support": "80. Production / Support",
+                "90. Inactive": "90. Inactive",
+                "70. Negotiation / Prod Review": "70. Negotiation / Prod Review",
+                "10. Sales Support": "10. Sales Support",
+                "30. Install / Config": "30. Install / Config",
+                "00. Assigned": "00. Assigned"
+              },
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE SE DESCRIPTION",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_Sales_Engineer_Description__c/0064100000O9DnXAAV"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "UPDATE SE DESCRIPTION",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE ACCOUNT ISSUES",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_Account_Issues__c/0064100000O9DnXAAV"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "UPDATE ACCOUNT ISSUES",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE SE STATUS",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_SE_Status__c/0064100000O9DnXAAV"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "UPDATE SE STATUS",
+              "format": "select",
+              "options": {
+                "Red": "Red",
+                "Yellow": "Yellow",
+                "Green": "Green"
+              },
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "OPEN OPPORTUNITY",
+          "url": {
+            "href": "https://salesforce.acme.com/0064100000O9DnXAAV"
+          },
+          "type": "GET",
+          "action_key": "OPEN_IN",
+          "request": {},
+          "user_input": [],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "UPDATE PRODUCT ISSUES",
+          "url": {
+            "href": "https://hero/connectors/salesforce/opportunity/vmw/AW_Product_Issues__c/0064100000O9DnXAAV"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "custom_field_value",
+              "label": "UPDATE PRODUCT ISSUES",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": true
+        }
+      ],
+      "hash": "test-hash"
+    }
+  ]
+}

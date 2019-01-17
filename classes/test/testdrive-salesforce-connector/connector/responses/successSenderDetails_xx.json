@@ -1,0 +1,40 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Salesforce",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/salesforce/templates/generic.hbs"
+      },
+      "header": {
+        "title": "[SALESFORCE] CONTACT DETAIL",
+        "subtitle": []
+      },
+      "body": {
+        "description": "CONTACT DETAILS FROM YOUR SALESFORCE ACCOUNT",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "NAME",
+            "description": "Travis Kalanick"
+          },
+          {
+            "type": "GENERAL",
+            "title": "ACCOUNT",
+            "description": "Uber IT Account"
+          },
+          {
+            "type": "GENERAL",
+            "title": "PHONE NUMBER",
+            "description": "(707) 070-7070"
+          }
+        ]
+      },
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "hash": "test-hash"
+    }
+  ]
+}

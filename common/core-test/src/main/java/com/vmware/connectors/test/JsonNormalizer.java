@@ -29,6 +29,7 @@ public final class JsonNormalizer {
         context.set("$.objects[?(@.creation_date =~ /" + DATE_PATTERN + "/)].creation_date", DUMMY_DATE_TIME);
         context.set("$.objects[?(@.expiration_date =~ /" + DATE_PATTERN + "/)].expiration_date", DUMMY_DATE_TIME);
         context.set("$.objects[*].actions[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
+        context.set("$.objects[?(@.hash =~ /" + HASH_PATTERN + "/)].hash", DUMMY_HASH);
         return context.jsonString();
     }
 }
