@@ -15,19 +15,27 @@ import java.util.UUID;
 public class Data {
 
     private UUID uuid;
+
     @JsonProperty("request_date")
     private String requestDate;
+
     @JsonProperty("submitted_date")
     private String submittedDate;
+
     @JsonProperty("status")
     private String status;
+
     @JsonProperty("status_description")
     private String statusDescription;
+
     @JsonProperty("request_summary")
     private Map<String, String> requestSummary;
+
     @JsonProperty("request_details")
     private RequestDetails requestDetails;
+
     private List<Receipt> receipts;
+
     private List<Action> action;
 
     public Data() {

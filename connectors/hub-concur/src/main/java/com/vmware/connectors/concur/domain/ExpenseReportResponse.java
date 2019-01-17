@@ -27,11 +27,7 @@ public class ExpenseReportResponse {
     private String hasException;
     private String workflowActionURL;
     private String reportTotal;
-
     private List<ExpenseEntriesVO> expenseEntriesList;
-
-
-
 
     @JsonProperty("UserLoginID")
     public String getUserLoginID() {

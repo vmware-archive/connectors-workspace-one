@@ -6,15 +6,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UserDetailsResponse {
 
-	private List<UserDetailsVO> items;
+    private List<UserDetailsVO> items;
 
-	@JsonProperty("Items")
-	public List<UserDetailsVO> getItems() {
-		return items;
-	}
+    @JsonProperty("Items")
+    public List<UserDetailsVO> getItems() {
+        return items;
+    }
 
-	public void setItems(List<UserDetailsVO> items) {
-		this.items = items;
-	}
+    public void setItems(List<UserDetailsVO> items) {
+        this.items = items;
+    }
 
 }
