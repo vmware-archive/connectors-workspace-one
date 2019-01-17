@@ -1,27 +1,5 @@
 package com.vmware.connectors.concur.service;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_XML;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.text.NumberFormat;
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.HtmlUtils;
-
 import com.vmware.connectors.common.payloads.response.Card;
 import com.vmware.connectors.common.payloads.response.CardAction;
 import com.vmware.connectors.common.payloads.response.CardActionInputField;
@@ -38,9 +16,28 @@ import com.vmware.connectors.concur.domain.PendingApprovalResponse;
 import com.vmware.connectors.concur.domain.PendingApprovalsVO;
 import com.vmware.connectors.concur.domain.UserDetailsResponse;
 import com.vmware.connectors.concur.util.HubConcurUtil;
-
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpMethod;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.HtmlUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
+import java.util.Locale;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_XML;
 
 @Service
 public class HubConcurService {
@@ -273,7 +270,7 @@ public class HubConcurService {
             String action,
             String reportId,
             String userEmail
-    ) throws IOException {
+    ) {
         // TODO - APF-1546: privilege check based on the user in the JWT
         String concurRequestTemplate = getConcurRequestTemplate(reason, action);
 
@@ -296,17 +293,6 @@ public class HubConcurService {
                 .next();
     }
 
-    /**
-     * Method to validate the user privilege on the action requested
-     *
-     * @param reason
-     * @param baseUrl
-     * @param action
-     * @param reportId
-     * @param userEmail
-     * @return
-     * @throws IOException
-     */
     public Mono<PendingApprovalsVO> validateUser(
             String reason,
             String baseUrl,
@@ -327,19 +313,16 @@ public class HubConcurService {
     private String getConcurRequestTemplate(
             String reason,
             String concurAction
-    ) throws IOException {
-        return IOUtils.toString(concurRequestTemplate.getInputStream(), StandardCharsets.UTF_8)
-                .replace("${action}", concurAction)
-                .replace("${comment}", HtmlUtils.htmlEscape(reason));
+    ) {
+        try {
+            return IOUtils.toString(concurRequestTemplate.getInputStream(), StandardCharsets.UTF_8)
+                    .replace("${action}", concurAction)
+                    .replace("${comment}", HtmlUtils.htmlEscape(reason));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read in concur request template!", e); // NOPMD
+        }
     }
 
-    /**
-     * Function to derive the concur loginId of the user
-     *
-     * @param userEmail
-     * @param baseUrl
-     * @return
-     */
     public Mono<UserDetailsResponse> fetchLoginIdFromUserEmail(
             String userEmail,
             String baseUrl

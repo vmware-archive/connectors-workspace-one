@@ -5,6 +5,18 @@
 
 package com.vmware.connectors.concur;
 
+import com.vmware.connectors.test.ControllerTestsBase;
+import com.vmware.connectors.test.JsonNormalizer;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
+
+import java.util.stream.Collectors;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.ACCEPT;
@@ -23,19 +35,6 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
-
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.BodyInserters;
-
-import com.vmware.connectors.test.ControllerTestsBase;
-import com.vmware.connectors.test.JsonNormalizer;
 
 class HubConcurControllerTest extends ControllerTestsBase {
 
