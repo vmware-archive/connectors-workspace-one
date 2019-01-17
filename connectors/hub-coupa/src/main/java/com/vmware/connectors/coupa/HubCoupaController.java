@@ -111,13 +111,12 @@ public class HubCoupaController {
                 .header(AUTHORIZATION_HEADER_NAME, apiKey)
                 .retrieve()
                 .bodyToFlux(UserDetails.class)
-                .flatMap(u -> getApprovalDetails(apiKey, baseUrl, u.getId(), userEmail))
+                .flatMap(u -> getApprovalDetails(baseUrl, u.getId(), userEmail))
                 .map(req -> makeCards(routingPrefix, locale, req, request))
                 .reduce(new Cards(), this::addCard);
     }
 
     private Flux<RequisitionDetails> getApprovalDetails(
-            String auth,
             String baseUrl,
             String userId,
             String userEmail
@@ -127,14 +126,13 @@ public class HubCoupaController {
         return rest.get()
                 .uri(baseUrl + "/api/approvals?approver_id={userId}&status=pending_approval", userId)
                 .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION_HEADER_NAME, auth)
+                .header(AUTHORIZATION_HEADER_NAME, apiKey)
                 .retrieve()
                 .bodyToFlux(ApprovalDetails.class)
-                .flatMap(ad -> getRequisitionDetails(auth, baseUrl, ad.getApprovableId(), userEmail));
+                .flatMap(ad -> getRequisitionDetails(baseUrl, ad.getApprovableId(), userEmail));
     }
 
     private Flux<RequisitionDetails> getRequisitionDetails(
-            String auth,
             String baseUrl,
             String approvableId,
             String userEmail
@@ -144,7 +142,7 @@ public class HubCoupaController {
         return rest.get()
                 .uri(baseUrl + "/api/requisitions?id={approvableId}&status=pending_approval", approvableId)
                 .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION_HEADER_NAME, auth)
+                .header(AUTHORIZATION_HEADER_NAME, apiKey)
                 .retrieve()
                 .bodyToFlux(RequisitionDetails.class)
                 .filter(requisition -> userEmail.equals(requisition.getCurrentApproval().getApprover().getEmail()));
@@ -261,9 +259,9 @@ public class HubCoupaController {
     )
     public Mono<String> approveRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
-            @RequestHeader(name = X_BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestParam(COMMENT_KEY) String comment,
-            @PathVariable(name = "id") String id
+            @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
@@ -281,7 +279,7 @@ public class HubCoupaController {
         logger.debug("makeCoupaRequest called for user: userEmail={}, approvableId={}, action={}",
                 userEmail, approvableId, action);
 
-        return getRequisitionDetails(apiKey, baseUrl, approvableId, userEmail)
+        return getRequisitionDetails(baseUrl, approvableId, userEmail)
                 .switchIfEmpty(Mono.error(new UserException("User Not Found")))
                 .flatMap(requisitionDetails -> makeActionRequest(requisitionDetails.getCurrentApproval().getId(), baseUrl, action, reason))
                 .next();
@@ -319,9 +317,9 @@ public class HubCoupaController {
     )
     public Mono<String> declineRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
-            @RequestHeader(name = X_BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestParam(COMMENT_KEY) String comment,
-            @PathVariable(name = "id") String id
+            @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
