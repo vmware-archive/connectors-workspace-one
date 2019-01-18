@@ -21,8 +21,8 @@ import com.vmware.connectors.concur.domain.ExpenseReportResponse;
 import com.vmware.connectors.concur.domain.PendingApprovalResponse;
 import com.vmware.connectors.concur.domain.PendingApprovalsVO;
 import com.vmware.connectors.concur.domain.UserDetailsResponse;
+import com.vmware.connectors.concur.domain.UserDetailsVO;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +56,6 @@ public class HubConcurController {
 
     private static final Logger logger = LoggerFactory.getLogger(HubConcurController.class);
 
-    private static final String X_AUTH_HEADER = "X-Connector-Authorization";
     private static final String X_BASE_URL_HEADER = "X-Connector-Base-Url";
 
     private static final String COMMENT_KEY = "comment";
@@ -90,21 +89,13 @@ public class HubConcurController {
     )
     public Mono<Cards> getCards(
             @RequestHeader(AUTHORIZATION) String authorization,
-            @RequestHeader(X_AUTH_HEADER) String vidmAuthHeader,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
             Locale locale,
             HttpServletRequest request
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        if (StringUtils.isBlank(userEmail)) {
-            logger.error("User email  is empty in jwt access token.");
-            // TODO: This returns an empty object,can we throw an exception or return it as
-            // a bad request?
-            return Mono.just(new Cards());
-        }
-
-        logger.debug("getCards called: baseUrl={}, userEmail={}", baseUrl, userEmail);
+        logger.debug("getCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
         return fetchCards(baseUrl, locale, routingPrefix, request, userEmail);
     }
 
@@ -115,22 +106,16 @@ public class HubConcurController {
             HttpServletRequest request,
             String userEmail
     ) {
-        logger.debug("fetchCards called: baseUrl={}, routingPrefix={} for userName = {}", baseUrl, routingPrefix, userEmail);
+        logger.debug("fetchCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
 
         return fetchLoginIdFromUserEmail(userEmail, baseUrl)
-                .flatMapMany(userDetails -> Flux.fromIterable(userDetails.getItems()))
-                .flatMap(
-                        userDetail ->
-                                fetchAllRequests(baseUrl, userDetail.getLoginId())
-                                        .flatMapMany(expenses -> Flux.fromIterable(expenses.getPendingApprovals()))
-                                        .flatMap(expense -> fetchRequestData(baseUrl, expense.getId()))
-                                        .map(report -> makeCards(routingPrefix, locale, report, request))
-                                        .reduce(new Cards(), this::addCard)
-                )
-                .next();
+                .flatMapMany(loginId -> fetchAllApprovals(baseUrl, loginId))
+                .flatMap(expense -> fetchRequestData(baseUrl, expense.getId()))
+                .map(report -> makeCards(routingPrefix, locale, report, request))
+                .reduce(new Cards(), this::addCard);
     }
 
-    private Mono<UserDetailsResponse> fetchLoginIdFromUserEmail(
+    private Mono<String> fetchLoginIdFromUserEmail(
             String userEmail,
             String baseUrl
     ) {
@@ -139,10 +124,13 @@ public class HubConcurController {
                 .header(AUTHORIZATION, serviceAccountAuthHeader)
                 .accept(APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(UserDetailsResponse.class);
+                .bodyToMono(UserDetailsResponse.class)
+                .flatMapMany(userDetails -> Flux.fromIterable(userDetails.getItems()))
+                .next()
+                .map(UserDetailsVO::getLoginId);
     }
 
-    private Mono<PendingApprovalResponse> fetchAllRequests(
+    private Flux<PendingApprovalsVO> fetchAllApprovals(
             String baseUrl,
             String userEmail
     ) {
@@ -154,7 +142,8 @@ public class HubConcurController {
                 .header(AUTHORIZATION, serviceAccountAuthHeader)
                 .accept(APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(PendingApprovalResponse.class);
+                .bodyToMono(PendingApprovalResponse.class)
+                .flatMapMany(expenses -> Flux.fromIterable(expenses.getPendingApprovals()));
     }
 
     private Mono<ExpenseReportResponse> fetchRequestData(
@@ -187,61 +176,32 @@ public class HubConcurController {
                 .setHeader(cardTextAccessor.getMessage("hub.concur.header", locale, reportName))
                 .setBody(
                         new CardBody.Builder()
-                                .addField(makeSubmissionDateField(locale, report))
-                                .addField(makeRequestedByField(locale, report))
-                                .addField(makeCostCenterField(locale, report))
-                                .addField(makeExpenseAmountField(locale, report))
+                                .addField(makeGeneralField(locale, "hub.concur.submissionDate", report.getSubmitDate()))
+                                .addField(makeGeneralField(locale, "hub.concur.requester", report.getEmployeeName()))
+                                .addField(makeGeneralField(locale, "hub.concur.costCenter", report.getCostCenter()))
+                                .addField(makeGeneralField(locale, "hub.concur.expenseAmount",
+                                        formatCurrency(report.getReportTotal(), locale, report.getCurrencyCode())))
                                 .build()
                 )
-                .addAction(makeApproveAction(routingPrefix, locale, reportId))
-                .addAction(makeDeclineAction(routingPrefix, locale, reportId));
+                .addAction(makeAction(routingPrefix, locale, reportId,
+                        true, "hub.concur.approve", COMMENT_KEY, "hub.concur.approve.comment.label", "/approve"))
+                .addAction(makeAction(routingPrefix, locale, reportId,
+                        false, "hub.concur.decline", REASON_KEY, "hub.concur.decline.reason.label", "/decline"));
 
         CommonUtils.buildConnectorImageUrl(builder, request);
 
         return builder.build();
     }
 
-    private CardBodyField makeSubmissionDateField(
+    private CardBodyField makeGeneralField(
             Locale locale,
-            ExpenseReportResponse report
+            String labelKey,
+            String value
     ) {
         return new CardBodyField.Builder()
                 .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.concur.submissionDate", locale))
-                .setDescription(report.getSubmitDate())
-                .build();
-    }
-
-    private CardBodyField makeRequestedByField(
-            Locale locale,
-            ExpenseReportResponse report
-    ) {
-        return new CardBodyField.Builder()
-                .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.concur.requester", locale))
-                .setDescription(report.getEmployeeName())
-                .build();
-    }
-
-    private CardBodyField makeCostCenterField(
-            Locale locale,
-            ExpenseReportResponse report
-    ) {
-        return new CardBodyField.Builder()
-                .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.concur.costCenter", locale))
-                .setDescription(report.getCostCenter())
-                .build();
-    }
-
-    private CardBodyField makeExpenseAmountField(
-            Locale locale,
-            ExpenseReportResponse report
-    ) {
-        return new CardBodyField.Builder()
-                .setType(CardBodyFieldType.GENERAL)
-                .setTitle(cardTextAccessor.getMessage("hub.concur.expenseAmount", locale))
-                .setDescription(formatCurrency(report.getReportTotal(), locale, report.getCurrencyCode()))
+                .setTitle(cardTextAccessor.getMessage(labelKey, locale))
+                .setDescription(value)
                 .build();
     }
 
@@ -250,65 +210,36 @@ public class HubConcurController {
             Locale locale,
             String currencyCode
     ) {
-        Locale localeToUse;
-        if (Locale.ENGLISH.equals(locale)) {
-            // Defaulting "en" locale to "en-US" if they didn't specify country
-            localeToUse = Locale.US;
-        } else {
-            localeToUse = locale;
-        }
-        // TODO - does it make sense to format this as currency when we don't really
-        // know the unit?
-
-        // APF-1547 As suggested appending the currency code with the amount -
-
         return String.format(
                 "%s %s",
                 currencyCode,
-                NumberFormat.getNumberInstance(localeToUse).format(Double.parseDouble(amount))
+                NumberFormat.getNumberInstance(locale).format(Double.parseDouble(amount))
         );
 
     }
 
-    private CardAction makeApproveAction(
+    private CardAction makeAction(
             String routingPrefix,
             Locale locale,
-            String reportId
+            String reportId,
+            boolean primary,
+            String buttonLabelKey,
+            String textFieldId,
+            String textFieldLabelKey,
+            String apiPath
     ) {
         return new CardAction.Builder()
                 .setActionKey(CardActionKey.USER_INPUT)
-                .setLabel(cardTextAccessor.getMessage("hub.concur.approve.label", locale))
-                .setCompletedLabel(cardTextAccessor.getMessage("hub.concur.approve.completedLabel", locale))
-                .setPrimary(true)
+                .setLabel(cardTextAccessor.getActionLabel(buttonLabelKey, locale))
+                .setCompletedLabel(cardTextAccessor.getActionCompletedLabel(buttonLabelKey, locale))
+                .setPrimary(primary)
                 .setMutuallyExclusiveSetId("approval-actions")
                 .setType(HttpMethod.POST)
-                .setUrl(routingPrefix + "api/expense/" + reportId + "/approve")
+                .setUrl(routingPrefix + "api/expense/" + reportId + apiPath)
                 .addUserInputField(
                         new CardActionInputField.Builder().setFormat("textarea")
-                                .setId(COMMENT_KEY)
-                                .setLabel(cardTextAccessor.getMessage("hub.concur.approve.comment.label", locale))
-                                .build()
-                )
-                .build();
-    }
-
-    private CardAction makeDeclineAction(
-            String routingPrefix,
-            Locale locale,
-            String reportId
-    ) {
-        return new CardAction.Builder()
-                .setActionKey(CardActionKey.USER_INPUT)
-                .setLabel(cardTextAccessor.getMessage("hub.concur.decline.label", locale))
-                .setCompletedLabel(cardTextAccessor.getMessage("hub.concur.decline.completedLabel", locale))
-                .setPrimary(false)
-                .setMutuallyExclusiveSetId("approval-actions")
-                .setType(HttpMethod.POST)
-                .setUrl(routingPrefix + "api/expense/" + reportId + "/decline")
-                .addUserInputField(
-                        new CardActionInputField.Builder().setFormat("textarea")
-                                .setId(REASON_KEY)
-                                .setLabel(cardTextAccessor.getMessage("hub.concur.decline.reason.label", locale))
+                                .setId(textFieldId)
+                                .setLabel(cardTextAccessor.getMessage(textFieldLabelKey, locale))
                                 .build()
                 )
                 .build();
@@ -329,7 +260,6 @@ public class HubConcurController {
     )
     public Mono<String> approveRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
-            @RequestHeader(X_AUTH_HEADER) String vidmAuthHeader,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @PathVariable("id") String id,
             @RequestParam(COMMENT_KEY) String comment
@@ -337,13 +267,6 @@ public class HubConcurController {
         logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, comment);
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        if (StringUtils.isBlank(userEmail)) {
-            logger.error("User email  is empty in jwt access token.");
-            // Can I throw an exception here if useremail isnt found in the token or return
-            // it as a bad request?
-            return Mono.empty();
-        }
-
         return makeConcurRequest(comment, baseUrl, APPROVE, id, userEmail);
     }
 
@@ -354,13 +277,11 @@ public class HubConcurController {
             String reportId,
             String userEmail
     ) {
-        // TODO - APF-1546: privilege check based on the user in the JWT
         String concurRequestTemplate = getConcurRequestTemplate(reason, action);
 
         return fetchLoginIdFromUserEmail(userEmail, baseUrl)
-                .flatMapMany(userDetails -> Flux.fromIterable(userDetails.getItems()))
-                .flatMap(userDetail -> validateUser(baseUrl, reportId, userDetail.getLoginId()))
-                .flatMap(expense -> fetchRequestData(baseUrl, reportId))
+                .flatMapMany(loginId -> validateUser(baseUrl, reportId, loginId))
+                .flatMap(ignored -> fetchRequestData(baseUrl, reportId))
                 .map(ExpenseReportResponse::getWorkflowActionURL)
                 .flatMap(
                         url ->
@@ -389,17 +310,14 @@ public class HubConcurController {
         }
     }
 
-    private Mono<PendingApprovalsVO> validateUser(
+    private Mono<?> validateUser(
             String baseUrl,
             String reportId,
             String userEmail
     ) {
-        // APF-1546: privilege check based on the user in the JWT
-
-        return fetchAllRequests(baseUrl, userEmail)
-                .flatMapMany(expenses -> Flux.fromIterable(expenses.getPendingApprovals()))
-                // Check if the approverlogin and report is equal to that passed in the request
-                .filter(expense -> expense.getId().equals(reportId) && expense.getApproverLoginID().equals(userEmail))
+        return fetchAllApprovals(baseUrl, userEmail)
+                .filter(expense -> expense.getId().equals(reportId))
+                .filter(expense -> expense.getApproverLoginID().equals(userEmail))
                 .next()
                 .switchIfEmpty(Mono.error(new UserException("Not Found"))); // CustomException
     }
@@ -411,7 +329,6 @@ public class HubConcurController {
     )
     public Mono<String> declineRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
-            @RequestHeader(X_AUTH_HEADER) String vidmAuthHeader,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @PathVariable("id") String id,
             @RequestParam(REASON_KEY) String reason
@@ -419,13 +336,6 @@ public class HubConcurController {
         logger.debug("declineRequest called: baseUrl={}, id={}, reason={}", baseUrl, id, reason);
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        if (StringUtils.isBlank(userEmail)) {
-            logger.error("User email  is empty in jwt access token.");
-            // TODO: Can I throw an exception here if useremail isnt found in the token or
-            // return it as a bad request?
-            return Mono.empty();
-        }
-
         return makeConcurRequest(reason, baseUrl, REJECT, id, userEmail);
     }
 
