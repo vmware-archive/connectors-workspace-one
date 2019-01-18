@@ -67,7 +67,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 
     @ParameterizedTest
     @CsvSource({
-            StringUtils.EMPTY + ", success.json",
+            ", success.json",
             "xx, success_xx.json"
     })
     // In the first test case : Even when locale is passed as empty ->its taking my
@@ -189,7 +189,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testUnAuthorizedApproveRequest() throws Exception {
+    void testUnauthorizedApproveRequest() throws Exception {
         mockReportsDigest();
 
         webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B0")
