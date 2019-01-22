@@ -8,25 +8,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Currency {
 
-	@JsonProperty("id")
-	private String id;
-	@JsonProperty("code")
-	private String code;
+    @JsonProperty("id")
+    private String id;
 
-	public String getId() {
-		return id;
-	}
+    @JsonProperty("code")
+    private String code;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public String getCode() {
-		return code;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setCode(String code) {
-		this.code = code;
-	}
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
 }

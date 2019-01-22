@@ -1,28 +1,25 @@
-package com.vmware.connectors.concur.domain;
+/*
+ * Copyright © 2019 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
 
-import java.io.Serializable;
+package com.vmware.connectors.concur.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserDetailsVO implements Serializable {
+public class UserDetailsVO {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5424856972480327687L;
+    private String loginId;
 
-	private String loginId;
-	
+    @JsonProperty("LoginID")
+    public String getLoginId() {
+        return loginId;
+    }
 
-	@JsonProperty("LoginID")
-	public String getLoginId() {
-		return loginId;
-	}
-
-	public void setLoginId(String loginId) {
-		this.loginId = loginId;
-	}
+    public void setLoginId(String loginId) {
+        this.loginId = loginId;
+    }
 
 }

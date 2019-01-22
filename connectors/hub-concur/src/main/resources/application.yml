@@ -11,8 +11,5 @@ management:
   endpoints:
     web.base-path: /
 
-# TODO delete this when it's not needed anymore
 concur:
-  service-account-auth-header: foo
-  temporary:
-    demo-user: bar
+  service-account-auth-header: OAuth overrideme

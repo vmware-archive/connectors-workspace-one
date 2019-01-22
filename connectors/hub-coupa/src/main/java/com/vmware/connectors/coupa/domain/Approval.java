@@ -9,65 +9,70 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Approval {
 
-	@JsonProperty("id")
-	private String id;
-	@JsonProperty("position")
-	private String position;
-	@JsonProperty("status")
-	private String status;
-	@JsonProperty("approval-date")
-	private String approvalDate;
-	@JsonProperty("approvable-id")
-	private String approvableId;
-	@JsonProperty("approver")
-	private UserDetails approver;
+    @JsonProperty("id")
+    private String id;
 
-	public String getId() {
-		return id;
-	}
+    @JsonProperty("position")
+    private String position;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    @JsonProperty("status")
+    private String status;
 
-	public String getPosition() {
-		return position;
-	}
+    @JsonProperty("approval-date")
+    private String approvalDate;
 
-	public void setPosition(String position) {
-		this.position = position;
-	}
+    @JsonProperty("approvable-id")
+    private String approvableId;
 
-	public String getStatus() {
-		return status;
-	}
+    @JsonProperty("approver")
+    private UserDetails approver;
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public String getApprovalDate() {
-		return approvalDate;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setApprovalDate(String approvalDate) {
-		this.approvalDate = approvalDate;
-	}
+    public String getPosition() {
+        return position;
+    }
 
-	public UserDetails getApprover() {
-		return approver;
-	}
+    public void setPosition(String position) {
+        this.position = position;
+    }
 
-	public void setApprover(UserDetails approver) {
-		this.approver = approver;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public String getApprovableId() {
-		return approvableId;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public void setApprovableId(String approvableId) {
-		this.approvableId = approvableId;
-	}
-	
+    public String getApprovalDate() {
+        return approvalDate;
+    }
+
+    public void setApprovalDate(String approvalDate) {
+        this.approvalDate = approvalDate;
+    }
+
+    public UserDetails getApprover() {
+        return approver;
+    }
+
+    public void setApprover(UserDetails approver) {
+        this.approver = approver;
+    }
+
+    public String getApprovableId() {
+        return approvableId;
+    }
+
+    public void setApprovableId(String approvableId) {
+        this.approvableId = approvableId;
+    }
+
 }
