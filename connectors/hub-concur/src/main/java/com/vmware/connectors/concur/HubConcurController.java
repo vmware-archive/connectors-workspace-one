@@ -150,7 +150,7 @@ public class HubConcurController {
             String baseUrl,
             String reportId
     ) {
-        logger.debug("fetchRequestData called: baseUrl={}, reportId={}", baseUrl, reportId);
+        logger.trace("fetchRequestData called: baseUrl={}, reportId={}", baseUrl, reportId);
 
         return rest.get()
                 .uri(baseUrl + "/api/expense/expensereport/v2.0/report/{reportId}", reportId)
@@ -169,7 +169,7 @@ public class HubConcurController {
         String reportId = report.getReportID();
         String reportName = report.getReportName();
 
-        logger.debug("makeCard called: routingPrefix={}, reportId={}, reportName={}", routingPrefix, reportId, reportName);
+        logger.trace("makeCard called: routingPrefix={}, reportId={}, reportName={}", routingPrefix, reportId, reportName);
 
         Card.Builder builder = new Card.Builder()
                 .setName("Concur")

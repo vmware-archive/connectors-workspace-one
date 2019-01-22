@@ -91,7 +91,7 @@ public class HubCoupaController {
 
     private void validateEmailAddress(String userEmail) {
         if (StringUtils.isBlank(userEmail)) {
-            logger.error("User email  is empty in jwt access token.");
+            logger.error("User email is empty in jwt access token.");
             throw new UserException("User Not Found");
         }
     }
@@ -137,7 +137,7 @@ public class HubCoupaController {
             String approvableId,
             String userEmail
     ) {
-        logger.debug("Fetching Requisition details for {} and user {} ", approvableId, userEmail);
+        logger.trace("Fetching Requisition details for {} and user {} ", approvableId, userEmail);
 
         return rest.get()
                 .uri(baseUrl + "/api/requisitions?id={approvableId}&status=pending_approval", approvableId)
@@ -157,7 +157,7 @@ public class HubCoupaController {
         String requestId = requestDetails.getId();
         String reportName = requestDetails.getRequisitionLinesList().get(0).getDescription();
 
-        logger.debug("makeCard called: routingPrefix={}, requestId={}, reportName={}",
+        logger.trace("makeCard called: routingPrefix={}, requestId={}, reportName={}",
                 routingPrefix, requestId, reportName);
 
         Card.Builder builder = new Card.Builder()

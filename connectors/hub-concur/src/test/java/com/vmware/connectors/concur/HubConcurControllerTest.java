@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018 VMware, Inc. All Rights Reserved.
+ * Copyright © 2019 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
@@ -70,9 +70,6 @@ class HubConcurControllerTest extends ControllerTestsBase {
             ", success.json",
             "xx, success_xx.json"
     })
-    // In the first test case : Even when locale is passed as empty ->its taking my
-    // system preferences and locale goes as en_IN instead of en_US which is the
-    // default value ?
     void testCardsRequests(String lang, String expected) throws Exception {
         mockConcurRequests();
 

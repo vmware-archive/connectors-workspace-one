@@ -1,3 +1,8 @@
+/*
+ * Copyright © 2019 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 package com.vmware.connectors.concur.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -21,10 +26,6 @@ public class RequestDetails {
 
     public void setExpenseItems(List<Map<String, String>> expenseItems) {
         this.expenseItems = expenseItems;
-    }
-
-    public void addExpenseItem(Map<String, String> item) {
-        this.expenseItems.add(item);
     }
 
 }

@@ -1,5 +1,9 @@
-package com.vmware.connectors.concur.domain;
+/*
+ * Copyright © 2019 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
 
+package com.vmware.connectors.concur.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -115,18 +119,6 @@ public class Data {
 
     public void setAction(List<Action> action) {
         this.action = action;
-    }
-
-    public void addReceipt(Receipt receipt) {
-        this.receipts.add(receipt);
-    }
-
-    public void addAction(Action action) {
-        this.action.add(action);
-    }
-
-    public void addRequestSummary(String key, String value) {
-        this.requestSummary.put(key, value);
     }
 
 }
