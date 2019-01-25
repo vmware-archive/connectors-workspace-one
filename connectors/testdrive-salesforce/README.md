@@ -1,6 +1,6 @@
 # Salesforce Connector
 
-The Salesforce TestDrive connector searches Salesforce for Contacts based on the sender's email address and the email address of the Salesforce user.  If the sender is a Contact of the Salesforce user, then an informational card is returned that displays information about the associated Opportunity. The card offers actions to allow the user to update the close date, expected deal size, and next steps.
+The Salesforce TestDrive connector searches Salesforce for Opportunities based on the sender's email address and the email address of the Salesforce user.  If the sender is involved in an Opportunity owned by the Salesforce user, then a card is returned that displays information about the associated Opportunity. The card offers actions to allow the user to update the close date, expected deal size, and next steps.
 
 For generic details on how to build, install, and configure connectors, please see the [README](https://github.com/vmware/connectors-workspace-one/blob/master/README.md) at the root of this repository.
 
@@ -58,7 +58,7 @@ Before you can authenticate and retrieve an OAuth token, you need to modify your
 
 ### Generate a Session Id-based Bearer Token to access salesforce.com rest api(s)
 
-Curl the salesforce oauth2/token url and retrieve the access token from the response:
+Curl the Salesforce oauth2/token url and retrieve the access token from the response:
 
 ```shell
 curl https://login.salesforce.com/services/oauth2/token \
@@ -69,20 +69,19 @@ curl https://login.salesforce.com/services/oauth2/token \
      --data-urlencode "password=<force.com password><security token created in Step 2>"
 ```
 
-**Note:** Execute the command whenever a token expires and a new token needs to be generated.
+**Note:** Execute this command whenever a token expires and a new token needs to be generated. By default, Salesforce tokens expire fairly quickly, but the lifetime can be adjusted on the Connected Application config page.
 
 
 ## Exercise the Salesforce API
 
 **Note:**
-* The value of the header 'X-Salesforce-Authorization' is the authorization token for accessing salesforce rest API. Please refer to the section above on how to generate the auth token.
-* The value of the header 'Authorization' is the vidm oauth token for accessing Mobile Flows Api Gateway.
+* The value of the header 'Authorization' is the Salesforce OAuth access token described above.
 
 ### Create an Account
 
 ```shell
 curl https://sf.sandbox.host/services/data/v20.0/sobjects/Account/ \
-     -H "Authorization: Bearer <token generated from Step 3>" \
+     -H "Authorization: Bearer <Salesforce OAuth access token>" \
      -H "Content-Type: application/json" \
      -d '{"Name":"<your account name>"}'
 ```

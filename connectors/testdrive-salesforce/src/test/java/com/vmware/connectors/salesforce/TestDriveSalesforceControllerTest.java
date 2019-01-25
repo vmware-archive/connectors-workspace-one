@@ -54,8 +54,8 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
     private static final String TRAVIS_ACCOUNT_ID = "0014100000Vc2iPAAR";
     private static final String SOQL_QUERY_PATH = "/services/data/v44.0/query";
     private static final String UPDATE_OPPORTUNITY_PATH = "/services/data/v44.0/sobjects/Opportunity";
-    private static final String RESPONSE_OPPORTUNITY_IDS_PATH = "/connector/responses/successOpportunityIds.json";
-    private static final String RESPONSE_OPPORTUNITY_DETAILS_PATH = "/connector/responses/successOpportunityDetails.json";
+    private static final String RESPONSE_OPPORTUNITY_IDS_PATH = "/salesforce/response/successOpportunityIds.json";
+    private static final String RESPONSE_OPPORTUNITY_DETAILS_PATH = "/salesforce/response/successOpportunityDetails.json";
     private static final String CONNECTOR_REQUEST_DATA_PATH = "/connector/requests/request.json";
 
     @Before
