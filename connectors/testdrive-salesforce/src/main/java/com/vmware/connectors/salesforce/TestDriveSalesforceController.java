@@ -80,8 +80,8 @@ public class TestDriveSalesforceController {
 
     private static final String SALESFORCE_AUTH_HEADER = "X-Connector-Authorization";
     private static final String SALESFORCE_BASE_URL_HEADER = "X-Connector-Base-Url";
-
     private static final String ROUTING_PREFIX = "x-routing-prefix";
+    private static final String UNUSED = "unused";
 
     private static final int COMMENTS_SIZE = 2;
 
@@ -139,7 +139,7 @@ public class TestDriveSalesforceController {
     // Cards request methods
     ///////////////////////////////////////////////////////////////////
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings(UNUSED)
     @PostMapping(
             path = "/cards/requests",
             consumes = APPLICATION_JSON_VALUE,
@@ -374,7 +374,7 @@ public class TestDriveSalesforceController {
     ///////////////////////////////////////////////////////////////////
 
     // Update the CloseDate field of the Opportunity
-    @SuppressWarnings("unused")
+    @SuppressWarnings(UNUSED)
     @PostMapping(
             path = URL_TEMPLATE_UPDATE_CLOSE_DATE,
             consumes = APPLICATION_FORM_URLENCODED_VALUE
@@ -392,7 +392,7 @@ public class TestDriveSalesforceController {
     }
 
     // Update the DealSize field of the Opportunity
-    @SuppressWarnings("unused")
+    @SuppressWarnings(UNUSED)
     @PostMapping(
             path = URL_TEMPLATE_UPDATE_DEAL_SIZE,
             consumes = APPLICATION_FORM_URLENCODED_VALUE
@@ -409,7 +409,7 @@ public class TestDriveSalesforceController {
     }
 
     // Update the NextStep field of the Opportunity
-    @SuppressWarnings("unused")
+    @SuppressWarnings(UNUSED)
     @PostMapping(
             path = URL_TEMPLATE_UPDATE_NEXT_STEP,
             consumes = APPLICATION_FORM_URLENCODED_VALUE

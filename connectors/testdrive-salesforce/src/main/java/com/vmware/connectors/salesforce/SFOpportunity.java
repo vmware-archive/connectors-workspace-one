@@ -13,19 +13,29 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.jayway.jsonpath.InvalidJsonException;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 
 @JsonDeserialize(using = SFOpportunity.SFOpportunityDeserializer.class)
-public class SFOpportunity {
-
-    private static final Logger logger = LoggerFactory.getLogger(TestDriveSalesforceController.class);
+class SFOpportunity {
 
     private static final ObjectMapper mapper = new ObjectMapper();
+    private static final String KEY_NAME = "Name";
+    private static final String KEY_ID = "Id";
+    private static final String KEY_CLOSE_DATE = "CloseDate";
+    private static final String KEY_STAGE_NAME = "StageName";
+    private static final String KEY_AMOUNT = "Amount";
+    private static final String KEY_NEXT_STEP = "NextStep";
+    private static final String KEY_EXPECTED_REVENUE = "ExpectedRevenue";
+    private static final String KEY_ACCOUNT = "Account";
+    private static final String KEY_OWNER = "Owner";
+    private static final String KEY_FEEDS = "Feeds";
+    private static final String KEY_RECORDS = "records";
+    private static final String KEY_BODY = "Body";
+    private static final String KEY_INSERTED_BY = "InsertedBy";
 
     private String id;
     private String name;
@@ -52,8 +62,7 @@ public class SFOpportunity {
             }
             return oppList;
         } catch (IOException e) {
-            logger.error("Exception while trying to parse Salesforce opportunity data", e);
-            return null;
+            throw new InvalidJsonException(e);
         }
     }
 
@@ -99,6 +108,7 @@ public class SFOpportunity {
 
     static class SFOpportunityDeserializer extends StdDeserializer<SFOpportunity> {
 
+        @SuppressWarnings("unused")
         SFOpportunityDeserializer() {
             this(null);
         }
@@ -115,32 +125,32 @@ public class SFOpportunity {
 
             JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-            opp.id = node.get("Id").asText();
-            opp.name = node.get("Name").asText();
-            opp.closeDate = node.get("CloseDate").asText();
-            opp.stageName = node.get("StageName").asText();
-            opp.amount = node.get("Amount").asText();
-            opp.nextStep = node.get("NextStep").asText();
-            opp.expectedRevenue = node.get("ExpectedRevenue").asText();
-            opp.accountName = node.get("Account").get("Name").asText();
-            opp.accountOwner = node.get("Account").get("Owner").get("Name").asText();
+            opp.id = node.get(KEY_ID).asText();
+            opp.name = node.get(KEY_NAME).asText();
+            opp.closeDate = node.get(KEY_CLOSE_DATE).asText();
+            opp.stageName = node.get(KEY_STAGE_NAME).asText();
+            opp.amount = node.get(KEY_AMOUNT).asText();
+            opp.nextStep = node.get(KEY_NEXT_STEP).asText();
+            opp.expectedRevenue = node.get(KEY_EXPECTED_REVENUE).asText();
+            opp.accountName = node.get(KEY_ACCOUNT).get(KEY_NAME).asText();
+            opp.accountOwner = node.get(KEY_ACCOUNT).get(KEY_OWNER).get(KEY_NAME).asText();
 
-            parseFeedsNode(node.get("Feeds"), opp);
+            parseFeedsNode(node.get(KEY_FEEDS), opp);
 
             return opp;
         }
 
         private void parseFeedsNode(JsonNode feedsNode, SFOpportunity opp) {
-            if (feedsNode != null && feedsNode.has("records")) {
-                Iterator<JsonNode> feedsIter = feedsNode.get("records").elements();
+            if (feedsNode != null && feedsNode.has(KEY_RECORDS)) {
+                Iterator<JsonNode> feedsIter = feedsNode.get(KEY_RECORDS).elements();
                 while (feedsIter.hasNext()) {
                     String feedEntry;
                     JsonNode fn = feedsIter.next();
-                    String body = fn.get("Body").asText();
+                    String body = fn.get(KEY_BODY).asText();
                     if (StringUtils.isBlank(body)) {
                         continue;
                     }
-                    String commenterName = fn.get("InsertedBy").get("Name").asText();
+                    String commenterName = fn.get(KEY_INSERTED_BY).get(KEY_NAME).asText();
                     if (StringUtils.isBlank(commenterName)) {
                         feedEntry = body;
                     } else {
