@@ -23,10 +23,10 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @EnableWebSecurity
 @EnableScheduling
 @SuppressWarnings("PMD.UseUtilityClass")
-public class SalesForceConnectorApplication {
+public class TestDriveSalesforceConnectorApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SalesForceConnectorApplication.class, args);
+        SpringApplication.run(TestDriveSalesforceConnectorApplication.class, args);
     }
 
 }

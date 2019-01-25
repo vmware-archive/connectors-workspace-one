@@ -1,3 +1,10 @@
+/*
+ * Copyright © 2019 VMware, Inc. All rights reserved. This product is protected by
+ * copyright and intellectual property laws in the United States and other countries as
+ * well as by international treaties. AirWatch products may be covered by one or more
+ * patents listed at http://www.vmware.com/go/patents.
+ */
+
 package com.vmware.connectors.salesforce;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -6,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,9 +134,19 @@ public class SFOpportunity {
             if (feedsNode != null && feedsNode.has("records")) {
                 Iterator<JsonNode> feedsIter = feedsNode.get("records").elements();
                 while (feedsIter.hasNext()) {
+                    String feedEntry;
                     JsonNode fn = feedsIter.next();
-                    String entry = fn.get("InsertedBy").get("Name").asText() + " - " + fn.get("Body").asText();
-                    opp.feedEntries.add(entry);
+                    String body = fn.get("Body").asText();
+                    if (StringUtils.isBlank(body)) {
+                        continue;
+                    }
+                    String commenterName = fn.get("InsertedBy").get("Name").asText();
+                    if (StringUtils.isBlank(commenterName)) {
+                        feedEntry = body;
+                    } else {
+                        feedEntry = commenterName + " - " + body;
+                    }
+                    opp.feedEntries.add(feedEntry);
                 }
             }
 

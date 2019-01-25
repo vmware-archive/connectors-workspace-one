@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018 VMware, Inc. All rights reserved. This product is protected by
+ * Copyright © 2019 VMware, Inc. All rights reserved. This product is protected by
  * copyright and intellectual property laws in the United States and other countries as
  * well as by international treaties. AirWatch products may be covered by one or more
  * patents listed at http://www.vmware.com/go/patents.
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -189,7 +190,7 @@ public class TestDriveSalesforceController {
 
     // Get the details of one or more Opportunities
     private Mono<String> queryOpportunityDetails(String auth, String baseUrl, List<String> idsList) {
-        if (idsList == null || idsList.isEmpty()) {
+        if (CollectionUtils.isEmpty(idsList)) {
             return Mono.just("");
         }
         String soql = String.format(QUERY_FMT_OPPORTUNITY_INFO, commaSeparatedListOfEscapedIds(idsList));
