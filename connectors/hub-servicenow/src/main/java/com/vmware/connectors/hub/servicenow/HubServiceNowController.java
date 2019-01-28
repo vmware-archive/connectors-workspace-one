@@ -9,7 +9,6 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,7 +22,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -86,8 +84,7 @@ public class HubServiceNowController {
             @RequestHeader(AUTH_HEADER) final String connectorAuth,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
-            final Locale locale,
-            final HttpServletRequest request
+            final Locale locale
     ) throws IOException {
         logger.trace("getCards called, baseUrl={}, routingPrefix={}", baseUrl, routingPrefix);
 
@@ -104,7 +101,7 @@ public class HubServiceNowController {
                 .flatMap(approvalRequestWithInfo -> callForAndAggregateRequestedItems(baseUrl, connectorAuth, approvalRequestWithInfo))
                 .reduce(
                         new Cards(),
-                        (cards, info) -> appendCard(cards, info, routingPrefix, locale, request)
+                        (cards, info) -> appendCard(cards, info, routingPrefix, locale)
                 )
                 .subscriberContext(Reactive.setupContext());
     }
@@ -331,12 +328,11 @@ public class HubServiceNowController {
     private Cards appendCard(Cards cards,
                              ApprovalRequestWithItems info,
                              String routingPrefix,
-                             Locale locale,
-                             HttpServletRequest request) {
+                             Locale locale) {
         logger.trace("appendCard called: cards={}, info={}, routingPrefix={}", cards, info, routingPrefix);
 
         cards.getCards().add(
-                makeCard(routingPrefix, info, locale, request)
+                makeCard(routingPrefix, info, locale)
         );
 
         return cards;
@@ -345,8 +341,7 @@ public class HubServiceNowController {
     private Card makeCard(
             String routingPrefix,
             ApprovalRequestWithItems info,
-            Locale locale,
-            HttpServletRequest request
+            Locale locale
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 
@@ -386,9 +381,7 @@ public class HubServiceNowController {
                                 )
                                 .build()
                 );
-        // Set image url.
-        CommonUtils.buildConnectorImageUrl(card, request);
-
+        card.setImageUrl("https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-servicenow.png");
         return card.build();
     }
 
