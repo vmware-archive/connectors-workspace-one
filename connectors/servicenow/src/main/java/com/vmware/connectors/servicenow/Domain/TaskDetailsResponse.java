@@ -17,20 +17,28 @@ public class TaskDetailsResponse {
     private final static String shortDescriptionField = "short_description";
     
     public TaskDetailsResponse(JsonNode jsonSource) {
-        if(jsonSource.has(TaskDetailsResponse.taskNumberField)) {
-            this.taskNumber = jsonSource.get(TaskDetailsResponse.taskNumberField).asText();
+
+        JsonNode jsonObject;
+        if(jsonSource.isArray()) {
+            jsonObject = jsonSource.elements().next();
+        } else {
+            jsonObject = jsonSource;
         }
 
-        if(jsonSource.has(TaskDetailsResponse.createdOnField)) {
-            this.createdOn = jsonSource.get(TaskDetailsResponse.createdOnField).asText();
+        if(jsonObject.has(TaskDetailsResponse.taskNumberField)) {
+            this.taskNumber = jsonObject.get(TaskDetailsResponse.taskNumberField).asText();
         }
 
-        if(jsonSource.has(TaskDetailsResponse.createdByField)) {
-             this.createdBy = jsonSource.get(TaskDetailsResponse.createdByField).asText();
+        if(jsonObject.has(TaskDetailsResponse.createdOnField)) {
+            this.createdOn = jsonObject.get(TaskDetailsResponse.createdOnField).asText();
         }
 
-        if(jsonSource.has(TaskDetailsResponse.shortDescriptionField)) {
-            this.shortDescription = jsonSource.get(TaskDetailsResponse.shortDescriptionField).asText();
+        if(jsonObject.has(TaskDetailsResponse.createdByField)) {
+             this.createdBy = jsonObject.get(TaskDetailsResponse.createdByField).asText();
+        }
+
+        if(jsonObject.has(TaskDetailsResponse.shortDescriptionField)) {
+            this.shortDescription = jsonObject.get(TaskDetailsResponse.shortDescriptionField).asText();
         }
     }
 

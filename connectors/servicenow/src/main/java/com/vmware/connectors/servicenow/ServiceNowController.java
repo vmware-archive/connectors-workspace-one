@@ -86,6 +86,8 @@ public class ServiceNowController {
 
     private static final String SNOW_SYS_PARAM_OFFSET = "sysparm_offset";
 
+    private static final String SNOW_SYS_PARAM_QUERY = "sysparm_query";
+
     /**
      * The maximum approval requests to fetch from ServiceNow.  Since we have
      * to filter results out based on the ticket_id param passed in by the
@@ -695,8 +697,51 @@ public class ServiceNowController {
                 });
     }
 
+    @GetMapping(
+            path = "/api/v1/ticket/",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    private Mono<TaskDetailsResponse> getTaskDetails(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @RequestParam(name = "ticketType", required = false, defaultValue = "task") TaskKey ticketType,
+            @RequestParam(name = "ticketNumber", required = true) String ticketNumber) {
+                
+        logger.trace("getTaskDetails called: baseUrl={}, ticketType={}, ticketNumber={}", baseUrl, ticketType, ticketNumber);
+
+        String ticketNumberField = "number=";
+
+        return this.getTaskDetailsRequest("/api/now/table/" + ticketType, baseUrl, auth, ticketNumberField + ticketNumber);
+    }
+
+    private Mono<TaskDetailsResponse> getTaskDetailsRequest(String endpoint, String baseUrl, String auth, String query) {
+            logger.trace("getTaskDetailsRequest called: baseUrl={}", endpoint);        
+
+            return rest.get()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .queryParam(SNOW_SYS_PARAM_QUERY, query)
+                        .encode()
+                        .toUriString())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                        try {
+                                JsonNode node = new ObjectMapper().readTree(s.read(this.RESULT_PREFIX + "[*]").toString());
+                                logger.trace("getTaskDetailsResponse -> {}" , node.toString());
+                                return new TaskDetailsResponse(node);
+                        } catch(IOException exe) {
+                                logger.error("getTaskDetailsRequest() -> readTree() -> {}" + exe.getMessage());
+                        }
+                
+                return null;
+                });
+    }
+
     @PostMapping(
-            path="/api/v1/cart",
+            path="/api/v1/checkout",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     public Mono<CheckoutResponse> addItemsToCart(
@@ -727,6 +772,22 @@ public class ServiceNowController {
 
         return cartResponse;
     }
+
+    @PostMapping(
+        path="/api/v1/cart",
+        consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<CartResponse> addToCart(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @Valid @RequestBody CardRequest cardRequest) {
+        
+        logger.trace("addToCart calledf: baseUrl={}, item={}", baseUrl, cardRequest.toString());
+        var itemId = cardRequest.getTokenSingleValue("itemId");
+        var quantity = cardRequest.getTokenSingleValue("quantity");
+
+        return this.addToCartRequest(itemId, quantity, auth, baseUrl);
+     }
 
     private Mono<CartResponse> addToCartRequest(String itemId, String quantity, String auth, String baseUrl) {
 
@@ -789,7 +850,7 @@ public class ServiceNowController {
 
     private Mono<String> lookupCartRequest(String endpoint, String auth, String baseUrl) {
             logger.trace("addToCartRequest called: baseUrl={}, item_id={}", baseUrl);
-        return rest.post()
+        return rest.get()
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
                         .path(endpoint)
