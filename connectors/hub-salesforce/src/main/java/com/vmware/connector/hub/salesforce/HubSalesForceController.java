@@ -9,7 +9,6 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.CommonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -89,7 +87,6 @@ public class HubSalesForceController {
             @RequestHeader(AUTH_HEADER) final String connectorAuth,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
-            final HttpServletRequest request,
             final Locale locale
     ) throws IOException {
         logger.trace("getCards called with baseUrl: {} and routingPrefix: {}", baseUrl, routingPrefix);
@@ -101,7 +98,7 @@ public class HubSalesForceController {
         }
 
         return retrieveWorkItems(connectorAuth, baseUrl, userEmail)
-                .flatMapMany(result -> processWorkItemResult(result, baseUrl, connectorAuth, locale, routingPrefix, request))
+                .flatMapMany(result -> processWorkItemResult(result, baseUrl, connectorAuth, locale, routingPrefix))
                 .collectList()
                 .map(this::toCards)
                 .map(ResponseEntity::ok);
@@ -171,8 +168,7 @@ public class HubSalesForceController {
                                              final String baseUrl,
                                              final String connectorAuth,
                                              final Locale locale,
-                                             final String routingPrefix,
-                                             final HttpServletRequest request) {
+                                             final String routingPrefix) {
         final List<String> opportunityIds = workItemResponse.read("$.records[*].TargetObjectId");
         if (CollectionUtils.isEmpty(opportunityIds)) {
             logger.warn("TargetObjectIds are empty.");
@@ -180,7 +176,7 @@ public class HubSalesForceController {
         }
 
         return retrieveOpportunities(baseUrl, opportunityIds, connectorAuth)
-                .flatMapMany(opportunityResponse -> buildCards(workItemResponse, opportunityResponse, locale, routingPrefix, request));
+                .flatMapMany(opportunityResponse -> buildCards(workItemResponse, opportunityResponse, locale, routingPrefix));
     }
 
     private Mono<JsonDocument> retrieveOpportunities(final String baseUrl,
@@ -212,8 +208,7 @@ public class HubSalesForceController {
     private Flux<Card> buildCards(final JsonDocument workItemResponse,
                                   final JsonDocument opportunityResponse,
                                   final Locale locale,
-                                  final String routingPrefix,
-                                  final HttpServletRequest request) {
+                                  final String routingPrefix) {
         final int totalSize = workItemResponse.read("$.totalSize");
         final List<Card> cardList = new ArrayList<>();
 
@@ -228,8 +223,7 @@ public class HubSalesForceController {
                     .addAction(buildApproveAction(routingPrefix, locale, userId))
                     .addAction(buildRejectAction(routingPrefix, locale, userId));
 
-            CommonUtils.buildConnectorImageUrl(card, request);
-
+            card.setImageUrl("https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-salesforce.png");
             cardList.add(card.build());
         }
 

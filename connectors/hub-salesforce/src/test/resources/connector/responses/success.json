@@ -76,7 +76,7 @@
         }
       ],
       "image": {
-        "href": "https://my-connector/images/connector.png"
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-salesforce.png"
       },
       "hash": "test-hash"
     },
@@ -156,7 +156,7 @@
         }
       ],
       "image": {
-        "href": "https://my-connector/images/connector.png"
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-salesforce.png"
       },
       "hash": "test-hash"
     }
