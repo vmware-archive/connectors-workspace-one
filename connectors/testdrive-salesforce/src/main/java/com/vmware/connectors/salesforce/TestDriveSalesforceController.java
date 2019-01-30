@@ -7,6 +7,8 @@
 
 package com.vmware.connectors.salesforce;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
@@ -16,6 +18,7 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateParser;
 import org.apache.commons.lang3.time.DatePrinter;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
@@ -32,6 +35,7 @@ import reactor.core.publisher.Mono;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -113,6 +117,7 @@ public class TestDriveSalesforceController {
     private static final String QUERY_PARAM_NEXTSTEP_PREVIOUS_VALUE = "nextstep_previous_value";
 
     private static final DatePrinter mmddDatePrinter = FastDateFormat.getInstance("MM-dd");
+    private static final DateParser closeDateParser = FastDateFormat.getInstance("yyyy-MM-dd");
 
     private final String sfSoqlQueryPath;
 
@@ -121,6 +126,8 @@ public class TestDriveSalesforceController {
     private final WebClient rest;
 
     private final CardTextAccessor cardTextAccessor;
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     public TestDriveSalesforceController(
@@ -379,13 +386,22 @@ public class TestDriveSalesforceController {
             path = URL_TEMPLATE_UPDATE_CLOSE_DATE,
             consumes = APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Mono<ResponseEntity<Void>> updateCloseDate(
+    public Mono<ResponseEntity<String>> updateCloseDate(
             @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
             @PathVariable(OPPORTUNITY_ID) final String opportunityId,
             @RequestParam(QUERY_PARAM_CLOSEDATE) final String closeDate) {
 
         // CloseDate should in the format "YYYY-MM-DD".
+        try {
+            // We don't need the parsed Date itself, we just need to verify that it's parseable
+            @SuppressWarnings("PMD.UnusedLocalVariable")
+            Date cd = closeDateParser.parse(closeDate);
+        } catch (ParseException e) {
+            String msg = "<<" + closeDate + ">> is not a valid yyyy-MM-dd date";
+            return Mono.just(ResponseEntity.badRequest().body(wrapErrorMessage(msg)));
+        }
+
         final Map<String, String> body = Map.of("CloseDate", closeDate);
 
         return updateOpportunityField(baseUrl, auth, opportunityId, body);
@@ -397,13 +413,21 @@ public class TestDriveSalesforceController {
             path = URL_TEMPLATE_UPDATE_DEAL_SIZE,
             consumes = APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Mono<ResponseEntity<Void>> updateDealSize(
+    public Mono<ResponseEntity<String>> updateDealSize(
             @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
             @PathVariable(OPPORTUNITY_ID) final String opportunityId,
-            @RequestParam(QUERY_PARAM_DEALSIZE) final String newAmount) {
+            @RequestParam(QUERY_PARAM_DEALSIZE) final String newAmountStr) {
 
-        final Map<String, String> body = Map.of("Amount", newAmount);
+        int newAmount;
+        try {
+            newAmount = Integer.parseInt(newAmountStr);
+        } catch (NumberFormatException e) {
+            String msg = "<<" + newAmountStr + ">> is not a number";
+            return Mono.just(ResponseEntity.badRequest().body(wrapErrorMessage(msg)));
+        }
+
+        final Map<String, String> body = Map.of("Amount", String.valueOf(newAmount));
 
         return updateOpportunityField(baseUrl, auth, opportunityId, body);
     }
@@ -414,29 +438,41 @@ public class TestDriveSalesforceController {
             path = URL_TEMPLATE_UPDATE_NEXT_STEP,
             consumes = APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Mono<ResponseEntity<Void>> updateNextStep(
+    public Mono<ResponseEntity<String>> updateNextStep(
             @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
             @PathVariable(OPPORTUNITY_ID) final String opportunityId,
             @RequestParam(QUERY_PARAM_NEXTSTEP) final String nextStep,
-            @RequestParam(QUERY_PARAM_NEXTSTEP_PREVIOUS_VALUE) final String previousNextStepText) {
+            @RequestParam(value = QUERY_PARAM_NEXTSTEP_PREVIOUS_VALUE, required = false)
+                          final String previousNextStepText) {
 
-        Map<String, String> body = null;
+        if (StringUtils.isBlank(nextStep)) {
+            String msg = "Next step missing";
+            return Mono.just(ResponseEntity.badRequest().body(wrapErrorMessage(msg)));
 
-        if (StringUtils.isNotBlank(nextStep)) {
+        } else {
             String newNextStep = mmddDatePrinter.format(new Date()) + ": " + nextStep;
             if (StringUtils.isNotBlank(previousNextStepText)) {
                 newNextStep = newNextStep + "\n" + previousNextStepText;
             }
 
-            body = Map.of("NextStep", newNextStep);
+            Map<String, String> body = Map.of("NextStep", newNextStep);
+            return updateOpportunityField(baseUrl, auth, opportunityId, body);
         }
 
-        return updateOpportunityField(baseUrl, auth, opportunityId, body);
+    }
+
+    private String wrapErrorMessage(String message) {
+        Map<String, String> map = Map.of("error", "Bad Request", "messge", message);
+        try {
+            return mapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            return "";
+        }
     }
 
     // Build and send the update request
-    private Mono<ResponseEntity<Void>> updateOpportunityField(final String baseUrl,
+    private Mono<ResponseEntity<String>> updateOpportunityField(final String baseUrl,
                                               final String auth,
                                               final String opportunityId,
                                               final Object body) {
@@ -447,7 +483,7 @@ public class TestDriveSalesforceController {
                 .syncBody(body)
                 .exchange()
                 .flatMap(Reactive::checkStatus)
-                .flatMap(response -> response.toEntity(Void.class));
+                .flatMap(response -> response.toEntity(String.class));
     }
 
     // Insert the opportunity ID into the URL

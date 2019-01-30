@@ -23,6 +23,7 @@ import java.util.*;
 class SFOpportunity {
 
     private static final ObjectMapper mapper = new ObjectMapper();
+
     private static final String KEY_NAME = "Name";
     private static final String KEY_ID = "Id";
     private static final String KEY_CLOSE_DATE = "CloseDate";
@@ -36,6 +37,7 @@ class SFOpportunity {
     private static final String KEY_RECORDS = "records";
     private static final String KEY_BODY = "Body";
     private static final String KEY_INSERTED_BY = "InsertedBy";
+    private static final String NULL_STRING = "null";
 
     private String id;
     private String name;
@@ -51,7 +53,7 @@ class SFOpportunity {
     static List<SFOpportunity> fromJson(String json) {
         try {
             JsonNode rootNode = mapper.readTree(json);
-            JsonNode recordsNode = rootNode.get("records");
+            JsonNode recordsNode = rootNode.get(KEY_RECORDS);
 
             List<SFOpportunity> oppList = new ArrayList<>();
             if (recordsNode.isArray()) {
@@ -147,7 +149,7 @@ class SFOpportunity {
                     String feedEntry;
                     JsonNode fn = feedsIter.next();
                     String body = fn.get(KEY_BODY).asText();
-                    if (StringUtils.isBlank(body)) {
+                    if (StringUtils.isBlank(body) || NULL_STRING.equalsIgnoreCase(body)) {
                         continue;
                     }
                     String commenterName = fn.get(KEY_INSERTED_BY).get(KEY_NAME).asText();
@@ -159,7 +161,6 @@ class SFOpportunity {
                     opp.feedEntries.add(feedEntry);
                 }
             }
-
         }
     }
 }

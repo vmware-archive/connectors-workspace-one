@@ -64,6 +64,28 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
         mockBackend.reset();
     }
 
+    @Test
+    void testSFOpportunityDeserialization() throws IOException {
+        List<SFOpportunity> opps = SFOpportunity.fromJson(fromFile(RESPONSE_OPPORTUNITY_DETAILS_PATH));
+        assertThat(opps, notNullValue());
+        assertThat(opps.size(), equalTo(2));
+
+        SFOpportunity firstOpp = opps.get(0);
+        assertThat(firstOpp, notNullValue());
+        assertThat(firstOpp.getId(), equalTo("00641000004IK9WAAW"));
+
+        List<String> firstOppFeeds = firstOpp.getFeedEntries();
+        assertThat(firstOppFeeds, notNullValue());
+        assertThat(firstOppFeeds.size(), equalTo(1));
+
+        SFOpportunity secondOpp = opps.get(1);
+        assertThat(secondOpp, notNullValue());
+
+        List<String> secondOppFeeds = secondOpp.getFeedEntries();
+        assertThat(secondOppFeeds, notNullValue());
+        assertThat(secondOppFeeds.size(), equalTo(0));
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "/cards/requests",
@@ -117,18 +139,6 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
                 .expectHeader().valueEquals("X-Backend-Status", "500");
     }
 
-    @Test
-    void testGetImage() {
-        webClient.get()
-                .uri("/images/connector.png")
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentLength(7314)
-                .expectHeader().contentType(IMAGE_PNG)
-                .expectBody().consumeWith(result -> assertThat(
-                        result.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
-    }
-
     @DisplayName("Card request invalid token cases")
     @ParameterizedTest(name = "{index} ==> ''{0}''")
     @CsvSource({"/connector/requests/emptyRequest.json, connector/responses/emptyRequest.json",
@@ -165,7 +175,7 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
     }
 
     @DisplayName("Update Salesforce opportunity fields")
-    @ParameterizedTest(name = "{index} => uri={0}, body={1} {2}")
+    @ParameterizedTest(name = "{index} => uri={0}, body={1}")
     @MethodSource("argumentsForUpdateTest")
     void updateOpportunityFields(String uri, String body) {
 
@@ -186,35 +196,43 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
                 .expectStatus().isOk();
     }
 
-    @Test
-    void testSFOpportunityDeserialization() throws IOException {
-        List<SFOpportunity> opps = SFOpportunity.fromJson(fromFile(RESPONSE_OPPORTUNITY_DETAILS_PATH));
-        assertThat(opps, notNullValue());
-        assertThat(opps.size(), equalTo(2));
-
-        SFOpportunity firstOpp = opps.get(0);
-        assertThat(firstOpp, notNullValue());
-        assertThat(firstOpp.getId(), equalTo("00641000004IK9WAAW"));
-
-        List<String> firstOppFeeds = firstOpp.getFeedEntries();
-        assertThat(firstOppFeeds, notNullValue());
-        assertThat(firstOppFeeds.size(), equalTo(1));
-
-        SFOpportunity secondOpp = opps.get(1);
-        assertThat(secondOpp, notNullValue());
-
-        List<String> secondOppFeeds = secondOpp.getFeedEntries();
-        assertThat(secondOppFeeds, notNullValue());
-        assertThat(secondOppFeeds.size(), equalTo(0));
-    }
-
     @SuppressWarnings("unused")
     private static Stream<Arguments> argumentsForUpdateTest() {
         return Stream.of(
                 Arguments.of("/opportunity/00641000004IK9WAAW/closedate", "closedate=2017-06-03"),
                 Arguments.of("/opportunity/00641000004IK9WAAW/dealsize", "amount=32000"),
                 Arguments.of("/opportunity/00641000004IK9WAAW/nextstep",
-                        "nextstep=3/31 - Customer was shown the roadmap for ABC product&nextstep_previous_value=Some earlier step"));
+                        "nextstep=3/31 - Customer was shown the roadmap for ABC product&nextstep_previous_value=Some earlier step"),
+                Arguments.of("/opportunity/00641000004IK9WAAW/nextstep", "nextstep=3/31 - Customer was shown the roadmap for ABC product")
+        );
+    }
+
+    @DisplayName("Attempt to update Salesforce opportunity fields with missing data")
+    @ParameterizedTest(name = "{index} => uri={0}, body=<<{1}>>")
+    @MethodSource("argumentsForUpdateTestWithMissingData")
+    void updateOpportunityFieldsWithMissingData(String uri, String body) {
+
+        webClient.post()
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .header(X_AUTH_HEADER, "Bearer abc")
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .syncBody(body)
+                .exchange()
+                .expectStatus().is4xxClientError();
+    }
+
+    @SuppressWarnings("unused")
+    private static Stream<Arguments> argumentsForUpdateTestWithMissingData() {
+        return Stream.of(
+                Arguments.of("/opportunity/00641000004IK9WAAW/closedate", "closedate="),
+                Arguments.of("/opportunity/00641000004IK9WAAW/closedate", ""),
+                Arguments.of("/opportunity/00641000004IK9WAAW/dealsize", "amount="),
+                Arguments.of("/opportunity/00641000004IK9WAAW/dealsize", ""),
+                Arguments.of("/opportunity/00641000004IK9WAAW/nextstep", "nextstep="),
+                Arguments.of("/opportunity/00641000004IK9WAAW/nextstep", "")
+        );
     }
 
     private void testRequestCards(String requestFile, String responseFile) throws IOException {
