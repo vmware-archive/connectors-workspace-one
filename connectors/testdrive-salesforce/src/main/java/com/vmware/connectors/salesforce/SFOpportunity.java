@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.jayway.jsonpath.InvalidJsonException;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -23,6 +25,7 @@ import java.util.*;
 class SFOpportunity {
 
     private static final ObjectMapper mapper = new ObjectMapper();
+    private static final Logger logger = LoggerFactory.getLogger(SFOpportunity.class);
 
     private static final String KEY_NAME = "Name";
     private static final String KEY_ID = "Id";
@@ -56,10 +59,12 @@ class SFOpportunity {
             JsonNode recordsNode = rootNode.get(KEY_RECORDS);
 
             List<SFOpportunity> oppList = new ArrayList<>();
-            if (recordsNode.isArray()) {
+            if (recordsNode != null && recordsNode.isArray()) {
                 for (JsonNode recNode : recordsNode) {
                     SFOpportunity opp = mapper.treeToValue(recNode, SFOpportunity.class);
-                    oppList.add(opp);
+                    if (opp != null) {
+                        oppList.add(opp);
+                    }
                 }
             }
             return oppList;
@@ -127,19 +132,29 @@ class SFOpportunity {
 
             JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-            opp.id = node.get(KEY_ID).asText();
-            opp.name = node.get(KEY_NAME).asText();
-            opp.closeDate = node.get(KEY_CLOSE_DATE).asText();
-            opp.stageName = node.get(KEY_STAGE_NAME).asText();
-            opp.amount = node.get(KEY_AMOUNT).asText();
-            opp.nextStep = node.get(KEY_NEXT_STEP).asText();
-            opp.expectedRevenue = node.get(KEY_EXPECTED_REVENUE).asText();
-            opp.accountName = node.get(KEY_ACCOUNT).get(KEY_NAME).asText();
-            opp.accountOwner = node.get(KEY_ACCOUNT).get(KEY_OWNER).get(KEY_NAME).asText();
+            opp.id = readNodeAtPath(node, KEY_ID);
+            if (StringUtils.isBlank(opp.id)) {
+                logger.warn("Salesforce opportunity response included an Opportunity with no ID");
+                return null;
+            }
+
+            parseFields(opp, node);
 
             parseFeedsNode(node.get(KEY_FEEDS), opp);
 
             return opp;
+        }
+
+        // This method has been extracted from deserialize() to work around PMD's opinion of NCSS complexity.
+        private void parseFields(SFOpportunity opp, JsonNode node) {
+            opp.name = readNodeAtPath(node, KEY_NAME);
+            opp.closeDate = readNodeAtPath(node, KEY_CLOSE_DATE);
+            opp.stageName = readNodeAtPath(node, KEY_STAGE_NAME);
+            opp.amount = readNodeAtPath(node, KEY_AMOUNT);
+            opp.nextStep = readNodeAtPath(node, KEY_NEXT_STEP);
+            opp.expectedRevenue = readNodeAtPath(node, KEY_EXPECTED_REVENUE);
+            opp.accountName = readNodeAtPath(node, KEY_ACCOUNT, KEY_NAME);
+            opp.accountOwner = readNodeAtPath(node, KEY_ACCOUNT, KEY_OWNER, KEY_NAME);
         }
 
         private void parseFeedsNode(JsonNode feedsNode, SFOpportunity opp) {
@@ -161,6 +176,25 @@ class SFOpportunity {
                     opp.feedEntries.add(feedEntry);
                 }
             }
+        }
+
+        private String readNodeAtPath(JsonNode node, String... pathElements) {
+            if (node == null || pathElements == null || pathElements.length == 0) {
+                return null;
+            }
+            List<String> pathList = Arrays.asList(pathElements);
+            Iterator<String> pathListIterator = pathList.listIterator();
+
+            JsonNode targetNode = node;
+
+            while (pathListIterator.hasNext()) {
+                String pathElement = pathListIterator.next();
+                targetNode = targetNode.get(pathElement);
+                if (targetNode == null) {
+                    return null;
+                }
+            }
+            return targetNode.asText();
         }
     }
 }

@@ -56,6 +56,7 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
     private static final String UPDATE_OPPORTUNITY_PATH = "/services/data/v44.0/sobjects/Opportunity";
     private static final String RESPONSE_OPPORTUNITY_IDS_PATH = "/salesforce/response/successOpportunityIds.json";
     private static final String RESPONSE_OPPORTUNITY_DETAILS_PATH = "/salesforce/response/successOpportunityDetails.json";
+    private static final String RESPONSE_OPPORTUNITY_PARSE_TEST_PATH = "/salesforce/response/opportunityParseTest.json";
     private static final String CONNECTOR_REQUEST_DATA_PATH = "/connector/requests/request.json";
 
     @Before
@@ -66,9 +67,9 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
 
     @Test
     void testSFOpportunityDeserialization() throws IOException {
-        List<SFOpportunity> opps = SFOpportunity.fromJson(fromFile(RESPONSE_OPPORTUNITY_DETAILS_PATH));
+        List<SFOpportunity> opps = SFOpportunity.fromJson(fromFile(RESPONSE_OPPORTUNITY_PARSE_TEST_PATH));
         assertThat(opps, notNullValue());
-        assertThat(opps.size(), equalTo(2));
+        assertThat(opps.size(), equalTo(3));
 
         SFOpportunity firstOpp = opps.get(0);
         assertThat(firstOpp, notNullValue());

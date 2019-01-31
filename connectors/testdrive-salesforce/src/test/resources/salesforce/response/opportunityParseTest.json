@@ -1,0 +1,135 @@
+{
+  "totalSize": 4,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v37.0/sobjects/Opportunity/00641000004IK9WAAW"
+      },
+      "Id": "00641000004IK9WAAW",
+      "Name": "Edge Emergency Generator",
+      "CloseDate": "2016-10-26",
+      "NextStep": "1. Collect generators.",
+      "StageName": "Id. Decision Makers",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v37.0/sobjects/Account/00141000007PyDFAA0"
+        },
+        "Name": "Edge Communications",
+        "Owner": {
+          "attributes": {
+            "type": "User",
+            "url": "/services/data/v37.0/sobjects/User/00541000000osYgAAI"
+          },
+          "Name": "Jeff Jones"
+        }
+      },
+      "Amount": "$35,000.00",
+      "ExpectedRevenue": "$21,000.00",
+      "OpportunityTeamMembers": null,
+      "Feeds": {
+        "totalSize": 1,
+        "done": true,
+        "records": [
+          {
+            "attributes": {
+              "type": "OpportunityFeed",
+              "url": "/services/data/v37.0/sobjects/OpportunityFeed/0D52M00004eIebzSAC"
+            },
+            "InsertedBy": {
+              "attributes": {
+                "type": "Name",
+                "url": "/services/data/v37.0/sobjects/User/00541000000osYgAAI"
+              },
+              "Name": "Jeff Jones"
+            },
+            "Body": "<p>Argle; bargle.</p>"
+          },
+          {
+            "attributes": {
+              "type": "OpportunityFeed",
+              "url": "/services/data/v37.0/sobjects/OpportunityFeed/0D52M0000zzzzzzzzz"
+            },
+            "InsertedBy": {
+              "attributes": {
+                "type": "Name",
+                "url": "/services/data/v37.0/sobjects/User/00541000000zzzzzzz"
+              },
+              "Name": "Jeff Jones"
+            },
+            "Body": null
+          }
+        ]
+      }
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v37.0/sobjects/Opportunity/00641000004IK9ZZZZ"
+      },
+      "Id": "00641000004IK9WAAW",
+      "Name": "Center Emergency Generator",
+      "CloseDate": "2016-10-26",
+      "NextStep": "1. Collect walruses.",
+      "StageName": "Id. Decision Delayers",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v37.0/sobjects/Account/00141000007PyDFZZZ"
+        },
+        "Name": "Center Miscommunications",
+        "Owner": {
+          "attributes": {
+            "type": "User",
+            "url": "/services/data/v37.0/sobjects/User/00541000000osYgZZZ"
+          },
+          "Name": "Jeff Jones"
+        }
+      },
+      "Amount": "$35.00",
+      "ExpectedRevenue": "$21.00",
+      "OpportunityTeamMembers": null
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v37.0/sobjects/Opportunity/00641000004IK9YYYYY"
+      },
+      "Id": "00641000004IK9WAAW",
+      "Name": "Malformed Record",
+      "CloseDate": "2016-10-26",
+      "StageName": "Id. Decision Delayers",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v37.0/sobjects/Account/00141000007PyDFZZZ"
+        },
+        "Nope": "No name here!"
+      },
+      "ExpectedRevenue": "$21.00",
+      "OpportunityTeamMembers": null
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v37.0/sobjects/Opportunity/00641000004IK9YYYYY"
+      },
+      "Name": "Record With No ID",
+      "CloseDate": "2016-10-26",
+      "NextStep": "1. Collect walruses.",
+      "StageName": "Id. Decision Delayers",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v37.0/sobjects/Account/00141000007PyDFZZZ"
+        },
+        "Nope": "No name here!"
+      },
+      "Amount": "$35.00",
+      "ExpectedRevenue": "$21.00",
+      "OpportunityTeamMembers": null
+    }
+  ]
+}
