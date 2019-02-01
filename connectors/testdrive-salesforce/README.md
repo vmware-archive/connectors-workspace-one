@@ -1,8 +1,6 @@
 # Salesforce Connector
 
-The Salesforce connector searches Salesforce for Contacts based on the sender's email address and the email address of the Salesforce user.  If the sender is a Contact of the Salesforce user, then an informational card is returned that displays the Contact's name, Account, Phone Number, and if available, information about the associated Opportunity.
-
-If the sender is not a Contact of the Salesforce user, but other Contacts from the sender's email domain are, then a card is returned offering the create a new Contact in Salesforce, and if desired, associate it with an opportunity that already has Contacts with that email domain.
+The Salesforce TestDrive connector searches Salesforce for Opportunities based on the sender's email address and the email address of the Salesforce user.  If the sender is involved in an Opportunity owned by the Salesforce user, then a card is returned that displays information about the associated Opportunity. The card offers actions to allow the user to update the close date, expected deal size, and next steps.
 
 For generic details on how to build, install, and configure connectors, please see the [README](https://github.com/vmware/connectors-workspace-one/blob/master/README.md) at the root of this repository.
 
@@ -60,7 +58,7 @@ Before you can authenticate and retrieve an OAuth token, you need to modify your
 
 ### Generate a Session Id-based Bearer Token to access salesforce.com rest api(s)
 
-Curl the salesforce oauth2/token url and retrieve the access token from the response:
+Curl the Salesforce oauth2/token url and retrieve the access token from the response:
 
 ```shell
 curl https://login.salesforce.com/services/oauth2/token \
@@ -71,7 +69,7 @@ curl https://login.salesforce.com/services/oauth2/token \
      --data-urlencode "password=<force.com password><security token created in Step 2>"
 ```
 
-**Note:** Execute the command whenever a token expires and a new token needs to be generated.
+**Note:** Execute this command whenever a token expires and a new token needs to be generated. By default, Salesforce tokens expire fairly quickly, but the lifetime can be adjusted on the Connected Application config page.
 
 
 ## Exercise the Salesforce API
