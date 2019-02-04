@@ -139,8 +139,7 @@ public class ConnectorsAutoConfiguration {
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
                 CacheControl cacheControl = CacheControl.maxAge(maxAge, unit);
                 registry.addResourceHandler("/templates/**")
-                        .addResourceLocations("classpath:/static/templates/")
-                        .setCacheControl(cacheControl);
+                        .addResourceLocations("classpath:/static/templates/");
                 registry.addResourceHandler("/images/**")
                         .addResourceLocations("classpath:/static/images/")
                         .setCacheControl(cacheControl);

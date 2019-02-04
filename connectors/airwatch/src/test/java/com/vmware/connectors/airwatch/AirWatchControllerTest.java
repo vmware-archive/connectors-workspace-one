@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
-import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -34,7 +33,6 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -108,7 +106,6 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .uri("/")
                 .headers(ControllerTestsBase::headers)
                 .exchange()
-                .expectHeader().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
                 .json(expectedMetadata);
