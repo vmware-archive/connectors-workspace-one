@@ -268,7 +268,7 @@ public class AirWatchController {
          * Make sure response has only one entry.
          * If by chance it finds more than one app which one should be selected to install ?
          */
-
+        logger.trace("Trying to find a unique GreenBox catalog app with name {}", appName);
         return rest.get()
                 .uri(gbSession.getBaseUrl() + "/catalog-portal/services/api/entitlements?q={appName}", appName)
                 .cookie("USER_CATALOG_CONTEXT", gbSession.getEucToken())
@@ -301,6 +301,7 @@ public class AirWatchController {
         /*
          * It triggers the native mdm app install.
          */
+        logger.trace("Trigger app install for the GreenBox app : {}", gbApp.getName());
         return rest.post()
                 .uri(gbApp.getInstallLink())
                 .cookie("USER_CATALOG_CONTEXT", gbSession.getEucToken())
@@ -316,11 +317,12 @@ public class AirWatchController {
 
     private Mono<String> getCsrfToken(URI baseUri, String eucToken) {
         /*
-         * Authenticated request to {GreenBox-Base-Url}/catalog-portal/ provides CSRF token.
+         * First authenticated request to {GreenBox-Base-Url}/catalog-portal/services provides CSRF token.
+         * https://confluence.eng.vmware.com/display/WOR/CSRF+Protection+for+Greenbox
          */
         logger.trace("getCsrfToken called: baseUri={}", baseUri.toString());
-        return rest.options()
-                .uri(baseUri + "/catalog-portal/")
+        return rest.get()
+                .uri(baseUri + "/catalog-portal/services")
                 .cookie("USER_CATALOG_CONTEXT", eucToken)
                 .exchange()
                 .flatMap(Reactive::checkStatus)
