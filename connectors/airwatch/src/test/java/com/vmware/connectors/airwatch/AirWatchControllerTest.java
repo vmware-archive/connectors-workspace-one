@@ -5,7 +5,6 @@
 
 package com.vmware.connectors.airwatch;
 
-import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.mock.MockWebServerWrapper;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
@@ -14,7 +13,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContextInitializer;
@@ -114,33 +115,19 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .json(expectedMetadata);
     }
 
-    @Test
-    void testRegex1() throws Exception {
-        List<String> expected = ImmutableList.of(
-                "BoXeR",
-                "POISON",
-                "concur"
-        );
-        testRegex("app_keywords", fromFile("/regex/email1.txt"), expected);
+    @ParameterizedTest(name = "{index} ==> Email body=''{1}''")
+    @MethodSource("regexTestArgProvider")
+    void testRegex(List<String> expected, String emailBodyFile) throws Exception {
+
+        testRegex("app_keywords", fromFile(emailBodyFile), expected);
     }
 
-    @Test
-    void testRegex2() throws Exception {
-        List<String> expected = ImmutableList.of(
-                "boxer",
-                "poison",
-                "concur"
+    private static Stream<Arguments> regexTestArgProvider() {
+        return Stream.of(
+                Arguments.of(List.of("BoXeR", "POISON", "concur"), "/regex/email1.txt"),
+                Arguments.of(List.of("boxer", "poison", "concur"), "/regex/email2.txt"),
+                Arguments.of(List.of("poison", "concur"), "/regex/email3.txt")
         );
-        testRegex("app_keywords", fromFile("/regex/email2.txt"), expected);
-    }
-
-    @Test
-    void testRegex3() throws Exception {
-        List<String> expected = ImmutableList.of(
-                "poison",
-                "concur"
-        );
-        testRegex("app_keywords", fromFile("/regex/email3.txt"), expected);
     }
 
     @DisplayName("Card request success cases")
@@ -358,8 +345,8 @@ class AirWatchControllerTest extends ControllerTestsBase {
         // CSRF token
         HttpHeaders csrfHeaders = new HttpHeaders();
         csrfHeaders.set(SET_COOKIE, "EUC_XSRF_TOKEN=csrf123;Path=/catalog-portal;Secure");
-        mockGreenbox.expect(requestTo("/catalog-portal/"))
-                .andExpect(method(OPTIONS))
+        mockGreenbox.expect(requestTo("/catalog-portal/services"))
+                .andExpect(method(GET))
                 .andExpect(header(COOKIE, gbCatalogContextCookies("euc123", null)))
                 .andRespond(withSuccess().headers(csrfHeaders));
     }
