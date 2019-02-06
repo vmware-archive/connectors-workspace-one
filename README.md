@@ -70,7 +70,7 @@ Java 11 is a prerequisite. Installation instructions can be found [here](http://
 Once the JDK is downloaded and unpacked, a soft link should be created. For example:
 
 ```
-ln -s /usr/lib/jvm/jdk-11.0.1/bin/java /usr/bin/java
+ln -s /usr/lib/jvm/jdk-11.0.2/bin/java /usr/bin/java
 ```
 
 The next step is to use the RPM to install the connector as a service. For example:
