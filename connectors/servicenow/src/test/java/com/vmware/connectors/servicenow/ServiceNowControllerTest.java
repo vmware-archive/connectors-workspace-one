@@ -27,11 +27,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.mock.http.client.reactive.MockClientHttpResponse;
+import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -113,6 +115,41 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         testRegex("ticket_id", fromFile("/regex/email.txt"), expected);
     }
 
+    private WebTestClient.ResponseSpec doGet(
+            String path,
+            MediaType contentType,
+            String authToken,
+            String requestFile
+    ) throws Exception {
+        return doGet(path, contentType, authToken, requestFile, null);
+    }
+
+    private WebTestClient.ResponseSpec doGet(
+            String path,
+            MediaType contentType,
+            String authToken,
+            String requestFile,
+            String language
+    ) throws Exception {
+        WebTestClient.RequestHeadersSpec<?> spec = webClient.get()
+                .uri(path)
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .accept(contentType)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-routing-prefix", "https://hero/connectors/servicenow/")
+                .headers(ControllerTestsBase::headers);
+
+        if (authToken != null) {
+            spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
+        }
+
+        if (language != null) {
+            spec = spec.header(ACCEPT_LANGUAGE, language);
+        }
+
+        return spec.exchange();
+    }
+
     private WebTestClient.ResponseSpec doPost(
             String path,
             MediaType contentType,
@@ -181,6 +218,60 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                         authToken,
                         requestFile
                 );
+    }
+
+    private WebTestClient.ResponseSpec getItems(String authToken, String requestFile) throws Exception {
+        return doPost(
+                        "/api/v1/items/",
+                        APPLICATION_JSON,
+                        authToken,
+                        requestFile
+                );
+    }
+
+    private WebTestClient.ResponseSpec getCart(String authToken, String requestFile) throws Exception {
+        return doGet(
+                        "/api/v1/cart/",
+                        APPLICATION_JSON,
+                        authToken,
+                        requestFile
+        );
+    }
+
+    private WebTestClient.ResponseSpec addToCart(String authToken, String requestFile) throws Exception {
+        return doPost(
+                    "/api/v1/cart",
+                    APPLICATION_JSON,
+                    authToken,
+                    requestFile
+        );
+    }
+
+    private WebTestClient.ResponseSpec checkout(String authToken, String requestFile) throws Exception {
+        return doPost(
+                "/api/v1/checkout",
+                APPLICATION_JSON,
+                authToken,
+                requestFile
+        );
+    }
+
+    private WebTestClient.ResponseSpec getTaskTickets(String authToken, String requestFile) throws Exception {
+        return doGet(
+                "/api/v1/tickets/task",
+                APPLICATION_JSON,
+                authToken,
+                requestFile
+        );
+    }
+
+    private WebTestClient.ResponseSpec getTaskTicketDetails(String authToken, String requestFile) throws Exception {
+        return doGet(
+                "/api/v1/ticket/?ticketType=task&ticketNumber=TASK_1",
+                APPLICATION_JSON,
+                authToken,
+                requestFile
+        );
     }
 
     /////////////////////////////
@@ -398,5 +489,100 @@ class ServiceNowControllerTest extends ControllerTestsBase {
     void testRejectActionMissingReason() throws Exception {
         reject(SNOW_AUTH_TOKEN, "invalid/actions/reject/missing-reason.form")
                 .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testCatalogItemsResponse() throws Exception {
+         mockBackend.expect(ExpectedCount.manyTimes(), requestTo("/api/sn_sc/servicecatalog/catalogs"))
+         .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+         .andExpect(method(GET))
+         .andRespond(withSuccess(fromFile("/servicenow/fake/catalogs.json"), APPLICATION_JSON));
+
+         mockBackend.expect(ExpectedCount.manyTimes(), requestTo("/api/sn_sc/servicecatalog/catalogs/sc-catalog-id-1/categories"))
+         .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+         .andExpect(method(GET))
+         .andRespond(withSuccess(fromFile("/servicenow/fake/categories.json"), APPLICATION_JSON));
+
+         mockBackend.expect(requestTo("/api/sn_sc/servicecatalog/items?sysparm_text=sc-text-1&sysparm_category=sc-cat-1&sysparm_limit=10&sysparm_offset=0"))
+         .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+         .andExpect(method(GET))
+         .andRespond(withSuccess(fromFile("/servicenow/fake/items.json"), APPLICATION_JSON));
+
+        String expected = fromFile("/servicenow/responses/success/actions/getItems.json");
+
+        getItems(SNOW_AUTH_TOKEN, "valid/cards/getItems.json")
+        .expectStatus().isOk()
+        .expectBody().json(expected);
+    }
+
+    @Test
+    void testCartResponse() throws Exception {
+        mockBackend.expect(requestTo("/api/sn_sc/servicecatalog/cart"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("/servicenow/fake/getCart.json"), APPLICATION_JSON));
+
+        String expected = fromFile("/servicenow/responses/success/actions/getCart.json");
+
+        getCart(SNOW_AUTH_TOKEN, "valid/cards/getCart.json")
+                .expectStatus().isOk()
+                .expectBody().json(expected);
+    }
+
+    @Test
+    void testAddToCartResponse() throws Exception {
+        mockBackend.expect(requestTo("/api/sn_sc/servicecatalog/items/sys_cart_id_1/add_to_cart"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(POST))
+                .andRespond(withSuccess(fromFile("/servicenow/fake/addToCart.json"), APPLICATION_JSON));
+
+        String expected = fromFile("/servicenow/responses/success/actions/addToCart.json");
+
+        addToCart(SNOW_AUTH_TOKEN, "valid/cards/addToCart.json")
+                .expectStatus().isOk()
+                .expectBody().json(expected);
+    }
+
+    @Test
+    void testCheckoutResponse() throws Exception {
+        mockBackend.expect(requestTo("/api/sn_sc/servicecatalog/cart/checkout"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(POST))
+                .andRespond(withSuccess(fromFile("/servicenow/fake/checkout.json"), APPLICATION_JSON));
+
+        String expected = fromFile("/servicenow/responses/success/actions/checkout.json");
+
+        checkout(SNOW_AUTH_TOKEN, "valid/cards/checkout.json")
+                .expectStatus().isOk()
+                .expectBody().json(expected);
+    }
+
+    @Test
+    void testGetTicketsResponse() throws Exception {
+        mockBackend.expect(requestTo("/api/now/table/sc_task?sysparm_limit=10&sysparm_offset=0"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("/servicenow/fake/getTickets.json"), APPLICATION_JSON));
+
+        String expected = fromFile("/servicenow/responses/success/actions/getTickets.json");
+
+        getTaskTickets(SNOW_AUTH_TOKEN, "valid/cards/getTickets.json")
+                .expectStatus().isOk()
+                .expectBody().json(expected);
+    }
+
+    @Test
+    void testGetTicketDetailsResponse() throws Exception {
+
+        mockBackend.expect(requestTo("/api/now/table/sc_task?sysparm_query=" + URLEncoder.encode(URLEncoder.encode("number=TASK_1", "UTF-8"), "UTF-8")))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("/servicenow/fake/getTicketDetails.json"), APPLICATION_JSON));
+
+        String expected = fromFile("/servicenow/responses/success/actions/getTicketDetails.json");
+
+        getTaskTicketDetails(SNOW_AUTH_TOKEN, "valid/cards/getTickets.json")
+                .expectStatus().isOk()
+                .expectBody().json(expected);
     }
 }

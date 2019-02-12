@@ -61,6 +61,8 @@ public class CheckoutResponse {
             if (root.containsKey("request_number")) {
                 this.setCartId(root.get("request_number").toString());
             }
+
+            this.setCartTotal("");
         }
 
         private final static String cartIdField = "order_id";
@@ -78,6 +80,7 @@ public class CheckoutResponse {
             this.cartId = cartId;
         }
     
+        //TODO: this should be returned, but we would have to maintain state or make an extra call to get the total since it's not returned by the SN checkout api.
         @JsonProperty(CheckoutResponseDetails.subtotalField)
         public String getCartTotal() {
             return this.cartTotal;

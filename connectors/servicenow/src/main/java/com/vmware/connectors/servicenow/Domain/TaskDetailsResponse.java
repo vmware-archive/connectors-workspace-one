@@ -1,5 +1,7 @@
 package com.vmware.connectors.servicenow.Domain;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.vmware.connectors.servicenow.ServiceNowController;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -8,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+
 @SuppressWarnings("PMD.LinguisticNaming")
 public class TaskDetailsResponse {
     
@@ -26,7 +30,7 @@ public class TaskDetailsResponse {
         }
 
         if(jsonObject.has(TaskDetailsResponse.taskNumberField)) {
-            this.taskNumber = jsonObject.get(TaskDetailsResponse.taskNumberField).asText();
+            this.number = jsonObject.get(TaskDetailsResponse.taskNumberField).asText();
         }
 
         if(jsonObject.has(TaskDetailsResponse.createdOnField)) {
@@ -42,7 +46,7 @@ public class TaskDetailsResponse {
         }
     }
 
-    private String taskNumber;
+    private String number;
 
     private String createdOn;
 
@@ -51,9 +55,9 @@ public class TaskDetailsResponse {
     private String shortDescription;
 
     @JsonProperty(taskNumberField)
-    public String getTaskNumber() { return taskNumber; }
+    public String getNumber() { return number; }
 
-    public void setTaskNumber(String taskNumber) { this.taskNumber = taskNumber; }
+    public void getNumber(String number) { this.number = number; }
 
     @JsonProperty(createdOnField)
     public String getCreatedOn() { return createdOn; }
@@ -66,7 +70,7 @@ public class TaskDetailsResponse {
     public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 
     @JsonProperty(shortDescriptionField)
-    public String getShortDescriptionField() { return shortDescription; }
+    public String getShortDescription() { return shortDescription; }
 
     public void setShortDescription(String shortDescription) { this.shortDescription = shortDescription; }
 }

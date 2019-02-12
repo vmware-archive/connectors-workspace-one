@@ -2,6 +2,8 @@ package com.vmware.connectors.servicenow.Domain;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.vmware.connectors.common.json.JsonDocument;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -12,15 +14,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @SuppressWarnings("PMD.LinguisticNaming")
 public class CartResponse {
 
-    private final static String cartIdField = "order_id";
+    private final static String cartIdField = "cart_id";
+    private final static String cartTotalField = "cart_total";
     private final static String subtotalField = "subtotal";
     private final static String itemsField = "items";
     private final static String itemIdField = "catalog_item_id";
@@ -39,6 +41,10 @@ public class CartResponse {
 
         if (root.containsKey(CartResponse.subtotalField)) {
             this.setCartTotal(root.get(CartResponse.subtotalField).toString());
+        }
+
+        if (root.containsKey(CartResponse.cartIdField)) {
+            this.setCartId(root.get(CartResponse.cartIdField).toString());
         }
          
         try{
@@ -74,7 +80,7 @@ public class CartResponse {
         this.cartId = cartId;
     }
 
-    @JsonProperty(CartResponse.subtotalField)
+    @JsonProperty(CartResponse.cartTotalField)
     public String getCartTotal() {
         return this.cartTotal;
     }
@@ -83,7 +89,7 @@ public class CartResponse {
        this.cartTotal = cartTotal;
     }
 
-    @JsonProperty("items")
+    @JsonProperty(CartResponse.itemsField)
     public Map<String, String> getItems() {
         return this.items;
     }

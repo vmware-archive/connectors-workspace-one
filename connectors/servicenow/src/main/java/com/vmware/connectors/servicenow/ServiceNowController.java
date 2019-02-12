@@ -688,7 +688,8 @@ public class ServiceNowController {
                 .map(s -> {
                         try {
                                 JsonNode node = new ObjectMapper().readTree(s.read(this.RESULT_PREFIX + "[*]").toString());
-                                return new TasksResponse(node);
+                                TasksResponse foo = new TasksResponse(node);
+                                return foo;
                         } catch(IOException exe) {
                                 logger.error("getTasksRequest() -> readTree() -> {}" + exe.getMessage());
                         }
@@ -729,7 +730,18 @@ public class ServiceNowController {
                 .bodyToMono(JsonDocument.class)
                 .map(s -> {
                         try {
-                                JsonNode node = new ObjectMapper().readTree(s.read(this.RESULT_PREFIX + "[*]").toString());
+                                //JsonNode node = new ObjectMapper().readTree(s.read("$.result").toString());
+                                LinkedHashMap<String, String> keyVals = s.read("$.result");
+
+                                String resultResponse = "{";
+                                for (Entry<String, String> keyVal : keyVals.entrySet()) {
+                                    resultResponse = resultResponse + "\"" + keyVal.getKey() + "\"" + ":" + "\"" + keyVal.getValue() + "\",";
+                                }
+
+                                resultResponse = resultResponse.substring(0, resultResponse.length()-1) + "}";
+
+                                JsonNode node = new ObjectMapper().readTree(resultResponse);
+
                                 logger.trace("getTaskDetailsResponse -> {}" , node.toString());
                                 return new TaskDetailsResponse(node);
                         } catch(IOException exe) {
@@ -744,33 +756,14 @@ public class ServiceNowController {
             path="/api/v1/checkout",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<CheckoutResponse> addItemsToCart(
+    public Mono<CheckoutResponse> checkout(
             @RequestHeader(AUTH_HEADER) String auth,
-            @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            @Valid @RequestBody CardRequest cardRequest) {
+            @RequestHeader(BASE_URL_HEADER) String baseUrl) {
 
-        logger.trace("addItemsToCart called: baseUrl={}, itemsMap={}", baseUrl, cardRequest.toString());
+        logger.trace("addItemsToCart called: baseUrl={}", baseUrl);
         //final Stream<Entry<String, String>> entrySetStream;// = addToCartRequest.getItemsAndQuantities().entrySet().stream();
-        final Stream<String> itemsStream = cardRequest.getTokens("items").stream();
 
-        //var itemsAndQuantities = Flux.fromStream(entrySetStream);
-        var items = Flux.fromStream(itemsStream);
-
-        //TODO> Instead of keeping responses from each add-item request, we could instead make a single get-cart request at the end
-        Mono<CheckoutResponse> cartResponse = items.flatMap(item -> 
-        this.addToCartRequest(item, "1", auth, baseUrl))
-        .map(s -> new AbstractMap.SimpleEntry<Integer, CartResponse>(s.getItems().size(), s))
-        .reduce((s,v) -> {
-                if (s.getKey() > v.getKey()) return s;
-                else return v;
-        })
-        .map(s -> s.getValue())
-        .flatMap(response ->
-                        this.checkoutRequest(auth, baseUrl, response));
-                        //cartResponse.setCartId(checkoutResponse)
-        ;
-
-        return cartResponse;
+        return this.checkoutRequest(auth, baseUrl);
     }
 
     @PostMapping(
@@ -782,11 +775,24 @@ public class ServiceNowController {
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @Valid @RequestBody CardRequest cardRequest) {
         
-        logger.trace("addToCart calledf: baseUrl={}, item={}", baseUrl, cardRequest.toString());
-        var itemId = cardRequest.getTokenSingleValue("itemId");
-        var quantity = cardRequest.getTokenSingleValue("quantity");
+        logger.trace("addToCart calledf: baseUrl={}, itemsMap={}", baseUrl, cardRequest.toString());
 
-        return this.addToCartRequest(itemId, quantity, auth, baseUrl);
+        final Set<String> itemsSet = cardRequest.getTokens("items");
+
+        //var itemsAndQuantities = Flux.fromStream(entrySetStream);
+        var items = Flux.fromStream(itemsSet.stream());
+
+        // keep the last response and return that as the Cart Response
+        Mono<CartResponse> cartResponse = items.flatMap(item -> 
+                this.addToCartRequest(item, "1", auth, baseUrl))
+        .map(s -> new AbstractMap.SimpleEntry<Integer, CartResponse>(s.getItems().size(), s))
+        .reduce((s,v) -> {
+                if (s.getKey() > v.getKey()) return s;
+                else return v;
+        })
+        .map(s -> s.getValue());
+
+        return cartResponse;
      }
 
     private Mono<CartResponse> addToCartRequest(String itemId, String quantity, String auth, String baseUrl) {
@@ -817,7 +823,7 @@ public class ServiceNowController {
     /*
     Call checkout and update cart response with details from the checkout response
     */
-    private Mono<CheckoutResponse> checkoutRequest(String auth, String baseUrl, CartResponse cartResponse) {
+    private Mono<CheckoutResponse> checkoutRequest(String auth, String baseUrl) {
         logger.trace("checkoutRequest called: baseUrl={}", baseUrl);
         return rest.post()
                 .uri(UriComponentsBuilder
@@ -831,7 +837,6 @@ public class ServiceNowController {
                 .bodyToMono(JsonDocument.class)
                 .map(s -> {
                         CheckoutResponse checkoutResult = new CheckoutResponse(s);
-                        checkoutResult.setCartTotal(cartResponse.getCartTotal());
                         logger.trace("checkoutRequest -> map result : {}", checkoutResult.toString());
                         return checkoutResult;
                 })
@@ -842,13 +847,13 @@ public class ServiceNowController {
             path="/api/v1/cart/",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<String> lookupCart(
+    public Mono<CartResponse> lookupCart(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl) {
         return this.lookupCartRequest("/api/sn_sc/servicecatalog/cart", auth, baseUrl);
     }
 
-    private Mono<String> lookupCartRequest(String endpoint, String auth, String baseUrl) {
+    private Mono<CartResponse> lookupCartRequest(String endpoint, String auth, String baseUrl) {
             logger.trace("addToCartRequest called: baseUrl={}, item_id={}", baseUrl);
         return rest.get()
                 .uri(UriComponentsBuilder
@@ -859,6 +864,11 @@ public class ServiceNowController {
                 )
                         .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
+                    CartResponse response = new CartResponse(s);
+                    logger.trace("cartRequest response -> {}" , response);
+                    return response;
+                });
     }
 }

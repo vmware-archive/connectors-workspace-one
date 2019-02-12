@@ -1,5 +1,7 @@
 package com.vmware.connectors.servicenow.Domain;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.vmware.connectors.servicenow.ServiceNowController;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -8,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @SuppressWarnings("PMD.LinguisticNaming")
 public class ItemDetailsResponse {
 
@@ -24,12 +27,12 @@ public class ItemDetailsResponse {
         }
 
         if(jsonSource.has(ItemDetailsResponse.descriptionField)) {
-            // TODO: Modified description to be same as short description for now as we work out issues with Watson context limits
-            this.description = jsonSource.get(ItemDetailsResponse.shortDescriptionField).asText();
+            this.description = jsonSource.get(ItemDetailsResponse.descriptionField).asText();
         }
 
         if(jsonSource.has(ItemDetailsResponse.pictureField) && jsonSource.get(ItemDetailsResponse.pictureField).asText().length() > 0) {
             this.picture = baseUrl + "/" + jsonSource.get(ItemDetailsResponse.pictureField).asText();
+            this.picture = jsonSource.get(ItemDetailsResponse.pictureField).asText();
         }
 
         if(jsonSource.has(ItemDetailsResponse.sysIdField)) {
