@@ -1,13 +1,10 @@
-package com.vmware.connectors.servicenow.Domain;
+package com.vmware.connectors.servicenow.domain;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.vmware.connectors.servicenow.ServiceNowController;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
@@ -19,7 +16,15 @@ public class TaskDetailsResponse {
     private final static String createdOnField = "sys_created_on";
     private final static String createdByField = "sys_created_by";
     private final static String shortDescriptionField = "short_description";
-    
+
+    private String number;
+
+    private String createdOn;
+
+    private String createdBy;
+
+    private String shortDescription;
+
     public TaskDetailsResponse(JsonNode jsonSource) {
 
         JsonNode jsonObject;
@@ -45,14 +50,6 @@ public class TaskDetailsResponse {
             this.shortDescription = jsonObject.get(TaskDetailsResponse.shortDescriptionField).asText();
         }
     }
-
-    private String number;
-
-    private String createdOn;
-
-    private String createdBy;
-
-    private String shortDescription;
 
     @JsonProperty(taskNumberField)
     public String getNumber() { return number; }

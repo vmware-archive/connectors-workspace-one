@@ -1,17 +1,10 @@
-package com.vmware.connectors.servicenow.Domain;
+package com.vmware.connectors.servicenow.domain;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.connectors.common.json.JsonDocument;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +14,6 @@ import java.util.Map;
 public class CheckoutResponse {
 
     private List<CheckoutResponseDetails> objects;
-
-
-    private static final Logger logger = LoggerFactory.getLogger(CheckoutResponse.class);
 
     public CheckoutResponse(CheckoutResponseDetails details) {
 
@@ -55,21 +45,21 @@ public class CheckoutResponse {
 
     class CheckoutResponseDetails {
 
-        public CheckoutResponseDetails(JsonDocument jsonSource) {
-            Map<String, Object> root = jsonSource.read("$.result");
-
-            if (root.containsKey("request_number")) {
-                this.setCartId(root.get("request_number").toString());
-            }
-
-            this.setCartTotal("");
-        }
-
         private final static String cartIdField = "order_id";
         private final static String subtotalField = "subtotal";
 
         private String cartId;
         private String cartTotal;
+        
+        public CheckoutResponseDetails(JsonDocument jsonSource) {
+            Map<String, Object> root = jsonSource.read("$.result");
+
+            if (root.containsKey("request_number")) {
+                this.cartId = root.get("request_number").toString();
+            }
+
+            this.cartTotal = "";
+        }
         
         @JsonProperty(CheckoutResponseDetails.cartIdField)
         public String getCartId() {

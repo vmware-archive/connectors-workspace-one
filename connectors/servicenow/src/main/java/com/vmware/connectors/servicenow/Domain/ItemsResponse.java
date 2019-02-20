@@ -1,4 +1,4 @@
-package com.vmware.connectors.servicenow.Domain;
+package com.vmware.connectors.servicenow.domain;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -10,6 +10,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @SuppressWarnings("PMD.LinguisticNaming")
 public class ItemsResponse {
+
+    private List<ItemDetailsResponse>  objects;
 
     public ItemsResponse() {
         this.objects = new LinkedList<>();
@@ -23,8 +25,6 @@ public class ItemsResponse {
             );
         }
     }
-
-    private List<ItemDetailsResponse>  objects;
 
     @JsonProperty("objects")
     public List<ItemDetailsResponse> getObjects() {

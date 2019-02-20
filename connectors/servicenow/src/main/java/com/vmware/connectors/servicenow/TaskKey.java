@@ -1,6 +1,5 @@
 package com.vmware.connectors.servicenow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 public enum TaskKey {
     change_request("change_request"),
     change_task("change_task"),

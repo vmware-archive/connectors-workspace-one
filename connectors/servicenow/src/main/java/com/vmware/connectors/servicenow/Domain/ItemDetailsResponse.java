@@ -1,13 +1,10 @@
-package com.vmware.connectors.servicenow.Domain;
+package com.vmware.connectors.servicenow.domain;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.vmware.connectors.servicenow.ServiceNowController;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
@@ -20,6 +17,18 @@ public class ItemDetailsResponse {
     private final static String sysIdField = "sys_id";
     private final static String localizedPriceField = "localized_price";
     private final static String nameField = "name";
+
+    private String shortDescription;
+
+    private String description;
+
+    private String picture;
+
+    private String sysId;
+
+    private String localizedPrice;
+
+    private String name;
 
     public ItemDetailsResponse(JsonNode jsonSource, String baseUrl) {
         if(jsonSource.has(ItemDetailsResponse.shortDescriptionField)) {
@@ -48,49 +57,30 @@ public class ItemDetailsResponse {
         }
     }
 
-    private String shortDescription;
-
-    private String description;
-
-    private String picture;
-
-    private String sysId;
-
-    private String localizedPrice;
-
-    private String name;
-
-    private static final Logger logger = LoggerFactory.getLogger(ServiceNowController.class);
-
     @JsonProperty(shortDescriptionField)
     public String getShortDescription() { return shortDescription;}
 
     public void setShortDescription(String shortDescription) { this.shortDescription = shortDescription; }
-
 
     @JsonProperty(descriptionField)
     public String getDescription() { return description; }
 
     public void setDescription(String description) { this.description = description; }
 
-
     @JsonProperty(pictureField)
     public String getPicture() { return picture; }
 
     public void setPicture(String picture) { this.picture = picture; }
-
 
     @JsonProperty(sysIdField)
     public String getSysId() { return sysId; }
 
     public void setSysId(String sysId) { this.sysId = sysId; }
 
-
     @JsonProperty(localizedPriceField)
     public String getLocalizedPrice() {return localizedPrice;}
 
     public void setLocalizedPrice(String localizedPrice) {this.localizedPrice = localizedPrice;}
-
 
     @JsonProperty(nameField)
     public String getName() { return name; }

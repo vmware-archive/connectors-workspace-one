@@ -1,4 +1,4 @@
-package com.vmware.connectors.servicenow.Domain;
+package com.vmware.connectors.servicenow.domain;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.vmware.connectors.common.json.JsonDocument;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -40,25 +42,25 @@ public class CartResponse {
         Map<String, Object> root = jsonSource.read("$.result");
 
         if (root.containsKey(CartResponse.subtotalField)) {
-            this.setCartTotal(root.get(CartResponse.subtotalField).toString());
+            this.cartTotal = root.get(CartResponse.subtotalField).toString();
         }
 
         if (root.containsKey(CartResponse.cartIdField)) {
-            this.setCartId(root.get(CartResponse.cartIdField).toString());
+            this.cartId = root.get(CartResponse.cartIdField).toString();
         }
          
+        /*
+        Items map are iterated through the nested JSON Object.
+        */
         try{
             JsonNode itemsNode = new ObjectMapper().readTree(jsonSource.read("$.result.items").toString());
 
             if (itemsNode.isArray()) {
                 itemsNode.elements().forEachRemaining(item -> {
                     if (item.has(CartResponse.itemIdField) && item.has(CartResponse.itemQuantityField)) {
-                        String itemId = item.get(CartResponse.itemIdField).asText();
-                        String itemQ  = item.get(CartResponse.itemQuantityField).asText();
 
-                        if (this.items.containsKey(itemId))
-                            itemQ = this.items.get(itemId);
-                        this.items.put(itemId, itemQ);
+                        Pair<String, String> itemDetails = this.getItemDetails(item);
+                        this.items.put(itemDetails.getLeft(), itemDetails.getRight());
                     }}
                 );
             }
@@ -96,5 +98,16 @@ public class CartResponse {
 
     public void setItems(Map<String, String> items) {
         this.items = items;
+    }
+
+    private Pair<String, String> getItemDetails(JsonNode item) {
+        String itemId = item.get(CartResponse.itemIdField).asText();
+        String itemQ  = item.get(CartResponse.itemQuantityField).asText();
+
+        if (this.items.containsKey(itemId)) {
+            itemQ = this.items.get(itemId);
+        }
+
+        return new ImmutablePair<String, String>(itemId, itemQ);
     }
 }
