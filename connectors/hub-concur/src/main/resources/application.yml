@@ -10,6 +10,3 @@ connector:
 management:
   endpoints:
     web.base-path: /
-
-concur:
-  service-account-auth-header: OAuth overrideme

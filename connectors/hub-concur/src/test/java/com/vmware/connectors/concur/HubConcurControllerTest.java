@@ -38,6 +38,8 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 class HubConcurControllerTest extends ControllerTestsBase {
 
+    private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
+
     @ParameterizedTest
     @ValueSource(strings = {
             "/cards/requests",
@@ -77,6 +79,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header(X_AUTH_HEADER, "Bearer vidm-token")
+                .header(CONNECTOR_AUTH, "OAuth test-concur-token")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
                 .headers(ControllerTestsBase::headers)
@@ -161,6 +164,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 
         webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B05F")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(CONNECTOR_AUTH, "OAuth test-concur-token")
                 .header(X_AUTH_HEADER, "Bearer vidm-token")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
@@ -177,6 +181,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 
         webClient.post().uri("/api/expense/{id}/decline", "1D3BD2E14D144508B05F")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(CONNECTOR_AUTH, "OAuth test-concur-token")
                 .header(X_AUTH_HEADER, "Bearer vidm-token")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
@@ -191,6 +196,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 
         webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B0")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(CONNECTOR_AUTH, "OAuth test-concur-token")
                 .header(X_AUTH_HEADER, "Bearer vidm-token")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)

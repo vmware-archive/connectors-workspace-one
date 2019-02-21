@@ -5,14 +5,7 @@
 
 package com.vmware.connectors.coupa;
 
-import com.vmware.connectors.common.payloads.response.Card;
-import com.vmware.connectors.common.payloads.response.CardAction;
-import com.vmware.connectors.common.payloads.response.CardActionInputField;
-import com.vmware.connectors.common.payloads.response.CardActionKey;
-import com.vmware.connectors.common.payloads.response.CardBody;
-import com.vmware.connectors.common.payloads.response.CardBodyField;
-import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
-import com.vmware.connectors.common.payloads.response.Cards;
+import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
@@ -24,15 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
@@ -56,19 +44,18 @@ public class HubCoupaController {
     private static final String AUTHORIZATION_HEADER_NAME = "X-COUPA-API-KEY";
     private static final String X_BASE_URL_HEADER = "X-Connector-Base-Url";
 
+    private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
+
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
-    private final String apiKey;
 
     @Autowired
     public HubCoupaController(
             WebClient rest,
-            CardTextAccessor cardTextAccessor,
-            @Value("${coupa.api-key}") String apiKey
+            CardTextAccessor cardTextAccessor
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
-        this.apiKey = apiKey;
     }
 
     @PostMapping(
@@ -80,13 +67,14 @@ public class HubCoupaController {
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
+            @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
             Locale locale,
             HttpServletRequest request
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        return getPendingApprovals(userEmail, baseUrl, routingPrefix, request, locale);
+        return getPendingApprovals(userEmail, baseUrl, routingPrefix, request, connectorAuth, locale);
     }
 
     private void validateEmailAddress(String userEmail) {
@@ -101,6 +89,7 @@ public class HubCoupaController {
             String baseUrl,
             String routingPrefix,
             HttpServletRequest request,
+            String connectorAuth,
             Locale locale
     ) {
         logger.debug("Getting user id of {}", userEmail);
@@ -108,10 +97,10 @@ public class HubCoupaController {
         return rest.get()
                 .uri(baseUrl + "/api/users?email={userEmail}", userEmail)
                 .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION_HEADER_NAME, apiKey)
+                .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
                 .retrieve()
                 .bodyToFlux(UserDetails.class)
-                .flatMap(u -> getApprovalDetails(baseUrl, u.getId(), userEmail))
+                .flatMap(u -> getApprovalDetails(baseUrl, u.getId(), userEmail, connectorAuth))
                 .map(req -> makeCards(routingPrefix, locale, req, request))
                 .reduce(new Cards(), this::addCard);
     }
@@ -119,30 +108,32 @@ public class HubCoupaController {
     private Flux<RequisitionDetails> getApprovalDetails(
             String baseUrl,
             String userId,
-            String userEmail
+            String userEmail,
+            String connectorAuth
     ) {
         logger.debug("Getting approval details for the user id :: {}", userId);
 
         return rest.get()
                 .uri(baseUrl + "/api/approvals?approver_id={userId}&status=pending_approval", userId)
                 .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION_HEADER_NAME, apiKey)
+                .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
                 .retrieve()
                 .bodyToFlux(ApprovalDetails.class)
-                .flatMap(ad -> getRequisitionDetails(baseUrl, ad.getApprovableId(), userEmail));
+                .flatMap(ad -> getRequisitionDetails(baseUrl, ad.getApprovableId(), userEmail, connectorAuth));
     }
 
     private Flux<RequisitionDetails> getRequisitionDetails(
             String baseUrl,
             String approvableId,
-            String userEmail
+            String userEmail,
+            String connectorAuth
     ) {
         logger.trace("Fetching Requisition details for {} and user {} ", approvableId, userEmail);
 
         return rest.get()
                 .uri(baseUrl + "/api/requisitions?id={approvableId}&status=pending_approval", approvableId)
                 .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION_HEADER_NAME, apiKey)
+                .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
                 .retrieve()
                 .bodyToFlux(RequisitionDetails.class)
                 .filter(requisition -> userEmail.equals(requisition.getCurrentApproval().getApprover().getEmail()));
@@ -260,13 +251,14 @@ public class HubCoupaController {
     public Mono<String> approveRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
             @RequestParam(COMMENT_KEY) String comment,
             @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        return makeCoupaRequest(comment, baseUrl, "approve", id, userEmail);
+        return makeCoupaRequest(comment, baseUrl, "approve", id, userEmail, connectorAuth);
     }
 
     private Mono<String> makeCoupaRequest(
@@ -274,14 +266,15 @@ public class HubCoupaController {
             String baseUrl,
             String action,
             String approvableId,
-            String userEmail
+            String userEmail,
+            String connectorAuth
     ) {
         logger.debug("makeCoupaRequest called for user: userEmail={}, approvableId={}, action={}",
                 userEmail, approvableId, action);
 
-        return getRequisitionDetails(baseUrl, approvableId, userEmail)
+        return getRequisitionDetails(baseUrl, approvableId, userEmail, connectorAuth)
                 .switchIfEmpty(Mono.error(new UserException("User Not Found")))
-                .flatMap(requisitionDetails -> makeActionRequest(requisitionDetails.getCurrentApproval().getId(), baseUrl, action, reason))
+                .flatMap(requisitionDetails -> makeActionRequest(requisitionDetails.getCurrentApproval().getId(), baseUrl, action, reason, connectorAuth))
                 .next();
     }
 
@@ -289,11 +282,12 @@ public class HubCoupaController {
             String id,
             String baseUrl,
             String action,
-            String reason
+            String reason,
+            String connectorAuth
     ) {
         return rest.put()
                 .uri(baseUrl + "/api/approvals/{id}/{action}?reason={reason}", id, action, reason)
-                .header(AUTHORIZATION_HEADER_NAME, apiKey)
+                .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
@@ -318,13 +312,14 @@ public class HubCoupaController {
     public Mono<String> declineRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
             @RequestParam(COMMENT_KEY) String comment,
             @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        return makeCoupaRequest(comment, baseUrl, "reject", id, userEmail);
+        return makeCoupaRequest(comment, baseUrl, "reject", id, userEmail, connectorAuth);
     }
 
 }

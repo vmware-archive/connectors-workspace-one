@@ -35,6 +35,8 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 class HubCoupaControllerTest extends ControllerTestsBase {
 
+    private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
+
     @ParameterizedTest
     @ValueSource(strings = {
             "/cards/requests",
@@ -73,6 +75,7 @@ class HubCoupaControllerTest extends ControllerTestsBase {
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(CONNECTOR_AUTH, "cloneetestauthtoken")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/coupa/")
                 .headers(ControllerTestsBase::headers)
@@ -146,6 +149,7 @@ class HubCoupaControllerTest extends ControllerTestsBase {
         webClient.post()
                 .uri("/api/approve/{id}?comment=Approved", "182964")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(CONNECTOR_AUTH, "cloneetestauthtoken")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .exchange()
@@ -159,6 +163,7 @@ class HubCoupaControllerTest extends ControllerTestsBase {
 
         webClient.post().uri("/api/decline/{id}?comment=Declined", "182964")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(CONNECTOR_AUTH, "cloneetestauthtoken")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .exchange().expectStatus().isOk();
