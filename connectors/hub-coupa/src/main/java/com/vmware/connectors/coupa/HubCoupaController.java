@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,14 +49,17 @@ public class HubCoupaController {
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
+    private final String apiKey;
 
     @Autowired
     public HubCoupaController(
             WebClient rest,
-            CardTextAccessor cardTextAccessor
+            CardTextAccessor cardTextAccessor,
+            @Value("${coupa.api-key}") String apiKey
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
+        this.apiKey = apiKey;
     }
 
     @PostMapping(
@@ -67,14 +71,22 @@ public class HubCoupaController {
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
-            @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
+            @RequestHeader(value = CONNECTOR_AUTH, required = false) String connectorAuth,
             Locale locale,
             HttpServletRequest request
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        return getPendingApprovals(userEmail, baseUrl, routingPrefix, request, connectorAuth, locale);
+        return getPendingApprovals(userEmail, baseUrl, routingPrefix, request, getAuthHeader(connectorAuth), locale);
+    }
+
+    private String getAuthHeader(final String connectorAuth) {
+        if (StringUtils.isBlank(this.apiKey))  {
+            return connectorAuth;
+        } else {
+            return this.apiKey;
+        }
     }
 
     private void validateEmailAddress(String userEmail) {
@@ -258,7 +270,7 @@ public class HubCoupaController {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        return makeCoupaRequest(comment, baseUrl, "approve", id, userEmail, connectorAuth);
+        return makeCoupaRequest(comment, baseUrl, "approve", id, userEmail, getAuthHeader(connectorAuth));
     }
 
     private Mono<String> makeCoupaRequest(
@@ -319,7 +331,7 @@ public class HubCoupaController {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        return makeCoupaRequest(comment, baseUrl, "reject", id, userEmail, connectorAuth);
+        return makeCoupaRequest(comment, baseUrl, "reject", id, userEmail, getAuthHeader(connectorAuth));
     }
 
 }

@@ -78,9 +78,8 @@ class HubConcurControllerTest extends ControllerTestsBase {
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, "Bearer vidm-token")
-                .header(CONNECTOR_AUTH, "OAuth test-concur-token")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(CONNECTOR_AUTH, "Bearer vidm-token")
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
                 .headers(ControllerTestsBase::headers)
                 .contentType(APPLICATION_JSON)
@@ -117,11 +116,13 @@ class HubConcurControllerTest extends ControllerTestsBase {
         mockBackend.expect(requestTo("/api/expense/expensereport/v2.0/report/683105624FD74A1B9C13"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION, "OAuth service-account-auth-header"))
                 .andRespond(withSuccess(fromFile("/fake/report-2.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
 
         mockBackend.expect(requestTo("/api/expense/expensereport/v2.0/report/A77D016732974B5F8E23"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION, "OAuth service-account-auth-header"))
                 .andRespond(withSuccess(fromFile("/fake/report-3.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
@@ -131,6 +132,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
         mockBackend.expect(requestTo("/api/v3.0/expense/reportdigests?approverLoginID=admin%40acme.com&limit=50&user=all"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION, "OAuth service-account-auth-header"))
                 .andRespond(withSuccess(fromFile("/fake/report-digests.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
@@ -138,6 +140,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
         mockBackend.expect(requestTo("/api/expense/expensereport/v2.0/report/1D3BD2E14D144508B05F"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION, "OAuth service-account-auth-header"))
                 .andRespond(withSuccess(fromFile("/fake/report-1.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
@@ -145,6 +148,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
         mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin%40acme.com"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION, "OAuth service-account-auth-header"))
                 .andRespond(withSuccess(fromFile("/fake/user-details.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
@@ -165,7 +169,6 @@ class HubConcurControllerTest extends ControllerTestsBase {
         webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B05F")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header(CONNECTOR_AUTH, "OAuth test-concur-token")
-                .header(X_AUTH_HEADER, "Bearer vidm-token")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("comment", "Approval Done"))
@@ -182,7 +185,6 @@ class HubConcurControllerTest extends ControllerTestsBase {
         webClient.post().uri("/api/expense/{id}/decline", "1D3BD2E14D144508B05F")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header(CONNECTOR_AUTH, "OAuth test-concur-token")
-                .header(X_AUTH_HEADER, "Bearer vidm-token")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("reason", "Decline Done"))
@@ -196,8 +198,7 @@ class HubConcurControllerTest extends ControllerTestsBase {
 
         webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B0")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(CONNECTOR_AUTH, "OAuth test-concur-token")
-                .header(X_AUTH_HEADER, "Bearer vidm-token")
+                .header(CONNECTOR_AUTH, "Bearer vidm-token")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("comment", "Approval Done"))

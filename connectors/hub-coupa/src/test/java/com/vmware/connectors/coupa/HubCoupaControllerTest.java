@@ -36,6 +36,7 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 class HubCoupaControllerTest extends ControllerTestsBase {
 
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
+    private static final String AUTHORIZATION_HEADER_NAME = "X-COUPA-API-KEY";
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -75,8 +76,8 @@ class HubCoupaControllerTest extends ControllerTestsBase {
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(CONNECTOR_AUTH, "cloneetestauthtoken")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(CONNECTOR_AUTH, "cloneetestauthtoken")
                 .header("x-routing-prefix", "https://hero/connectors/coupa/")
                 .headers(ControllerTestsBase::headers)
                 .contentType(APPLICATION_JSON)
@@ -115,6 +116,7 @@ class HubCoupaControllerTest extends ControllerTestsBase {
         mockBackend.expect(requestTo("/api/users?email=admin%40acme.com"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION_HEADER_NAME, "from-api-key"))
                 .andRespond(withSuccess(
                         fromFile("/fake/user-details.json").replace("${coupa_host}", mockBackend.url("")),
                         APPLICATION_JSON
@@ -125,6 +127,7 @@ class HubCoupaControllerTest extends ControllerTestsBase {
         mockBackend.expect(requestTo("/api/approvals?approver_id=15882&status=pending_approval"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION_HEADER_NAME, "from-api-key"))
                 .andRespond(withSuccess(
                         fromFile("/fake/approvals.json").replace("${coupa_host}", mockBackend.url("")),
                         APPLICATION_JSON
@@ -135,6 +138,7 @@ class HubCoupaControllerTest extends ControllerTestsBase {
         mockBackend.expect(requestTo("/api/requisitions?id=182964&status=pending_approval"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION_HEADER_NAME, "from-api-key"))
                 .andRespond(withSuccess(
                         fromFile("/fake/requisition-details.json").replace("${coupa_host}", mockBackend.url("")),
                         APPLICATION_JSON

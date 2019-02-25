@@ -12,6 +12,7 @@ import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.web.UserException;
 import com.vmware.connectors.concur.domain.*;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,16 +52,19 @@ public class HubConcurController {
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
     private final Resource concurRequestTemplate;
+    private final String serviceAccountAuthHeader;
 
     @Autowired
     public HubConcurController(
             WebClient rest,
             CardTextAccessor cardTextAccessor,
-            @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate
+            @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate,
+            @Value("${concur.service-account-auth-header}") String serviceAccountAuthHeader
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.concurRequestTemplate = concurRequestTemplate;
+        this.serviceAccountAuthHeader = serviceAccountAuthHeader;
     }
 
     @PostMapping(
@@ -72,13 +76,22 @@ public class HubConcurController {
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
-            @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
+            @RequestHeader(value = CONNECTOR_AUTH, required = false) String connectorAuth,
             Locale locale,
             HttpServletRequest request
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("getCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
-        return fetchCards(baseUrl, locale, routingPrefix, request, userEmail, connectorAuth);
+
+        return fetchCards(baseUrl, locale, routingPrefix, request, userEmail, getAuthHeader(connectorAuth));
+    }
+
+    private String getAuthHeader(final String connectorAuth) {
+        if (StringUtils.isBlank(this.serviceAccountAuthHeader)) {
+            return connectorAuth;
+        } else {
+            return this.serviceAccountAuthHeader;
+        }
     }
 
     private Mono<Cards> fetchCards(
@@ -253,7 +266,7 @@ public class HubConcurController {
         logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, comment);
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return makeConcurRequest(comment, baseUrl, APPROVE, id, userEmail, connectorAuth);
+        return makeConcurRequest(comment, baseUrl, APPROVE, id, userEmail, getAuthHeader(connectorAuth));
     }
 
     private Mono<String> makeConcurRequest(
@@ -325,7 +338,7 @@ public class HubConcurController {
         logger.debug("declineRequest called: baseUrl={}, id={}, reason={}", baseUrl, id, reason);
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return makeConcurRequest(reason, baseUrl, REJECT, id, userEmail, connectorAuth);
+        return makeConcurRequest(reason, baseUrl, REJECT, id, userEmail, getAuthHeader(connectorAuth));
     }
 
 }
