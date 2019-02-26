@@ -10,7 +10,6 @@ import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -19,26 +18,18 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.http.HttpHeaders.ACCEPT;
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_XML;
-import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
-class HubConcurControllerTest extends ControllerTestsBase {
+public class HubConcurControllerTestBase extends ControllerTestsBase {
 
-    private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
+    protected static final String CALLER_SERVICE_CREDS = "OAuth service-creds-from-http-request";
+    protected static final String CONFIG_SERVICE_CREDS = "OAuth service-creds-from-config";
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -67,19 +58,57 @@ class HubConcurControllerTest extends ControllerTestsBase {
                 .consumeWith(body -> assertThat(body.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            ", success.json",
-            "xx, success_xx.json"
-    })
-    void testCardsRequests(String lang, String expected) throws Exception {
-        mockConcurRequests();
+    protected void testApproveRequest(final String serviceCredential) throws Exception {
+        mockReportsDigest(serviceCredential);
+        mockReport1(serviceCredential);
+        mockReport1Action();
+
+        webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B05F")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(X_AUTH_HEADER, CALLER_SERVICE_CREDS)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData("comment", "Approval Done"))
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    protected void testRejectRequest(final String serviceCredential) throws Exception {
+        mockReportsDigest(serviceCredential);
+        mockReport1(serviceCredential);
+        mockReport1Action();
+
+        webClient.post().uri("/api/expense/{id}/decline", "1D3BD2E14D144508B05F")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(X_AUTH_HEADER, CALLER_SERVICE_CREDS)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData("reason", "Decline Done"))
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    protected void testUnauthorizedApproveRequest(final String serviceCredential) throws Exception {
+        mockReportsDigest(serviceCredential);
+
+        webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B0")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(X_AUTH_HEADER, CALLER_SERVICE_CREDS)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData("comment", "Approval Done"))
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    protected void testCardsRequests(final String lang, final String expected, final String serviceCredential) throws Exception {
+        mockConcurRequests(serviceCredential);
 
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .header(CONNECTOR_AUTH, "Bearer vidm-token")
+                .header(X_AUTH_HEADER, CALLER_SERVICE_CREDS)
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
                 .headers(ControllerTestsBase::headers)
                 .contentType(APPLICATION_JSON)
@@ -109,101 +138,53 @@ class HubConcurControllerTest extends ControllerTestsBase {
         );
     }
 
-    private void mockConcurRequests() throws Exception {
-        mockReportsDigest();
-        mockReport1();
+    protected void mockConcurRequests(final String serviceCredential) throws Exception {
+        mockReportsDigest(serviceCredential);
+        mockReport1(serviceCredential);
 
         mockBackend.expect(requestTo("/api/expense/expensereport/v2.0/report/683105624FD74A1B9C13"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
-                .andExpect(header(AUTHORIZATION, "OAuth service-account-auth-header"))
+                .andExpect(header(AUTHORIZATION, serviceCredential))
                 .andRespond(withSuccess(fromFile("/fake/report-2.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
 
         mockBackend.expect(requestTo("/api/expense/expensereport/v2.0/report/A77D016732974B5F8E23"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
-                .andExpect(header(AUTHORIZATION, "OAuth service-account-auth-header"))
+                .andExpect(header(AUTHORIZATION, serviceCredential))
                 .andRespond(withSuccess(fromFile("/fake/report-3.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
-    private void mockReportsDigest() throws Exception {
-        mockUserDetailReport();
+    protected void mockReportsDigest(final String serviceCredential) throws Exception {
+        mockUserDetailReport(serviceCredential);
 
         mockBackend.expect(requestTo("/api/v3.0/expense/reportdigests?approverLoginID=admin%40acme.com&limit=50&user=all"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
-                .andExpect(header(AUTHORIZATION, "OAuth service-account-auth-header"))
+                .andExpect(header(AUTHORIZATION, serviceCredential))
                 .andRespond(withSuccess(fromFile("/fake/report-digests.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
-    private void mockReport1() throws Exception {
+    protected void mockReport1(final String serviceCredential) throws Exception {
         mockBackend.expect(requestTo("/api/expense/expensereport/v2.0/report/1D3BD2E14D144508B05F"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
-                .andExpect(header(AUTHORIZATION, "OAuth service-account-auth-header"))
+                .andExpect(header(AUTHORIZATION, serviceCredential))
                 .andRespond(withSuccess(fromFile("/fake/report-1.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
-    private void mockUserDetailReport() throws Exception {
+    protected void mockUserDetailReport(final String serviceCredential) throws Exception {
         mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin%40acme.com"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
-                .andExpect(header(AUTHORIZATION, "OAuth service-account-auth-header"))
+                .andExpect(header(AUTHORIZATION, serviceCredential))
                 .andRespond(withSuccess(fromFile("/fake/user-details.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
-    private void mockReport1Action() {
+    protected void mockReport1Action() {
         mockBackend.expect(requestTo("/api/expense/expensereport/v1.1/report/gWqmsMJ27KYsYDsraMCRfUtd5Y9ha96y0lRUG0nBXhO0/WorkFlowAction"))
                 .andExpect(method(POST))
                 .andExpect(content().contentType(APPLICATION_XML))
                 .andRespond(withSuccess());
     }
-
-    @Test
-    void testApproveRequest() throws Exception {
-        // mockUserDetailReport();
-        mockReportsDigest();
-        mockReport1();
-        mockReport1Action();
-
-        webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B05F")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(CONNECTOR_AUTH, "OAuth test-concur-token")
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .contentType(APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData("comment", "Approval Done"))
-                .exchange()
-                .expectStatus().isOk();
-    }
-
-    @Test
-    void testRejectRequest() throws Exception {
-        mockReportsDigest();
-        mockReport1();
-        mockReport1Action();
-
-        webClient.post().uri("/api/expense/{id}/decline", "1D3BD2E14D144508B05F")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(CONNECTOR_AUTH, "OAuth test-concur-token")
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .contentType(APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData("reason", "Decline Done"))
-                .exchange()
-                .expectStatus().isOk();
-    }
-
-    @Test
-    void testUnauthorizedApproveRequest() throws Exception {
-        mockReportsDigest();
-
-        webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B0")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(CONNECTOR_AUTH, "Bearer vidm-token")
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .contentType(APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData("comment", "Approval Done"))
-                .exchange()
-                .expectStatus().isNotFound();
-    }
-
 }
