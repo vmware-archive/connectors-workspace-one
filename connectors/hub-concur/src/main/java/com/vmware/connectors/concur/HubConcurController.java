@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.HtmlUtils;
@@ -72,18 +73,32 @@ public class HubConcurController {
             produces = APPLICATION_JSON_VALUE,
             consumes = APPLICATION_JSON_VALUE
     )
-    public Mono<Cards> getCards(
+    public Mono<ResponseEntity<Cards>> getCards(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
-            @RequestHeader(value = CONNECTOR_AUTH, required = false) String connectorAuth,
+            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             Locale locale,
             HttpServletRequest request
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("getCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
 
-        return fetchCards(baseUrl, locale, routingPrefix, request, userEmail, getAuthHeader(connectorAuth));
+        if (isServiceCredentialEmpty(connectorAuth)) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+
+        return fetchCards(baseUrl, locale, routingPrefix, request, userEmail, getAuthHeader(connectorAuth))
+                .map(ResponseEntity::ok);
+    }
+
+    private boolean isServiceCredentialEmpty(final String connectorAuth) {
+        if (StringUtils.isBlank(this.serviceAccountAuthHeader) && StringUtils.isBlank(connectorAuth)) {
+            logger.debug("X-Connector-Authorization should not be empty if service credentials are not present in the config file");
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private String getAuthHeader(final String connectorAuth) {
@@ -256,17 +271,22 @@ public class HubConcurController {
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Mono<String> approveRequest(
+    public Mono<ResponseEntity<String>> approveRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
-            @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
+            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             @PathVariable("id") String id,
             @RequestParam(COMMENT_KEY) String comment
     ) {
         logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, comment);
 
+        if (isServiceCredentialEmpty(connectorAuth)) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return makeConcurRequest(comment, baseUrl, APPROVE, id, userEmail, getAuthHeader(connectorAuth));
+        return makeConcurRequest(comment, baseUrl, APPROVE, id, userEmail, getAuthHeader(connectorAuth))
+                .map(ResponseEntity::ok);
     }
 
     private Mono<String> makeConcurRequest(
@@ -328,17 +348,22 @@ public class HubConcurController {
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Mono<String> declineRequest(
+    public Mono<ResponseEntity<String>> declineRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
-            @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
+            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             @PathVariable("id") String id,
             @RequestParam(REASON_KEY) String reason
     ) {
         logger.debug("declineRequest called: baseUrl={}, id={}, reason={}", baseUrl, id, reason);
 
+        if (isServiceCredentialEmpty(connectorAuth)) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return makeConcurRequest(reason, baseUrl, REJECT, id, userEmail, getAuthHeader(connectorAuth));
+        return makeConcurRequest(reason, baseUrl, REJECT, id, userEmail, getAuthHeader(connectorAuth))
+                .map(ResponseEntity::ok);
     }
 
 }

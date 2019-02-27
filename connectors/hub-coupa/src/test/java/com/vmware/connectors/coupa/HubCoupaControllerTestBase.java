@@ -57,42 +57,43 @@ public class HubCoupaControllerTestBase extends ControllerTestsBase {
                 .consumeWith(body -> assertThat(body.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
     }
 
-    void testApproveRequest(final String serviceCredential) throws Exception {
+    void testApproveRequest(final String serviceCredential, final String authHeader) throws Exception {
         mockRequisitionDetails(serviceCredential);
         mockApproveAction(serviceCredential);
 
         webClient.post()
                 .uri("/api/approve/{id}?comment=Approved", "182964")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, CALLER_SERVICE_CREDS)
+                .header(X_AUTH_HEADER, authHeader)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .exchange()
                 .expectStatus().isOk();
     }
 
-    void testRejectRequest(final String serviceCredential) throws Exception {
+    void testRejectRequest(final String serviceCredential, final String authHeader) throws Exception {
         mockRequisitionDetails(serviceCredential);
         mockRejectAction(serviceCredential);
 
         webClient.post().uri("/api/decline/{id}?comment=Declined", "182964")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, CALLER_SERVICE_CREDS)
+                .header(X_AUTH_HEADER, authHeader)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .exchange().expectStatus().isOk();
     }
 
-    protected void testCardsRequests(final String lang,
-                                     final String expected,
-                                     final String serviceCredential) throws Exception {
+    protected void testCardsRequest(final String lang,
+                                    final String expected,
+                                    final String serviceCredential,
+                                    final String authHeader) throws Exception {
         mockCoupaRequest(serviceCredential);
 
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .header(X_AUTH_HEADER, CALLER_SERVICE_CREDS)
+                .header(X_AUTH_HEADER, authHeader)
                 .header("x-routing-prefix", "https://hero/connectors/coupa/")
                 .headers(ControllerTestsBase::headers)
                 .contentType(APPLICATION_JSON)

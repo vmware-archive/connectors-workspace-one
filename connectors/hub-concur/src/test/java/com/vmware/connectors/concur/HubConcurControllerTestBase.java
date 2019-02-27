@@ -58,14 +58,14 @@ public class HubConcurControllerTestBase extends ControllerTestsBase {
                 .consumeWith(body -> assertThat(body.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
     }
 
-    protected void testApproveRequest(final String serviceCredential) throws Exception {
+    protected void testApproveRequest(final String serviceCredential, final String authHeader) throws Exception {
         mockReportsDigest(serviceCredential);
         mockReport1(serviceCredential);
         mockReport1Action();
 
         webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B05F")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, CALLER_SERVICE_CREDS)
+                .header(X_AUTH_HEADER, authHeader)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("comment", "Approval Done"))
@@ -73,14 +73,14 @@ public class HubConcurControllerTestBase extends ControllerTestsBase {
                 .expectStatus().isOk();
     }
 
-    protected void testRejectRequest(final String serviceCredential) throws Exception {
+    protected void testRejectRequest(final String serviceCredential, final String authHeader) throws Exception {
         mockReportsDigest(serviceCredential);
         mockReport1(serviceCredential);
         mockReport1Action();
 
         webClient.post().uri("/api/expense/{id}/decline", "1D3BD2E14D144508B05F")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, CALLER_SERVICE_CREDS)
+                .header(X_AUTH_HEADER, authHeader)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("reason", "Decline Done"))
@@ -101,14 +101,17 @@ public class HubConcurControllerTestBase extends ControllerTestsBase {
                 .expectStatus().isNotFound();
     }
 
-    protected void testCardsRequests(final String lang, final String expected, final String serviceCredential) throws Exception {
+    protected void testCardsRequest(final String lang,
+                                    final String expected,
+                                    final String serviceCredential,
+                                    final String authHeader) throws Exception {
         mockConcurRequests(serviceCredential);
 
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .header(X_AUTH_HEADER, CALLER_SERVICE_CREDS)
+                .header(X_AUTH_HEADER, authHeader)
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
                 .headers(ControllerTestsBase::headers)
                 .contentType(APPLICATION_JSON)

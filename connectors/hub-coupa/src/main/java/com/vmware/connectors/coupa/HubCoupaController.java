@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -67,18 +68,32 @@ public class HubCoupaController {
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Mono<Cards> getCards(
+    public Mono<ResponseEntity<Cards>> getCards(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
-            @RequestHeader(value = CONNECTOR_AUTH, required = false) String connectorAuth,
+            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             Locale locale,
             HttpServletRequest request
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        return getPendingApprovals(userEmail, baseUrl, routingPrefix, request, getAuthHeader(connectorAuth), locale);
+        if (isServiceCredentialEmpty(connectorAuth)) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+
+        return getPendingApprovals(userEmail, baseUrl, routingPrefix, request, getAuthHeader(connectorAuth), locale)
+                .map(ResponseEntity::ok);
+    }
+
+    private boolean isServiceCredentialEmpty(final String connectorAuth) {
+        if (StringUtils.isBlank(this.apiKey) && StringUtils.isBlank(connectorAuth)) {
+            logger.debug("X-Connector-Authorization should not be empty if service credentials are not present in the config file");
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private String getAuthHeader(final String connectorAuth) {
@@ -260,17 +275,22 @@ public class HubCoupaController {
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Mono<String> approveRequest(
+    public Mono<ResponseEntity<String>> approveRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
-            @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
+            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             @RequestParam(COMMENT_KEY) String comment,
             @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        return makeCoupaRequest(comment, baseUrl, "approve", id, userEmail, getAuthHeader(connectorAuth));
+        if (isServiceCredentialEmpty(connectorAuth)) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+
+        return makeCoupaRequest(comment, baseUrl, "approve", id, userEmail, getAuthHeader(connectorAuth))
+                .map(ResponseEntity::ok);
     }
 
     private Mono<String> makeCoupaRequest(
@@ -321,17 +341,22 @@ public class HubCoupaController {
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Mono<String> declineRequest(
+    public Mono<ResponseEntity<String>> declineRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
-            @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
+            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             @RequestParam(COMMENT_KEY) String comment,
             @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        return makeCoupaRequest(comment, baseUrl, "reject", id, userEmail, getAuthHeader(connectorAuth));
+        if (isServiceCredentialEmpty(connectorAuth)) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+
+        return makeCoupaRequest(comment, baseUrl, "reject", id, userEmail, getAuthHeader(connectorAuth))
+                .map(ResponseEntity::ok);
     }
 
 }
