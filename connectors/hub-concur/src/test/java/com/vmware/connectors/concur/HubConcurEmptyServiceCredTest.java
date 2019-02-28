@@ -5,16 +5,17 @@
 
 package com.vmware.connectors.concur;
 
-import com.vmware.connectors.test.ControllerTestsBase;
+import com.vmware.connectors.test.JsonNormalizer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.web.reactive.function.BodyInserters;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 /**
  * Test cases with empty concur service account auth header from configuration.
@@ -28,56 +29,58 @@ public class HubConcurEmptyServiceCredTest extends HubConcurControllerTestBase {
             "xx, success_xx.json"
     })
     void testCardsRequests(String lang, String expected) throws Exception {
-        testCardsRequest(lang, expected, CALLER_SERVICE_CREDS, CALLER_SERVICE_CREDS);
+        mockConcurRequests(CALLER_SERVICE_CREDS);
+
+        final String body = testCardsRequest(lang, CALLER_SERVICE_CREDS)
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(JsonNormalizer::forCards)
+                .block()
+                .replaceAll("[0-9]{4}[-][0-9]{2}[-][0-9]{2}T[0-9]{2}[:][0-9]{2}[:][0-9]{2}Z?", "1970-01-01T00:00:00Z")
+                .replaceAll("[a-z0-9]{40,}", "test-hash");
+
+        assertThat(
+                body,
+                sameJSONAs(fromFile("connector/responses/" + expected))
+                        .allowingAnyArrayOrdering()
+                        .allowingExtraUnexpectedFields()
+        );
     }
 
     @Test
     void testCardsRequestsWithEmptyAuthHeader() throws Exception {
-        // Missing X-Connector-Authorization header.
-        webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .header("x-routing-prefix", "https://hero/connectors/concur/")
-                .headers(ControllerTestsBase::headers)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .syncBody(fromFile("/connector/requests/request.json"))
-                .exchange()
+        testCardsRequest("", "")
                 .expectStatus().isBadRequest();
     }
 
     @Test
     void testApproveRequest() throws Exception {
-        testApproveRequest(CALLER_SERVICE_CREDS, CALLER_SERVICE_CREDS);
+        mockActionRequests(CALLER_SERVICE_CREDS);
+
+        testApproveRequest(CALLER_SERVICE_CREDS)
+                .expectStatus().isOk();
     }
 
     @Test
     void testApprovedReqWithEmptyAuthHeader() {
-        // Missing X-Connector-Authorization header.
-        webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B05F")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .contentType(APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData("comment", "Approval Done"))
-                .exchange()
+        testApproveRequest("")
                 .expectStatus().isBadRequest();
     }
 
     @Test
     void testRejectRequest() throws Exception {
-       testRejectRequest(CALLER_SERVICE_CREDS, CALLER_SERVICE_CREDS);
+        mockActionRequests(CALLER_SERVICE_CREDS);
+
+        testRejectRequest(CALLER_SERVICE_CREDS)
+                .expectStatus().isOk();
     }
 
     @Test
     void testRejectRequestWithEmptyAuthHeader() {
-        // Missing X-Connector-Authorization header.
-        webClient.post().uri("/api/expense/{id}/decline", "1D3BD2E14D144508B05F")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .contentType(APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData("reason", "Decline Done"))
-                .exchange()
+        testRejectRequest("")
                 .expectStatus().isBadRequest();
     }
 

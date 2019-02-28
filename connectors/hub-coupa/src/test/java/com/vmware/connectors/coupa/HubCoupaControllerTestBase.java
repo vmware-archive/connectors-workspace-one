@@ -5,14 +5,11 @@
 package com.vmware.connectors.coupa;
 
 import com.vmware.connectors.test.ControllerTestsBase;
-import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.test.web.reactive.server.WebTestClient;
-
-import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -21,7 +18,6 @@ import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
-import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 public class HubCoupaControllerTestBase extends ControllerTestsBase {
 
@@ -57,38 +53,26 @@ public class HubCoupaControllerTestBase extends ControllerTestsBase {
                 .consumeWith(body -> assertThat(body.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
     }
 
-    void testApproveRequest(final String serviceCredential, final String authHeader) throws Exception {
-        mockRequisitionDetails(serviceCredential);
-        mockApproveAction(serviceCredential);
-
-        webClient.post()
+    protected WebTestClient.ResponseSpec testApproveRequest(final String authHeader) {
+        return webClient.post()
                 .uri("/api/approve/{id}?comment=Approved", "182964")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header(X_AUTH_HEADER, authHeader)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .exchange()
-                .expectStatus().isOk();
+                .exchange();
     }
 
-    void testRejectRequest(final String serviceCredential, final String authHeader) throws Exception {
-        mockRequisitionDetails(serviceCredential);
-        mockRejectAction(serviceCredential);
-
-        webClient.post().uri("/api/decline/{id}?comment=Declined", "182964")
+    protected WebTestClient.ResponseSpec testRejectRequest(final String authHeader) {
+        return webClient.post().uri("/api/decline/{id}?comment=Declined", "182964")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header(X_AUTH_HEADER, authHeader)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
-                .exchange().expectStatus().isOk();
+                .exchange();
     }
 
-    protected void testCardsRequest(final String lang,
-                                    final String expected,
-                                    final String serviceCredential,
-                                    final String authHeader) throws Exception {
-        mockCoupaRequest(serviceCredential);
-
+    protected WebTestClient.ResponseSpec testCardsRequest(final String lang, final String authHeader) {
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
@@ -103,24 +87,17 @@ public class HubCoupaControllerTestBase extends ControllerTestsBase {
             spec.header(ACCEPT_LANGUAGE, lang);
         }
 
-        String body = spec.exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .returnResult(String.class)
-                .getResponseBody()
-                .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
-                .block()
-                .replaceAll("[0-9]{4}[-][0-9]{2}[-][0-9]{2}T[0-9]{2}[:][0-9]{2}[:][0-9]{2}Z?", "1970-01-01T00:00:00Z")
-                .replaceAll("[a-z0-9]{40,}", "test-hash");
+        return spec.exchange();
+    }
 
-        assertThat(
-                body,
-                sameJSONAs(fromFile("connector/responses/" + expected))
-                        .allowingAnyArrayOrdering()
-                        .allowingExtraUnexpectedFields()
-        );
+    protected void mockRejectActions(final String serviceCredential) throws Exception {
+        mockRequisitionDetails(serviceCredential);
+        mockRejectAction(serviceCredential);
+    }
 
+    protected void mockApproveActions(final String serviceCredential) throws Exception {
+        mockRequisitionDetails(serviceCredential);
+        mockApproveAction(serviceCredential);
     }
 
     protected void mockCoupaRequest(final String serviceCredential) throws Exception {

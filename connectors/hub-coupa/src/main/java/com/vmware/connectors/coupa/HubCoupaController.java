@@ -79,7 +79,7 @@ public class HubCoupaController {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        if (isServiceCredentialEmpty(connectorAuth)) {
+        if (isServiceAccountCredentialEmpty(connectorAuth)) {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
@@ -87,7 +87,7 @@ public class HubCoupaController {
                 .map(ResponseEntity::ok);
     }
 
-    private boolean isServiceCredentialEmpty(final String connectorAuth) {
+    private boolean isServiceAccountCredentialEmpty(final String connectorAuth) {
         if (StringUtils.isBlank(this.apiKey) && StringUtils.isBlank(connectorAuth)) {
             logger.debug("X-Connector-Authorization should not be empty if service credentials are not present in the config file");
             return true;
@@ -285,7 +285,7 @@ public class HubCoupaController {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        if (isServiceCredentialEmpty(connectorAuth)) {
+        if (isServiceAccountCredentialEmpty(connectorAuth)) {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
@@ -351,7 +351,7 @@ public class HubCoupaController {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
 
-        if (isServiceCredentialEmpty(connectorAuth)) {
+        if (isServiceAccountCredentialEmpty(connectorAuth)) {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 

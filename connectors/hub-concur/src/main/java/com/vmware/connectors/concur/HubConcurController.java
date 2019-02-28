@@ -84,7 +84,7 @@ public class HubConcurController {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("getCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
 
-        if (isServiceCredentialEmpty(connectorAuth)) {
+        if (isServiceAccountCredentialEmpty(connectorAuth)) {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
@@ -92,7 +92,7 @@ public class HubConcurController {
                 .map(ResponseEntity::ok);
     }
 
-    private boolean isServiceCredentialEmpty(final String connectorAuth) {
+    private boolean isServiceAccountCredentialEmpty(final String connectorAuth) {
         if (StringUtils.isBlank(this.serviceAccountAuthHeader) && StringUtils.isBlank(connectorAuth)) {
             logger.debug("X-Connector-Authorization should not be empty if service credentials are not present in the config file");
             return true;
@@ -280,7 +280,7 @@ public class HubConcurController {
     ) {
         logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, comment);
 
-        if (isServiceCredentialEmpty(connectorAuth)) {
+        if (isServiceAccountCredentialEmpty(connectorAuth)) {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
@@ -357,7 +357,7 @@ public class HubConcurController {
     ) {
         logger.debug("declineRequest called: baseUrl={}, id={}, reason={}", baseUrl, id, reason);
 
-        if (isServiceCredentialEmpty(connectorAuth)) {
+        if (isServiceAccountCredentialEmpty(connectorAuth)) {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
