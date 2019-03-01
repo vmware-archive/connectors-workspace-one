@@ -6,12 +6,17 @@
 package com.vmware.connectors.concur;
 
 import com.vmware.connectors.test.ControllerTestsBase;
+import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -21,11 +26,15 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 public class HubConcurControllerTestBase extends ControllerTestsBase {
 
     protected static final String CALLER_SERVICE_CREDS = "OAuth service-creds-from-http-request";
     protected static final String CONFIG_SERVICE_CREDS = "OAuth service-creds-from-config";
+
+    @Value("${concur.service-account-auth-header}")
+    private String serviceCredential;
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -54,12 +63,47 @@ public class HubConcurControllerTestBase extends ControllerTestsBase {
                 .consumeWith(body -> assertThat(body.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            ", success.json",
+            "xx, success_xx.json"
+    })
+    void testCardsRequests(String lang, String expected) throws Exception {
+        if (StringUtils.isBlank(serviceCredential)) {
+            serviceCredential = CALLER_SERVICE_CREDS;
+        }
+
+        mockConcurRequests(serviceCredential);
+
+        final String body = testCardsRequest(lang, serviceCredential)
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(JsonNormalizer::forCards)
+                .block()
+                .replaceAll("[0-9]{4}[-][0-9]{2}[-][0-9]{2}T[0-9]{2}[:][0-9]{2}[:][0-9]{2}Z?", "1970-01-01T00:00:00Z")
+                .replaceAll("[a-z0-9]{40,}", "test-hash");
+
+        assertThat(
+                body,
+                sameJSONAs(fromFile("connector/responses/" + expected))
+                        .allowingAnyArrayOrdering()
+                        .allowingExtraUnexpectedFields()
+        );
+    }
+
     protected WebTestClient.ResponseSpec testApproveRequest(final String authHeader) {
-        return webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B05F")
+        WebTestClient.RequestBodySpec spec = webClient.post().uri("/api/expense/{id}/approve", "1D3BD2E14D144508B05F")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, authHeader)
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .contentType(APPLICATION_FORM_URLENCODED)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""));
+
+        if (StringUtils.isNotBlank(authHeader)) {
+            spec = spec.header(X_AUTH_HEADER, authHeader);
+        }
+
+        return spec.contentType(APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("comment", "Approval Done"))
                 .exchange();
     }
@@ -71,11 +115,15 @@ public class HubConcurControllerTestBase extends ControllerTestsBase {
     }
 
     protected WebTestClient.ResponseSpec testRejectRequest(final String authHeader) {
-        return webClient.post().uri("/api/expense/{id}/decline", "1D3BD2E14D144508B05F")
+        WebTestClient.RequestBodySpec spec = webClient.post().uri("/api/expense/{id}/decline", "1D3BD2E14D144508B05F")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, authHeader)
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .contentType(APPLICATION_FORM_URLENCODED)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""));
+
+        if (StringUtils.isNotBlank(authHeader)) {
+            spec.header(X_AUTH_HEADER, authHeader);
+        }
+
+        return spec.contentType(APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("reason", "Decline Done"))
                 .exchange();
     }
@@ -94,14 +142,18 @@ public class HubConcurControllerTestBase extends ControllerTestsBase {
     }
 
     protected WebTestClient.ResponseSpec testCardsRequest(final String lang, final String authHeader) throws Exception {
-        WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
+        WebTestClient.RequestBodySpec spec = webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .header(X_AUTH_HEADER, authHeader)
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
-                .headers(ControllerTestsBase::headers)
-                .contentType(APPLICATION_JSON)
+                .headers(ControllerTestsBase::headers);
+
+        if (StringUtils.isNotBlank(authHeader)) {
+            spec.header(X_AUTH_HEADER, authHeader);
+        }
+
+        spec.contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .syncBody(fromFile("/connector/requests/request.json"));
 

@@ -5,11 +5,16 @@
 package com.vmware.connectors.coupa;
 
 import com.vmware.connectors.test.ControllerTestsBase;
+import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.web.reactive.server.WebTestClient;
+
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -18,6 +23,7 @@ import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 public class HubCoupaControllerTestBase extends ControllerTestsBase {
 
@@ -25,6 +31,9 @@ public class HubCoupaControllerTestBase extends ControllerTestsBase {
     protected static final String CONFIG_SERVICE_CREDS = "service-creds-from-config";
 
     protected static final String AUTHORIZATION_HEADER_NAME = "X-COUPA-API-KEY";
+
+    @Value("${coupa.api-key}")
+    private String serviceCredential;
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -53,35 +62,76 @@ public class HubCoupaControllerTestBase extends ControllerTestsBase {
                 .consumeWith(body -> assertThat(body.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            ", success.json",
+            "xx, success_xx.json"
+    })
+    void testCardsRequests(String lang, String expected) throws Exception {
+        if (StringUtils.isBlank(serviceCredential)) {
+            serviceCredential = CALLER_SERVICE_CREDS;
+        }
+
+        mockCoupaRequest(serviceCredential);
+
+        final String body = testCardsRequest(lang, serviceCredential)
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(JsonNormalizer::forCards)
+                .block()
+                .replaceAll("[0-9]{4}[-][0-9]{2}[-][0-9]{2}T[0-9]{2}[:][0-9]{2}[:][0-9]{2}Z?", "1970-01-01T00:00:00Z")
+                .replaceAll("[a-z0-9]{40,}", "test-hash");
+
+        assertThat(
+                body,
+                sameJSONAs(fromFile("connector/responses/" + expected))
+                        .allowingAnyArrayOrdering()
+                        .allowingExtraUnexpectedFields()
+        );
+    }
+
     protected WebTestClient.ResponseSpec testApproveRequest(final String authHeader) {
-        return webClient.post()
+        WebTestClient.RequestBodySpec spec = webClient.post()
                 .uri("/api/approve/{id}?comment=Approved", "182964")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, authHeader)
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .contentType(APPLICATION_FORM_URLENCODED)
-                .exchange();
+                .header(X_BASE_URL_HEADER, mockBackend.url(""));
+
+        return setAuthHeaderAndExchange(authHeader, spec);
     }
 
     protected WebTestClient.ResponseSpec testRejectRequest(final String authHeader) {
-        return webClient.post().uri("/api/decline/{id}?comment=Declined", "182964")
+        WebTestClient.RequestBodySpec spec = webClient.post().uri("/api/decline/{id}?comment=Declined", "182964")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_AUTH_HEADER, authHeader)
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .contentType(APPLICATION_FORM_URLENCODED)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""));
+
+        return setAuthHeaderAndExchange(authHeader, spec);
+    }
+
+    private WebTestClient.ResponseSpec setAuthHeaderAndExchange(String authHeader, WebTestClient.RequestBodySpec spec) {
+        if (StringUtils.isNotBlank(authHeader)) {
+            spec.header(X_AUTH_HEADER, authHeader);
+        }
+
+        return spec.contentType(APPLICATION_FORM_URLENCODED)
                 .exchange();
     }
 
     protected WebTestClient.ResponseSpec testCardsRequest(final String lang, final String authHeader) {
-        WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
+        WebTestClient.RequestBodySpec spec = webClient.post()
                 .uri("/cards/requests")
                 .header(AUTHORIZATION, "Bearer " + accessToken())
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .header(X_AUTH_HEADER, authHeader)
                 .header("x-routing-prefix", "https://hero/connectors/coupa/")
                 .headers(ControllerTestsBase::headers)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON);
+
+        if (StringUtils.isNotBlank(authHeader)) {
+            spec.header(X_AUTH_HEADER, authHeader);
+        }
 
         if (StringUtils.isNotBlank(lang)) {
             spec.header(ACCEPT_LANGUAGE, lang);
