@@ -21,7 +21,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @SuppressWarnings("PMD.LinguisticNaming")
-public class CartResponse {
+public class AddToCartResponse {
 
     private final static String cartIdField = "cart_id";
     private final static String cartTotalField = "cart_total";
@@ -34,19 +34,19 @@ public class CartResponse {
     private String cartTotal;
     private Map<String, String> items;
 
-    private static final Logger logger = LoggerFactory.getLogger(CartResponse.class);
+    private static final Logger logger = LoggerFactory.getLogger(AddToCartResponse.class);
 
-    public CartResponse(JsonDocument jsonSource) {
+    public AddToCartResponse(JsonDocument jsonSource) {
         this.items = new LinkedHashMap<String, String>();
 
         Map<String, Object> root = jsonSource.read("$.result");
 
-        if (root.containsKey(CartResponse.subtotalField)) {
-            this.cartTotal = root.get(CartResponse.subtotalField).toString();
+        if (root.containsKey(AddToCartResponse.subtotalField)) {
+            this.cartTotal = root.get(AddToCartResponse.subtotalField).toString();
         }
 
-        if (root.containsKey(CartResponse.cartIdField)) {
-            this.cartId = root.get(CartResponse.cartIdField).toString();
+        if (root.containsKey(AddToCartResponse.cartIdField)) {
+            this.cartId = root.get(AddToCartResponse.cartIdField).toString();
         }
          
         /*
@@ -57,23 +57,22 @@ public class CartResponse {
 
             if (itemsNode.isArray()) {
                 itemsNode.elements().forEachRemaining(item -> {
-                    if (item.has(CartResponse.itemIdField) && item.has(CartResponse.itemQuantityField)) {
-
+                    if (item.has(AddToCartResponse.itemIdField) && item.has(AddToCartResponse.itemQuantityField)) {
                         Pair<String, String> itemDetails = this.getItemDetails(item);
-                        this.items.put(itemDetails.getLeft(), itemDetails.getRight());
+                        this.updateItemsMap(itemDetails.getLeft(), itemDetails.getRight());
                     }}
                 );
             }
         } catch (IOException exe) {
-            logger.error("CartResponse -> CartResponse() -> readTree() -> IOException {}", exe.getMessage());
+            logger.error("AddToCartResponse -> AddToCartResponse() -> readTree() -> IOException {}", exe.getMessage());
         }
     }
 
-    public CartResponse() {
+    public AddToCartResponse() {
         this.items = new LinkedHashMap<String, String>();
     }
 
-    @JsonProperty(CartResponse.cartIdField)
+    @JsonProperty(AddToCartResponse.cartIdField)
     public String getCartId() {
         return this.cartId;
     }
@@ -82,7 +81,7 @@ public class CartResponse {
         this.cartId = cartId;
     }
 
-    @JsonProperty(CartResponse.cartTotalField)
+    @JsonProperty(AddToCartResponse.cartTotalField)
     public String getCartTotal() {
         return this.cartTotal;
     }
@@ -91,7 +90,7 @@ public class CartResponse {
        this.cartTotal = cartTotal;
     }
 
-    @JsonProperty(CartResponse.itemsField)
+    @JsonProperty(AddToCartResponse.itemsField)
     public Map<String, String> getItems() {
         return this.items;
     }
@@ -101,13 +100,20 @@ public class CartResponse {
     }
 
     private Pair<String, String> getItemDetails(JsonNode item) {
-        String itemId = item.get(CartResponse.itemIdField).asText();
-        String itemQ  = item.get(CartResponse.itemQuantityField).asText();
-
-        if (this.items.containsKey(itemId)) {
-            itemQ = this.items.get(itemId);
-        }
+        String itemId = item.get(AddToCartResponse.itemIdField).asText();
+        String itemQ  = item.get(AddToCartResponse.itemQuantityField).asText();
 
         return new ImmutablePair<String, String>(itemId, itemQ);
+    }
+
+    private void updateItemsMap(String itemId, String itemQuantity) {
+        if (this.items.containsKey(itemId)) {
+            int itemQ = Integer.parseInt(this.items.get(itemId));
+            itemQ = itemQ + Integer.parseInt(itemQuantity);
+
+            this.items.put(itemId, String.valueOf(itemQ));
+        } else {
+            this.items.put(itemId, itemQuantity);
+        }
     }
 }

@@ -1,1 +1,1 @@
-web: sh run_connectors.sh
+web: sh run_sn_connectors.sh

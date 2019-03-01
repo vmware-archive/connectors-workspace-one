@@ -11,7 +11,7 @@ jvm_args="$jvm_args -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,add
 
 java $jvm_args \
      -jar connectors/servicenow/target/servicenow*.jar \
-     --server.port=$PORT \
+     --server.port=9064 \
      --security.oauth2.resource.jwt.key-value="-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvgC4nghTATHFsjrGvC0W
 RwIL3lW58goLBiT5I+54qveyneqWNpobUHDquR/EcMvNYzg7VPlJ2wu7aAtNQ4eD

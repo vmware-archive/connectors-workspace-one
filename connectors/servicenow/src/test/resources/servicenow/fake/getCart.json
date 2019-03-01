@@ -1,12 +1,6 @@
 {
   "result": {
     "cart_id": "sys_cart_id_1",
-    "subtotal": "$100",
-    "items": [
-      {
-        "catalog_item_id": "item_id_1",
-        "quantity": "1"
-      }
-    ]
+    "subtotal_price": "$100"
   }
 }

@@ -119,15 +119,6 @@ class ServiceNowControllerTest extends ControllerTestsBase {
             String path,
             MediaType contentType,
             String authToken,
-            String requestFile
-    ) throws Exception {
-        return doGet(path, contentType, authToken, requestFile, null);
-    }
-
-    private WebTestClient.ResponseSpec doGet(
-            String path,
-            MediaType contentType,
-            String authToken,
             String requestFile,
             String language
     ) throws Exception {
@@ -139,24 +130,7 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 .header("x-routing-prefix", "https://hero/connectors/servicenow/")
                 .headers(ControllerTestsBase::headers);
 
-        if (authToken != null) {
-            spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
-        }
-
-        if (language != null) {
-            spec = spec.header(ACCEPT_LANGUAGE, language);
-        }
-
-        return spec.exchange();
-    }
-
-    private WebTestClient.ResponseSpec doPost(
-            String path,
-            MediaType contentType,
-            String authToken,
-            String requestFile
-    ) throws Exception {
-        return doPost(path, contentType, authToken, requestFile, null);
+        return this.httpRequest(spec, authToken, language);
     }
 
     private WebTestClient.ResponseSpec doPost(
@@ -176,16 +150,60 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 .header("x-routing-prefix", "https://hero/connectors/servicenow/")
                 .headers(ControllerTestsBase::headers)
                 .syncBody(fromFile("/servicenow/requests/" + requestFile));
+        
+        return this.httpRequest(spec, authToken, language);
+    }
 
+
+    private WebTestClient.ResponseSpec doPut(
+            String path,
+            MediaType contentType,
+            String authToken,
+            String requestFile,
+            String language
+    ) throws Exception {
+        WebTestClient.RequestHeadersSpec<?> spec = webClient.put()
+        .uri(path)
+        .header(AUTHORIZATION, "Bearer " + accessToken())
+        .contentType(contentType)
+        .accept(APPLICATION_JSON)
+        .header(X_BASE_URL_HEADER, mockBackend.url(""))
+        .header("x-routing-prefix", "https://hero/connectors/servicenow/")
+        .headers(ControllerTestsBase::headers)
+        .syncBody(fromFile("/servicenow/requests/" + requestFile));
+
+        return this.httpRequest(spec, authToken, language);
+    }
+
+    private WebTestClient.ResponseSpec doDelete(
+            String path,
+            MediaType contentType,
+            String authToken,
+            String requestFile,
+            String language
+    ) throws Exception {
+
+        WebTestClient.RequestHeadersSpec<?> spec = webClient.delete()
+                .uri(path)
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .accept(APPLICATION_JSON)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header("x-routing-prefix", "https://hero/connectors/servicenow/")
+                .headers(ControllerTestsBase::headers);
+        
+        return this.httpRequest(spec, authToken, language);
+    }
+
+    private WebTestClient.ResponseSpec httpRequest(WebTestClient.RequestHeadersSpec<?> spec, String authToken, String language) {
         if (authToken != null) {
-            spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
-        }
-
-        if (language != null) {
-            spec = spec.header(ACCEPT_LANGUAGE, language);
-        }
-
-        return spec.exchange();
+                spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
+            }
+    
+            if (language != null) {
+                spec = spec.header(ACCEPT_LANGUAGE, language);
+            }
+    
+            return spec.exchange();
     }
 
     private WebTestClient.ResponseSpec requestCards(String authToken, String requestFile) throws Exception {
@@ -207,7 +225,8 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                         "/api/v1/tickets/test-ticket-id/approve",
                         APPLICATION_FORM_URLENCODED,
                         authToken,
-                        requestFile
+                        requestFile,
+                        null
                 );
     }
 
@@ -216,7 +235,8 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                         "/api/v1/tickets/test-ticket-id/reject",
                         APPLICATION_FORM_URLENCODED,
                         authToken,
-                        requestFile
+                        requestFile,
+                        null
                 );
     }
 
@@ -225,7 +245,8 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                         "/api/v1/items/",
                         APPLICATION_JSON,
                         authToken,
-                        requestFile
+                        requestFile,
+                        null
                 );
     }
 
@@ -234,16 +255,18 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                         "/api/v1/cart/",
                         APPLICATION_JSON,
                         authToken,
-                        requestFile
+                        requestFile,
+                        null
         );
     }
 
     private WebTestClient.ResponseSpec addToCart(String authToken, String requestFile) throws Exception {
-        return doPost(
+        return doPut(
                     "/api/v1/cart",
                     APPLICATION_JSON,
                     authToken,
-                    requestFile
+                    requestFile,
+                    null
         );
     }
 
@@ -252,7 +275,8 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 "/api/v1/checkout",
                 APPLICATION_JSON,
                 authToken,
-                requestFile
+                requestFile,
+                null
         );
     }
 
@@ -261,16 +285,18 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 "/api/v1/tickets/task",
                 APPLICATION_JSON,
                 authToken,
-                requestFile
+                requestFile,
+                null
         );
     }
 
     private WebTestClient.ResponseSpec getTaskTicketDetails(String authToken, String requestFile) throws Exception {
         return doGet(
-                "/api/v1/ticket/?ticketType=task&ticketNumber=TASK_1",
+                "/api/v1/ticket/task/TASK_1",
                 APPLICATION_JSON,
                 authToken,
-                requestFile
+                requestFile,
+                null
         );
     }
 
@@ -529,19 +555,19 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 .expectBody().json(expected);
     }
 
-    @Test
-    void testAddToCartResponse() throws Exception {
-        mockBackend.expect(requestTo("/api/sn_sc/servicecatalog/items/sys_cart_id_1/add_to_cart"))
-                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
-                .andExpect(method(POST))
-                .andRespond(withSuccess(fromFile("/servicenow/fake/addToCart.json"), APPLICATION_JSON));
+     @Test
+     void testAddToCartResponse() throws Exception {
+         mockBackend.expect(requestTo("/api/sn_sc/servicecatalog/items/sys_cart_id_1/add_to_cart"))
+                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                 .andExpect(method(POST))
+                 .andRespond(withSuccess(fromFile("/servicenow/fake/addToCart.json"), APPLICATION_JSON));
 
-        String expected = fromFile("/servicenow/responses/success/actions/addToCart.json");
+         String expected = fromFile("/servicenow/responses/success/actions/addToCart.json");
 
-        addToCart(SNOW_AUTH_TOKEN, "valid/cards/addToCart.json")
-                .expectStatus().isOk()
-                .expectBody().json(expected);
-    }
+         addToCart(SNOW_AUTH_TOKEN, "valid/cards/addToCart.json")
+                 .expectStatus().isOk()
+                 .expectBody().json(expected);
+     }
 
     @Test
     void testCheckoutResponse() throws Exception {

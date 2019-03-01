@@ -1,8 +1,9 @@
 {
-  "result": {
+  "result": [{
       "number": "TASK_1",
       "sys_created_on": "2019-01-06 01:48:32",
       "sys_created_by": "admin",
       "short_description": "Task 1 description"
     }
+  ]
 }

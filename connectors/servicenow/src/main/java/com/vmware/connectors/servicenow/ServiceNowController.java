@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
@@ -65,6 +64,9 @@ public class ServiceNowController {
     private static final String SNOW_ADD_TO_CART_ENDPOINT = "/api/sn_sc/servicecatalog/items/{item_id}/add_to_cart";
 
     private static final String SNOW_CHECKOUT_ENDPOINT = "/api/sn_sc/servicecatalog/cart/checkout";
+
+    private static final String SNOW_DELETE_CART_ENDPOINT = "/api/sn_sc/servicecatalog/cart/{cart_item_id}";
+
     /**
      * The query param to specify a limit of the results coming back in your
      * ServiceNow REST calls.
@@ -693,14 +695,14 @@ public class ServiceNowController {
     }
 
     @GetMapping(
-            path = "/api/v1/ticket/",
+            path = "/api/v1/ticket/{ticketType}/{ticketNumber}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public Mono<TaskDetailsResponse> getTaskDetails(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            @RequestParam(name = "ticketType", required = false, defaultValue = "task") TaskKey ticketType,
-            @RequestParam(name = "ticketNumber", required = true) String ticketNumber) {
+            @PathVariable("ticketType") TaskKey ticketType,
+            @PathVariable("ticketNumber") String ticketNumber) {
                 
         logger.trace("getTaskDetails called: baseUrl={}, ticketType={}, ticketNumber={}", baseUrl, ticketType, ticketNumber);
 
@@ -724,19 +726,19 @@ public class ServiceNowController {
                 .bodyToMono(JsonDocument.class)
                 .map(s -> {
                         try {
-                                //JsonNode node = new ObjectMapper().readTree(s.read("$.result").toString());
-                                LinkedHashMap<String, String> keyVals = s.read("$.result");
+                                logger.trace("getTaskDetailsResponse -> {}" , s.toString());
+                                JsonNode node = new ObjectMapper().readTree(s.read("$.result").toString());
+                                // LinkedHashMap<String, String> keyVals = s.read("$.result");
 
-                                String resultResponse = "{";
-                                for (Entry<String, String> keyVal : keyVals.entrySet()) {
-                                    resultResponse = resultResponse + "\"" + keyVal.getKey() + "\"" + ":" + "\"" + keyVal.getValue() + "\",";
-                                }
+                                // String resultResponse = "{";
+                                // for (Entry<String, String> keyVal : keyVals.entrySet()) {
+                                //     resultResponse = resultResponse + "\"" + keyVal.getKey() + "\"" + ":" + "\"" + keyVal.getValue() + "\",";
+                                // }
 
-                                resultResponse = resultResponse.substring(0, resultResponse.length()-1) + "}";
+                                // resultResponse = resultResponse.substring(0, resultResponse.length()-1) + "}";
 
-                                JsonNode node = new ObjectMapper().readTree(resultResponse);
+                                // JsonNode node = new ObjectMapper().readTree(resultResponse);
 
-                                logger.trace("getTaskDetailsResponse -> {}" , node.toString());
                                 return new TaskDetailsResponse(node);
                         } catch(IOException exe) {
                                 logger.error("getTaskDetailsRequest() -> readTree() -> {}" , exe.getMessage());
@@ -760,38 +762,50 @@ public class ServiceNowController {
         return this.checkoutRequest(auth, baseUrl);
     }
 
-    @PostMapping(
+    @PutMapping(
         path="/api/v1/cart",
         consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<CartResponse> addToCart(
+    // add to cart request
+    public Mono<AddToCartResponse> addToCart(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @Valid @RequestBody CardRequest cardRequest) {
         
         logger.trace("addToCart calledf: baseUrl={}, itemsMap={}", baseUrl, cardRequest.toString());
 
-        final Set<String> itemsSet = cardRequest.getTokens("items");
+        // get the list of items from the cards request
+        final String itemsMapJson = cardRequest.getTokenSingleValue("itemsMap");
 
-        //var itemsAndQuantities = Flux.fromStream(entrySetStream);
-        var items = Flux.fromStream(itemsSet.stream());
+        try {
+                ObjectMapper mapper = new ObjectMapper();
 
-        // keep the last response and return that as the Cart Response
-        return items.flatMap(item -> 
-                this.addToCartRequest(item, "1", auth, baseUrl))
-        .map(s -> new AbstractMap.SimpleEntry<Integer, CartResponse>(s.getItems().size(), s))
-        .reduce((s,v) -> {
-                if (s.getKey() > v.getKey()) {
-                    return s;
-                }
-                else {
-                    return v;
-                }
-        })
-        .map(s -> s.getValue());
+                Map<String, String> jsonMap = mapper.convertValue(mapper.readTree(itemsMapJson), Map.class);
+
+                // convert items to a stream
+                var itemsStream = Flux.fromStream(jsonMap.entrySet().stream());                
+                // map the items stream to a carts request
+                return itemsStream.flatMap(item ->
+                    this.addToCartRequest(item.getKey(), item.getValue(), auth, baseUrl))
+                    .map(s -> new AbstractMap.SimpleEntry<Integer, AddToCartResponse>(s.getItems().size(), s))
+                    .reduce((s,v) -> {
+                        if (s.getKey() > v.getKey()) {
+                            return s;
+                        }
+                        else {
+                            return v;
+                        }
+                    })
+                    .map(s -> s.getValue());
+
+        } catch (IOException e) {
+                logger.error("json parsing failed -> {} " , itemsMapJson);
+        }
+
+        return null;
      }
 
-    private Mono<CartResponse> addToCartRequest(String itemId, String quantity, String auth, String baseUrl) {
+    private Mono<AddToCartResponse> addToCartRequest(String itemId, String quantity, String auth, String baseUrl) {
 
         ImmutableMap.Builder<String, String> body = new ImmutableMap.Builder<String, String>()
                 .put(ServiceNowController.SNOW_SYS_PARAM_QUAN, quantity);
@@ -810,10 +824,41 @@ public class ServiceNowController {
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .map(s -> {
-                        CartResponse cartResponse = new CartResponse(s);
+                        AddToCartResponse cartResponse = new AddToCartResponse(s);
                         logger.trace("addToCartRequest() -> map result : {}", cartResponse.toString());
                         return cartResponse;
                     });
+    }
+
+    @DeleteMapping(
+        path="/api/v1/cart/{cart_item_id}",
+        consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<String> deleteFromCart(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @PathVariable("cart_item_id") String cartItemId) {
+        
+        logger.trace("deleteToCart called: baseUrl={}, itemId={}", baseUrl, cartItemId);
+        
+        return this.deleteFromCartRequest(cartItemId, auth, baseUrl);
+     }
+
+    private Mono<String> deleteFromCartRequest(String cartItemId, String auth, String baseUrl) {
+
+        logger.trace("deleteFromCartRequest called: baseUrl={}, item_id={}", baseUrl, cartItemId);
+        return rest.delete()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(ServiceNowController.SNOW_DELETE_CART_ENDPOINT)
+                        .buildAndExpand(ImmutableMap.of("cart_item_id" , cartItemId))
+                        .encode()
+                        .toUriString()
+                )
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> s.toString());
     }
 
     /*
@@ -843,14 +888,14 @@ public class ServiceNowController {
             path="/api/v1/cart/",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<CartResponse> lookupCart(
+    public Mono<GetCartResponse> lookupCart(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl) {
         return this.lookupCartRequest("/api/sn_sc/servicecatalog/cart", auth, baseUrl);
     }
 
-    private Mono<CartResponse> lookupCartRequest(String endpoint, String auth, String baseUrl) {
-            logger.trace("addToCartRequest called: baseUrl={}", baseUrl);
+    private Mono<GetCartResponse> lookupCartRequest(String endpoint, String auth, String baseUrl) {
+            logger.trace("lookupCartRequest called: baseUrl={}", baseUrl);
         return rest.get()
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
@@ -862,8 +907,8 @@ public class ServiceNowController {
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .map(s -> {
-                    CartResponse response = new CartResponse(s);
-                    logger.trace("cartRequest response -> {}" , response);
+                    logger.trace("cartRequest response -> {}" , s);
+                    GetCartResponse response = new GetCartResponse(s);
                     return response;
                 });
     }
