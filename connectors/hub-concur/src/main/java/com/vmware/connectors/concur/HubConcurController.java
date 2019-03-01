@@ -23,12 +23,14 @@ import com.vmware.connectors.concur.domain.PendingApprovalsVO;
 import com.vmware.connectors.concur.domain.UserDetailsResponse;
 import com.vmware.connectors.concur.domain.UserDetailsVO;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -64,6 +66,8 @@ public class HubConcurController {
     private static final String APPROVE = "APPROVE";
     private static final String REJECT = "Send Back to Employee";
 
+    private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
+
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
     private final Resource concurRequestTemplate;
@@ -87,16 +91,40 @@ public class HubConcurController {
             produces = APPLICATION_JSON_VALUE,
             consumes = APPLICATION_JSON_VALUE
     )
-    public Mono<Cards> getCards(
+    public Mono<ResponseEntity<Cards>> getCards(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
+            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             Locale locale,
             HttpServletRequest request
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("getCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
-        return fetchCards(baseUrl, locale, routingPrefix, request, userEmail);
+
+        if (isServiceAccountCredentialEmpty(connectorAuth)) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+
+        return fetchCards(baseUrl, locale, routingPrefix, request, userEmail, getAuthHeader(connectorAuth))
+                .map(ResponseEntity::ok);
+    }
+
+    private boolean isServiceAccountCredentialEmpty(final String connectorAuth) {
+        if (StringUtils.isBlank(this.serviceAccountAuthHeader) && StringUtils.isBlank(connectorAuth)) {
+            logger.debug("X-Connector-Authorization should not be empty if service credentials are not present in the config file");
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private String getAuthHeader(final String connectorAuth) {
+        if (StringUtils.isBlank(this.serviceAccountAuthHeader)) {
+            return connectorAuth;
+        } else {
+            return this.serviceAccountAuthHeader;
+        }
     }
 
     private Mono<Cards> fetchCards(
@@ -104,24 +132,26 @@ public class HubConcurController {
             Locale locale,
             String routingPrefix,
             HttpServletRequest request,
-            String userEmail
+            String userEmail,
+            String connectorAuth
     ) {
         logger.debug("fetchCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
 
-        return fetchLoginIdFromUserEmail(userEmail, baseUrl)
-                .flatMapMany(loginId -> fetchAllApprovals(baseUrl, loginId))
-                .flatMap(expense -> fetchRequestData(baseUrl, expense.getId()))
+        return fetchLoginIdFromUserEmail(userEmail, baseUrl, connectorAuth)
+                .flatMapMany(loginId -> fetchAllApprovals(baseUrl, loginId, connectorAuth))
+                .flatMap(expense -> fetchRequestData(baseUrl, expense.getId(), connectorAuth))
                 .map(report -> makeCards(routingPrefix, locale, report, request))
                 .reduce(new Cards(), this::addCard);
     }
 
     private Mono<String> fetchLoginIdFromUserEmail(
             String userEmail,
-            String baseUrl
+            String baseUrl,
+            String connectorAuth
     ) {
         return rest.get()
                 .uri(baseUrl + "/api/v3.0/common/users?primaryEmail={userEmail}", userEmail)
-                .header(AUTHORIZATION, serviceAccountAuthHeader)
+                .header(AUTHORIZATION, connectorAuth)
                 .accept(APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(UserDetailsResponse.class)
@@ -132,14 +162,15 @@ public class HubConcurController {
 
     private Flux<PendingApprovalsVO> fetchAllApprovals(
             String baseUrl,
-            String userEmail
+            String userEmail,
+            String connectorAuth
     ) {
         int limit = 50;
         String userFilter = "all";
         return rest.get()
                 .uri(baseUrl + "/api/v3.0/expense/reportdigests?approverLoginID={userEmail}&limit={limit}&user={userFilter}",
                         userEmail, limit, userFilter)
-                .header(AUTHORIZATION, serviceAccountAuthHeader)
+                .header(AUTHORIZATION, connectorAuth)
                 .accept(APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(PendingApprovalResponse.class)
@@ -148,13 +179,14 @@ public class HubConcurController {
 
     private Mono<ExpenseReportResponse> fetchRequestData(
             String baseUrl,
-            String reportId
+            String reportId,
+            String connectorAuth
     ) {
         logger.trace("fetchRequestData called: baseUrl={}, reportId={}", baseUrl, reportId);
 
         return rest.get()
                 .uri(baseUrl + "/api/expense/expensereport/v2.0/report/{reportId}", reportId)
-                .header(AUTHORIZATION, serviceAccountAuthHeader)
+                .header(AUTHORIZATION, connectorAuth)
                 .accept(APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(ExpenseReportResponse.class);
@@ -215,7 +247,6 @@ public class HubConcurController {
                 currencyCode,
                 NumberFormat.getNumberInstance(locale).format(Double.parseDouble(amount))
         );
-
     }
 
     private CardAction makeAction(
@@ -258,16 +289,22 @@ public class HubConcurController {
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Mono<String> approveRequest(
+    public Mono<ResponseEntity<String>> approveRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             @PathVariable("id") String id,
             @RequestParam(COMMENT_KEY) String comment
     ) {
         logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, comment);
 
+        if (isServiceAccountCredentialEmpty(connectorAuth)) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return makeConcurRequest(comment, baseUrl, APPROVE, id, userEmail);
+        return makeConcurRequest(comment, baseUrl, APPROVE, id, userEmail, getAuthHeader(connectorAuth))
+                .map(ResponseEntity::ok);
     }
 
     private Mono<String> makeConcurRequest(
@@ -275,19 +312,20 @@ public class HubConcurController {
             String baseUrl,
             String action,
             String reportId,
-            String userEmail
+            String userEmail,
+            String connectorAuth
     ) {
         String concurRequestTemplate = getConcurRequestTemplate(reason, action);
 
-        return fetchLoginIdFromUserEmail(userEmail, baseUrl)
-                .flatMapMany(loginId -> validateUser(baseUrl, reportId, loginId))
-                .flatMap(ignored -> fetchRequestData(baseUrl, reportId))
+        return fetchLoginIdFromUserEmail(userEmail, baseUrl, connectorAuth)
+                .flatMapMany(loginId -> validateUser(baseUrl, reportId, loginId, connectorAuth))
+                .flatMap(ignored -> fetchRequestData(baseUrl, reportId, connectorAuth))
                 .map(ExpenseReportResponse::getWorkflowActionURL)
                 .flatMap(
                         url ->
                                 rest.post()
                                         .uri(url)
-                                        .header(AUTHORIZATION, serviceAccountAuthHeader)
+                                        .header(AUTHORIZATION, connectorAuth)
                                         .contentType(APPLICATION_XML)
                                         .accept(APPLICATION_JSON)
                                         .syncBody(concurRequestTemplate)
@@ -313,9 +351,10 @@ public class HubConcurController {
     private Mono<?> validateUser(
             String baseUrl,
             String reportId,
-            String userEmail
+            String userEmail,
+            String connectorAuth
     ) {
-        return fetchAllApprovals(baseUrl, userEmail)
+        return fetchAllApprovals(baseUrl, userEmail, connectorAuth)
                 .filter(expense -> expense.getId().equals(reportId))
                 .filter(expense -> expense.getApproverLoginID().equals(userEmail))
                 .next()
@@ -327,16 +366,22 @@ public class HubConcurController {
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Mono<String> declineRequest(
+    public Mono<ResponseEntity<String>> declineRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             @PathVariable("id") String id,
             @RequestParam(REASON_KEY) String reason
     ) {
         logger.debug("declineRequest called: baseUrl={}, id={}, reason={}", baseUrl, id, reason);
 
+        if (isServiceAccountCredentialEmpty(connectorAuth)) {
+            return Mono.just(ResponseEntity.badRequest().build());
+        }
+
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return makeConcurRequest(reason, baseUrl, REJECT, id, userEmail);
+        return makeConcurRequest(reason, baseUrl, REJECT, id, userEmail, getAuthHeader(connectorAuth))
+                .map(ResponseEntity::ok);
     }
 
 }
