@@ -10,8 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.connectors.common.utils.HashUtil;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
@@ -50,7 +49,7 @@ public class CardActionInputField {
 
     // Do not instantiate directly.
     private CardActionInputField() {
-        this.options = new HashMap<>();
+        this.options = new LinkedHashMap<>();
     }
 
     /**
@@ -117,7 +116,7 @@ public class CardActionInputField {
      * @return The field's options
      */
     public Map<String, String> getOptions() {
-        return Collections.unmodifiableMap(options);
+        return Map.copyOf(options);
     }
 
     /**
