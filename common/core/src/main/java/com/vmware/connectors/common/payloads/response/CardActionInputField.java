@@ -7,6 +7,7 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.utils.HashUtil;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -116,7 +117,7 @@ public class CardActionInputField {
      * @return The field's options
      */
     public Map<String, String> getOptions() {
-        return Map.copyOf(options);
+        return ImmutableMap.copyOf(options);
     }
 
     /**
