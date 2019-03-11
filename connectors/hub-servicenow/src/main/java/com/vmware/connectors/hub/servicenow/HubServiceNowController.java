@@ -9,6 +9,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.HashUtil;
 import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -352,6 +353,7 @@ public class HubServiceNowController {
                         cardTextAccessor.getHeader(locale),
                         cardTextAccessor.getMessage("subtitle", locale, info.getInfo().getNumber())
                 )
+                .setHash(toCardHash(info))
                 .setBody(makeBody(info, locale))
                 .addAction(
                         new CardAction.Builder()
@@ -383,6 +385,16 @@ public class HubServiceNowController {
                 );
         card.setImageUrl("https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-servicenow.png");
         return card.build();
+    }
+
+    private static String toCardHash(ApprovalRequestWithItems info) {
+        String itemsHash = info.getItems().stream()
+                .map(item -> HashUtil.hash("desc", item.getShortDescription(), "qty", item.getQuantity()))
+                .sorted()
+                .reduce((h1, h2) -> HashUtil.hash(h1, h2))
+                .orElse("");
+        return HashUtil.hash("id", info.getInfo().getNumber()
+                        , "items", itemsHash);
     }
 
     private CardBody makeBody(
