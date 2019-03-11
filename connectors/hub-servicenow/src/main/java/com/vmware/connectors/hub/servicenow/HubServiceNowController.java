@@ -388,13 +388,12 @@ public class HubServiceNowController {
     }
 
     private static String toCardHash(ApprovalRequestWithItems info) {
-        String itemsHash = info.getItems().stream()
-                .map(item -> HashUtil.hash("desc", item.getShortDescription(), "qty", item.getQuantity()))
-                .sorted()
-                .reduce((h1, h2) -> HashUtil.hash(h1, h2))
-                .orElse("");
-        return HashUtil.hash("id", info.getInfo().getNumber()
-                        , "items", itemsHash);
+        List<String> itemsHashes = info.getItems()
+                .stream()
+                .map(item -> HashUtil.hash("id", item.getSysId(), "qty", item.getQuantity()))
+                .collect(Collectors.toList());
+        String itemsHash = HashUtil.hashList(itemsHashes);
+        return HashUtil.hash("id", info.getInfo().getNumber(), "items", itemsHash);
     }
 
     private CardBody makeBody(

@@ -416,13 +416,18 @@ public class ServiceNowController {
     }
 
     private static String toCardHash(ApprovalRequestWithItems info) {
-        String itemsHash = info.getItems().stream()
-                .map(item -> HashUtil.hash("desc", item.getShortDescription(), "qty", item.getQuantity()))
-                .sorted()
-                .reduce((h1, h2) -> HashUtil.hash(h1, h2))
-                .orElse("");
-        return HashUtil.hash("id", info.getInfo().getNumber()
-                , "items", itemsHash);
+        /*
+         * Note: The hash isn't really necessary for Boxer cards, however,
+         * we'll keep this code duplicated from HubServiceNowController to
+         * reduce the chance of it being lost when unforking the connectors
+         * in APF-1854.
+         */
+        List<String> itemsHashes = info.getItems()
+                .stream()
+                .map(item -> HashUtil.hash("id", item.getSysId(), "qty", item.getQuantity()))
+                .collect(Collectors.toList());
+        String itemsHash = HashUtil.hashList(itemsHashes);
+        return HashUtil.hash("id", info.getInfo().getNumber(), "items", itemsHash);
     }
 
     private CardBody makeBody(
