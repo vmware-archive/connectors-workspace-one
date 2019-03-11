@@ -9,6 +9,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.HashUtil;
 import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -352,6 +353,8 @@ public class HubServiceNowController {
                         cardTextAccessor.getHeader(locale),
                         cardTextAccessor.getMessage("subtitle", locale, info.getInfo().getNumber())
                 )
+                // De-duplicate based on ticket number
+                .setHash(HashUtil.hash(info.getInfo().getNumber()))
                 .setBody(makeBody(info, locale))
                 .addAction(
                         new CardAction.Builder()
