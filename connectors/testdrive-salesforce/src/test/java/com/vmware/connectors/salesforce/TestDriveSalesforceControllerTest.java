@@ -32,16 +32,28 @@ import java.util.stream.Stream;
 
 import static com.vmware.connectors.salesforce.TestDriveSalesforceController.commaSeparatedListOfEscapedIds;
 import static com.vmware.connectors.salesforce.TestDriveSalesforceController.soqlEscape;
-import static org.hamcrest.CoreMatchers.*;
+import static com.vmware.connectors.utils.IgnoredFieldsReplacer.HASH_PATTERN;
+import static org.hamcrest.CoreMatchers.any;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.MediaType.*;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.client.ExpectedCount.manyTimes;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 
@@ -142,8 +154,10 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
 
     @DisplayName("Card request invalid token cases")
     @ParameterizedTest(name = "{index} ==> ''{0}''")
-    @CsvSource({"/connector/requests/emptyRequest.json, connector/responses/emptyRequest.json",
-                "/connector/requests/emptyToken.json, connector/responses/emptyToken.json"})
+    @CsvSource({
+            "/connector/requests/emptyRequest.json, connector/responses/emptyRequest.json",
+            "/connector/requests/emptyToken.json, connector/responses/emptyToken.json"
+    })
     void testRequestCardsInvalidTokens(String reqFile, String resFile) throws IOException {
         requestCards("abc", reqFile)
                 .exchange()
@@ -154,7 +168,10 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
 
     @DisplayName("Card request missing token cases")
     @ParameterizedTest(name = "{index} ==> ''{0}''")
-    @CsvSource("/connector/requests/emptySenderEmail.json, /connector/requests/emptyUserEmail.json")
+    @ValueSource(strings = {
+            "/connector/requests/emptySenderEmail.json",
+            "/connector/requests/emptyUserEmail.json"
+    })
     void testRequestCardsMissingTokens(String reqFile) throws IOException {
         requestCards("abc", reqFile)
                 .exchange()
@@ -197,14 +214,13 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
                 .expectStatus().isOk();
     }
 
-    @SuppressWarnings("unused")
     private static Stream<Arguments> argumentsForUpdateTest() {
         return Stream.of(
                 Arguments.of("/opportunity/00641000004IK9WAAW/closedate", "closedate=2017-06-03"),
                 Arguments.of("/opportunity/00641000004IK9WAAW/dealsize", "amount=32000"),
                 Arguments.of("/opportunity/00641000004IK9WAAW/nextstep",
-                        "nextstep=3/31 - Customer was shown the roadmap for ABC product&nextstep_previous_value=Some earlier step"),
-                Arguments.of("/opportunity/00641000004IK9WAAW/nextstep", "nextstep=3/31 - Customer was shown the roadmap for ABC product")
+                        "nextstep=3%2F31%20-%20Customer%20was%20shown%20the%20roadmap%20for%20ABC%20product&nextstep_previous_value=Some%20earlier%20step"),
+                Arguments.of("/opportunity/00641000004IK9WAAW/nextstep", "nextstep=3%2F31%20-%20Customer%20was%20shown%20the%20roadmap%20for%20ABC%20product")
         );
     }
 
@@ -224,7 +240,6 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
                 .expectStatus().is4xxClientError();
     }
 
-    @SuppressWarnings("unused")
     private static Stream<Arguments> argumentsForUpdateTestWithMissingData() {
         return Stream.of(
                 Arguments.of("/opportunity/00641000004IK9WAAW/closedate", "closedate="),
@@ -248,6 +263,7 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
                 .map(JsonNormalizer::forCards)
                 .map(json -> json.replaceAll("http://localhost:\\d+/", "https://salesforce.acme.com/"))
                 .block();
+        body = body.replaceAll(HASH_PATTERN, "test-hash");
 
         assertThat(fromFile(responseFile), sameJSONAs(body).allowingAnyArrayOrdering());
     }
@@ -285,4 +301,5 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
         List<String> oppIDs = JsonPath.read(fromFile(RESPONSE_OPPORTUNITY_IDS_PATH), "$.records[*].Opportunity.Id");
         return String.format(TestDriveSalesforceController.QUERY_FMT_OPPORTUNITY_INFO, commaSeparatedListOfEscapedIds(oppIDs));
     }
+
 }
