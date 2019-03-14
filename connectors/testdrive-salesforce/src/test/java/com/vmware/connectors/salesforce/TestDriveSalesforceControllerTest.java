@@ -11,7 +11,7 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -71,8 +71,7 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
     private static final String RESPONSE_OPPORTUNITY_PARSE_TEST_PATH = "/salesforce/response/opportunityParseTest.json";
     private static final String CONNECTOR_REQUEST_DATA_PATH = "/connector/requests/request.json";
 
-    @Before
-    @SuppressWarnings("unused")
+    @BeforeEach
     private void setUp() {
         mockBackend.reset();
     }
