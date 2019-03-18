@@ -77,7 +77,7 @@ public class ServiceNowController {
      * sysapproval_approver call to be able to match it to the request numbers
      * passed in by the client).
      */
-    private static final int MAX_APPROVAL_RESULTS = 10000;
+    private static final int MAX_APPROVAL_RESULTS = 10_000;
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
