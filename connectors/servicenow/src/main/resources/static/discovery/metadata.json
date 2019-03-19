@@ -45,6 +45,59 @@
       "endpoint": {
         "href": "${CONNECTOR_HOST}/api/v1/items/"
       }
+    },
+    "ticketType": {
+      "fields": {
+        "ticketType": {
+          "env": "TICKET_TYPE"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/tickets/{ticketType}/"
+      }
+    },
+    "ticketDetails": {
+      "fields": {
+        "ticketType": {
+          "env": "TICKET_TYPE"
+        },
+        "ticketNumber": {
+          "env": "TICKET_NUMBER"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/ticket/{ticketType}/{ticketNumber}"
+      }
+    },
+    "checkout": {
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/checkout"
+      }
+    },
+    "addCart": {
+      "fields": {
+        "itemsMap": {
+          "env" : "ITEMS_MAP"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/cart"
+      }
+    },
+    "clearCart": {
+      "fields": {
+        "cartItemId": {
+          "env": "CART_ITEM_ID"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/cart/{cart_item_id}"
+      }
+    },
+    "lookupCart": {
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/cart/"
+      }
     }
   }
 }
