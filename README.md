@@ -9,7 +9,7 @@ The connectors are written in Java and use the [Spring Framework](https://spring
 [Spring Boot](https://projects.spring.io/spring-boot/), embedding [Tomcat](http://tomcat.apache.org/) 8.5.
 
 For a detailed, language-neutral, specification for how to develop connectors, please see the
-[Card Connectors Guide](https://github.com/vmwaresamples/card-connectors-guide).
+[Card Connectors Guide](https://github.com/vmware-samples/card-connectors-guide).
 
 This repository also includes common libraries. Please see their [README](https://github.com/vmware/connectors-workspace-one/blob/master/common/README.md) for more details.
 
