@@ -5,7 +5,7 @@
   "object_types": {
     "card": {
       "doc": {
-        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
       },
       "fields": {
         "merge_request_urls": {
