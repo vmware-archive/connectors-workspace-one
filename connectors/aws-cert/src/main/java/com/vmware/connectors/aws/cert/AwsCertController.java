@@ -24,6 +24,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -83,7 +84,13 @@ public class AwsCertController {
     ) {
         logger.trace("getCards called, routingPrefix={}, request={}", routingPrefix, cardRequest);
 
-        return Flux.fromStream(validateUrls(cardRequest.getTokens("approval_urls")))
+        Set<String> approvalUrls = cardRequest.getTokens("approval_urls");
+
+        if (CollectionUtils.isEmpty(approvalUrls)) {
+            return Mono.just(new Cards());
+        }
+
+        return Flux.fromStream(validateUrls(approvalUrls))
                 .sort()
                 .flatMap(this::callForCardInfo)
                 .filter(pair -> pair.getRight().getStatusCode().is2xxSuccessful())

@@ -90,11 +90,11 @@ class GitlabPrControllerTest extends ControllerTestsBase {
                 .headers(ControllerTestsBase::headers)
                 .syncBody(content);
 
-        if (authToken != null) {
+        if (StringUtils.isNotBlank(authToken)) {
             spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
         }
 
-        if (language != null) {
+        if (StringUtils.isNotBlank(language)) {
             spec = spec.header(ACCEPT_LANGUAGE, language);
         }
 
@@ -156,7 +156,7 @@ class GitlabPrControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            StringUtils.EMPTY + ", responses/success/cards/card.json",
+            ", responses/success/cards/card.json",
             "xx, responses/success/cards/card_xx.json"})
     void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         trainGitlabForCards();
@@ -200,22 +200,26 @@ class GitlabPrControllerTest extends ControllerTestsBase {
         requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/empty-pr-urls.json"))
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("responses/success/cards/empty-pr-urls.json"));
+                .expectBody().json(fromFile("responses/success/cards/no-results.json"));
     }
 
     @Test
     void testRequestCardsMissingPrUrlsSuccess() throws Exception {
         requestCards(GITLAB_AUTH_TOKEN, fromFile("requests/valid/cards/missing-pr-urls.json"))
-                .expectStatus().isBadRequest();
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .expectBody().json(fromFile("responses/success/cards/no-results.json"));
     }
 
     @DisplayName("Card request invalid token cases")
     @ParameterizedTest(name = "{index} ==> ''{0}''")
-    @CsvSource({"requests/invalid/cards/empty-tokens.json, responses/error/cards/empty-tokens.json",
-            "requests/invalid/cards/missing-tokens.json, responses/error/cards/missing-tokens.json"})
+    @CsvSource({
+            "requests/invalid/cards/empty-tokens.json, responses/success/cards/no-results.json",
+            "requests/invalid/cards/missing-tokens.json, responses/success/cards/no-results.json"
+    })
     void testRequestCardsInvalidTokens(String reqFile, String resFile) throws Exception {
         requestCards(GITLAB_AUTH_TOKEN, fromFile(reqFile))
-                .expectStatus().isBadRequest()
+                .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
                 .expectBody().json(fromFile(resFile));
     }

@@ -95,23 +95,23 @@ class ConcurControllerTest extends ControllerTestsBase {
 
     @Test
     void testRequestWithEmptyIssue() throws Exception {
-        testRequestCards("emptyIssue.json", "emptyIssue.json", null);
+        testRequestCards("emptyIssue.json", "noResults.json", null);
     }
 
     @Test
     void testRequestWithEmptyEmailSubject() throws Exception{
-        testRequestCards("emptyEmailSubject.json", "emptyIssue.json", null);
+        testRequestCards("emptyEmailSubject.json", "noResults.json", null);
     }
 
     @DisplayName("Missing parameter cases")
     @ParameterizedTest(name = "{index} ==> ''{0}''")
     @CsvSource({
-            "emptyRequest.json, emptyRequest.json",
-            "emptyToken.json, emptyToken.json"})
+            "emptyRequest.json, noResults.json",
+            "emptyToken.json, noResults.json"})
     void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
         requestCards(requestFile)
                 .exchange()
-                .expectStatus().isBadRequest()
+                .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
                 .expectBody().json(fromFile("connector/responses/" + responseFile));
     }
@@ -131,7 +131,7 @@ class ConcurControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            StringUtils.EMPTY + ", success.json",
+            ", success.json",
             "xx, success_xx.json"})
     void testRequestCardsSuccess(String lang, String resFile) throws Exception {
         expect(REPORT_ID_1).andRespond(withSuccess(
@@ -162,7 +162,7 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
                 .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
 
-        testRequestCards("request_with_invalid_report_id.json", "single_card_response.json", StringUtils.EMPTY);
+        testRequestCards("request_with_invalid_report_id.json", "single_card_response.json", "");
     }
 
     @Test

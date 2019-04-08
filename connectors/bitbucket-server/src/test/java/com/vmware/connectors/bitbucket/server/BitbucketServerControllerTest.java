@@ -125,7 +125,7 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
 
     @Test
     void cardsEmptyIssue() throws Exception {
-        testCardRequests("emptyIssue.json", "emptyIssue.json", null);
+        testCardRequests("emptyIssue.json", "noResults.json", null);
     }
 
     @DisplayName("Card request success cases")
@@ -155,13 +155,13 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
     @ParameterizedTest(name = "{index} ==> ''{0}''")
     @DisplayName("Missing parameter cases")
     @CsvSource({
-            "emptyRequest.json, emptyRequest.json",
-            "emptyToken.json, emptyToken.json"
+            "emptyRequest.json, noResults.json",
+            "emptyToken.json, noResults.json"
     })
     void cardsMissingParameter(String requestFile, String responseFile) throws Exception {
         requestCard(requestFile)
                 .exchange()
-                .expectStatus().isBadRequest()
+                .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
                 .expectBody().json(fromFile("bitbucket/responses/" + responseFile));
     }

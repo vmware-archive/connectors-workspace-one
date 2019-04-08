@@ -20,6 +20,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -65,6 +66,10 @@ public class JiraController {
             ServerHttpRequest request) {
 
         Set<String> issueIds = cardRequest.getTokens("issue_id");
+
+        if (CollectionUtils.isEmpty(issueIds)) {
+            return Mono.just(new Cards());
+        }
 
         return Flux.fromIterable(issueIds)
                 .flatMap(issueId -> getCardForIssue(jiraAuth, baseUrl, issueId,

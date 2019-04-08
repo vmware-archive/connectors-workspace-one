@@ -45,7 +45,7 @@
             }
           ],
           "completed_label": "Commented",
-          "allow_repeated": false
+          "allow_repeated": true
         }
       ],
       "image": {
@@ -85,7 +85,7 @@
             }
           ],
           "completed_label": "Commented",
-          "allow_repeated": false
+          "allow_repeated": true
         }
       ],
       "image": {
@@ -125,7 +125,7 @@
             }
           ],
           "completed_label": "Commented",
-          "allow_repeated": false
+          "allow_repeated": true
         }
       ],
       "image": {

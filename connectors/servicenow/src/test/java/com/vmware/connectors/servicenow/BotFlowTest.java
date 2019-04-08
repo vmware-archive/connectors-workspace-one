@@ -6,6 +6,7 @@
 package com.vmware.connectors.servicenow;
 
 import com.vmware.connectors.test.ControllerTestsBase;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -258,7 +259,7 @@ class BotFlowTest extends ControllerTestsBase {
                 .headers(ControllerTestsBase::headers)
                 .syncBody(fromFile(requestFile));
 
-        if (language != null) {
+        if (StringUtils.isNotBlank(language)) {
             spec = spec.header(ACCEPT_LANGUAGE, language);
         }
 
