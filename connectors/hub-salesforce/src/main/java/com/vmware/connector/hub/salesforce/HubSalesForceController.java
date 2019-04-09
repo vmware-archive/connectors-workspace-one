@@ -9,6 +9,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.utils.Reactive;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,10 +99,11 @@ public class HubSalesForceController {
         }
 
         return retrieveWorkItems(connectorAuth, baseUrl, userEmail)
-                .flatMapMany(result -> processWorkItemResult(result, baseUrl, connectorAuth, locale, routingPrefix))
+                .flatMapMany(Reactive.wrapFlatMapMany(result -> processWorkItemResult(result, baseUrl, connectorAuth, locale, routingPrefix)))
                 .collectList()
                 .map(this::toCards)
-                .map(ResponseEntity::ok);
+                .map(ResponseEntity::ok)
+                .subscriberContext(Reactive.setupContext());
     }
 
     @PostMapping(

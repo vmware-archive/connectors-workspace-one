@@ -97,13 +97,19 @@ public class HubServiceNowController {
 
         return callForUserSysId(baseUrl, userEmail, connectorAuth)
                 .flux()
+                .doOnEach(Reactive.wrapForItem(userSysId -> logger.trace("callForApprovalRequests: baseUrl={}, userSysId={}", baseUrl, userSysId)))
                 .flatMap(userSysId -> callForApprovalRequests(baseUrl, connectorAuth, userSysId))
-                .flatMap(approvalRequest -> callForAndAggregateRequestInfo(baseUrl, connectorAuth, approvalRequest))
+                .doOnEach(Reactive.wrapForItem(approvalRequest -> logger.trace("callForRequestInfo: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest)))
+                .flatMap(approvalRequest -> callForRequestInfo(baseUrl, connectorAuth, approvalRequest)
+                        .map(requestNumber -> new ApprovalRequestWithInfo(approvalRequest, requestNumber)))
+                .doOnEach(Reactive.wrapForItem(approvalRequest -> logger.trace("callForAndAggregateRequestedItems: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest)))
                 .flatMap(approvalRequestWithInfo -> callForAndAggregateRequestedItems(baseUrl, connectorAuth, approvalRequestWithInfo))
+                .doOnEach(Reactive.wrapForItem(info -> logger.trace("Got items: {}", info)))
                 .reduce(
                         new Cards(),
                         (cards, info) -> appendCard(cards, info, routingPrefix, locale)
                 )
+                .doOnEach(Reactive.wrapForItem(cards -> logger.trace("Returning cards: {}", cards)))
                 .subscriberContext(Reactive.setupContext());
     }
 
@@ -151,8 +157,6 @@ public class HubServiceNowController {
             String auth,
             String userSysId
     ) {
-        logger.trace("callForApprovalRequests called: baseUrl={}, userSysId={}", baseUrl, userSysId);
-
         String fields = joinFields(
                 SysApprovalApprover.Fields.SYS_ID,
                 SysApprovalApprover.Fields.SYSAPPROVAL,
@@ -191,6 +195,7 @@ public class HubServiceNowController {
                  * microservices.
                  */
                 .flatMapMany(approvalRequests -> Flux.fromIterable(approvalRequests.<List<Map<String, Object>>>read("$.result[*]")))
+                .doOnEach(Reactive.wrapForItem(result -> logger.trace("convertJsonDocToApprovalReq called: result={}", result)))
                 .map(this::convertJsonDocToApprovalReq);
 
     }
@@ -204,8 +209,6 @@ public class HubServiceNowController {
     private ApprovalRequest convertJsonDocToApprovalReq(
             Map<String, Object> result
     ) {
-        logger.trace("convertJsonDocToApprovalReq called: result={}", result);
-
         return new ApprovalRequest(
                 (String) result.get(SysApprovalApprover.Fields.SYS_ID.toString()),
                 ((Map<String, String>) result.get(SysApprovalApprover.Fields.SYSAPPROVAL.toString())).get("value"),
@@ -215,25 +218,12 @@ public class HubServiceNowController {
         );
     }
 
-    private Mono<ApprovalRequestWithInfo> callForAndAggregateRequestInfo(
-            String baseUrl,
-            String auth,
-            ApprovalRequest approvalRequest
-    ) {
-        logger.trace("callForAndAggregateRequestInfo called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
-
-        return callForRequestInfo(baseUrl, auth, approvalRequest)
-                .map(requestNumber -> new ApprovalRequestWithInfo(approvalRequest, requestNumber));
-    }
-
     private Mono<Request> callForRequestInfo(
             String baseUrl,
             String auth,
             ApprovalRequest approvalRequest
     ) {
-        logger.trace("callForRequestInfo called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
-
-        String fields = joinFields(
+         String fields = joinFields(
                 ScRequest.Fields.SYS_ID,
                 ScRequest.Fields.PRICE,
                 ScRequest.Fields.NUMBER
@@ -269,8 +259,6 @@ public class HubServiceNowController {
             String auth,
             ApprovalRequestWithInfo approvalRequest
     ) {
-        logger.trace("callForAndAggregateRequestedItems called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
-
         return callForRequestedItems(baseUrl, auth, approvalRequest)
                 .collectList()
                 .map(items -> new ApprovalRequestWithItems(approvalRequest, items));
@@ -281,9 +269,7 @@ public class HubServiceNowController {
             String auth,
             ApprovalRequestWithInfo approvalRequest
     ) {
-        logger.trace("callForRequestedItems called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
-
-        String fields = joinFields(
+         String fields = joinFields(
                 ScRequestedItem.Fields.SYS_ID,
                 ScRequestedItem.Fields.PRICE,
                 ScRequestedItem.Fields.REQUEST,
@@ -309,15 +295,14 @@ public class HubServiceNowController {
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .flatMapMany(items -> Flux.fromIterable(items.<List<Map<String, Object>>>read("$.result[*]")))
+                .doOnEach(Reactive.wrapForItem(result -> logger.trace("convertJsonDocToApprovalReq: result={}", result)))
                 .map(this::convertJsonDocToRequestedItem);
     }
 
     private RequestedItem convertJsonDocToRequestedItem(
             Map<String, Object> result
     ) {
-        logger.trace("convertJsonDocToApprovalReq called: result={}", result);
-
-        return new RequestedItem(
+         return new RequestedItem(
                 (String) result.get(ScRequestedItem.Fields.SYS_ID.toString()),
                 ((Map<String, String>) result.get(ScRequestedItem.Fields.REQUEST.toString())).get("value"),
                 (String) result.get(ScRequestedItem.Fields.SHORT_DESCRIPTION.toString()),
@@ -330,9 +315,7 @@ public class HubServiceNowController {
                              ApprovalRequestWithItems info,
                              String routingPrefix,
                              Locale locale) {
-        logger.trace("appendCard called: cards={}, info={}, routingPrefix={}", cards, info, routingPrefix);
-
-        cards.getCards().add(
+         cards.getCards().add(
                 makeCard(routingPrefix, info, locale)
         );
 
@@ -344,8 +327,6 @@ public class HubServiceNowController {
             ApprovalRequestWithItems info,
             Locale locale
     ) {
-        logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
-
         final Card.Builder card = new Card.Builder()
                 .setName("ServiceNow") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
@@ -456,8 +437,6 @@ public class HubServiceNowController {
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @PathVariable("requestSysId") String requestSysId
     ) {
-        logger.trace("approve called: baseUrl={}, requestSysId={}", baseUrl, requestSysId);
-
         return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.APPROVED, null);
     }
 
@@ -517,8 +496,6 @@ public class HubServiceNowController {
             @PathVariable("requestSysId") String requestSysId,
             @RequestParam(REASON_PARAM_KEY) String reason
     ) {
-        logger.trace("reject called: baseUrl={}, requestSysId={}, reason={}", baseUrl, requestSysId, reason);
-
         return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, reason);
     }
 
