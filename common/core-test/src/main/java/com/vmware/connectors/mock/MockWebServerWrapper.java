@@ -22,7 +22,8 @@ import java.nio.charset.Charset;
 
 public class MockWebServerWrapper {
     private final MockWebServer mockWebServer;
-    private final RequestExpectationManager expectationManager = new UnorderedRequestExpectationManager();
+    private final RequestExpectationManager expectationManager = new SynchronizedRequestExpectationManager(
+                                                                            new UnorderedRequestExpectationManager());
 
     public MockWebServerWrapper(MockWebServer mockWebServer) {
         this.mockWebServer = mockWebServer;
