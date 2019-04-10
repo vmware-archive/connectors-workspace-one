@@ -5,11 +5,13 @@
 
 package com.vmware.connectors.common.utils;
 
+import org.reactivestreams.Publisher;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MimeType;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Signal;
 import reactor.util.context.Context;
@@ -85,6 +87,11 @@ public final class Reactive {
     public static <T, R> Function<T, Mono<R>> wrapFlatMapper(Function<T, Mono<R>> mapper) {
         return item -> Mono.subscriberContext()
                 .flatMap(context -> wrapCall(context, () -> mapper.apply(item)));
+    }
+
+    public static <T, R> Function<T, Flux<R>> wrapFlatMapMany(Function<T, ? extends Publisher<R>> mapper) {
+        return item -> Mono.subscriberContext()
+                .flatMapMany(context -> wrapCall(context, () -> mapper.apply(item)));
     }
 
     public static Mono<ClientResponse> checkStatus(ClientResponse response) {
