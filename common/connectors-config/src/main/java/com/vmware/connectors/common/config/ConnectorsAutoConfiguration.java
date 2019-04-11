@@ -32,8 +32,6 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
@@ -96,12 +94,12 @@ public class ConnectorsAutoConfiguration {
                     }
 
                     @Override
-                    protected Map readInternal(Class<? extends Map> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+                    protected Map readInternal(Class<? extends Map> clazz, HttpInputMessage inputMessage) throws IOException {
                         return Collections.singletonMap("value", IOUtils.toString(inputMessage.getBody(), UTF_8));
                     }
 
                     @Override
-                    protected void writeInternal(Map map, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+                    protected void writeInternal(Map map, HttpOutputMessage outputMessage) {
                         throw new UnsupportedOperationException();
                     }
                 });
