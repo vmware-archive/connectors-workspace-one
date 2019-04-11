@@ -14,7 +14,7 @@
     </parent>
 
     <properties>
-        <docker.javaImage>openjdk:11.0.2-jre</docker.javaImage>
+        <docker.javaImage>openjdk:12-oracle</docker.javaImage>
     </properties>
 
     <modules>
