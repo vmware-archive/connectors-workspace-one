@@ -8,9 +8,12 @@ package com.vmware.connectors.common.utils;
 import org.reactivestreams.Publisher;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.MimeType;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Signal;
@@ -34,24 +37,7 @@ public final class Reactive {
         // Do not construct
     }
 
-    /**
-     * Sets up the reactive context based on the MDC
-     * already set on the thread by servlet filter and an interceptor.
-     * This method should be called at the end of each composed Flux and
-     * passed to Flux.subscriberContext
-     * This is a temporary solution that works while we're still stuck on
-     * Servlet 3.0 instead of being fully reactive.
-     * When we move to full-blown webflux we can set up the reactive context
-     * in a WebFilter, with no need to do anything in controllers at all.
-     * This method will be removed once we have gone fully reactive.
-     * @return the reactive context
-     */
-    public static Context setupContext() {
-        Map<String, String> contextMap = MDC.getCopyOfContextMap();
-        return contextMap == null ? Context.empty() : Context.of("mdc", contextMap);
-     }
-
-    /**
+   /**
      * Intended for use with Flux.doOnEach, this method allows processing
      * on a item (e.g., logging) to be done with MDC set on the
      * thread.
@@ -151,8 +137,10 @@ public final class Reactive {
 
     private static <R> R wrapCall(Context context, Supplier<R> supplier) {
         Map<String, String> savedContextMap = MDC.getCopyOfContextMap();
-        if (context.hasKey("mdc")) {
-            MDC.setContextMap(context. get("mdc"));
+        if (context.hasKey(ServerWebExchange.class)) {
+            ServerWebExchange exchange = context.get(ServerWebExchange.class);
+            setPrincipal(exchange);
+            setRequestId(exchange);
         }
 
         try {
@@ -163,6 +151,23 @@ public final class Reactive {
             } else {
                 MDC.setContextMap(savedContextMap);
             }
+        }
+    }
+
+    private static void setPrincipal(ServerWebExchange exchange) {
+        SecurityContext securityContext = exchange.getAttribute("securityContext");
+        if (securityContext != null) {
+            Authentication authentication = securityContext.getAuthentication();
+            if (authentication != null && authentication.getPrincipal() != null) {
+                MDC.put("principal", authentication.getPrincipal().toString());
+            }
+        }
+    }
+
+    private static void setRequestId(ServerWebExchange exchange) {
+        String requestId = exchange.getRequest().getHeaders().getFirst("X-Request-Id");
+        if (requestId != null) {
+            MDC.put("requestId", requestId);
         }
     }
 }

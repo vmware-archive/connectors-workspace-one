@@ -42,6 +42,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.12</version>
+            </dependency>
+            <dependency>
                 <groupId>ch.qos.logback.contrib</groupId>
                 <artifactId>logback-jackson</artifactId>
                 <version>0.1.5</version>
@@ -74,9 +79,9 @@
                 <version>2.3.0.1</version>
             </dependency>
             <dependency>
-                <groupId>org.springframework.security.oauth.boot</groupId>
-                <artifactId>spring-security-oauth2-autoconfigure</artifactId>
-                <version>2.1.4.RELEASE</version>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-jwt</artifactId>
+                <version>1.0.10.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -566,7 +571,7 @@
                                                 <run>yum -y install /maven/target/rpm/${connector.name}-connector/RPMS/noarch/*.rpm</run>
                                                 <run>
                                                     <![CDATA[
-                                                echo "security.oauth2.resource.jwt.key-value=foo" \
+                                                echo "security.oauth2.resource.jwt.key-value=-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnd4cwaam8TJpU3Jn+BC7/7W1WUJ6QOsFYNkwQ14nTyJlXylQH2lSwwL3V2plQ4KlFPviG2SpUnnZjokLXHxTjuPE8awl4Z+tmZVNrto0k120Ej3CRpxI6Hgoh+y4XVrhpNWRVL0+shoPHfq5M0tgervb76hYwK9txWzZfZ53Dlt6zaT4p4Y9IVoeJv0YkPQag1Te398cHlndzJT1T5MNcy17TpJMOvjTe2wEK/0Wgp9f0RzGbcL1I8lTZLir8ghjEQYJDJ6v10H43GL+As6ZXGCIoo8p7HycVwfoILoOT3kwHbpusVE1DGlxXWmT6DfKZVNol1IYc7Xm8WCCktEINQIDAQAB\n-----END PUBLIC KEY-----" \
                                                 > /etc/opt/vmware/connectors/${connector.name}/application.properties
                                                 ]]>
                                                 </run>

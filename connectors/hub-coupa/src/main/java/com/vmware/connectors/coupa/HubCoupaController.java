@@ -22,13 +22,17 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Locale;
@@ -74,7 +78,7 @@ public class HubCoupaController {
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
             @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
@@ -115,7 +119,7 @@ public class HubCoupaController {
             String userEmail,
             String baseUrl,
             String routingPrefix,
-            HttpServletRequest request,
+            ServerHttpRequest request,
             String connectorAuth,
             Locale locale
     ) {
@@ -170,7 +174,7 @@ public class HubCoupaController {
             String routingPrefix,
             Locale locale,
             RequisitionDetails requestDetails,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         String requestId = requestDetails.getId();
         String reportName = requestDetails.getRequisitionLinesList().get(0).getDescription();
@@ -279,7 +283,7 @@ public class HubCoupaController {
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
-            @RequestParam(COMMENT_KEY) String comment,
+            @Valid CommentForm form,
             @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
@@ -289,7 +293,7 @@ public class HubCoupaController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        return makeCoupaRequest(comment, baseUrl, "approve", id, userEmail, getAuthHeader(connectorAuth))
+        return makeCoupaRequest(form.getComment(), baseUrl, "approve", id, userEmail, getAuthHeader(connectorAuth))
                 .map(ResponseEntity::ok);
     }
 
@@ -345,7 +349,7 @@ public class HubCoupaController {
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
-            @RequestParam(COMMENT_KEY) String comment,
+            @Valid CommentForm form,
             @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
@@ -355,7 +359,7 @@ public class HubCoupaController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        return makeCoupaRequest(comment, baseUrl, "reject", id, userEmail, getAuthHeader(connectorAuth))
+        return makeCoupaRequest(form.getComment(), baseUrl, "reject", id, userEmail, getAuthHeader(connectorAuth))
                 .map(ResponseEntity::ok);
     }
 

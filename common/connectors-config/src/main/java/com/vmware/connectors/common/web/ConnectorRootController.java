@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by harshas on 8/8/18.
@@ -28,7 +28,7 @@ public class ConnectorRootController {
     }
 
     @GetMapping(path = "/")
-    public ResponseEntity<String> getMetadata(HttpServletRequest request) {
+    public ResponseEntity<String> getMetadata(ServerHttpRequest request) {
         return ResponseEntity.ok()
                 .body(this.connectorMetadata.replace("${CONNECTOR_HOST}", CommonUtils.buildConnectorUrl(request, null)));
     }

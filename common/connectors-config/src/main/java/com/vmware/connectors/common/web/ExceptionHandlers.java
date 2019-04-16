@@ -5,27 +5,24 @@
 
 package com.vmware.connectors.common.web;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 /**
  * Created by Rob Worsnop on 4/11/17.
@@ -37,10 +34,10 @@ public class ExceptionHandlers {
 	private final static String BACKEND_STATUS = "X-Backend-Status";
 
 	// Handles validation exceptions
-	@ExceptionHandler(MethodArgumentNotValidException.class)
+	@ExceptionHandler(WebExchangeBindException.class)
 	@ResponseStatus(BAD_REQUEST)
 	@ResponseBody
-	public Map<String, Map<String, String>> handleValidationException(MethodArgumentNotValidException e) {
+	public Map<String, Map<String, String>> handleValidationException(WebExchangeBindException e) {
 		Map<String, String> errorMap = e.getBindingResult().getFieldErrors().stream()
 				.collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
 		return Collections.singletonMap("errors", errorMap);

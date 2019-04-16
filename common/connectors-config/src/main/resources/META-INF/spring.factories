@@ -1,3 +1,4 @@
 # AutoConfiguration
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.vmware.connectors.common.config.SecurityAutoConfiguration,\
 com.vmware.connectors.common.config.ConnectorsAutoConfiguration

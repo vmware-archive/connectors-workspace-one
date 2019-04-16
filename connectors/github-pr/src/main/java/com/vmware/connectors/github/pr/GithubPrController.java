@@ -7,11 +7,7 @@ package com.vmware.connectors.github.pr;
 
 import com.google.common.collect.ImmutableMap;
 import com.vmware.connectors.common.payloads.request.CardRequest;
-import com.vmware.connectors.common.payloads.response.Card;
-import com.vmware.connectors.common.payloads.response.CardAction;
-import com.vmware.connectors.common.payloads.response.CardActionInputField;
-import com.vmware.connectors.common.payloads.response.Cards;
-import com.vmware.connectors.common.payloads.response.CardActionKey;
+import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
@@ -23,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
@@ -30,7 +27,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Locale;
 import java.util.Objects;
@@ -78,7 +74,7 @@ public class GithubPrController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request
+            ServerHttpRequest request
     ) {
         logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
 
@@ -104,8 +100,7 @@ public class GithubPrController {
                             return cards;
                         }
                 )
-                .defaultIfEmpty(new Cards())
-                .subscriberContext(Reactive.setupContext());
+                .defaultIfEmpty(new Cards());
     }
 
     private UriComponents parseUri(
@@ -132,11 +127,10 @@ public class GithubPrController {
         if (uri.getPathSegments().size() != URI_SEGMENT_SIZE) {
             return null;
         }
-        PullRequestId pullRequestId = new PullRequestId();
-        pullRequestId.setOwner(uri.getPathSegments().get(0));
-        pullRequestId.setRepo(uri.getPathSegments().get(1));
-        pullRequestId.setNumber(uri.getPathSegments().get(3));
-        return pullRequestId;
+        return new PullRequestId(
+                uri.getPathSegments().get(0),
+                uri.getPathSegments().get(1),
+                uri.getPathSegments().get(3));
     }
 
     private Mono<Pair<PullRequestId, PullRequest>> fetchPullRequest(
@@ -177,7 +171,7 @@ public class GithubPrController {
             String routingPrefix,
             Pair<PullRequestId, PullRequest> info,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 
@@ -269,8 +263,11 @@ public class GithubPrController {
     public Mono<String> approve(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            PullRequestId pullRequestId
+            @PathVariable String owner,
+            @PathVariable String repo,
+            @PathVariable String number
     ) {
+        PullRequestId pullRequestId = new PullRequestId(owner, repo, number);
         logger.trace(
                 "approve called: baseUrl={}, id={}",
                 baseUrl,
@@ -292,19 +289,22 @@ public class GithubPrController {
     public Mono<String> comment(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            PullRequestId pullRequestId,
-            @RequestParam(COMMENT_PARAM_KEY) String comment
+            @PathVariable String owner,
+            @PathVariable String repo,
+            @PathVariable String number,
+            @Valid CommentForm form
     ) {
+        PullRequestId pullRequestId = new PullRequestId(owner, repo, number);
         logger.trace(
                 "comment called: baseUrl={}, id={}, comment={}",
                 baseUrl,
                 pullRequestId,
-                comment
+                form.getMessage()
         );
 
         return postReview(
                 pullRequestId,
-                Review.comment(comment),
+                Review.comment(form.getMessage()),
                 auth,
                 baseUrl
         );

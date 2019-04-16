@@ -22,6 +22,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -34,7 +35,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -105,7 +105,7 @@ public class ConcurController {
             @RequestHeader(name = ROUTING_PREFIX) final String routingPrefix,
             final Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request) {
+            ServerHttpRequest request) {
 
         logger.debug("getCards called: baseUrl={}, cardRequest={}", baseUrl, cardRequest);
 
@@ -127,7 +127,7 @@ public class ConcurController {
     private Mono<Cards> fetchCards(final String baseUrl,
                                    final String routingPrefix,
                                    final Locale locale,
-                                   final HttpServletRequest request,
+                                   final ServerHttpRequest request,
                                    final Set<String> expenseReportIds,
                                    final String oauthHeader) {
         logger.debug("fetchCards called: baseUrl={}, expenseReportIds={}", baseUrl, expenseReportIds);
@@ -136,8 +136,7 @@ public class ConcurController {
                 .flatMap(expenseReportId -> getCardForExpenseReport(expenseReportId, baseUrl, routingPrefix,
                         locale, request, oauthHeader))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
-                .defaultIfEmpty(new Cards())
-                .subscriberContext(Reactive.setupContext());
+                .defaultIfEmpty(new Cards());
     }
 
     private Mono<String> fetchOAuthToken(final String authHeader,
@@ -195,11 +194,11 @@ public class ConcurController {
     public Mono<String> approveRequest(
             @RequestHeader(name = AUTHORIZATION_HEADER) final String authHeader,
             @RequestHeader(name = BACKEND_BASE_URL_HEADER) final String baseUrl,
-            @RequestParam(name = REASON) final String reason,
+            @Valid ActionForm form,
             @PathVariable(name = ConcurConstants.PathVariable.EXPENSE_REPORT_ID) final String workflowstepId) throws IOException, ExecutionException, InterruptedException {
         logger.debug("Approving the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
 
-        return makeConcurActionRequest(baseUrl, reason, workflowstepId, authHeader, APPROVE);
+        return makeConcurActionRequest(baseUrl, form.getReason(), workflowstepId, authHeader, APPROVE);
     }
 
     @PostMapping(path = "/api/expense/reject/{expenseReportId}",
@@ -208,11 +207,11 @@ public class ConcurController {
     public Mono<String> rejectRequest(
             @RequestHeader(name = AUTHORIZATION_HEADER) final String authHeader,
             @RequestHeader(name = BACKEND_BASE_URL_HEADER) final String baseUrl,
-            @RequestParam(name = REASON) final String reason,
+            @Valid ActionForm form,
             @PathVariable(name = ConcurConstants.PathVariable.EXPENSE_REPORT_ID) final String workflowstepId) throws IOException, ExecutionException, InterruptedException {
         logger.debug("Rejecting the concur expense for the base concur URL: {} and expense report with ID: {}", baseUrl, workflowstepId);
 
-        return makeConcurActionRequest(baseUrl, reason, workflowstepId, authHeader, REJECT);
+        return makeConcurActionRequest(baseUrl, form.getReason(), workflowstepId, authHeader, REJECT);
     }
 
     private Mono<String> makeConcurActionRequest(final String baseUrl,
@@ -247,7 +246,7 @@ public class ConcurController {
                                                final String baseUrl,
                                                final String routingPrefix,
                                                final Locale locale,
-                                               final HttpServletRequest request,
+                                               final ServerHttpRequest request,
                                                final String oauthHeader) {
         logger.debug("Requesting expense request info from concur base URL: {} for ticket request id: {}", baseUrl, id);
 
@@ -280,7 +279,7 @@ public class ConcurController {
                                          final String expenseReportId,
                                          final String routingPrefix,
                                          final Locale locale,
-                                         final HttpServletRequest request) {
+                                         final ServerHttpRequest request) {
         logger.debug("convertResponseIntoCard called: expenseReportId={}", expenseReportId);
 
         final JsonDocument response = entity.getBody();

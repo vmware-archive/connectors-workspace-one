@@ -21,13 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.*;
@@ -193,7 +193,7 @@ public class SalesforceController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request
+            ServerHttpRequest request
     ) {
         // Sender email and user email are required, and sender email has to at least have a non-final @ in it
         String sender = cardRequest.getTokenSingleValue("sender_email");
@@ -212,8 +212,7 @@ public class SalesforceController {
                         user, senderDomain, locale, request))
                 .collectList()
                 .map(this::toCards)
-                .map(ResponseEntity::ok)
-                .subscriberContext(Reactive.setupContext());
+                .map(ResponseEntity::ok);
     }
 
     // Retrieve contact name, account name, and phone
@@ -237,7 +236,7 @@ public class SalesforceController {
             String userEmail,
             String senderDomain,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         int contactsSize = contactDetails.read("$.totalSize");
         if (contactsSize > 0) {
@@ -260,7 +259,7 @@ public class SalesforceController {
                                          String auth,
                                          String routingPrefix,
                                          Locale locale,
-                                         HttpServletRequest request,
+                                         ServerHttpRequest request,
                                          String userEmail) {
 
         Flux<Card> userDetailCard = Flux.just(createUserDetailsCard(contactDetails, routingPrefix, locale, request));
@@ -306,7 +305,7 @@ public class SalesforceController {
     private Flux<Card> createOpportunityCards(JsonDocument opportunities,
                                               String routingPrefix,
                                               Locale locale,
-                                              HttpServletRequest request,
+                                              ServerHttpRequest request,
                                               String userEmail) {
 
         final int oppCount = opportunities.read("$.totalSize");
@@ -441,7 +440,7 @@ public class SalesforceController {
             JsonDocument contactDetails,
             String routingPrefix,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         String contactName = contactDetails.read("$.records[0].Name");
         String contactPhNo = contactDetails.read("$.records[0].MobilePhone");
@@ -690,10 +689,7 @@ public class SalesforceController {
             @RequestHeader(SALESFORCE_AUTH_HEADER) String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
             @PathVariable("accountId") String accountId,
-            @RequestParam("contact_email") String contactEmail,
-            @RequestParam(name = "first_name", required = false) String firstName,
-            @RequestParam("last_name") String lastName,
-            @RequestParam(name = "opportunity_ids", required = false) Set<String> opportunityIds
+            @Valid AddContactForm form
     ) {
         /*
          * Once we start using salesforce API version 34, following things can be done in a single network call.
@@ -701,8 +697,8 @@ public class SalesforceController {
          *  - Link Opportunities to the contact (from 1-n).
          * More : https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_composite_sobject_tree_flat.htm
          */
-        return addContact(auth, baseUrl, accountId, contactEmail, lastName, firstName)
-                .flatMap(entity -> linkOpportunitiesToContact(entity, opportunityIds, baseUrl, auth))
+        return addContact(auth, baseUrl, accountId, form.getContactEmail(), form.getLastName(), form.getFirstName())
+                .flatMap(entity -> linkOpportunitiesToContact(entity, form.getOpportunityIds(), baseUrl, auth))
                 .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
     }
 
@@ -783,10 +779,10 @@ public class SalesforceController {
             @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
             @PathVariable(OPPORTUNITY_ID) final String opportunityId,
-            @RequestParam("closedate") final String closeDate) {
+            @Valid UpdateCloseDateForm form) {
 
         // CloseDate should in the format "YYYY-MM-DD".
-        final Map<String, String> body = ImmutableMap.of("CloseDate", closeDate);
+        final Map<String, String> body = ImmutableMap.of("CloseDate", form.getCloseDate());
 
         return updateOpportunityField(baseUrl, auth, opportunityId, body);
     }
@@ -799,10 +795,10 @@ public class SalesforceController {
             @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
             @PathVariable(OPPORTUNITY_ID) final String opportunityId,
-            @RequestParam("nextstep") final String nextStep
+            @Valid UpdateNextStepForm form
     ) {
 
-        final Map<String, String> body = ImmutableMap.of("NextStep", nextStep);
+        final Map<String, String> body = ImmutableMap.of("NextStep", form.getNextStep());
 
         return updateOpportunityField(baseUrl, auth, opportunityId, body);
     }

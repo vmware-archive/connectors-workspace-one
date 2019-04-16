@@ -16,9 +16,15 @@ import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
  */
 public class MergeRequestId {
 
-    private String namespace;
-    private String projectName;
-    private String number;
+    private final String namespace;
+    private final String projectName;
+    private final String number;
+
+    public MergeRequestId(String namespace, String projectName, String number) {
+        this.namespace = namespace;
+        this.projectName = projectName;
+        this.number = number;
+    }
 
     public String getProjectId() {
         return namespace + "%2F" + projectName;
@@ -28,24 +34,12 @@ public class MergeRequestId {
         return namespace;
     }
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
-
     public String getProjectName() {
         return projectName;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
     public String getNumber() {
         return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
     }
 
     @Override
