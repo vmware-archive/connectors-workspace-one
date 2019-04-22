@@ -5,23 +5,12 @@
 
 package com.vmware.connectors.concur;
 
-import com.vmware.connectors.common.payloads.response.Card;
-import com.vmware.connectors.common.payloads.response.CardAction;
-import com.vmware.connectors.common.payloads.response.CardActionInputField;
-import com.vmware.connectors.common.payloads.response.CardActionKey;
-import com.vmware.connectors.common.payloads.response.CardBody;
-import com.vmware.connectors.common.payloads.response.CardBodyField;
-import com.vmware.connectors.common.payloads.response.CardBodyFieldType;
-import com.vmware.connectors.common.payloads.response.Cards;
+import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.web.UserException;
-import com.vmware.connectors.concur.domain.ExpenseReportResponse;
-import com.vmware.connectors.concur.domain.PendingApprovalResponse;
-import com.vmware.connectors.concur.domain.PendingApprovalsVO;
-import com.vmware.connectors.concur.domain.UserDetailsResponse;
-import com.vmware.connectors.concur.domain.UserDetailsVO;
+import com.vmware.connectors.concur.domain.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,27 +20,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.HtmlUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_XML;
+import static org.springframework.http.MediaType.*;
 
 @RestController
 public class HubConcurController {
@@ -97,7 +83,7 @@ public class HubConcurController {
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
             @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("getCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
@@ -131,7 +117,7 @@ public class HubConcurController {
             String baseUrl,
             Locale locale,
             String routingPrefix,
-            HttpServletRequest request,
+            ServerHttpRequest request,
             String userEmail,
             String connectorAuth
     ) {
@@ -196,7 +182,7 @@ public class HubConcurController {
             String routingPrefix,
             Locale locale,
             ExpenseReportResponse report,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         String reportId = report.getReportID();
         String reportName = report.getReportName();
@@ -245,7 +231,7 @@ public class HubConcurController {
         return String.format(
                 "%s %s",
                 currencyCode,
-                NumberFormat.getNumberInstance(locale).format(Double.parseDouble(amount))
+                NumberFormat.getNumberInstance(locale ==  null? Locale.getDefault() : locale).format(Double.parseDouble(amount))
         );
     }
 
@@ -294,16 +280,16 @@ public class HubConcurController {
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             @PathVariable("id") String id,
-            @RequestParam(COMMENT_KEY) String comment
-    ) {
-        logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, comment);
+            @Valid CommentForm form
+            ) {
+        logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, form.getComment());
 
         if (isServiceAccountCredentialEmpty(connectorAuth)) {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return makeConcurRequest(comment, baseUrl, APPROVE, id, userEmail, getAuthHeader(connectorAuth))
+        return makeConcurRequest(form.getComment(), baseUrl, APPROVE, id, userEmail, getAuthHeader(connectorAuth))
                 .map(ResponseEntity::ok);
     }
 
@@ -371,16 +357,16 @@ public class HubConcurController {
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             @PathVariable("id") String id,
-            @RequestParam(REASON_KEY) String reason
+            @Valid DeclineForm form
     ) {
-        logger.debug("declineRequest called: baseUrl={}, id={}, reason={}", baseUrl, id, reason);
+        logger.debug("declineRequest called: baseUrl={}, id={}, reason={}", baseUrl, id, form.getReason());
 
         if (isServiceAccountCredentialEmpty(connectorAuth)) {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return makeConcurRequest(reason, baseUrl, REJECT, id, userEmail, getAuthHeader(connectorAuth))
+        return makeConcurRequest(form.getReason(), baseUrl, REJECT, id, userEmail, getAuthHeader(connectorAuth))
                 .map(ResponseEntity::ok);
     }
 

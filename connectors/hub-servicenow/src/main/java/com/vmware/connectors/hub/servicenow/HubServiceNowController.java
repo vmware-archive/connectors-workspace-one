@@ -23,7 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
+import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -86,7 +86,7 @@ public class HubServiceNowController {
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
             final Locale locale
-    ) throws IOException {
+    ) {
         logger.trace("getCards called, baseUrl={}, routingPrefix={}", baseUrl, routingPrefix);
 
         final String userEmail = AuthUtil.extractUserEmail(authorization);
@@ -109,8 +109,7 @@ public class HubServiceNowController {
                         new Cards(),
                         (cards, info) -> appendCard(cards, info, routingPrefix, locale)
                 )
-                .doOnEach(Reactive.wrapForItem(cards -> logger.trace("Returning cards: {}", cards)))
-                .subscriberContext(Reactive.setupContext());
+                .doOnEach(Reactive.wrapForItem(cards -> logger.trace("Returning cards: {}", cards)));
     }
 
     private Mono<String> callForUserSysId(
@@ -494,9 +493,9 @@ public class HubServiceNowController {
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @PathVariable("requestSysId") String requestSysId,
-            @RequestParam(REASON_PARAM_KEY) String reason
+            @Valid RejectForm form
     ) {
-        return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, reason);
+        return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, form.getReason());
     }
 
 }

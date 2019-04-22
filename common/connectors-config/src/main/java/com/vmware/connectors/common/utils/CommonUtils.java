@@ -3,10 +3,8 @@ package com.vmware.connectors.common.utils;
 import com.vmware.connectors.common.payloads.response.Card;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpRequest;
-import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Common utility functions to be used across connectors parent.
@@ -21,7 +19,7 @@ public final class CommonUtils {
         // Utility class.
     }
 
-    public static void buildConnectorImageUrl(final Card.Builder card, final HttpServletRequest request) {
+    public static void buildConnectorImageUrl(final Card.Builder card, final ServerHttpRequest request) {
         final String uri = buildConnectorImageUrl(request);
 
         if (StringUtils.isNotBlank(uri)) {
@@ -33,16 +31,7 @@ public final class CommonUtils {
         return buildConnectorUrl(request, DEFAULT_IMAGE_PATH);
     }
 
-    public static String buildConnectorImageUrl(final HttpServletRequest request) {
-        return buildConnectorUrl(request, DEFAULT_IMAGE_PATH);
-    }
-
     public static String buildConnectorUrl(final HttpRequest request, final String path) {
         return UriComponentsBuilder.fromHttpRequest(request).replacePath(path).build().toString();
     }
-
-    public static String buildConnectorUrl(final HttpServletRequest request, final String path) {
-        return buildConnectorUrl(new ServletServerHttpRequest(request), path);
-    }
-
 }

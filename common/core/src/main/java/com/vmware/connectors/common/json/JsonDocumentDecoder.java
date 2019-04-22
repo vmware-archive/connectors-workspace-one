@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.hateoas.MediaTypes.HAL_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 public class JsonDocumentDecoder implements HttpMessageDecoder<JsonDocument> {
@@ -60,7 +59,7 @@ public class JsonDocumentDecoder implements HttpMessageDecoder<JsonDocument> {
 
     @Override
     public List<MimeType> getDecodableMimeTypes() {
-        return Arrays.asList(APPLICATION_JSON, HAL_JSON);
+        return Arrays.asList(APPLICATION_JSON, MediaType.valueOf("application/hal+json"));
     }
 
     private static Flux<String> toString(DataBuffer buffer, Charset charset) {

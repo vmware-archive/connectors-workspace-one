@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.support.TestPropertySourceUtils;
@@ -39,7 +40,6 @@ import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.springframework.hateoas.MediaTypes.HAL_JSON_UTF8;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
@@ -55,6 +55,8 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 @TestPropertySource(locations = {"classpath:app.properties"})
 @ContextConfiguration(initializers = AirWatchControllerTest.CustomInitializer.class)
 class AirWatchControllerTest extends ControllerTestsBase {
+
+    private static final MediaType HAL_JSON_UTF8 = MediaType.valueOf("application/hal+json;charset=UTF-8");
 
     @Value("classpath:airwatch/responses/awAppInstalled.json")
     private Resource awAppInstalled;

@@ -18,12 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.Locale;
@@ -85,7 +85,7 @@ public class BitbucketServerController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         logger.debug("Cards requests for bitbucket server connector - baseUrlHeader: {}, routingPrefix: {}", baseUrl, routingPrefix);
 
@@ -98,8 +98,7 @@ public class BitbucketServerController {
         return Flux.fromIterable(pullRequests)
                 .flatMap(pullRequest -> getCardForPr(authHeader, pullRequest, baseUrl, routingPrefix, locale, request))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
-                .defaultIfEmpty(new Cards())
-                .subscriberContext(Reactive.setupContext());
+                .defaultIfEmpty(new Cards());
     }
 
     private Set<BitbucketServerPullRequest> convertToProjectRepoPr(
@@ -149,7 +148,7 @@ public class BitbucketServerController {
             String baseUrl,
             String routingPrefix,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         logger.debug("Requesting pull request info from bitbucket server base url: {} and pull request info: {}", baseUrl, pullRequest);
 
@@ -191,7 +190,7 @@ public class BitbucketServerController {
             BitbucketServerPullRequest pullRequest,
             String routingPrefix,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         Card.Builder card = new Card.Builder()
                 .setHeader(
@@ -266,16 +265,15 @@ public class BitbucketServerController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
     public Mono<String> approve(
-            @RequestParam(name = USER_PARAM_KEY, required = false) String user,
-            @RequestParam(name = PROJECT_PARAM_KEY, required = false) String project,
+            @Valid ApprovalForm form,
             @PathVariable("repositorySlug") String repositorySlug,
             @PathVariable("pullRequestId") String pullRequestId,
             @RequestHeader(AUTH_HEADER) String authHeader,
             @RequestHeader(BASE_URL_HEADER) String baseUrl
     ) {
         BitbucketServerPullRequest pullRequest = new BitbucketServerPullRequest(
-                user,
-                project,
+                form.getUser(),
+                form.getProject(),
                 repositorySlug,
                 pullRequestId
         );
@@ -337,24 +335,22 @@ public class BitbucketServerController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
     public Mono<ResponseEntity<String>> comments(
-            @RequestParam(name = USER_PARAM_KEY, required = false) String user,
-            @RequestParam(name = PROJECT_PARAM_KEY, required = false) String project,
+            @Valid CommentForm form,
             @PathVariable("repositorySlug") String repositorySlug,
             @PathVariable("pullRequestId") String pullRequestId,
-            @RequestParam(COMMENT_PARAM_KEY) String comment,
             @RequestHeader(AUTH_HEADER) String authHeader,
             @RequestHeader(BASE_URL_HEADER) String baseUrl
     ) {
         BitbucketServerPullRequest pullRequest = new BitbucketServerPullRequest(
-                user,
-                project,
+                form.getUser(),
+                form.getProject(),
                 repositorySlug,
                 pullRequestId
         );
 
         logger.debug("Comment ACTION for bitbucket server pull request: {}, baseURL: {}", pullRequest, baseUrl);
 
-        Map<String, String> payload = Map.of("text", comment);
+        Map<String, String> payload = Map.of("text", form.getComment());
 
         return rest.post()
                 .uri(

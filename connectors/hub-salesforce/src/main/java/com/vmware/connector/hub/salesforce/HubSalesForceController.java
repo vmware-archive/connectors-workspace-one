@@ -20,11 +20,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -102,8 +106,7 @@ public class HubSalesForceController {
                 .flatMapMany(Reactive.wrapFlatMapMany(result -> processWorkItemResult(result, baseUrl, connectorAuth, locale, routingPrefix)))
                 .collectList()
                 .map(this::toCards)
-                .map(ResponseEntity::ok)
-                .subscriberContext(Reactive.setupContext());
+                .map(ResponseEntity::ok);
     }
 
     @PostMapping(
@@ -113,12 +116,12 @@ public class HubSalesForceController {
     public Mono<Void> approveWorkFlow(
             @RequestHeader(AUTH_HEADER) final String connectorAuth,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
-            @RequestParam(REASON) final String comment,
+            @Valid ActionForm form,
             @PathVariable("userId") final String userId
     ) {
         final ApprovalRequest request = new ApprovalRequest();
         request.setActionType(ApprovalRequestType.APPROVE.getType());
-        request.setComment(comment);
+        request.setComment(form.getReason());
         request.setContextId(userId);
 
         final ApprovalRequests requests = new ApprovalRequests();
@@ -140,12 +143,12 @@ public class HubSalesForceController {
     public Mono<Void> rejectWorkFlow(
             @RequestHeader(AUTH_HEADER) final String connectorAuth,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
-            @RequestParam(REASON) final String reason,
+            @Valid ActionForm form,
             @PathVariable("userId") final String userId
     ) {
         final ApprovalRequest request = new ApprovalRequest();
         request.setContextId(userId);
-        request.setComment(reason);
+        request.setComment(form.getReason());
         request.setActionType(ApprovalRequestType.REJECT.getType());
 
         final ApprovalRequests requests = new ApprovalRequests();

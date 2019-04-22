@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -79,7 +79,7 @@ public class AwsCertController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             final Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request
+            final ServerHttpRequest request
     ) {
         logger.trace("getCards called, routingPrefix={}, request={}", routingPrefix, cardRequest);
 
@@ -93,8 +93,7 @@ public class AwsCertController {
                         new Cards(),
                         (cards, info) -> appendCard(cards, info, routingPrefix, locale, request)
                 )
-                .defaultIfEmpty(new Cards())
-                .subscriberContext(Reactive.setupContext());
+                .defaultIfEmpty(new Cards());
     }
 
     private Stream<String> validateUrls(Set<String> approvalUrls) {
@@ -228,7 +227,7 @@ public class AwsCertController {
                              AwsCertCardInfo info,
                              String routingPrefix,
                              Locale locale,
-                             HttpServletRequest request) {
+                             ServerHttpRequest request) {
         logger.trace("appendCard called: info={}, routingPrefix={}", info, routingPrefix);
 
         cards.getCards()
@@ -241,7 +240,7 @@ public class AwsCertController {
             AwsCertCardInfo info,
             String routingPrefix,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         logger.trace("makeCard called: info={}, routingPrefix={}", info, routingPrefix);
 
@@ -331,11 +330,11 @@ public class AwsCertController {
             consumes = APPLICATION_FORM_URLENCODED_VALUE
     )
     public Mono<ResponseEntity<String>> approve(
-            @RequestParam Map<String, String> params
+            @RequestAttribute MultiValueMap<String, String> form
     ) {
-        logger.trace("approve called: params={}", params);
+        logger.trace("approve called: params={}", form);
 
-        String approvalUrl = params.get(APPROVAL_URL_PARAM);
+        String approvalUrl = form.getFirst(APPROVAL_URL_PARAM);
 
         if (!validateUrl(approvalUrl)) {
             return Mono.just(ResponseEntity.badRequest().body("Bad url: " + approvalUrl));
@@ -343,7 +342,7 @@ public class AwsCertController {
 
         MultiValueMap<String, String> formParams = new LinkedMultiValueMap<>();
 
-        params.entrySet()
+        form.toSingleValueMap().entrySet()
                 .stream()
                 .filter(entry -> !entry.getKey().equals(APPROVAL_URL_PARAM))
                 .forEach(kvp -> formParams.add(kvp.getKey(), kvp.getValue()));

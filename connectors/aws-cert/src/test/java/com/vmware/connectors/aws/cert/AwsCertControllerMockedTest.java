@@ -22,12 +22,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mock.http.client.reactive.MockClientHttpResponse;
-import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
@@ -89,8 +91,9 @@ public class AwsCertControllerMockedTest {
                     .thenReturn(Mono.just(new MockClientHttpResponse(HttpStatus.OK)));
         }
 
-        Map<String, String> params = Collections.singletonMap("hero_aws_cert_approval_url", approvalUrl);
-        ResponseEntity<String> response = controller.approve(params).block();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        form.set("hero_aws_cert_approval_url", approvalUrl);
+        ResponseEntity<String> response = controller.approve(form).block();
         assertThat(response.getStatusCode().value(), equalTo(status));
 
         if (status == HttpStatus.OK.value()) {
@@ -119,7 +122,7 @@ public class AwsCertControllerMockedTest {
 
         Map<String, Set<String>> tokens = Collections.singletonMap("approval_urls", approvalUrls);
         CardRequest cardRequest = new CardRequest(tokens);
-        HttpServletRequest servletRequest = new MockHttpServletRequest();
+        ServerHttpRequest servletRequest = MockServerHttpRequest.post("/cards/requests").build();
 
         Cards cards = controller.getCards("https://hero/connectors/aws", null, cardRequest, servletRequest).block();
 

@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.text.ParseException;
@@ -157,8 +156,7 @@ public class TestDriveSalesforceController {
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
-            @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request) {
+            @Valid @RequestBody CardRequest cardRequest) {
 
         // Sender email and user email are required, and sender email has to at least have a non-final @ in it
         final String sender = cardRequest.getTokenSingleValue("sender_email");
@@ -180,8 +178,7 @@ public class TestDriveSalesforceController {
                 .map(opportunity -> buildCardForRelatedOpportunity(routingPrefix, locale, opportunity))
                 .collectList()
                 .map(this::toCards)
-                .map(ResponseEntity::ok)
-                .subscriberContext(Reactive.setupContext());
+                .map(ResponseEntity::ok);
     }
 
     // Get a list of relevant opportunity ID's
@@ -390,19 +387,19 @@ public class TestDriveSalesforceController {
             @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
             @PathVariable(OPPORTUNITY_ID) final String opportunityId,
-            @RequestParam(QUERY_PARAM_CLOSEDATE) final String closeDate) {
+            @Valid UpdateCloseDateForm form) {
 
         // CloseDate should in the format "YYYY-MM-DD".
         try {
             // We don't need the parsed Date itself, we just need to verify that it's parseable
             @SuppressWarnings("PMD.UnusedLocalVariable")
-            Date cd = closeDateParser.parse(closeDate);
+            Date cd = closeDateParser.parse(form.getCloseDate());
         } catch (ParseException e) {
-            String msg = "<<" + closeDate + ">> is not a valid yyyy-MM-dd date";
+            String msg = "<<" + form.getCloseDate() + ">> is not a valid yyyy-MM-dd date";
             return Mono.just(ResponseEntity.badRequest().body(wrapErrorMessage(msg)));
         }
 
-        final Map<String, String> body = Map.of("CloseDate", closeDate);
+        final Map<String, String> body = Map.of("CloseDate", form.getCloseDate());
 
         return updateOpportunityField(baseUrl, auth, opportunityId, body);
     }
@@ -417,17 +414,8 @@ public class TestDriveSalesforceController {
             @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
             @PathVariable(OPPORTUNITY_ID) final String opportunityId,
-            @RequestParam(QUERY_PARAM_DEALSIZE) final String newAmountStr) {
-
-        int newAmount;
-        try {
-            newAmount = Integer.parseInt(newAmountStr);
-        } catch (NumberFormatException e) {
-            String msg = "<<" + newAmountStr + ">> is not a number";
-            return Mono.just(ResponseEntity.badRequest().body(wrapErrorMessage(msg)));
-        }
-
-        final Map<String, String> body = Map.of("Amount", String.valueOf(newAmount));
+            @Valid UpdateDealSizeForm form) {
+        final Map<String, String> body = Map.of("Amount", String.valueOf(form.getAmount()));
 
         return updateOpportunityField(baseUrl, auth, opportunityId, body);
     }
@@ -442,18 +430,16 @@ public class TestDriveSalesforceController {
             @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
             @PathVariable(OPPORTUNITY_ID) final String opportunityId,
-            @RequestParam(QUERY_PARAM_NEXTSTEP) final String nextStep,
-            @RequestParam(value = QUERY_PARAM_NEXTSTEP_PREVIOUS_VALUE, required = false)
-                          final String previousNextStepText) {
+            @Valid UpdateNextStepForm form) {
 
-        if (StringUtils.isBlank(nextStep)) {
+        if (StringUtils.isBlank(form.getNextStep())) {
             String msg = "Next step missing";
             return Mono.just(ResponseEntity.badRequest().body(wrapErrorMessage(msg)));
 
         } else {
-            String newNextStep = mmddDatePrinter.format(new Date()) + ": " + nextStep;
-            if (StringUtils.isNotBlank(previousNextStepText)) {
-                newNextStep = newNextStep + "\n" + previousNextStepText;
+            String newNextStep = mmddDatePrinter.format(new Date()) + ": " + form.getNextStep();
+            if (StringUtils.isNotBlank(form.getNextStepPreviousValue())) {
+                newNextStep = newNextStep + "\n" + form.getNextStepPreviousValue();
             }
 
             Map<String, String> body = Map.of("NextStep", newNextStep);
