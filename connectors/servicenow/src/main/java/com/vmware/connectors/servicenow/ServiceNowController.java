@@ -15,6 +15,7 @@ import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.utils.Reactive;
 import com.vmware.connectors.servicenow.domain.*;
+import com.vmware.connectors.servicenow.util.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.units.qual.s;
 import org.slf4j.Logger;
@@ -562,7 +563,7 @@ public class ServiceNowController {
     }
 
     @PostMapping(
-            path="/api/v1/items/",
+            path = "/api/v1/items/",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
@@ -587,7 +588,7 @@ public class ServiceNowController {
                 ;
     }
 
-    private Mono<String>getIDFrom(String endpoint, String title, String auth, String baseUrl) {
+    private Mono<String> getIDFrom(String endpoint, String title, String auth, String baseUrl) {
         String cacheResult = cache.get("getItems: " + endpoint + title + baseUrl);
         if (cacheResult == null) {
             return getIDFromAPI(endpoint, title, auth, baseUrl);
@@ -597,7 +598,7 @@ public class ServiceNowController {
     }
 
     //returns id of service catalog
-    private Mono<String>getIDFromAPI(String endpoint, String title, String auth, String baseUrl) {
+    private Mono<String> getIDFromAPI(String endpoint, String title, String auth, String baseUrl) {
         return rest.get()
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
@@ -642,8 +643,8 @@ public class ServiceNowController {
                             try {
                                 JsonNode node = new ObjectMapper().readTree(s.read(this.RESULT_PREFIX + "[*]").toString());
                                 return new ItemsResponse(node, baseUrl);
-                            } catch(IOException exe) {
-                                logger.error("getItemsRequest() -> readTree() -> {}" , exe.getMessage());
+                            } catch (IOException exe) {
+                                logger.error("getItemsRequest() -> readTree() -> {}", exe.getMessage());
                             }
 
                             return null;
@@ -665,12 +666,12 @@ public class ServiceNowController {
         logger.trace("getTasks called: baseUrl={}, taskKey={}", baseUrl, ticketType);
 
         return this.getTasksRequest("/api/now/table/" + ticketType, baseUrl, auth, limit, offset);
-        }
+    }
 
     private Mono<TasksResponse> getTasksRequest(String endpoint, String baseUrl, String auth, String limit, String offset) {
-            logger.trace("getTasksRequest called: baseUrl={}", endpoint);
+        logger.trace("getTasksRequest called: baseUrl={}", endpoint);
 
-            return rest.get()
+        return rest.get()
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
                         .path(endpoint)
@@ -682,12 +683,79 @@ public class ServiceNowController {
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .map(s -> {
+                    try {
+                        JsonNode node = new ObjectMapper().readTree(s.read(this.RESULT_PREFIX + "[*]").toString());
+                        TasksResponse foo = new TasksResponse(node);
+                        return foo;
+                    } catch (IOException exe) {
+                        logger.error("getTasksRequest() -> readTree() -> {}", exe.getMessage());
+                    }
+
+                    return null;
+                });
+    }
+
+
+    @PostMapping(
+            path = "/api/v1/ticket/{ticketType}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<TaskDetailsResponse> createTicket(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @PathVariable("ticketType") TaskKey ticketType,
+            @Valid @RequestBody CardRequest cardRequest) {
+
+        logger.trace("createTask called: baseUrl={}, ticketType={}", baseUrl, ticketType);
+
+        final String detailsJson = cardRequest.getTokenSingleValue("details");
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            Map<String, String> jsonMap = mapper.convertValue(mapper.readTree(detailsJson), Map.class);
+
+            return this.createTaskRequest("/api/now/table/" + ticketType, baseUrl, auth, jsonMap);
+
+        } catch (IOException e) {
+            logger.error("json parsing failed -> {} ", detailsJson);
+        }
+
+        return null;
+    }
+
+    private Mono<TaskDetailsResponse> createTaskRequest(String endpoint, String baseUrl, String auth, Map<String, String> taskDetails) {
+        logger.trace("createTaskRequest called: baseUrl={}", endpoint);
+
+        ImmutableMap.Builder<String, String> body = new ImmutableMap.Builder<String, String>()
+                .putAll(taskDetails);
+
+        return rest.post()
+                .uri(UriComponentsBuilder
+                        .fromHttpUrl(baseUrl)
+                        .path(endpoint)
+                        .encode()
+                        .toUriString()
+                )
+                .header(AUTHORIZATION, auth)
+                .syncBody(body.build())
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(s -> {
                         try {
-                                JsonNode node = new ObjectMapper().readTree(s.read(this.RESULT_PREFIX + "[*]").toString());
-                                TasksResponse foo = new TasksResponse(node);
-                                return foo;
-                        } catch(IOException exe) {
-                                logger.error("getTasksRequest() -> readTree() -> {}" , exe.getMessage());
+                            logger.trace("createTaskRequest() -> map result : {}", s.toString());
+
+                            //JsonNode node = new ObjectMapper().readTree(s.read("$.result").toString());
+                            LinkedHashMap<String, Object> keyVals = s.read("$.result");
+
+                            String resultResponse = JsonUtil.readJsonFromMap(keyVals);
+
+                            JsonNode node = new ObjectMapper().readTree(resultResponse);
+                            TaskDetailsResponse detailsResponse = new TaskDetailsResponse(node);
+                            return detailsResponse;
+                        } catch (IOException exe) {
+                            logger.error("createTaskRequest() -> readTree() -> {}", exe.getMessage());
                         }
 
                         return null;
@@ -703,7 +771,7 @@ public class ServiceNowController {
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @PathVariable("ticketType") TaskKey ticketType,
             @PathVariable("ticketNumber") String ticketNumber) {
-                
+
         logger.trace("getTaskDetails called: baseUrl={}, ticketType={}, ticketNumber={}", baseUrl, ticketType, ticketNumber);
 
         String ticketNumberField = "number=";
@@ -712,9 +780,9 @@ public class ServiceNowController {
     }
 
     private Mono<TaskDetailsResponse> getTaskDetailsRequest(String endpoint, String baseUrl, String auth, String query) {
-            logger.trace("getTaskDetailsRequest called: baseUrl={}", endpoint);        
+        logger.trace("getTaskDetailsRequest called: baseUrl={}", endpoint);
 
-            return rest.get()
+        return rest.get()
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
                         .path(endpoint)
@@ -725,31 +793,31 @@ public class ServiceNowController {
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .map(s -> {
-                        try {
-                                logger.trace("getTaskDetailsResponse -> {}" , s.toString());
-                                JsonNode node = new ObjectMapper().readTree(s.read("$.result").toString());
-                                // LinkedHashMap<String, String> keyVals = s.read("$.result");
+                    try {
+                        logger.trace("getTaskDetailsResponse -> {}", s.toString());
+                        JsonNode node = new ObjectMapper().readTree(s.read("$.result").toString());
+                        // LinkedHashMap<String, String> keyVals = s.read("$.result");
 
-                                // String resultResponse = "{";
-                                // for (Entry<String, String> keyVal : keyVals.entrySet()) {
-                                //     resultResponse = resultResponse + "\"" + keyVal.getKey() + "\"" + ":" + "\"" + keyVal.getValue() + "\",";
-                                // }
+                        // String resultResponse = "{";
+                        // for (Entry<String, String> keyVal : keyVals.entrySet()) {
+                        //     resultResponse = resultResponse + "\"" + keyVal.getKey() + "\"" + ":" + "\"" + keyVal.getValue() + "\",";
+                        // }
 
-                                // resultResponse = resultResponse.substring(0, resultResponse.length()-1) + "}";
+                        // resultResponse = resultResponse.substring(0, resultResponse.length()-1) + "}";
 
-                                // JsonNode node = new ObjectMapper().readTree(resultResponse);
+                        // JsonNode node = new ObjectMapper().readTree(resultResponse);
 
-                                return new TaskDetailsResponse(node);
-                        } catch(IOException exe) {
-                                logger.error("getTaskDetailsRequest() -> readTree() -> {}" , exe.getMessage());
-                        }
-                
-                return null;
+                        return new TaskDetailsResponse(node);
+                    } catch (IOException exe) {
+                        logger.error("getTaskDetailsRequest() -> readTree() -> {}", exe.getMessage());
+                    }
+
+                    return null;
                 });
     }
 
     @PostMapping(
-            path="/api/v1/checkout",
+            path = "/api/v1/checkout",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     public Mono<CheckoutResponse> checkout(
@@ -763,47 +831,46 @@ public class ServiceNowController {
     }
 
     @PutMapping(
-        path="/api/v1/cart",
-        consumes = MediaType.APPLICATION_JSON_VALUE
+            path = "/api/v1/cart",
+            consumes = MediaType.APPLICATION_JSON_VALUE
     )
     // add to cart request
     public Mono<AddToCartResponse> addToCart(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @Valid @RequestBody CardRequest cardRequest) {
-        
+
         logger.trace("addToCart calledf: baseUrl={}, itemsMap={}", baseUrl, cardRequest.toString());
 
         // get the list of items from the cards request
         final String itemsMapJson = cardRequest.getTokenSingleValue("itemsMap");
 
         try {
-                ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = new ObjectMapper();
 
-                Map<String, String> jsonMap = mapper.convertValue(mapper.readTree(itemsMapJson), Map.class);
+            Map<String, String> jsonMap = mapper.convertValue(mapper.readTree(itemsMapJson), Map.class);
 
-                // convert items to a stream
-                var itemsStream = Flux.fromStream(jsonMap.entrySet().stream());                
-                // map the items stream to a carts request
-                return itemsStream.flatMap(item ->
+            // convert items to a stream
+            var itemsStream = Flux.fromStream(jsonMap.entrySet().stream());
+            // map the items stream to a carts request
+            return itemsStream.flatMap(item ->
                     this.addToCartRequest(item.getKey(), item.getValue(), auth, baseUrl))
                     .map(s -> new AbstractMap.SimpleEntry<Integer, AddToCartResponse>(s.getItems().size(), s))
-                    .reduce((s,v) -> {
+                    .reduce((s, v) -> {
                         if (s.getKey() > v.getKey()) {
                             return s;
-                        }
-                        else {
+                        } else {
                             return v;
                         }
                     })
                     .map(s -> s.getValue());
 
         } catch (IOException e) {
-                logger.error("json parsing failed -> {} " , itemsMapJson);
+            logger.error("json parsing failed -> {} ", itemsMapJson);
         }
 
         return null;
-     }
+    }
 
     private Mono<AddToCartResponse> addToCartRequest(String itemId, String quantity, String auth, String baseUrl) {
 
@@ -815,7 +882,7 @@ public class ServiceNowController {
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
                         .path(ServiceNowController.SNOW_ADD_TO_CART_ENDPOINT)
-                        .buildAndExpand(ImmutableMap.of("item_id" , itemId))
+                        .buildAndExpand(ImmutableMap.of("item_id", itemId))
                         .encode()
                         .toUri()
                 )
@@ -824,25 +891,25 @@ public class ServiceNowController {
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .map(s -> {
-                        AddToCartResponse cartResponse = new AddToCartResponse(s);
-                        logger.trace("addToCartRequest() -> map result : {}", cartResponse.toString());
-                        return cartResponse;
-                    });
+                    AddToCartResponse cartResponse = new AddToCartResponse(s);
+                    logger.trace("addToCartRequest() -> map result : {}", cartResponse.toString());
+                    return cartResponse;
+                });
     }
 
     @DeleteMapping(
-        path="/api/v1/cart/{cart_item_id}",
-        consumes = MediaType.APPLICATION_JSON_VALUE
+            path = "/api/v1/cart/{cart_item_id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE
     )
     public Mono<String> deleteFromCart(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @PathVariable("cart_item_id") String cartItemId) {
-        
+
         logger.trace("deleteToCart called: baseUrl={}, itemId={}", baseUrl, cartItemId);
-        
+
         return this.deleteFromCartRequest(cartItemId, auth, baseUrl);
-     }
+    }
 
     private Mono<String> deleteFromCartRequest(String cartItemId, String auth, String baseUrl) {
 
@@ -851,7 +918,7 @@ public class ServiceNowController {
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
                         .path(ServiceNowController.SNOW_DELETE_CART_ENDPOINT)
-                        .buildAndExpand(ImmutableMap.of("cart_item_id" , cartItemId))
+                        .buildAndExpand(ImmutableMap.of("cart_item_id", cartItemId))
                         .encode()
                         .toUriString()
                 )
@@ -877,15 +944,15 @@ public class ServiceNowController {
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .map(s -> {
-                        CheckoutResponse checkoutResult = new CheckoutResponse(s);
-                        logger.trace("checkoutRequest() -> map result : {}", checkoutResult.toString());
-                        return checkoutResult;
+                    CheckoutResponse checkoutResult = new CheckoutResponse(s);
+                    logger.trace("checkoutRequest() -> map result : {}", checkoutResult.toString());
+                    return checkoutResult;
                 })
                 ;
     }
 
     @GetMapping(
-            path="/api/v1/cart/",
+            path = "/api/v1/cart/",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public Mono<GetCartResponse> lookupCart(
@@ -895,7 +962,7 @@ public class ServiceNowController {
     }
 
     private Mono<GetCartResponse> lookupCartRequest(String endpoint, String auth, String baseUrl) {
-            logger.trace("lookupCartRequest called: baseUrl={}", baseUrl);
+        logger.trace("lookupCartRequest called: baseUrl={}", baseUrl);
         return rest.get()
                 .uri(UriComponentsBuilder
                         .fromHttpUrl(baseUrl)
@@ -903,11 +970,11 @@ public class ServiceNowController {
                         .encode()
                         .toUriString()
                 )
-                        .header(AUTHORIZATION, auth)
+                .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .map(s -> {
-                    logger.trace("cartRequest response -> {}" , s);
+                    logger.trace("cartRequest response -> {}", s);
                     GetCartResponse response = new GetCartResponse(s);
                     return response;
                 });

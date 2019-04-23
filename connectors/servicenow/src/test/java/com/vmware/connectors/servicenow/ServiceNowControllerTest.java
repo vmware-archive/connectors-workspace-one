@@ -300,6 +300,16 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         );
     }
 
+    private WebTestClient.ResponseSpec createTicket(String authToken, String requestFile) throws Exception {
+            return doPost(
+                    "/api/v1/ticket/task",
+                    APPLICATION_JSON,
+                    authToken,
+                    requestFile,
+                    null
+            );
+    }
+
     /////////////////////////////
     // Request Cards
     /////////////////////////////
@@ -608,6 +618,21 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         String expected = fromFile("/servicenow/responses/success/actions/getTicketDetails.json");
 
         getTaskTicketDetails(SNOW_AUTH_TOKEN, "valid/cards/getTickets.json")
+                .expectStatus().isOk()
+                .expectBody().json(expected);
+    }
+
+    @Test
+    void testCreateTicketResponse() throws Exception {
+
+        mockBackend.expect(requestTo("/api/now/table/sc_task"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(POST))
+                .andRespond(withSuccess(fromFile("/servicenow/fake/createTicket.json"), APPLICATION_JSON));
+        
+        String expected = fromFile("/servicenow/responses/success/actions/createTicket.json");
+
+        createTicket(SNOW_AUTH_TOKEN, "valid/cards/createTicket.json")
                 .expectStatus().isOk()
                 .expectBody().json(expected);
     }
