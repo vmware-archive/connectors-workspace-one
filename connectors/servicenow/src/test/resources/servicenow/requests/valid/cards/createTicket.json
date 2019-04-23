@@ -1,5 +1,5 @@
 {
   "tokens" : {
-    "details" : ["{\"short_description\":\"Unable to connect to office wifi\",\"assignment_group\":\"287ebd7da9fe198100f92cc8d1d2154e\",\"urgency\":\"2\",\"impact\":\"2\"}"]
+    "details" : ["{\"short_description\":\"Demo Issue for creating a ticket\",\"urgency\":\"2\",\"impact\":\"2\"}"]
   }
 }
