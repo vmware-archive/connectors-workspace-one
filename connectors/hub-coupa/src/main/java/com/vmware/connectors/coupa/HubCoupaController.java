@@ -8,7 +8,6 @@ package com.vmware.connectors.coupa;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.web.UserException;
 import com.vmware.connectors.coupa.domain.ApprovalDetails;
 import com.vmware.connectors.coupa.domain.RequisitionDetails;
@@ -22,7 +21,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -77,8 +75,7 @@ public class HubCoupaController {
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
             @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
-            Locale locale,
-            ServerHttpRequest request
+            Locale locale
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         validateEmailAddress(userEmail);
@@ -87,7 +84,7 @@ public class HubCoupaController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        return getPendingApprovals(userEmail, baseUrl, routingPrefix, request, getAuthHeader(connectorAuth), locale)
+        return getPendingApprovals(userEmail, baseUrl, routingPrefix, getAuthHeader(connectorAuth), locale)
                 .map(ResponseEntity::ok);
     }
 
@@ -119,7 +116,6 @@ public class HubCoupaController {
             String userEmail,
             String baseUrl,
             String routingPrefix,
-            ServerHttpRequest request,
             String connectorAuth,
             Locale locale
     ) {
@@ -132,7 +128,7 @@ public class HubCoupaController {
                 .retrieve()
                 .bodyToFlux(UserDetails.class)
                 .flatMap(u -> getApprovalDetails(baseUrl, u.getId(), userEmail, connectorAuth))
-                .map(req -> makeCards(routingPrefix, locale, req, request))
+                .map(req -> makeCards(routingPrefix, locale, req))
                 .reduce(new Cards(), this::addCard);
     }
 
@@ -173,8 +169,7 @@ public class HubCoupaController {
     private Card makeCards(
             String routingPrefix,
             Locale locale,
-            RequisitionDetails requestDetails,
-            ServerHttpRequest request
+            RequisitionDetails requestDetails
     ) {
         String requestId = requestDetails.getId();
         String reportName = requestDetails.getRequisitionLinesList().get(0).getDescription();
@@ -201,8 +196,7 @@ public class HubCoupaController {
                 .addAction(makeApprovalAction(routingPrefix, requestId, locale,
                         false, "api/decline/", "hub.coupa.decline", "hub.coupa.decline.reason.label"));
 
-        CommonUtils.buildConnectorImageUrl(builder, request);
-
+        builder.setImageUrl("https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-coupa.png");
         return builder.build();
     }
 

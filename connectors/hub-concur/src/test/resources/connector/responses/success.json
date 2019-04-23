@@ -75,7 +75,7 @@
       },
       "id": "00000000-0000-0000-0000-000000000000",
       "image": {
-        "href": "https://my-connector/images/connector.png"
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-concur.png"
       },
       "name": "Concur"
     },
@@ -154,7 +154,7 @@
       },
       "id": "00000000-0000-0000-0000-000000000000",
       "image": {
-        "href": "https://my-connector/images/connector.png"
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-concur.png"
       },
       "name": "Concur"
     },
@@ -233,7 +233,7 @@
       },
       "id": "00000000-0000-0000-0000-000000000000",
       "image": {
-        "href": "https://my-connector/images/connector.png"
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-concur.png"
       },
       "name": "Concur"
     }
