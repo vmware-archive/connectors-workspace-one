@@ -8,7 +8,6 @@ package com.vmware.connectors.concur;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.CommonUtils;
 import com.vmware.connectors.common.web.UserException;
 import com.vmware.connectors.concur.domain.*;
 import org.apache.commons.io.IOUtils;
@@ -20,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -82,8 +80,7 @@ public class HubConcurController {
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
             @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
-            Locale locale,
-            ServerHttpRequest request
+            Locale locale
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("getCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
@@ -92,7 +89,7 @@ public class HubConcurController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        return fetchCards(baseUrl, locale, routingPrefix, request, userEmail, getAuthHeader(connectorAuth))
+        return fetchCards(baseUrl, locale, routingPrefix, userEmail, getAuthHeader(connectorAuth))
                 .map(ResponseEntity::ok);
     }
 
@@ -117,7 +114,6 @@ public class HubConcurController {
             String baseUrl,
             Locale locale,
             String routingPrefix,
-            ServerHttpRequest request,
             String userEmail,
             String connectorAuth
     ) {
@@ -126,7 +122,7 @@ public class HubConcurController {
         return fetchLoginIdFromUserEmail(userEmail, baseUrl, connectorAuth)
                 .flatMapMany(loginId -> fetchAllApprovals(baseUrl, loginId, connectorAuth))
                 .flatMap(expense -> fetchRequestData(baseUrl, expense.getId(), connectorAuth))
-                .map(report -> makeCards(routingPrefix, locale, report, request))
+                .map(report -> makeCards(routingPrefix, locale, report))
                 .reduce(new Cards(), this::addCard);
     }
 
@@ -181,8 +177,7 @@ public class HubConcurController {
     private Card makeCards(
             String routingPrefix,
             Locale locale,
-            ExpenseReportResponse report,
-            ServerHttpRequest request
+            ExpenseReportResponse report
     ) {
         String reportId = report.getReportID();
         String reportName = report.getReportName();
@@ -206,7 +201,7 @@ public class HubConcurController {
                 .addAction(makeAction(routingPrefix, locale, reportId,
                         false, "hub.concur.decline", REASON_KEY, "hub.concur.decline.reason.label", "/decline"));
 
-        CommonUtils.buildConnectorImageUrl(builder, request);
+        builder.setImageUrl("https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-concur.png");
 
         return builder.build();
     }

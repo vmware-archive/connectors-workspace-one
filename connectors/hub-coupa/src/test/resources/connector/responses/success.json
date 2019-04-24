@@ -91,7 +91,7 @@
                 }
             ],
             "image": {
-                "href": "https://my-connector/images/connector.png"
+                "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-coupa.png"
             },
             "hash": "test-hash"
         }
