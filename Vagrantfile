@@ -66,10 +66,10 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     yum update -y
     yum install -y git rpm-build vim nmap-ncat wget
-    wget https://download.java.net/java/GA/jdk12/GPL/openjdk-12_linux-x64_bin.tar.gz
-    tar openjdk-12*_bin.tar.gz<
-    mv jdk-12 /usr/local/share/
-    ln -s /usr/local/share/jdk-12/bin/java /usr/local/bin/java
+    wget https://download.java.net/java/GA/jdk12.0.1/69cfe15208a647278a19ef0990eea691/12/GPL/openjdk-12.0.1_linux-x64_bin.tar.gz
+    tar xvf openjdk-12*
+    mv jdk-12.0.1 /usr/local/share/
+    ln -s /usr/local/share/jdk-12.0.1/bin/java /usr/local/bin/java
     curl -fsSL get.docker.com -o get-docker.sh
     sh get-docker.sh
     usermod -aG docker vagrant
