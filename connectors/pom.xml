@@ -76,6 +76,7 @@
                                                 <targetDir>/opt/vmware/${connector.name}</targetDir>
                                             </assembly>
                                             <from>${docker.javaImage}</from>
+                                            <imagePullPolicy>Always</imagePullPolicy>
                                             <workdir>/opt/vmware/${connector.name}</workdir>
                                             <healthCheck>
                                                 <interval>20s</interval>
