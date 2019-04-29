@@ -18,32 +18,26 @@ import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
  */
 public class PullRequestId {
 
-    private String owner;
-    private String repo;
-    private String number;
+    private final String owner;
+    private final String repo;
+    private final String number;
+
+    public PullRequestId(String owner, String repo, String number) {
+        this.owner = owner;
+        this.repo = repo;
+        this.number = number;
+    }
 
     public String getOwner() {
         return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
     }
 
     public String getRepo() {
         return repo;
     }
 
-    public void setRepo(String repo) {
-        this.repo = repo;
-    }
-
     public String getNumber() {
         return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
     }
 
     @Override

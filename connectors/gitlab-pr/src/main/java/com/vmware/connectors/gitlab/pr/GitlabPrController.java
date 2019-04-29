@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
@@ -27,7 +28,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -84,7 +84,7 @@ public class GitlabPrController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request
+            ServerHttpRequest request
     ) {
         logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
 
@@ -110,8 +110,7 @@ public class GitlabPrController {
                             return cards;
                         }
                 )
-               .defaultIfEmpty(new Cards())
-               .subscriberContext(Reactive.setupContext());
+               .defaultIfEmpty(new Cards());
     }
 
     private UriComponents parseUri(
@@ -141,11 +140,7 @@ public class GitlabPrController {
         if (!MERGE_REQUESTS.equals(uri.getPathSegments().get(2))) {
             return null;
         }
-        MergeRequestId mergeRequestId = new MergeRequestId();
-        mergeRequestId.setNamespace(uri.getPathSegments().get(0));
-        mergeRequestId.setProjectName(uri.getPathSegments().get(1));
-        mergeRequestId.setNumber(uri.getPathSegments().get(3));
-        return mergeRequestId;
+        return new MergeRequestId(uri.getPathSegments().get(0), uri.getPathSegments().get(1), uri.getPathSegments().get(3));
     }
 
     private Mono<Pair<MergeRequestId, MergeRequest>> fetchMergeRequest(
@@ -200,7 +195,7 @@ public class GitlabPrController {
             String routingPrefix,
             Pair<MergeRequestId, MergeRequest> info,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 
@@ -297,17 +292,20 @@ public class GitlabPrController {
     public Mono<String> comment(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            MergeRequestId mergeRequestId,
-            @RequestParam(COMMENT_PARAM_KEY) String comment
+            @PathVariable String namespace,
+            @PathVariable String projectName,
+            @PathVariable String number,
+            @Valid CommentForm form
     ) {
+        MergeRequestId mergeRequestId = new MergeRequestId(namespace, projectName, number);
         logger.trace(
                 "comment called: baseUrl={}, id={}, comment={}",
                 baseUrl,
                 mergeRequestId,
-                comment
+                form.getMessage()
         );
 
-        return postNote(auth, baseUrl, mergeRequestId, comment);
+        return postNote(auth, baseUrl, mergeRequestId, form.getMessage());
     }
 
     private Mono<String> postNote(
@@ -347,18 +345,21 @@ public class GitlabPrController {
     public Mono<String> approve(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            MergeRequestId mergeRequestId,
-            @RequestParam(SHA_PARAM_KEY) String sha
+            @PathVariable String namespace,
+            @PathVariable String projectName,
+            @PathVariable String number,
+            @Valid ApprovalForm form
     ) {
+        MergeRequestId mergeRequestId = new MergeRequestId(namespace, projectName, number);
         logger.trace(
                 "approve called: baseUrl={}, id={}, sha={}",
                 baseUrl,
                 mergeRequestId,
-                sha
+                form.getSha()
         );
 
         Map<String, Object> body = ImmutableMap.of(
-                MergeRequestActionConstants.Properties.SHA, sha
+                MergeRequestActionConstants.Properties.SHA, form.getSha()
         );
 
         return actionRequest(auth, baseUrl, mergeRequestId, "/approve", HttpMethod.POST, body);

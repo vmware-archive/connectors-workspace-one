@@ -40,7 +40,7 @@ docker run --name airwatch-connector \
            --spring.config.additional-location=file:/mnt/managed-apps.yml \
            --server.port=8080 \
            --greenbox.url="https://acme.vmwareidentity.com" \
-           --security.oauth2.resource.jwt.key-uri="https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem"
+           --security.oauth2.resource.jwt.key-uri="https://prod.hero.vmwservices.com/security/public-key"
 ```
 
 ## RPM
@@ -71,6 +71,6 @@ If you would like to cross check the application properties file, it looks like 
 
 ```
 cat /etc/opt/vmware/connectors/airwatch/application.properties
-security.oauth2.resource.jwt.key-uri=https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem
+security.oauth2.resource.jwt.key-uri=https://prod.hero.vmwservices.com/security/public-key
 greenbox.url=https://acme.vmwareidentity.com
 ```

@@ -5,7 +5,7 @@
   "object_types": {
     "card": {
       "doc": {
-        "href": "https://github.com/vmware/connectors-workspace-one/blob/watson_poc/connectors/servicenow/schema.json"
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
       },
       "fields": {
         "ticket_id": {

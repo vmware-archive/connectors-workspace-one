@@ -1,11 +1,11 @@
 {
   "image": {
-    "href": "${CONNECTOR_HOST}/images/connector.png"
+    "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-servicenow.png"
   },
   "object_types": {
     "card": {
       "doc": {
-        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
       },
       "fields": {
         "_temporary": {

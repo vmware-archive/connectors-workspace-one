@@ -1,0 +1,12 @@
+[Unit]
+Description=AirWatch Salesforce TestDrive Connector Service
+After=network.target
+
+[Service]
+Type=simple
+User=roswell
+ExecStart=/bin/bash /opt/vmware/connectors/testdrive-salesforce/start.sh
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

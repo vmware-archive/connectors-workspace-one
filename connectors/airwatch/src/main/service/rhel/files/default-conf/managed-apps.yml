@@ -17,7 +17,7 @@ airwatch:
 #        name: Coupa Mobile
 #        id: com.coupa.android.coupamobile
 #      ios:
-#        name: Coupa - Expenses & Approvals
+#        name: Coupa Mobile
 #        id: com.coupa.push
 #      keywords:
 #        - coupa

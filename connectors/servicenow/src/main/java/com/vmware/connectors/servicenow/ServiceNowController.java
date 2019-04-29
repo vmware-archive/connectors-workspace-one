@@ -13,6 +13,7 @@ import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.CommonUtils;
+import com.vmware.connectors.common.utils.HashUtil;
 import com.vmware.connectors.common.utils.Reactive;
 import com.vmware.connectors.servicenow.domain.*;
 import com.vmware.connectors.servicenow.util.JsonUtil;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -30,7 +32,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
@@ -99,7 +100,7 @@ public class ServiceNowController {
      * sysapproval_approver call to be able to match it to the request numbers
      * passed in by the client).
      */
-    private static final int MAX_APPROVAL_RESULTS = 10000;
+    private static final int MAX_APPROVAL_RESULTS = 10_000;
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
@@ -124,8 +125,7 @@ public class ServiceNowController {
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request
-    ) {
+            ServerHttpRequest request) {
         logger.trace("getCards called, baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
 
         Set<String> requestNumbers = cardRequest.getTokens("ticket_id");
@@ -149,8 +149,7 @@ public class ServiceNowController {
                 .reduce(
                         new Cards(),
                         (cards, info) -> appendCard(cards, info, routingPrefix, locale, request)
-                )
-                .subscriberContext(Reactive.setupContext());
+                );
     }
 
     private Mono<String> callForUserSysId(
@@ -376,7 +375,7 @@ public class ServiceNowController {
                              ApprovalRequestWithItems info,
                              String routingPrefix,
                              Locale locale,
-                             HttpServletRequest request) {
+                             ServerHttpRequest request) {
         logger.trace("appendCard called: cards={}, info={}, routingPrefix={}", cards, info, routingPrefix);
 
         cards.getCards().add(
@@ -390,7 +389,7 @@ public class ServiceNowController {
             String routingPrefix,
             ApprovalRequestWithItems info,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         logger.trace("makeCard called: routingPrefix={}, info={}", routingPrefix, info);
 
@@ -401,6 +400,7 @@ public class ServiceNowController {
                         cardTextAccessor.getHeader(locale),
                         cardTextAccessor.getMessage("subtitle", locale, info.getInfo().getNumber())
                 )
+                .setHash(toCardHash(info))
                 .setBody(makeBody(info, locale))
                 .addAction(
                         new CardAction.Builder()
@@ -434,6 +434,21 @@ public class ServiceNowController {
         CommonUtils.buildConnectorImageUrl(card, request);
 
         return card.build();
+    }
+
+    private static String toCardHash(ApprovalRequestWithItems info) {
+        /*
+         * Note: The hash isn't really necessary for Boxer cards, however,
+         * we'll keep this code duplicated from HubServiceNowController to
+         * reduce the chance of it being lost when unforking the connectors
+         * in APF-1854.
+         */
+        List<String> itemsHashes = info.getItems()
+                .stream()
+                .map(item -> HashUtil.hash("id", item.getSysId(), "qty", item.getQuantity()))
+                .collect(Collectors.toList());
+        String itemsHash = HashUtil.hashList(itemsHashes);
+        return HashUtil.hash("id", info.getInfo().getNumber(), "items", itemsHash);
     }
 
     private CardBody makeBody(
@@ -555,11 +570,11 @@ public class ServiceNowController {
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @PathVariable("requestSysId") String requestSysId,
-            @RequestParam(REASON_PARAM_KEY) String reason
+            @Valid RejectForm form
     ) {
-        logger.trace("reject called: baseUrl={}, requestSysId={}, reason={}", baseUrl, requestSysId, reason);
+        logger.trace("reject called: baseUrl={}, requestSysId={}, reason={}", baseUrl, requestSysId, form.getReason());
 
-        return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, reason);
+        return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, form.getReason());
     }
 
     @PostMapping(

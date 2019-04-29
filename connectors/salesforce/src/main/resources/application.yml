@@ -5,10 +5,10 @@ server:
   server-header: salesforce-connector
 
 sf:
-   soqlQueryPath: services/data/v39.0/query
-   addContactPath: services/data/v39.0/sobjects/Contact
-   opportunityContactLinkPath: services/data/v39.0/sobjects/OpportunityContactRole
-   opportunityFieldsUpdatePath: services/data/v39.0/sobjects/Opportunity/
+   soqlQueryPath: services/data/v44.0/query
+   addContactPath: services/data/v44.0/sobjects/Contact
+   opportunityContactLinkPath: services/data/v44.0/sobjects/OpportunityContactRole
+   opportunityFieldsUpdatePath: services/data/v44.0/sobjects/Opportunity/
 
 management:
   endpoints:

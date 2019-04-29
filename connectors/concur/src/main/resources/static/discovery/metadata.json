@@ -8,7 +8,7 @@
   "object_types": {
     "card": {
       "doc": {
-        "href": "https://github.com/vmwaresamples/card-connectors-guide/wiki/Card-Responses"
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
       },
       "fields": {
         "concur_automated_email_subject": {
