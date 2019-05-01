@@ -119,17 +119,17 @@ public class AirWatchController {
                 .flatMap(app -> getCardForApp(awAuth, baseUrl, udid,
                         app, routingPrefix, clientPlatform, locale))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
-                .map(ResponseEntity::ok)
-                .subscriberContext(Reactive.setupContext());
+                .map(ResponseEntity::ok);
     }
 
     @PostMapping(value = "/mdm/app/install", consumes = APPLICATION_FORM_URLENCODED_VALUE)
     public Mono<ResponseEntity<Void>> installApp(
             @RequestHeader(name = AIRWATCH_AUTH_HEADER) String awAuth,
-            @RequestParam(APP_NAME_KEY) String appName,
-            @RequestParam(UDID_KEY) String udid,
-            @RequestParam(PLATFORM_KEY) String platform) {
+            @Valid InstallForm form) {
 
+        String appName = form.getAppName();
+        String udid = form.getUdid();
+        String platform = form.getPlatform();
         ManagedApp app = appConfig.findManagedApp(appName, platform)
                 .orElseThrow(() -> new ManagedAppNotFound("Can't install " + appName + ". It is not a managed app."));
 
@@ -139,8 +139,7 @@ public class AirWatchController {
         return getEucToken(gbBaseUri, udid, platform, hznToken)
                 .flatMap(eucToken -> getGbConnection(gbBaseUri, eucToken))
                 .flatMap(greenBoxConnection -> installGbAppByName(appName, greenBoxConnection))
-                .then(Mono.just(ResponseEntity.status(OK).<Void>build()))
-                .subscriberContext(Reactive.setupContext());
+                .then(Mono.just(ResponseEntity.status(OK).<Void>build()));
     }
 
     @ExceptionHandler({UdidException.class, ManagedAppNotFound.class,
@@ -268,7 +267,7 @@ public class AirWatchController {
          * Make sure response has only one entry.
          * If by chance it finds more than one app which one should be selected to install ?
          */
-
+        logger.trace("Trying to find a unique GreenBox catalog app with name {}", appName);
         return rest.get()
                 .uri(gbSession.getBaseUrl() + "/catalog-portal/services/api/entitlements?q={appName}", appName)
                 .cookie("USER_CATALOG_CONTEXT", gbSession.getEucToken())
@@ -301,6 +300,7 @@ public class AirWatchController {
         /*
          * It triggers the native mdm app install.
          */
+        logger.trace("Trigger app install for the GreenBox app : {}", gbApp.getName());
         return rest.post()
                 .uri(gbApp.getInstallLink())
                 .cookie("USER_CATALOG_CONTEXT", gbSession.getEucToken())
@@ -316,11 +316,12 @@ public class AirWatchController {
 
     private Mono<String> getCsrfToken(URI baseUri, String eucToken) {
         /*
-         * Authenticated request to {GreenBox-Base-Url}/catalog-portal/ provides CSRF token.
+         * First authenticated request to {GreenBox-Base-Url}/catalog-portal/services provides CSRF token.
+         * https://confluence.eng.vmware.com/display/WOR/CSRF+Protection+for+Greenbox
          */
         logger.trace("getCsrfToken called: baseUri={}", baseUri.toString());
-        return rest.options()
-                .uri(baseUri + "/catalog-portal/")
+        return rest.get()
+                .uri(baseUri + "/catalog-portal/services")
                 .cookie("USER_CATALOG_CONTEXT", eucToken)
                 .exchange()
                 .flatMap(Reactive::checkStatus)

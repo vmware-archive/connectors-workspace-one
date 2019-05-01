@@ -19,13 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
 
@@ -62,7 +62,7 @@ public class JiraController {
             @RequestHeader(name = ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request) {
+            ServerHttpRequest request) {
 
         Set<String> issueIds = cardRequest.getTokens("issue_id");
 
@@ -70,25 +70,25 @@ public class JiraController {
                 .flatMap(issueId -> getCardForIssue(jiraAuth, baseUrl, issueId,
                         routingPrefix, locale, request))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
-                .defaultIfEmpty(new Cards())
-                .subscriberContext(Reactive.setupContext());
+                .defaultIfEmpty(new Cards());
     }
 
     @PostMapping(path = "/api/v1/issues/{issueKey}/comment", consumes = APPLICATION_FORM_URLENCODED_VALUE)
     public Mono<ResponseEntity<Object>> addComment(
             @RequestHeader(name = JIRA_AUTH_HEADER) String jiraAuth,
             @RequestHeader(name = JIRA_BASE_URL_HEADER) String baseUrl,
-            @PathVariable String issueKey, @RequestParam String body) {
+            @PathVariable String issueKey,
+            @Valid AddCommentForm form) {
         logger.debug("Adding jira comments for issue id : {} with Jira server: {}", issueKey, baseUrl);
         return rest.post()
                 .uri(baseUrl + "/rest/api/2/issue/{issueKey}/comment", issueKey)
                 .header(AUTHORIZATION, jiraAuth)
                 .contentType(APPLICATION_JSON)
-                .syncBody(Collections.singletonMap("body", body))
+                .syncBody(Map.of("body", form.getBody()))
                 .retrieve()
                 .bodyToMono(String.class)
-                .then(Mono.just(ResponseEntity.status(CREATED).build()))
-                .subscriberContext(Reactive.setupContext());
+                .then(Mono.just(ResponseEntity.status(CREATED).build()));
+
     }
 
     @PostMapping(path = "/api/v1/issues/{issueKey}/watchers")
@@ -103,8 +103,7 @@ public class JiraController {
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .flatMap(body -> addUserToWatcher(body, jiraAuth, baseUrl, issueKey))
-                .map(status -> ResponseEntity.status(status).<Void>build())
-                .subscriberContext(Reactive.setupContext());
+                .map(status -> ResponseEntity.status(status).<Void>build());
     }
 
     @GetMapping("/test-auth")
@@ -115,8 +114,7 @@ public class JiraController {
                 .header(AUTHORIZATION, jiraAuth)
                 .retrieve()
                 .bodyToMono(String.class)
-                .then(Mono.just(ResponseEntity.noContent().<Void>build()))
-                .subscriberContext(Reactive.setupContext());
+                .then(Mono.just(ResponseEntity.noContent().<Void>build()));
     }
 
     private Mono<HttpStatus> addUserToWatcher(JsonDocument jiraUserDetails, String jiraAuth,
@@ -136,7 +134,7 @@ public class JiraController {
                                        String issueId,
                                        String routingPrefix,
                                        Locale locale,
-                                       HttpServletRequest request) {
+                                       ServerHttpRequest request) {
         return getIssue(jiraAuth, baseUrl, issueId)
                 // if an issue is not found, we'll just not bother creating a card
                 .onErrorResume(Reactive::skipOnNotFound)
@@ -164,7 +162,7 @@ public class JiraController {
                                         String issueId,
                                         String routingPrefix,
                                         Locale locale,
-                                        HttpServletRequest request) {
+                                        ServerHttpRequest request) {
         String issueKey = jiraResponse.read("$.key");
         String summary = jiraResponse.read("$.fields.summary");
         List<String> fixVersions = jiraResponse.read("$.fields.fixVersions[*].name");

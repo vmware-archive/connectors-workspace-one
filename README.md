@@ -9,7 +9,7 @@ The connectors are written in Java and use the [Spring Framework](https://spring
 [Spring Boot](https://projects.spring.io/spring-boot/), embedding [Tomcat](http://tomcat.apache.org/) 8.5.
 
 For a detailed, language-neutral, specification for how to develop connectors, please see the
-[Card Connectors Guide](https://github.com/vmwaresamples/card-connectors-guide).
+[Card Connectors Guide](https://github.com/vmware-samples/card-connectors-guide).
 
 This repository also includes common libraries. Please see their [README](https://github.com/vmware/connectors-workspace-one/blob/master/common/README.md) for more details.
 
@@ -33,7 +33,7 @@ docker run --name jira-connector \
            -d \
            ws1connectors/jira-connector \
            --server.port=8080 \
-           --security.oauth2.resource.jwt.key-uri="https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem"
+           --security.oauth2.resource.jwt.key-uri="https://prod.hero.vmwservices.com/security/public-key"
 ```
 
 ## RPM
@@ -42,7 +42,7 @@ The connectors can be built, installed, and run as [RPMs](http://rpm.org/).
 
 ### Prerequisites
 
-* [Java 10](https://www.java.com/en/download/help/index_installing.xml)
+* [Java 11](https://www.java.com/en/download/help/index_installing.xml)
 * [Vagrant](https://www.vagrantup.com/) (use this [Vagrantfile](https://github.com/vmware/connectors-workspace-one/blob/master/Vagrantfile))
 
 Vagrant isn't necessary if you're using an RPM-based OS, such as CentOS or RHEL. You will need the following packages though:
@@ -65,12 +65,12 @@ Use the below command from within the repository directory to build the RPMs:
 
 Each connector has its own RPM. For example, `jira-connector-1.0.0.noarch.rpm`. This can be found at `connectors/jira/target/rpm/jira-connector/RPMS/noarch/`.
 
-Java 10 is a prerequisite. Installation instructions can be found [here](http://openjdk.java.net/install/).
+Java 11 is a prerequisite. Installation instructions can be found [here](http://openjdk.java.net/install/).
 
 Once the JDK is downloaded and unpacked, a soft link should be created. For example:
 
 ```
-ln -s /usr/lib/jvm/jdk-10.0.2/bin/java /usr/bin/java 
+ln -s /usr/lib/jvm/jdk-11.0.2/bin/java /usr/bin/java
 ```
 
 The next step is to use the RPM to install the connector as a service. For example:
@@ -84,7 +84,7 @@ Before the service can be run, some configuration is required. The connectors au
 For example, for the Jira connector:
 
 ```
-echo "security.oauth2.resource.jwt.key-uri=https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem" \
+echo "security.oauth2.resource.jwt.key-uri=https://prod.hero.vmwservices.com/security/public-key" \
 > /etc/opt/vmware/connectors/jira/application.properties
 ```
 
@@ -115,7 +115,7 @@ systemctl status jira-connector
 Also check the logs if there are problems:
 
 ```
-less /var/log/vmware/connectors/jira/jira-connector.log
+less /var/log/vmware/connectors/jira/connector.log
 ```
 
 ### Updating
@@ -140,7 +140,7 @@ The connectors can also be built and run as [executable "fat" jars](https://docs
 
 ### Prerequisites
 
-* [Java 10](https://www.java.com/en/download/help/index_installing.xml)
+* [Java 11](https://www.java.com/en/download/help/index_installing.xml)
 
 ### Building
 
@@ -161,7 +161,7 @@ java -server \
      -jar \
      connectors/jira/target/jira-connector-2.1-SNAPSHOT.jar \
      --server.port=8080 \
-     --security.oauth2.resource.jwt.key-uri="https://acme.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem"
+     --security.oauth2.resource.jwt.key-uri="https://prod.hero.vmwservices.com/security/public-key"
 ```
 
 ## Troubleshooting

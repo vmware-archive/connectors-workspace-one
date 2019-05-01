@@ -10,11 +10,11 @@
     <parent>
         <groupId>com.vmware.card-connectors</groupId>
         <artifactId>connectors-parent</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>2.4-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <docker.javaImage>openjdk:10.0.2-jre</docker.javaImage>
+        <docker.javaImage>openjdk:12-oracle</docker.javaImage>
     </properties>
 
     <modules>
@@ -29,6 +29,9 @@
         <module>servicenow</module>
         <module>hub-servicenow</module>
         <module>bitbucket-server</module>
+        <module>hub-salesforce</module>
+        <module>hub-coupa</module>
+        <module>testdrive-salesforce</module>
     </modules>
 
     <profiles>
@@ -49,7 +52,6 @@
                             <artifactId>docker-maven-plugin</artifactId>
 
                             <configuration>
-                                <registry>registry.hub.docker.com</registry>
                                 <authConfig>
                                     <username>${docker.hub.username}</username>
                                     <password>${docker.hub.password}</password>
@@ -74,6 +76,7 @@
                                                 <targetDir>/opt/vmware/${connector.name}</targetDir>
                                             </assembly>
                                             <from>${docker.javaImage}</from>
+                                            <imagePullPolicy>Always</imagePullPolicy>
                                             <workdir>/opt/vmware/${connector.name}</workdir>
                                             <healthCheck>
                                                 <interval>20s</interval>

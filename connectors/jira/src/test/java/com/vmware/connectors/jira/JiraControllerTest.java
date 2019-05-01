@@ -251,8 +251,7 @@ class JiraControllerTest extends ControllerTestsBase {
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .syncBody("body=Hello")
                 .exchange()
-                .expectStatus().isUnauthorized()
-                .expectBody().json("{\"error\":\"unauthorized\"}");
+                .expectStatus().isUnauthorized();
     }
 
     @Test
@@ -316,8 +315,7 @@ class JiraControllerTest extends ControllerTestsBase {
                 .header(X_AUTH_HEADER, "Bearer abc")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .exchange()
-                .expectStatus().isUnauthorized()
-                .expectBody().json("{\"error\":\"invalid_token\"}");
+                .expectStatus().isUnauthorized();
     }
 
     @Test

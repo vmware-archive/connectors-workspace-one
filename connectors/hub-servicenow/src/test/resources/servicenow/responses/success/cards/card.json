@@ -8,7 +8,7 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "[Hub Service Now] Approval Request",
+        "title": "Approval Request",
         "subtitle": [
           "REQ0010001"
         ]
@@ -79,9 +79,9 @@
         }
       ],
       "image": {
-        "href": "https://my-connector/images/connector.png"
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-servicenow.png"
       },
-      "hash": "test-hash"
+      "hash": "88f7b6e623b1ed0efa8b85f4bede6ebd91b0267c"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -91,7 +91,7 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "[Hub Service Now] Approval Request",
+        "title": "Approval Request",
         "subtitle": [
           "REQ0010002"
         ]
@@ -162,9 +162,9 @@
         }
       ],
       "image": {
-        "href": "https://my-connector/images/connector.png"
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-servicenow.png"
       },
-      "hash": "test-hash"
+      "hash": "2d75d40faf1b499a5688ed547af68cd4e43abf37"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -174,7 +174,7 @@
         "href": "https://hero/connectors/servicenow/templates/generic.hbs"
       },
       "header": {
-        "title": "[Hub Service Now] Approval Request",
+        "title": "Approval Request",
         "subtitle": [
           "REQ0010003"
         ]
@@ -245,9 +245,9 @@
         }
       ],
       "image": {
-        "href": "https://my-connector/images/connector.png"
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-servicenow.png"
       },
-      "hash": "test-hash"
+      "hash": "49f1d614bc9f57eaf3af3053496b93196e53318b"
     }
   ]
 }

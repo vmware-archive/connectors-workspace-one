@@ -1,10 +1,14 @@
+/*
+ * Copyright © 2019 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 package com.vmware.connectors.concur.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
-
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @SuppressWarnings("PMD.LinguisticNaming")
@@ -27,11 +31,7 @@ public class ExpenseReportResponse {
     private String hasException;
     private String workflowActionURL;
     private String reportTotal;
-
     private List<ExpenseEntriesVO> expenseEntriesList;
-
-
-
 
     @JsonProperty("UserLoginID")
     public String getUserLoginID() {

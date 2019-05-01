@@ -1,0 +1,164 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Salesforce for WS1 Hub",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/salesforce/templates/generic.hbs"
+      },
+      "header": {
+        "title": "Salesforce discount approval request",
+        "subtitle": []
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Customer Name",
+            "description": "Google Opportunity"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Opportunity Owner",
+            "description": "opportunity user"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Revenue Opportunity",
+            "description": "$600,000.00"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Approve",
+          "url": {
+            "href": "https://hero/connectors/salesforce/api/expense/approve/04i41000003hcIcAAI"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "Reason for approval",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Approved",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Reject",
+          "url": {
+            "href": "https://hero/connectors/salesforce/api/expense/reject/04i41000003hcIcAAI"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "Reason for rejection",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Rejected",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        }
+      ],
+      "image": {
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-salesforce.png"
+      },
+      "hash": "test-hash"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Salesforce for WS1 Hub",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/salesforce/templates/generic.hbs"
+      },
+      "header": {
+        "title": "Salesforce discount approval request",
+        "subtitle": []
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Customer Name",
+            "description": "Palo Alto Networks"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Opportunity Owner",
+            "description": "Jeff Jones"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Revenue Opportunity",
+            "description": "$89,898,898.90"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Approve",
+          "url": {
+            "href": "https://hero/connectors/salesforce/api/expense/approve/04i41000003hcIhAAI"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "Reason for approval",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Approved",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Reject",
+          "url": {
+            "href": "https://hero/connectors/salesforce/api/expense/reject/04i41000003hcIhAAI"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "Reason for rejection",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Rejected",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        }
+      ],
+      "image": {
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-salesforce.png"
+      },
+      "hash": "test-hash"
+    }
+  ]
+}
