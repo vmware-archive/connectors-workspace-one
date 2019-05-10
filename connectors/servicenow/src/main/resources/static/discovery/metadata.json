@@ -1,6 +1,6 @@
 {
   "image": {
-    "href": "https://watsonhubconnectors.ssdevrd.com/images/connector.png"
+    "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-servicenow.png"
   },
   "object_types": {
     "card": {
