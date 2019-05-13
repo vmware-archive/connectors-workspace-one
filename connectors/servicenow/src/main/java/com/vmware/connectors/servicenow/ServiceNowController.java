@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -72,7 +71,7 @@ public class ServiceNowController {
      * ServiceNow REST calls.
      */
     private static final String SNOW_SYS_PARAM_FIELDS = "sysparm_fields";
-    
+
     private static final String SNOW_ADD_TO_CART_ENDPOINT = "/api/sn_sc/servicecatalog/items/{item_id}/add_to_cart";
 
     private static final String SNOW_CHECKOUT_ENDPOINT = "/api/sn_sc/servicecatalog/cart/checkout";
@@ -653,8 +652,8 @@ public class ServiceNowController {
                         .build())
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, List<CatalogItem>>>() {})
-                .map(resultMap -> resultMap.get("result"));
+                .bodyToMono(CatalogItemResults.class)
+                .map(CatalogItemResults::getResult);
     }
 
     //returns id of service catalog for matching title from the results.
@@ -741,8 +740,8 @@ public class ServiceNowController {
                 .uri(taskUri)
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, List<Task>>>() {})
-                .map(resultMap -> resultMap.get("result"));
+                .bodyToMono(TaskResults.class)
+                .map(TaskResults::getResult);
     }
 
     @PostMapping(
