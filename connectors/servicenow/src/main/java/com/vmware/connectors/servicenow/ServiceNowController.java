@@ -5,6 +5,9 @@
 
 package com.vmware.connectors.servicenow;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
@@ -22,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +39,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +52,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 public class ServiceNowController {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceNowController.class);
+
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     /**
      * The JsonPath prefix for the ServiceNow results.
@@ -147,12 +155,13 @@ public class ServiceNowController {
             return Mono.just(new Cards());
         }
 
-        return callForUserSysId(baseUrl, email, auth)
+        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        return callForUserSysId(baseUri, email, auth)
                 .flux()
-                .flatMap(userSysId -> callForApprovalRequests(baseUrl, auth, userSysId))
-                .flatMap(approvalRequest -> callForAndAggregateRequestInfo(baseUrl, auth, approvalRequest))
+                .flatMap(userSysId -> callForApprovalRequests(baseUri, auth, userSysId))
+                .flatMap(approvalRequest -> callForAndAggregateRequestInfo(baseUri, auth, approvalRequest))
                 .filter(info -> requestNumbers.contains(info.getInfo().getNumber()))
-                .flatMap(approvalRequestWithInfo -> callForAndAggregateRequestedItems(baseUrl, auth, approvalRequestWithInfo))
+                .flatMap(approvalRequestWithInfo -> callForAndAggregateRequestedItems(baseUri, auth, approvalRequestWithInfo))
                 .reduce(
                         new Cards(),
                         (cards, info) -> appendCard(cards, info, routingPrefix, locale, request)
@@ -160,15 +169,17 @@ public class ServiceNowController {
     }
 
     private Mono<String> callForUserSysId(
-            String baseUrl,
+            URI baseUri,
             String email,
             String auth
     ) {
-        logger.trace("callForUserSysId called: baseUrl={}", baseUrl);
+        logger.trace("callForUserSysId called: baseUrl={}", baseUri);
 
         return rest.get()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
                         .path("/api/now/table/{userTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(SysUser.Fields.SYS_ID))
                         .queryParam(SNOW_SYS_PARAM_LIMIT, 1)
@@ -179,31 +190,29 @@ public class ServiceNowController {
                          * that have the same email.
                          */
                         .queryParam(SysUser.Fields.EMAIL.toString(), email)
-                        .buildAndExpand(
+                        .build(
                                 Map.of(
                                         "userTableName", SysUser.TABLE_NAME
                                 )
-                        )
-                        .encode()
-                        .toUri())
+                        ))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .flatMap(Reactive.wrapFlatMapper(userInfoResponse -> {
                     String userSysId = userInfoResponse.read("$.result[0]." + SysUser.Fields.SYS_ID);
                     if (userSysId == null) {
-                        logger.warn("sys_id for {} not found in {}, returning empty cards", email, baseUrl);
+                        logger.warn("sys_id for {} not found in {}, returning empty cards", email, baseUri);
                     }
                     return Mono.justOrEmpty(userSysId);
                 }));
     }
 
     private Flux<ApprovalRequest> callForApprovalRequests(
-            String baseUrl,
+            URI baseUri,
             String auth,
             String userSysId
     ) {
-        logger.trace("callForApprovalRequests called: baseUrl={}, userSysId={}", baseUrl, userSysId);
+        logger.trace("callForApprovalRequests called: baseUrl={}, userSysId={}", baseUri, userSysId);
 
         String fields = joinFields(
                 SysApprovalApprover.Fields.SYS_ID,
@@ -213,21 +222,21 @@ public class ServiceNowController {
                 SysApprovalApprover.Fields.SYS_CREATED_BY
         );
         return rest.get()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
                         .path("/api/now/table/{apTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, fields)
                         .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
                         .queryParam(SysApprovalApprover.Fields.SOURCE_TABLE.toString(), ScRequest.TABLE_NAME)
                         .queryParam(SysApprovalApprover.Fields.STATE.toString(), SysApprovalApprover.States.REQUESTED)
                         .queryParam(SysApprovalApprover.Fields.APPROVER.toString(), userSysId)
-                        .buildAndExpand(
+                        .build(
                                 Map.of(
                                         "apTableName", SysApprovalApprover.TABLE_NAME
                                 )
-                        )
-                        .encode()
-                        .toUri())
+                        ))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
@@ -268,22 +277,22 @@ public class ServiceNowController {
     }
 
     private Mono<ApprovalRequestWithInfo> callForAndAggregateRequestInfo(
-            String baseUrl,
+            URI baseUri,
             String auth,
             ApprovalRequest approvalRequest
     ) {
-        logger.trace("callForAndAggregateRequestInfo called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
+        logger.trace("callForAndAggregateRequestInfo called: baseUrl={}, approvalRequest={}", baseUri, approvalRequest);
 
-        return callForRequestInfo(baseUrl, auth, approvalRequest)
+        return callForRequestInfo(baseUri, auth, approvalRequest)
                 .map(requestNumber -> new ApprovalRequestWithInfo(approvalRequest, requestNumber));
     }
 
     private Mono<Request> callForRequestInfo(
-            String baseUrl,
+            URI baseUri,
             String auth,
             ApprovalRequest approvalRequest
     ) {
-        logger.trace("callForRequestInfo called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
+        logger.trace("callForRequestInfo called: baseUrl={}, approvalRequest={}", baseUri, approvalRequest);
 
         String fields = joinFields(
                 ScRequest.Fields.SYS_ID,
@@ -292,18 +301,18 @@ public class ServiceNowController {
         );
 
         return rest.get()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
                         .path("/api/now/table/{scTableName}/{approvalSysId}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
-                        .buildAndExpand(
+                        .build(
                                 Map.of(
                                         "scTableName", ScRequest.TABLE_NAME,
                                         "approvalSysId", approvalRequest.getApprovalSysId()
                                 )
-                        )
-                        .encode()
-                        .toUri())
+                        ))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
@@ -317,23 +326,23 @@ public class ServiceNowController {
     }
 
     private Mono<ApprovalRequestWithItems> callForAndAggregateRequestedItems(
-            String baseUrl,
+            URI baseUri,
             String auth,
             ApprovalRequestWithInfo approvalRequest
     ) {
-        logger.trace("callForAndAggregateRequestedItems called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
+        logger.trace("callForAndAggregateRequestedItems called: baseUrl={}, approvalRequest={}", baseUri, approvalRequest);
 
-        return callForRequestedItems(baseUrl, auth, approvalRequest)
+        return callForRequestedItems(baseUri, auth, approvalRequest)
                 .collectList()
                 .map(items -> new ApprovalRequestWithItems(approvalRequest, items));
     }
 
     private Flux<RequestedItem> callForRequestedItems(
-            String baseUrl,
+            URI baseUri,
             String auth,
             ApprovalRequestWithInfo approvalRequest
     ) {
-        logger.trace("callForRequestedItems called: baseUrl={}, approvalRequest={}", baseUrl, approvalRequest);
+        logger.trace("callForRequestedItems called: baseUrl={}, approvalRequest={}", baseUri, approvalRequest);
 
         String fields = joinFields(
                 ScRequestedItem.Fields.SYS_ID,
@@ -344,19 +353,19 @@ public class ServiceNowController {
         );
 
         return rest.get()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
                         .path("/api/now/table/{scTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
                         .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
                         .queryParam(ScRequestedItem.Fields.REQUEST.toString(), approvalRequest.getApprovalSysId())
-                        .buildAndExpand(
+                        .build(
                                 Map.of(
                                         "scTableName", ScRequestedItem.TABLE_NAME
                                 )
-                        )
-                        .encode()
-                        .toUri())
+                        ))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
@@ -520,17 +529,18 @@ public class ServiceNowController {
     ) {
         logger.trace("approve called: baseUrl={}, requestSysId={}", baseUrl, requestSysId);
 
-        return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.APPROVED, null);
+        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        return updateRequest(auth, baseUri, requestSysId, SysApprovalApprover.States.APPROVED, null);
     }
 
     private Mono<Map<String, Object>> updateRequest(
             String auth,
-            String baseUrl,
+            URI baseUri,
             String requestSysId,
             SysApprovalApprover.States state,
             String comments
     ) {
-        logger.trace("updateState called: baseUrl={}, requestSysId={}, state={}", baseUrl, requestSysId, state);
+        logger.trace("updateState called: baseUrl={}, requestSysId={}, state={}", baseUri, requestSysId, state);
 
         Map<String, String> body;
         if (StringUtils.isNotBlank(comments)) {
@@ -548,18 +558,18 @@ public class ServiceNowController {
                 SysApprovalApprover.Fields.COMMENTS
         );
         return rest.patch()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
                         .path("/api/now/table/{apTableName}/{requestSysId}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, fields)
-                        .buildAndExpand(
+                        .build(
                                 Map.of(
                                         "apTableName", SysApprovalApprover.TABLE_NAME,
                                         "requestSysId", requestSysId
                                 )
-                        )
-                        .encode()
-                        .toUri())
+                        ))
                 .header(AUTHORIZATION, auth)
                 .contentType(APPLICATION_JSON)
                 .syncBody(body)
@@ -584,7 +594,8 @@ public class ServiceNowController {
     ) {
         logger.trace("reject called: baseUrl={}, requestSysId={}, reason={}", baseUrl, requestSysId, form.getReason());
 
-        return updateRequest(auth, baseUrl, requestSysId, SysApprovalApprover.States.REJECTED, form.getReason());
+        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        return updateRequest(auth, baseUri, requestSysId, SysApprovalApprover.States.REJECTED, form.getReason());
     }
 
 
@@ -606,89 +617,69 @@ public class ServiceNowController {
         var type = cardRequest.getTokenSingleValue("type");
 
         logger.trace("getItems for catalog: {}, category: {}, type: {}", catalogName, categoryName, type);
-
-        return getCatalogId(catalogName, auth, baseUrl)
-                .flatMap(catalogId -> getCategoryId(categoryName, catalogId, auth, baseUrl))
+        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        return getCatalogId(catalogName, auth, baseUri)
+                .flatMap(catalogId -> getCategoryId(categoryName, catalogId, auth, baseUri))
                 .flatMap(categoryId -> getItems(type, categoryId,
-                        auth, baseUrl,
+                        auth, baseUri,
                         limit, offset))
                 .map(itemList -> Map.of("objects", itemList));
     }
 
-    private Mono<String> getCatalogId(String catalogTitle, String auth, String baseUrl) {
+    private Mono<String> getCatalogId(String catalogTitle, String auth, URI baseUri) {
         return callForSysIdByResultTitle("/api/sn_sc/servicecatalog/catalogs", catalogTitle,
-                auth, baseUrl);
+                auth, baseUri);
     }
 
-    private Mono<String> getCategoryId(String categoryTitle, String catalogId, String auth, String baseUrl) {
+    private Mono<String> getCategoryId(String categoryTitle, String catalogId, String auth, URI baseUri) {
         return callForSysIdByResultTitle(String.format("/api/sn_sc/servicecatalog/catalogs/%s/categories", catalogId), categoryTitle,
-                auth, baseUrl);
+                auth, baseUri);
     }
 
     // ToDo: If it can filter, don't ask much from SNow. Go only with those needed for chatbot.
-    private Mono<List<CatalogItem>> getItems(String type, String categoryId, String auth, String baseUrl,
+    private Mono<List<CatalogItem>> getItems(String type, String categoryId, String auth, URI baseUri,
                                         String limit, String offset) {
-        logger.trace("getItems type:{}, categoryId:{}, baseUrl={}.", type, categoryId, baseUrl);
+        logger.trace("getItems type:{}, categoryId:{}, baseUrl={}.", type, categoryId, baseUri);
         return rest.get()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
                         .path("/api/sn_sc/servicecatalog/items")
                         .queryParam(SNOW_SYS_PARAM_TEXT, type)
                         .queryParam(SNOW_SYS_PARAM_CAT, categoryId)
                         .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
                         .queryParam(SNOW_SYS_PARAM_OFFSET, offset)
-                        .encode()
-                        .toUriString())
+                        .build())
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToMono(JsonDocument.class)
-                .map(this::toCatalogItems);
+                .bodyToMono(new ParameterizedTypeReference<Map<String, List<CatalogItem>>>() {})
+                .map(resultMap -> resultMap.get("result"));
     }
 
     //returns id of service catalog for matching title from the results.
-    private Mono<String> callForSysIdByResultTitle(String endpoint, String title, String auth, String baseUrl) {
+    private Mono<String> callForSysIdByResultTitle(String endpoint, String title, String auth, URI baseUri) {
         logger.trace("read sys_id by title for endpoint:{}, title:{}", endpoint, title);
         return rest.get()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
                         .path(endpoint)
-                        .encode()
-                        .toUriString())
+                        .build())
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(doc -> doc.<List<String>>read(String.format("$.result[?(@.title=~/.*%s/i)].sys_id", title)))
-                .map(result -> {
-                    if (Objects.isNull(result) || result.size() != 1) {
-                        logger.debug("Couldn't find the sys_id for title:{}, endpoint:{}, baseUrl:{}",
-                                title, endpoint, baseUrl);
-                        throw new CatalogReadException("Can't find " + title);
+                .flatMap(doc -> {
+                    List<String> sysIds = doc.read(String.format("$.result[?(@.title=~/.*%s/i)].sys_id", title));
+                    if (sysIds != null && sysIds.size() == 1) {
+                        return Mono.just(sysIds.get(0));
                     }
-                    return result.get(0);
+
+                    logger.debug("Couldn't find the sys_id for title:{}, endpoint:{}, baseUrl:{}",
+                            title, endpoint, baseUri);
+                    return Mono.error(new CatalogReadException("Can't find " + title));
                 });
-    }
-
-    private List<CatalogItem> toCatalogItems(JsonDocument catalogResponse) {
-
-        if (Integer.valueOf(0).equals(catalogResponse.read("$.result.length()"))) {
-            return List.of();
-        }
-
-        List<LinkedHashMap> items = catalogResponse.read("$.result");
-
-        return items.stream()
-                .map(itemMap -> {
-                    CatalogItem catalogItem = new CatalogItem(
-                            (String) itemMap.get("name"), (String) itemMap.get("sys_id"));
-
-                    catalogItem.setDescription((String) itemMap.get("description"));
-                    catalogItem.setLocalizedPrice((String) itemMap.get("localized_price"));
-                    catalogItem.setPicture((String) itemMap.get("picture"));
-                    catalogItem.setShortDescription((String) itemMap.get("short_description"));
-
-                    return catalogItem;}
-                    )
-                .collect(Collectors.toList());
     }
 
     @PostMapping(
@@ -717,74 +708,41 @@ public class ServiceNowController {
 
         var userEmail = AuthUtil.extractUserEmail(mfToken);
 
+        logger.trace("getTasks for type={}, number={}, baseUrl={}, userEmail={}", taskType, taskNumber, baseUrl, userEmail);
+        URI taskUri = buildTasksUriByReqParam(taskType, taskNumber, userEmail, baseUrl, limit, offset);
+
+        return retrieveTasks(taskUri, auth)
+                .map(taskList -> Map.of("objects", taskList));
+    }
+
+    private URI buildTasksUriByReqParam(String taskType, String taskNumber, String userEmail, String baseUrl, String limit, String offset) {
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
+                .fromHttpUrl(baseUrl)
+                .replacePath("/api/now/table/");
+
         if (StringUtils.isBlank(taskNumber)) {
-            logger.trace("getTasks for type={}, baseUrl={}, userEmail={}", taskType, baseUrl, userEmail);
-            return this.getUserTasks(taskType, userEmail, baseUrl, auth, limit, offset)
-                    .map(this::toTaskList)
-                    .map(tasks -> Map.of(OBJECTS, tasks));
-
+            uriComponentsBuilder
+                    .path(taskType)
+                    .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
+                    .queryParam(SNOW_SYS_PARAM_OFFSET, offset)
+                    .queryParam("opened_by", userEmail);
         } else {
-            logger.trace("getTasks for taskNumber={}, type={}, baseUrl={}", taskNumber, taskType, baseUrl);
-            return this.getTask(taskNumber, taskType, baseUrl, auth)
-                    .map(this::toTaskList)
-                    .map(tasks -> Map.of(OBJECTS, tasks));
+            // If task number is provided, may be it doesn't matter to apply the filter about who created the ticket.
+            uriComponentsBuilder
+                    .queryParam(NUMBER, taskNumber);
         }
+
+        return uriComponentsBuilder
+                .encode().build().toUri();
     }
 
-    private Mono<JsonDocument> getUserTasks(String taskType, String userEmail, String baseUrl, String auth, String limit, String offset) {
-        // This would give user created tasks.
-        String userCreatedTasksUrl = UriComponentsBuilder
-                .fromHttpUrl(baseUrl)
-                .replacePath("/api/now/table/")
-                .path(taskType)
-                .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
-                .queryParam(SNOW_SYS_PARAM_OFFSET, offset)
-                .queryParam("opened_by", userEmail)
-                .encode()
-                .toUriString();
-
-        return getFromUrl(userCreatedTasksUrl, auth);
-    }
-
-    private Mono<JsonDocument> getTask(String taskNumber, String taskType, String baseUrl, String auth) {
-        // This would give task details by number. (May be taskType is redundant here, it can always be 'task' instead.)
-        String getTaskByNumberUrl = UriComponentsBuilder
-                .fromHttpUrl(baseUrl)
-                .replacePath("/api/now/table/")
-                .path(taskType)
-                .queryParam(NUMBER, taskNumber)
-                .encode()
-                .toUriString();
-
-        return getFromUrl(getTaskByNumberUrl, auth);
-    }
-
-    private Mono<JsonDocument> getFromUrl(String url, String auth) {
+    private Mono<List<Task>> retrieveTasks(URI taskUri, String auth) {
         return rest.get()
-                .uri(url)
+                .uri(taskUri)
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToMono(JsonDocument.class);
-    }
-
-    private List<Task> toTaskList(JsonDocument tasksResponse) {
-        if (Integer.valueOf(0).equals(tasksResponse.read("$.result.length()"))) {
-            return List.of();
-        }
-
-        List<LinkedHashMap> items = tasksResponse.read("$.result");
-
-        return items.stream()
-                .map(itemMap -> {
-                    Task ticket = new Task();
-
-                    ticket.setNumber((String) itemMap.get(NUMBER));
-                    ticket.setSysCreatedOn((String) itemMap.get("sys_created_on"));
-                    ticket.setShortDescription((String) itemMap.get("short_description"));
-
-                    return ticket; }
-                    )
-                .collect(Collectors.toList());
+                .bodyToMono(new ParameterizedTypeReference<Map<String, List<Task>>>() {})
+                .map(resultMap -> resultMap.get("result"));
     }
 
     @PostMapping(
@@ -808,19 +766,21 @@ public class ServiceNowController {
 
         logger.trace("createTicket for baseUrl={}, taskType={}, userEmail={}", baseUrl, taskType, userEmail);
 
-        return this.createTask(taskType, shortDescription, userEmail, baseUrl, auth)
+        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        return this.createTask(taskType, shortDescription, userEmail, baseUri, auth)
                 .map(createTaskResponse -> Map.of(ACTION_RESULT_KEY, createTaskResponse));
     }
 
     private Mono<Map<String, String>> createTask(String taskType, String shortDescription, String callerEmailId,
-                                                   String baseUrl, String auth) {
+                                                   URI baseUri, String auth) {
         return rest.post()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
-                        .replacePath("/api/now/table/")
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
+                        .path("/api/now/table/")
                         .path(taskType)
-                        .encode()
-                        .toUriString()
+                        .build()
                 )
                 .header(AUTHORIZATION, auth)
                 // ToDo: Improve this request body, if somehow chat-bot is able to supply more info.
@@ -850,13 +810,15 @@ public class ServiceNowController {
 
         logger.trace("checkout cart for user={}, baseUrl={}", userEmail, baseUrl);
 
+        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
         // ToDo: If Bot needs cart subtotal, include that by making an extra call to SNow.
         return rest.post()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
                         .path(SNOW_CHECKOUT_ENDPOINT)
-                        .encode()
-                        .toUriString()
+                        .build()
                 )
                 .header(AUTHORIZATION, auth)
                 .retrieve()
@@ -879,13 +841,14 @@ public class ServiceNowController {
 
         logger.trace("addToCart itemId={}, count={}, baseUrl={}", itemId, itemCount, baseUrl);
 
+        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
         return rest.post()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
                         .path(SNOW_ADD_TO_CART_ENDPOINT)
-                        .buildAndExpand(Map.of("item_id", itemId))
-                        .encode()
-                        .toUri()
+                        .build(Map.of("item_id", itemId))
                 )
                 .header(AUTHORIZATION, auth)
                 .syncBody(Map.of(SNOW_SYS_PARAM_QUAN, itemCount))
@@ -906,13 +869,14 @@ public class ServiceNowController {
             @Valid DeleteFromCartForm form) {
         logger.trace("deleteFromCart cartItem entryId={}, baseUrl={}", form.getEntryId(), baseUrl);
 
+        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
         return rest.delete()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
                         .path(SNOW_DELETE_CART_ENDPOINT)
-                        .buildAndExpand(Map.of("cart_item_id", form.getEntryId()))
-                        .encode()
-                        .toUriString()
+                        .build(Map.of("cart_item_id", form.getEntryId()))
                 )
                 .header(AUTHORIZATION, auth)
                 .exchange()
@@ -943,12 +907,15 @@ public class ServiceNowController {
             @RequestHeader(BASE_URL_HEADER) String baseUrl) {
 
         // A user will have only 1 cart. Its wrapped as list, to go with the standard object response.
+        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+
         return rest.get()
-                .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
                         .path("/api/sn_sc/servicecatalog/cart")
-                        .encode()
-                        .toUriString()
+                        .build()
                 )
                 .header(AUTHORIZATION, auth)
                 .retrieve()
@@ -970,22 +937,14 @@ public class ServiceNowController {
             return cart;
         }
 
-        cart.setItems(toCartItems(items));
+        cart.setItems(objectMapper.convertValue(items, new TypeReference<List<CartItem>>(){}));
+
+        // This a little hack. ServiceNow sends a '-', when the cart is empty.
+        if ("-".equals(cart.getTotalAmount())) {
+            cart.setTotalAmount("");
+        }
+
         return cart;
-    }
-
-    private List<CartItem> toCartItems(List<LinkedHashMap> responseItems) {
-
-        return responseItems.stream()
-                .map(responseItem -> {
-                    CartItem cartItem = new CartItem();
-                    cartItem.setEntryId((String) responseItem.get("cart_item_id"));
-                    cartItem.setName((String) responseItem.get("name"));
-                    return cartItem; }
-                    )
-                .collect(Collectors.toList());
-
-
     }
 
     @ExceptionHandler(CatalogReadException.class)

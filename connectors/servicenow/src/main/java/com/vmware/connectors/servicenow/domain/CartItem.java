@@ -9,24 +9,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CartItem {
 
-    @JsonProperty("entry_id")
     private String entryId;
 
-    @JsonProperty("name")
     private String name;
 
+    @JsonProperty("entry_id")
     public String getEntryId() {
         return entryId;
     }
 
+    @JsonProperty("cart_item_id")
     public void setEntryId(String entryId) {
         this.entryId = entryId;
     }
 
+    @JsonProperty("name")
     public String getName() {
         return name;
     }
 
+    @JsonProperty("name")
     public void setName(String name) {
         this.name = name;
     }

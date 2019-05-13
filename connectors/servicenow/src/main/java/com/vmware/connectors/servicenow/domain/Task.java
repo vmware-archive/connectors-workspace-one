@@ -13,33 +13,36 @@ public class Task {
 
     private String number;
 
-    @JsonProperty("sys_created_on")
-    private String sysCreatedOn;
+    private String createdOn;
 
-    @JsonProperty("short_description")
     private String shortDescription;
 
-
+    @JsonProperty("number")
     public String getNumber() {
         return number;
     }
 
+    @JsonProperty("number")
     public void setNumber(String number) {
         this.number = number;
     }
 
-    public String getSysCreatedOn() {
-        return sysCreatedOn;
+    @JsonProperty("created_on")
+    public String getCreatedOn() {
+        return createdOn;
     }
 
-    public void setSysCreatedOn(String sysCreatedOn) {
-        this.sysCreatedOn = sysCreatedOn;
+    @JsonProperty("sys_created_on")
+    public void setCreatedOn(String createdOn) {
+        this.createdOn = createdOn;
     }
 
+    @JsonProperty("short_description")
     public String getShortDescription() {
         return shortDescription;
     }
 
+    @JsonProperty("short_description")
     public void setShortDescription(String shortDescription) {
         this.shortDescription = shortDescription;
     }

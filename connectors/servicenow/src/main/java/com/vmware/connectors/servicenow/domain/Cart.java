@@ -16,7 +16,7 @@ public class Cart {
     @JsonProperty("cart_id")
     private String id;
 
-    @JsonProperty("cart_total")
+    @JsonProperty("subtotal_price")
     private String totalAmount;
 
     @JsonProperty("items")

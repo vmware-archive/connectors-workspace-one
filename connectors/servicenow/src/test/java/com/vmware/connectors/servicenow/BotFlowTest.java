@@ -79,7 +79,26 @@ class BotFlowTest extends ControllerTestsBase {
                 .expectBody().json(fromFile("/botflows/connector/response/laptop_items.json"));
     }
 
-    // ToDo: Do more to test optional token fields.
+    @Test
+    void testCatalogItemsObjError() throws Exception {
+
+        mockBackend.expect(requestTo("/api/sn_sc/servicecatalog/catalogs"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("/botflows/servicenow/response/catalogs.json"), APPLICATION_JSON));
+
+        String catalogId = "e0d08b13c3330100c8b837659bba8fb4";
+        mockBackend.expect(requestToUriTemplate("/api/sn_sc/servicecatalog/catalogs/{catalogId}/categories", catalogId))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("/botflows/servicenow/response/service_catalog_categories.json"), APPLICATION_JSON));
+
+
+        requestObjects("/api/v1/catalog-items", SNOW_AUTH_TOKEN, "/botflows/connector/request/fruits.json",null)
+                .expectStatus().isBadRequest();
+    }
+
+    // ToDo: APF-2225 Do more to test optional token fields.
     @Test
     void testTaskObject() throws Exception {
         String taskType = "ticket";

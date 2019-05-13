@@ -11,69 +11,74 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CatalogItem {
 
-    @JsonProperty("name")
     private String name;
 
-    @JsonProperty("id")
     private String id;
 
-    @JsonProperty("short_description")
     private String shortDescription;
 
-    @JsonProperty("description")
     private String description;
 
-    @JsonProperty("picture")
     private String picture;
 
-    @JsonProperty("localized_price")
     private String localizedPrice;
 
-    private CatalogItem() {
-
-    }
-
-    public CatalogItem(String name, String id) {
-        this.name = name;
-        this.id = id;
-    }
-
+    @JsonProperty("name")
     public String getName() {
         return name;
     }
 
-    public String getShortDescription() {
-        return shortDescription;
+    @JsonProperty("name")
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setShortDescription(String shortDescription) {
-        this.shortDescription = shortDescription;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getPicture() {
-        return picture;
-    }
-
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
-
+    @JsonProperty("id")
     public String getId() {
         return id;
     }
 
+    @JsonProperty("sys_id")
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @JsonProperty("short_description")
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    @JsonProperty("short_description")
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
+    @JsonProperty("description")
+    public String getDescription() {
+        return description;
+    }
+
+    @JsonProperty("description")
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @JsonProperty("picture")
+    public String getPicture() {
+        return picture;
+    }
+
+    @JsonProperty("picture")
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
+    @JsonProperty("localized_price")
     public String getLocalizedPrice() {
         return localizedPrice;
     }
 
+    @JsonProperty("localized_price")
     public void setLocalizedPrice(String localizedPrice) {
         this.localizedPrice = localizedPrice;
     }

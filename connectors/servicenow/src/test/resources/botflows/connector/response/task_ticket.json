@@ -2,12 +2,12 @@
   "objects": [
     {
       "number": "TKT0010001",
-      "sys_created_on": "2019-05-08 13:25:20",
+      "created_on": "2019-05-08 13:25:20",
       "short_description": "Via connector action"
     },
     {
       "number": "TKT0010002",
-      "sys_created_on": "2019-05-08 13:33:04",
+      "created_on": "2019-05-08 13:33:04",
       "short_description": "Via connector action 2"
     }
   ]
