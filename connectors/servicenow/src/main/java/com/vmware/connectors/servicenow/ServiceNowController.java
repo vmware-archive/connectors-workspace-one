@@ -745,6 +745,55 @@ public class ServiceNowController {
     }
 
     @PostMapping(
+            path = "/api/v1/cart",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<Map<String, List<Cart>>> lookupCart(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl) {
+
+        // A user will have only 1 cart. Its wrapped as list, to go with the standard object response.
+        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+
+        return rest.get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
+                        .path("/api/sn_sc/servicecatalog/cart")
+                        .build()
+                )
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(this::toCartObj)
+                .map(List::of)
+                .map(wrappedCart -> Map.of(OBJECTS, wrappedCart));
+    }
+
+    private Cart toCartObj(JsonDocument cartResponse) {
+        Cart cart = new Cart();
+
+        cart.setId(cartResponse.read("$.result.cart_id"));
+        cart.setTotalAmount(cartResponse.read("$.result.subtotal_price"));
+
+        List<LinkedHashMap> items = cartResponse.read("$.result.*.items.*");
+        if (items == null) {
+            cart.setItems(List.of());
+            return cart;
+        }
+
+        cart.setItems(objectMapper.convertValue(items, new TypeReference<List<CartItem>>(){}));
+
+        // This a little hack. ServiceNow sends a '-', when the cart is empty.
+        if ("-".equals(cart.getTotalAmount())) {
+            cart.setTotalAmount("");
+        }
+
+        return cart;
+    }
+
+    @PostMapping(
             path = "/api/v1/task/create",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -795,35 +844,6 @@ public class ServiceNowController {
         return Map.of(
                 "task_id", responseDoc.read("$.result.sys_id"),
                 NUMBER, responseDoc.read("$.result.number"));
-    }
-
-    @PostMapping(
-            path = "/api/v1/checkout"
-    )
-    public Mono<Map<String, Object>> checkout(
-            @RequestHeader(AUTHORIZATION) String mfToken,
-            @RequestHeader(AUTH_HEADER) String auth,
-            @RequestHeader(BASE_URL_HEADER) String baseUrl) {
-
-        var userEmail = AuthUtil.extractUserEmail(mfToken);
-
-        logger.trace("checkout cart for user={}, baseUrl={}", userEmail, baseUrl);
-
-        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
-        // ToDo: If Bot needs cart subtotal, include that by making an extra call to SNow.
-        return rest.post()
-                .uri(uriBuilder -> uriBuilder
-                        .scheme(baseUri.getScheme())
-                        .host(baseUri.getHost())
-                        .port(baseUri.getPort())
-                        .path(SNOW_CHECKOUT_ENDPOINT)
-                        .build()
-                )
-                .header(AUTHORIZATION, auth)
-                .retrieve()
-                .bodyToMono(JsonDocument.class)
-                .map(doc -> Map.of(ACTION_RESULT_KEY, Map.of(
-                        "request_number", doc.read("$.result.request_number"))));
     }
 
     @PutMapping(
@@ -898,52 +918,32 @@ public class ServiceNowController {
     }
 
     @PostMapping(
-            path = "/api/v1/cart",
-            produces = MediaType.APPLICATION_JSON_VALUE
+            path = "/api/v1/checkout"
     )
-    public Mono<Map<String, List<Cart>>> lookupCart(
+    public Mono<Map<String, Object>> checkout(
+            @RequestHeader(AUTHORIZATION) String mfToken,
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl) {
 
-        // A user will have only 1 cart. Its wrapped as list, to go with the standard object response.
-        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        var userEmail = AuthUtil.extractUserEmail(mfToken);
 
-        return rest.get()
+        logger.trace("checkout cart for user={}, baseUrl={}", userEmail, baseUrl);
+
+        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        // ToDo: If Bot needs cart subtotal, include that by making an extra call to SNow.
+        return rest.post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme(baseUri.getScheme())
                         .host(baseUri.getHost())
                         .port(baseUri.getPort())
-                        .path("/api/sn_sc/servicecatalog/cart")
+                        .path(SNOW_CHECKOUT_ENDPOINT)
                         .build()
                 )
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(this::toCartObj)
-                .map(List::of)
-                .map(wrappedCart -> Map.of(OBJECTS, wrappedCart));
-    }
-
-    private Cart toCartObj(JsonDocument cartResponse) {
-        Cart cart = new Cart();
-
-        cart.setId(cartResponse.read("$.result.cart_id"));
-        cart.setTotalAmount(cartResponse.read("$.result.subtotal_price"));
-
-        List<LinkedHashMap> items = cartResponse.read("$.result.*.items.*");
-        if (items == null) {
-            cart.setItems(List.of());
-            return cart;
-        }
-
-        cart.setItems(objectMapper.convertValue(items, new TypeReference<List<CartItem>>(){}));
-
-        // This a little hack. ServiceNow sends a '-', when the cart is empty.
-        if ("-".equals(cart.getTotalAmount())) {
-            cart.setTotalAmount("");
-        }
-
-        return cart;
+                .map(doc -> Map.of(ACTION_RESULT_KEY, Map.of(
+                        "request_number", doc.read("$.result.request_number"))));
     }
 
     @ExceptionHandler(CatalogReadException.class)
