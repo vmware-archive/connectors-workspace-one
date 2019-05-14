@@ -1,0 +1,19 @@
+{
+  "result": {
+    "cart_id": "bf89c983db513300ea92eb41ca9619dc",
+    "subtotal": "$1,499.00",
+    "items": [
+      {
+        "catalog_item_id": "774906834fbb4200086eeed18110c737",
+        "quantity": "1",
+        "localized_price": "$1,499.00",
+        "price": "$1,499.00",
+        "recurring_frequency": "Annually",
+        "localized_recurring_price": "$100.00",
+        "recurring_price": "$100.00",
+        "item_name": "Developer Laptop (Mac)",
+        "cart_item_id": "88faa613db113300ea92eb41ca961950"
+      }
+    ]
+  }
+}
