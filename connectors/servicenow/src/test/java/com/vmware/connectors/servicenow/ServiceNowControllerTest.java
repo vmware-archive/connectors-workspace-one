@@ -114,14 +114,14 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 .syncBody(fromFile("/servicenow/requests/" + requestFile));
 
         if (authToken != null) {
-            spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
-        }
-
-        if (language != null) {
-            spec = spec.header(ACCEPT_LANGUAGE, language);
-        }
-
-        return spec.exchange();
+                spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
+            }
+    
+            if (language != null) {
+                spec = spec.header(ACCEPT_LANGUAGE, language);
+            }
+    
+            return spec.exchange();
     }
 
     private WebTestClient.ResponseSpec requestCards(String authToken, String requestFile) throws Exception {

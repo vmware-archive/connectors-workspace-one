@@ -1,6 +1,6 @@
 {
   "image": {
-    "href": "${CONNECTOR_HOST}/images/connector.png"
+    "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-servicenow.png"
   },
   "object_types": {
     "card": {
@@ -19,6 +19,102 @@
       "endpoint": {
         "href": "${CONNECTOR_HOST}/cards/requests"
       }
+    },
+    "catalogItem": {
+      "fields": {
+        "type": {
+          "env": "ITEM_TYPE"
+        },
+        "catalog": {
+          "env": "CATALOG_NAME"
+        },
+        "category": {
+          "env": "CATEGORY_NAME"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/catalog-items"
+      }
+    },
+    "taskItem": {
+      "fields": {
+        "type": {
+          "env": "TASK_TYPE",
+          "mandatory": false
+        },
+        "number": {
+          "env": "TASK_NUMBER",
+          "mandatory": false
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/tasks"
+      }
+    },
+    "cart": {
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/cart"
+      }
+    }
+  },
+  "actions": {
+    "createTask": {
+      "url": {
+        "href": "${CONNECTOR_HOST}/api/v1/task/create"
+      },
+      "user_input": [],
+      "request": {
+        "type": {
+          "env": "TASK_TYPE"
+        },
+        "short_description": {
+          "env": "TASK_SHORT_DESCRIPTION"
+        }
+      },
+      "label": "Create Task",
+      "type": "POST",
+      "action_key": "USER_INPUT"
+    },
+    "addCart": {
+      "url": {
+        "href": "${CONNECTOR_HOST}/api/v1/cart"
+      },
+      "user_input": [],
+      "request": {
+        "item_id": {
+          "env": "CATALOGITEM_ID"
+        },
+        "item_count": {
+          "env": "ITEM_COUNT"
+        }
+      },
+      "label": "Add an item to cart",
+      "type": "PUT",
+      "action_key": "USER_INPUT"
+    },
+    "deleteCart": {
+      "url": {
+        "href": "${CONNECTOR_HOST}/api/v1/cart"
+      },
+      "user_input": [],
+      "request": {
+        "entry_id": {
+          "env": "CART_ENTRY_ID"
+        }
+      },
+      "label": "Remove an item from cart",
+      "type": "DELETE",
+      "action_key": "USER_INPUT"
+    },
+    "checkout": {
+      "url": {
+        "href": "${CONNECTOR_HOST}/api/v1/checkout"
+      },
+      "user_input": [],
+      "request": {},
+      "label": "Checkout cart",
+      "type": "POST",
+      "action_key": "DIRECT"
     }
   }
 }

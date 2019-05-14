@@ -1,0 +1,22 @@
+{
+  "objects": [
+    {
+      "cart_id": "6a27ad02db113300ea92eb41ca961933",
+      "subtotal_price": "$3,199.98",
+      "items": [
+        {
+          "entry_id": "cd5fad02db113300ea92eb41ca961965",
+          "name": "Development Laptop (PC)"
+        },
+        {
+          "entry_id": "3c7f6d42db113300ea92eb41ca9619f1",
+          "name": "Apple MacBook Pro 15\""
+        },
+        {
+          "entry_id": "26a54e4adb513300ea92eb41ca9619cd",
+          "name": "Apple MacBook Pro 15\""
+        }
+      ]
+    }
+  ]
+}
