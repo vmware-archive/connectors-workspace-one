@@ -4,6 +4,7 @@
     },
     "object_types": {
         "card": {
+            "pollable": true,
             "doc": {
                 "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
             },
