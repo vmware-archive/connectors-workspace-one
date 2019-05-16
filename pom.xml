@@ -575,7 +575,12 @@
                                                 > /etc/opt/vmware/connectors/${connector.name}/application.properties
                                                 ]]>
                                                 </run>
-                                            </runCmds>
+                                                <run>
+                                                    <![CDATA[
+                                                    echo "spring.profiles.active=test" >> /etc/opt/vmware/connectors/${connector.name}/application.properties
+                                                    ]]>
+                                                </run>
+                                             </runCmds>
                                             <cmd>
                                                 <shell>/usr/sbin/init</shell>
                                             </cmd>

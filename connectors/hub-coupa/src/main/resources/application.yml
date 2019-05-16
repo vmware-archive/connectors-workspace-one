@@ -6,6 +6,3 @@ server:
 management:
   endpoints:
     web.base-path: /
-
-coupa:
-  api-key: overrideme
