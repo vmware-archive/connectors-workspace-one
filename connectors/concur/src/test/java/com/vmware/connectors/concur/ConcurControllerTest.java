@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 import org.springframework.test.web.client.ResponseActions;
@@ -45,6 +46,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 @ContextConfiguration(initializers = ConcurControllerTest.CustomInitializer.class)
+@ActiveProfiles("test")
 class ConcurControllerTest extends ControllerTestsBase {
 
     private static final String REPORT_ID_1 = "79D89435DAE94F53BF60";

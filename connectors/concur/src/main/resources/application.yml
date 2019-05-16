@@ -11,8 +11,3 @@ management:
   endpoints:
     web.base-path: /
 
-# In order to fetch the OAuth token, the below properties are required to be configured by the tenant.
-concur:
-  client-id: dummy-client-id
-  client-secret: dummy-client-secret
-  oauth-instance-url: https://dummy.api.concursolutions.com/
