@@ -62,7 +62,7 @@ public class HubConcurController {
             WebClient rest,
             CardTextAccessor cardTextAccessor,
             @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate,
-            @Value("${concur.service-account-auth-header}") String serviceAccountAuthHeader
+            @Value("${concur.service-account-auth-header:}") String serviceAccountAuthHeader
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;

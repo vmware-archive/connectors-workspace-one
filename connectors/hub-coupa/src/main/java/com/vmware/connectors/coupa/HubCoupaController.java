@@ -58,7 +58,7 @@ public class HubCoupaController {
     public HubCoupaController(
             WebClient rest,
             CardTextAccessor cardTextAccessor,
-            @Value("${coupa.api-key}") String apiKey
+            @Value("${coupa.api-key:}") String apiKey
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
