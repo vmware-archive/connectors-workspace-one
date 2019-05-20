@@ -56,18 +56,6 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
         testConnectorDiscovery();
     }
 
-    @Test
-    void testGetImage() {
-        webClient.get()
-                .uri("/images/connector.png")
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentLength(16375)
-                .expectHeader().contentType(IMAGE_PNG_VALUE)
-                .expectBody()
-                .consumeWith(body -> assertThat(body.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
-    }
-
     WebTestClient.ResponseSpec approveRequest(String authHeader) {
         return webClient.post()
                 .uri("/api/approve/{id}?comment=Approved", "182964")

@@ -57,18 +57,6 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
         testConnectorDiscovery();
     }
 
-    @Test
-    void testGetImage() {
-        webClient.get()
-                .uri("/images/connector.png")
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentLength(9339)
-                .expectHeader().contentType(IMAGE_PNG_VALUE)
-                .expectBody()
-                .consumeWith(body -> assertThat(body.getResponseBody(), equalTo(bytesFromFile("/static/images/connector.png"))));
-    }
-
     WebTestClient.ResponseSpec approveRequest(String authHeader) {
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri("/api/expense/{id}/approve", "1D3BD2E14D144508B05F")
