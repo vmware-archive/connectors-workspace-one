@@ -29,7 +29,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +92,7 @@ public class HubSalesForceController {
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
             final Locale locale
-    ) throws IOException {
+    ) {
         logger.trace("getCards called with baseUrl: {} and routingPrefix: {}", baseUrl, routingPrefix);
 
         final String userEmail = AuthUtil.extractUserEmail(auth);
@@ -176,7 +175,7 @@ public class HubSalesForceController {
                                              final String routingPrefix) {
         final List<String> opportunityIds = workItemResponse.read("$.records[*].TargetObjectId");
         if (CollectionUtils.isEmpty(opportunityIds)) {
-            logger.warn("TargetObjectIds are empty.");
+            logger.warn("TargetObjectIds are empty for the base url [{}]", baseUrl);
             return Flux.empty();
         }
 
@@ -218,6 +217,11 @@ public class HubSalesForceController {
         final List<Card> cardList = new ArrayList<>();
 
         for (int i = 0; i < totalSize; i++) {
+            if (workItemResponse.read(String.format("$.records[%s].Workitems", i)) == null) {
+                logger.trace("No work items found for the record id [{}]", (String) workItemResponse.read("$.records[0].Id"));
+                continue;
+            }
+
             final String userId = workItemResponse.read(String.format("$.records[%s].Workitems.records[0].Id", i));
 
             final Card.Builder card = new Card.Builder()

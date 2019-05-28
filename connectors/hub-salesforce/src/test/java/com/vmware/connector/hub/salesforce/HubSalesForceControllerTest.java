@@ -10,8 +10,11 @@ import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -24,17 +27,20 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.MediaType.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.test.web.client.ExpectedCount.between;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HubSalesForceControllerTest extends ControllerTestsBase {
 
     private static final String SOQL_QUERY_PATH = "/services/data/v44.0/query";
@@ -49,8 +55,11 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
     @Value("classpath:opportunity_result.json")
     private Resource opportunityResult;
 
-    @Value("classpath:/connector/responses/empty_workflow.json")
-    private Resource emptyWorkflow;
+    @Value("classpath:connector/responses/empty_records.json")
+    private Resource emptyRecords;
+
+    @Value("classpath:connector/responses/empty_work_items.json")
+    private Resource emptyWorkItems;
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -126,12 +135,23 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
                 .expectStatus().isOk();
     }
 
-    @Test
-    void testCardRequestWithEmptyWorkflow() throws Exception {
-        expectSalesforceRequest(String.format(WORK_ITEMS_QUERY, "admin@acme.com"))
-                .andRespond(withSuccess(emptyWorkflow, APPLICATION_JSON));
+    @ParameterizedTest
+    @MethodSource("emptyWorkFlowArgument")
+    void testCardRequestWithEmptyWorkflow(final String email, final Resource resource) throws Exception {
+        expectSalesforceRequest(String.format(WORK_ITEMS_QUERY, email))
+                .andRespond(withSuccess(resource, APPLICATION_JSON));
+
+        expectSalesforceRequest(String.format(OPPORTUNITY_QUERY, "0062E00001Em72DQAR', '0062E00001Em757QAB', '0062E00001Em7iBQAR', '0062E00001Em7kWQAR', '0062E00001Em7lyQAB"))
+                .andRespond(withSuccess(opportunityResult, APPLICATION_JSON));
 
         testRequestCards("empty_card_response.json", StringUtils.EMPTY);
+    }
+
+    private Stream<Arguments> emptyWorkFlowArgument() {
+        return Stream.of(
+                Arguments.of("admin@acme.com", emptyRecords),
+                Arguments.of("admin@acme.com", emptyWorkItems)
+        );
     }
 
     private void setupMock() {
@@ -180,7 +200,7 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
                 .build()
                 .toUri();
 
-        return mockBackend.expect(requestTo(uri))
+        return mockBackend.expect(between(0, 1), requestTo(uri))
                 .andExpect(method(GET))
                 .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer abc"));
     }
