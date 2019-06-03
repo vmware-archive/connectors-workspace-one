@@ -3,6 +3,7 @@ server:
      enabled: true
      mime-types: application/json,application/xml,text/html,text/xml,text/plain
   server-header: hub-concur-connector
+  port: 9500
 
 connector:
   hasTestAuth: true
@@ -10,3 +11,12 @@ connector:
 management:
   endpoints:
     web.base-path: /
+
+concur:
+  service-account-auth-header: OAuth 0_alUqjV3ORMoDTTaykLBYBVO54=
+
+security:
+  oauth2:
+    resource:
+      jwt:
+        key-uri: https://dev.hero.vmwservices.com/security/public-key

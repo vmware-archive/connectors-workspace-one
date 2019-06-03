@@ -1,241 +1,327 @@
 {
   "objects": [
     {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Concur",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Meals & Entertainment",
+        "subtitle": []
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "REPORT NAME",
+            "description": "1970-01-01T00:00:00Z"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REQUESTED BY",
+            "description": "Totla, Gaurav"
+          },
+          {
+            "type": "GENERAL",
+            "title": "TOTAL AMOUNT:",
+            "description": "INR 23,340.21"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Business Meeting",
+            "content": [
+              {
+                "AMOUNT": "India, Rupee 23,340.21",
+                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
+                "VENDOR NAME": "United 21",
+                "EXPENSE TYPE": "Meals & Entertainment",
+                "CITY OF PURCHASE": "Bangalore",
+                "PAYMENT TYPE": "CASH"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
-          "action_key": "USER_INPUT",
-          "allow_repeated": false,
-          "completed_label": "APPROVED",
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "APPROVE",
-          "mutually_exclusive_set_id": "approval-actions",
           "primary": true,
-          "request": {},
-          "type": "POST",
+          "label": "APPROVE",
           "url": {
             "href": "https://hero/connectors/concur/api/expense/1D3BD2E14D144508B05F/approve"
           },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
           "user_input": [
             {
-              "format": "textarea",
               "id": "comment",
-              "label": "COMMENT"
+              "label": "COMMENT",
+              "format": "textarea"
             }
-          ]
+          ],
+          "completed_label": "APPROVED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         },
         {
-          "action_key": "USER_INPUT",
-          "allow_repeated": false,
-          "completed_label": "DECLINED",
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "DECLINE",
-          "mutually_exclusive_set_id": "approval-actions",
-          "request": {},
-          "type": "POST",
           "url": {
             "href": "https://hero/connectors/concur/api/expense/1D3BD2E14D144508B05F/decline"
           },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
           "user_input": [
             {
-              "format": "textarea",
               "id": "reason",
-              "label": "REASON"
+              "label": "REASON",
+              "format": "textarea"
             }
-          ]
+          ],
+          "completed_label": "DECLINED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         }
       ],
-      "body": {
-        "fields": [
-          {
-            "description": "1970-01-01T00:00:00Z",
-            "title": "SUBMITTED ON",
-            "type": "GENERAL"
-          },
-          {
-            "description": "Totla, Gaurav",
-            "title": "REQUESTED BY",
-            "type": "GENERAL"
-          },
-          {
-            "description": "(IN1019722)IT - Apps Cloud-1021",
-            "title": "COST CENTER",
-            "type": "GENERAL"
-          },
-          {
-            "description": "INR 23,340.21",
-            "title": "AMOUNT",
-            "type": "GENERAL"
-          }
-        ]
-      },
-      "creation_date": "1970-01-01T00:00:00Z",
-      "hash": "test-hash",
-      "header": {
-        "title": "Meals & Entertainment"
-      },
-      "id": "00000000-0000-0000-0000-000000000000",
       "image": {
         "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-concur.png"
       },
-      "name": "Concur"
+      "hash": "test-hash"
     },
     {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Concur",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Campus Hiring Event 2018",
+        "subtitle": []
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "REPORT NAME",
+            "description": "1970-01-01T00:00:00Z"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REQUESTED BY",
+            "description": "Totla, Gaurav"
+          },
+          {
+            "type": "GENERAL",
+            "title": "TOTAL AMOUNT:",
+            "description": "INR 178,838.66"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "AMOUNT": "India, Rupee 17,464.66",
+                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
+                "VENDOR NAME": "Hilton Hotels",
+                "EXPENSE TYPE": "Lodging",
+                "CITY OF PURCHASE": "Bangalore",
+                "PAYMENT TYPE": "CASH"
+              }
+            ]
+          },
+          {
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "AMOUNT": "India, Rupee 158,374",
+                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
+                "VENDOR NAME": "Air India Regional",
+                "EXPENSE TYPE": "Airfare - Ticket",
+                "CITY OF PURCHASE": "Bangalore",
+                "PAYMENT TYPE": "CASH"
+              }
+            ]
+          },
+          {
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "AMOUNT": "India, Rupee 3,000",
+                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
+                "VENDOR NAME": "Volvo",
+                "EXPENSE TYPE": "Bus/Public Transportation",
+                "CITY OF PURCHASE": "Bangalore",
+                "PAYMENT TYPE": "CASH"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
-          "action_key": "USER_INPUT",
-          "allow_repeated": false,
-          "completed_label": "APPROVED",
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "APPROVE",
-          "mutually_exclusive_set_id": "approval-actions",
           "primary": true,
-          "request": {},
-          "type": "POST",
+          "label": "APPROVE",
           "url": {
             "href": "https://hero/connectors/concur/api/expense/683105624FD74A1B9C13/approve"
           },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
           "user_input": [
             {
-              "format": "textarea",
               "id": "comment",
-              "label": "COMMENT"
+              "label": "COMMENT",
+              "format": "textarea"
             }
-          ]
+          ],
+          "completed_label": "APPROVED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         },
         {
-          "action_key": "USER_INPUT",
-          "allow_repeated": false,
-          "completed_label": "DECLINED",
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "DECLINE",
-          "mutually_exclusive_set_id": "approval-actions",
-          "request": {},
-          "type": "POST",
           "url": {
             "href": "https://hero/connectors/concur/api/expense/683105624FD74A1B9C13/decline"
           },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
           "user_input": [
             {
-              "format": "textarea",
               "id": "reason",
-              "label": "REASON"
+              "label": "REASON",
+              "format": "textarea"
             }
-          ]
+          ],
+          "completed_label": "DECLINED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         }
       ],
-      "body": {
-        "fields": [
-          {
-            "description": "1970-01-01T00:00:00Z",
-            "title": "SUBMITTED ON",
-            "type": "GENERAL"
-          },
-          {
-            "description": "Totla, Gaurav",
-            "title": "REQUESTED BY",
-            "type": "GENERAL"
-          },
-          {
-            "description": "(IN1019722)IT - Apps Cloud-1021",
-            "title": "COST CENTER",
-            "type": "GENERAL"
-          },
-          {
-            "description": "INR 178,838.66",
-            "title": "AMOUNT",
-            "type": "GENERAL"
-          }
-        ]
-      },
-      "creation_date": "1970-01-01T00:00:00Z",
-      "hash": "test-hash",
-      "header": {
-        "title": "Campus Hiring Event 2018"
-      },
-      "id": "00000000-0000-0000-0000-000000000000",
       "image": {
         "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-concur.png"
       },
-      "name": "Concur"
+      "hash": "test-hash"
     },
     {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Concur",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Sales Kickoff Event",
+        "subtitle": []
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "REPORT NAME",
+            "description": "1970-01-01T00:00:00Z"
+          },
+          {
+            "type": "GENERAL",
+            "title": "REQUESTED BY",
+            "description": "Totla, Gaurav"
+          },
+          {
+            "type": "GENERAL",
+            "title": "TOTAL AMOUNT:",
+            "description": "INR 183,838.66"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "AMOUNT": "India, Rupee 17,464.66",
+                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
+                "VENDOR NAME": "Hilton Hotels",
+                "EXPENSE TYPE": "Lodging",
+                "CITY OF PURCHASE": "Bangalore",
+                "PAYMENT TYPE": "CASH"
+              }
+            ]
+          },
+          {
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "AMOUNT": "India, Rupee 158,374",
+                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
+                "VENDOR NAME": "Air India Regional",
+                "EXPENSE TYPE": "Airfare - Ticket",
+                "CITY OF PURCHASE": "Bangalore",
+                "PAYMENT TYPE": "CASH"
+              }
+            ]
+          },
+          {
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "AMOUNT": "India, Rupee 8,000",
+                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
+                "VENDOR NAME": "Volvo",
+                "EXPENSE TYPE": "Bus/Public Transportation",
+                "CITY OF PURCHASE": "Bangalore",
+                "PAYMENT TYPE": "CASH"
+              }
+            ]
+          }
+        ]
+      },
       "actions": [
         {
-          "action_key": "USER_INPUT",
-          "allow_repeated": false,
-          "completed_label": "APPROVED",
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "APPROVE",
-          "mutually_exclusive_set_id": "approval-actions",
           "primary": true,
-          "request": {},
-          "type": "POST",
+          "label": "APPROVE",
           "url": {
             "href": "https://hero/connectors/concur/api/expense/A77D016732974B5F8E23/approve"
           },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
           "user_input": [
             {
-              "format": "textarea",
               "id": "comment",
-              "label": "COMMENT"
+              "label": "COMMENT",
+              "format": "textarea"
             }
-          ]
+          ],
+          "completed_label": "APPROVED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         },
         {
-          "action_key": "USER_INPUT",
-          "allow_repeated": false,
-          "completed_label": "DECLINED",
           "id": "00000000-0000-0000-0000-000000000000",
           "label": "DECLINE",
-          "mutually_exclusive_set_id": "approval-actions",
-          "request": {},
-          "type": "POST",
           "url": {
             "href": "https://hero/connectors/concur/api/expense/A77D016732974B5F8E23/decline"
           },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
           "user_input": [
             {
-              "format": "textarea",
               "id": "reason",
-              "label": "REASON"
+              "label": "REASON",
+              "format": "textarea"
             }
-          ]
+          ],
+          "completed_label": "DECLINED",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         }
       ],
-      "body": {
-        "fields": [
-          {
-            "description": "1970-01-01T00:00:00Z",
-            "title": "SUBMITTED ON",
-            "type": "GENERAL"
-          },
-          {
-            "description": "Totla, Gaurav",
-            "title": "REQUESTED BY",
-            "type": "GENERAL"
-          },
-          {
-            "description": "(IN1019722)IT - Apps Cloud-1021",
-            "title": "COST CENTER",
-            "type": "GENERAL"
-          },
-          {
-            "description": "INR 183,838.66",
-            "title": "AMOUNT",
-            "type": "GENERAL"
-          }
-        ]
-      },
-      "creation_date": "1970-01-01T00:00:00Z",
-      "hash": "test-hash",
-      "header": {
-        "title": "Sales Kickoff Event"
-      },
-      "id": "00000000-0000-0000-0000-000000000000",
       "image": {
         "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-concur.png"
       },
-      "name": "Concur"
+      "hash": "test-hash"
     }
   ]
 }

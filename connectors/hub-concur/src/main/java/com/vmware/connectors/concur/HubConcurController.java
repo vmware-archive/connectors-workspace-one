@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -32,7 +33,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
-import java.util.Locale;
+import java.util.*;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.*;
@@ -186,24 +187,74 @@ public class HubConcurController {
 
         Card.Builder builder = new Card.Builder()
                 .setName("Concur")
-                .setHeader(cardTextAccessor.getMessage("hub.concur.header", locale, reportName))
-                .setBody(
-                        new CardBody.Builder()
-                                .addField(makeGeneralField(locale, "hub.concur.submissionDate", report.getSubmitDate()))
-                                .addField(makeGeneralField(locale, "hub.concur.requester", report.getEmployeeName()))
-                                .addField(makeGeneralField(locale, "hub.concur.costCenter", report.getCostCenter()))
-                                .addField(makeGeneralField(locale, "hub.concur.expenseAmount",
-                                        formatCurrency(report.getReportTotal(), locale, report.getCurrencyCode())))
-                                .build()
-                )
+                .setHeader(cardTextAccessor.getMessage("ws1.hub.concur.header", locale, reportName))
+                .setBody(buildCard(locale, report))
                 .addAction(makeAction(routingPrefix, locale, reportId,
-                        true, "hub.concur.approve", COMMENT_KEY, "hub.concur.approve.comment.label", "/approve"))
+                        true, "ws1.hub.concur.approve", COMMENT_KEY, "ws1.hub.concur.approve.comment.label", "/approve"))
                 .addAction(makeAction(routingPrefix, locale, reportId,
-                        false, "hub.concur.decline", REASON_KEY, "hub.concur.decline.reason.label", "/decline"));
+                        false, "ws1.hub.concur.decline", REASON_KEY, "ws1.hub.concur.decline.reason.label", "/decline"));
 
         builder.setImageUrl("https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-concur.png");
 
         return builder.build();
+    }
+
+    private CardBody buildCard(final Locale locale,
+                               final ExpenseReportResponse report) {
+        final CardBody.Builder cardBodyBuilder =  new CardBody.Builder()
+                .addField(makeGeneralField(locale, "ws1.hub.concur.report.name", report.getSubmitDate()))
+                .addField(makeGeneralField(locale, "ws1.hub.concur.requester", report.getEmployeeName()))
+                .addField(makeGeneralField(locale, "ws1.hub.concur.expenseAmount",
+                        formatCurrency(report.getReportTotal(), locale, report.getCurrencyCode())));
+
+        if (!CollectionUtils.isEmpty(report.getExpenseEntriesList())) {
+            final List<CardBodyField> expenseItemsList = buildExpenseItemsList(report, locale);
+
+            expenseItemsList.forEach(expenseItem -> {
+                cardBodyBuilder.addField(expenseItem);
+            });
+        }
+        return cardBodyBuilder.build();
+    }
+
+    private List<CardBodyField> buildExpenseItemsList(final ExpenseReportResponse report, final Locale locale) {
+        if (CollectionUtils.isEmpty(report.getExpenseEntriesList())) {
+            return null;
+        }
+
+        final List<CardBodyField> bodyFields = new ArrayList<>();
+        report.getExpenseEntriesList().forEach(expenseEntry -> {
+            final CardBodyField.Builder builder = new CardBodyField.Builder()
+                    .setType(CardBodyFieldType.GENERAL);
+
+            if (StringUtils.isNotBlank(expenseEntry.getBusinessPurpose())) {
+                builder.setTitle(cardTextAccessor.getMessage("ws1.hub.concur.business.purpose", locale, expenseEntry.getBusinessPurpose()));
+            }
+
+            final Map<String, String> itemsMap = buildItemsMap(locale, expenseEntry);
+            builder.addContent(itemsMap);
+
+            bodyFields.add(builder.build());
+        });
+
+        return bodyFields;
+    }
+
+    private Map<String, String> buildItemsMap(Locale locale, ExpenseEntriesVO expenseEntry) {
+        final Map<String, String> itemsMap = new HashMap<>();
+        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.expense.type.name", locale), expenseEntry.getExpenseTypeName());
+        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.transaction.date", locale), expenseEntry.getTransactionDate());
+        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.vendor.name", locale), expenseEntry.getVendorDescription());
+        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.city.of.purchase", locale), expenseEntry.getLocationName());
+        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.payment.type", locale), expenseEntry.getPaymentTypeCode());
+        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.amount", locale),
+                formatCurrency(expenseEntry.getPostedAmount(), locale, expenseEntry.getTransactionCurrencyName()));
+
+        final List<String> attendeesList = expenseEntry.getAttendeesList();
+        if (!CollectionUtils.isEmpty(attendeesList)) {
+            itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.attendees", locale), attendeesList.toString());
+        }
+        return itemsMap;
     }
 
     private CardBodyField makeGeneralField(

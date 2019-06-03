@@ -8,6 +8,8 @@ package com.vmware.connectors.concur.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @SuppressWarnings("PMD.LinguisticNaming")
 public class ExpenseEntriesVO {
@@ -30,6 +32,8 @@ public class ExpenseEntriesVO {
     private String locationSubdivision;
     private String locationCountry;
     private String isItemized;
+    private String hasAttendees;
+    private List<String> attendeesList;
 
     @JsonProperty("ReportEntryID")
     public String getReportEntryID() {
@@ -193,4 +197,21 @@ public class ExpenseEntriesVO {
         this.isItemized = isItemized;
     }
 
+    @JsonProperty("HasAttendees")
+    public String getHasAttendees() {
+        return hasAttendees;
+    }
+
+    public void setHasAttendees(String hasAttendees) {
+        this.hasAttendees = hasAttendees;
+    }
+
+    @JsonProperty("AttendeesList")
+    public List<String> getAttendeesList() {
+        return attendeesList;
+    }
+
+    public void setAttendeesList(List<String> attendeesList) {
+        this.attendeesList = attendeesList;
+    }
 }
