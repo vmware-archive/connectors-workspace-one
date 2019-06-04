@@ -194,4 +194,5 @@ public class ExpenseReportResponse {
     public void setReportTotal(String reportTotal) {
         this.reportTotal = reportTotal;
     }
+
 }
