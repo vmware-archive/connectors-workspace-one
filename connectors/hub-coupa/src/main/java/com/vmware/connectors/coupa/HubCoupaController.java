@@ -182,9 +182,6 @@ public class HubCoupaController {
                 .setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale, reportName))
                 .setBody(
                         new CardBody.Builder()
-                                .addField(makeGeneralField(locale, "hub.coupa.submissionDate", requestDetails.getSubmittedAt()))
-                                .addField(makeGeneralField(locale, "hub.coupa.costCenter", requestDetails.getRequestorCostCenter()))
-                                .addField(makeGeneralField(locale, "hub.coupa.requestId", requestDetails.getId()))
                                 .addField(makeGeneralField(locale, "hub.coupa.requestDescription", requestDetails.getRequisitionDescription()))
                                 .addField(makeGeneralField(locale, "hub.coupa.requester", getRequestorName(requestDetails)))
                                 .addField(makeGeneralField(locale, "hub.coupa.expenseAmount", getFormattedAmount(requestDetails.getMobileTotal())))
@@ -200,6 +197,7 @@ public class HubCoupaController {
         return builder.build();
     }
 
+    private List<CardBodyField> buildExpenseItems()
     private CardBodyField makeGeneralField(
             Locale locale,
             String labelKey,

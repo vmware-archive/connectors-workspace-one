@@ -60,6 +60,8 @@ public class RequisitionDetails {
     @JsonProperty("requisition-lines")
     private List<RequisitionLineDetails> requisitionLinesList;
 
+
+
     public String getId() {
         return id;
     }
