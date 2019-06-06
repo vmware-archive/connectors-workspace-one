@@ -218,7 +218,7 @@ public class HubSalesForceController {
 
         for (int i = 0; i < totalSize; i++) {
             if (workItemResponse.read(String.format("$.records[%s].Workitems", i)) == null) {
-                logger.trace("No work items found for the record id [{}]", (String) workItemResponse.read("$.records[0].Id"));
+                logger.trace("No work items found for the record id [{}]", (String) workItemResponse.read(String.format("$.records[%s].Id", i)));
                 continue;
             }
 
