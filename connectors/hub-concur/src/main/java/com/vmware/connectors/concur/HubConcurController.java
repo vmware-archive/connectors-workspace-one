@@ -187,12 +187,12 @@ public class HubConcurController {
 
         Card.Builder builder = new Card.Builder()
                 .setName("Concur")
-                .setHeader(cardTextAccessor.getMessage("ws1.hub.concur.header", locale, reportName))
+                .setHeader(cardTextAccessor.getMessage("hub.concur.header", locale, reportName))
                 .setBody(buildCard(locale, report))
                 .addAction(makeAction(routingPrefix, locale, reportId,
-                        true, "ws1.hub.concur.approve", COMMENT_KEY, "ws1.hub.concur.approve.comment.label", "/approve"))
+                        true, "hub.concur.approve", COMMENT_KEY, "hub.concur.approve.comment.label", "/approve"))
                 .addAction(makeAction(routingPrefix, locale, reportId,
-                        false, "ws1.hub.concur.decline", REASON_KEY, "ws1.hub.concur.decline.reason.label", "/decline"));
+                        false, "hub.concur.decline", REASON_KEY, "hub.concur.decline.reason.label", "/decline"));
 
         builder.setImageUrl("https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-concur.png");
 
@@ -202,9 +202,9 @@ public class HubConcurController {
     private CardBody buildCard(final Locale locale,
                                final ExpenseReportResponse report) {
         final CardBody.Builder cardBodyBuilder =  new CardBody.Builder()
-                .addField(makeGeneralField(locale, "ws1.hub.concur.report.name", report.getSubmitDate()))
-                .addField(makeGeneralField(locale, "ws1.hub.concur.requester", report.getEmployeeName()))
-                .addField(makeGeneralField(locale, "ws1.hub.concur.expenseAmount",
+                .addField(makeGeneralField(locale, "hub.concur.report.name", report.getSubmitDate()))
+                .addField(makeGeneralField(locale, "hub.concur.requester", report.getEmployeeName()))
+                .addField(makeGeneralField(locale, "hub.concur.expenseAmount",
                         formatCurrency(report.getReportTotal(), locale, report.getCurrencyCode())));
 
         if (!CollectionUtils.isEmpty(report.getExpenseEntriesList())) {
@@ -228,7 +228,7 @@ public class HubConcurController {
                     .setType(CardBodyFieldType.GENERAL);
 
             if (StringUtils.isNotBlank(expenseEntry.getBusinessPurpose())) {
-                builder.setTitle(cardTextAccessor.getMessage("ws1.hub.concur.business.purpose", locale, expenseEntry.getBusinessPurpose()));
+                builder.setTitle(cardTextAccessor.getMessage("hub.concur.business.purpose", locale, expenseEntry.getBusinessPurpose()));
             }
 
             final Map<String, String> itemsMap = buildItemsMap(locale, expenseEntry);
@@ -242,17 +242,17 @@ public class HubConcurController {
 
     private Map<String, String> buildItemsMap(Locale locale, ExpenseEntriesVO expenseEntry) {
         final Map<String, String> itemsMap = new HashMap<>();
-        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.expense.type.name", locale), expenseEntry.getExpenseTypeName());
-        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.transaction.date", locale), expenseEntry.getTransactionDate());
-        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.vendor.name", locale), expenseEntry.getVendorDescription());
-        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.city.of.purchase", locale), expenseEntry.getLocationName());
-        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.payment.type", locale), expenseEntry.getPaymentTypeCode());
-        itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.amount", locale),
+        itemsMap.put(cardTextAccessor.getMessage("hub.concur.expense.type.name", locale), expenseEntry.getExpenseTypeName());
+        itemsMap.put(cardTextAccessor.getMessage("hub.concur.transaction.date", locale), expenseEntry.getTransactionDate());
+        itemsMap.put(cardTextAccessor.getMessage("hub.concur.vendor.name", locale), expenseEntry.getVendorDescription());
+        itemsMap.put(cardTextAccessor.getMessage("hub.concur.city.of.purchase", locale), expenseEntry.getLocationName());
+        itemsMap.put(cardTextAccessor.getMessage("hub.concur.payment.type", locale), expenseEntry.getPaymentTypeCode());
+        itemsMap.put(cardTextAccessor.getMessage("hub.concur.amount", locale),
                 formatCurrency(expenseEntry.getPostedAmount(), locale, expenseEntry.getTransactionCurrencyName()));
 
         final List<String> attendeesList = expenseEntry.getAttendeesList();
         if (!CollectionUtils.isEmpty(attendeesList)) {
-            itemsMap.put(cardTextAccessor.getMessage("ws1.hub.concur.attendees", locale), attendeesList.toString());
+            itemsMap.put(cardTextAccessor.getMessage("hub.concur.attendees", locale), attendeesList.toString());
         }
         return itemsMap;
     }
