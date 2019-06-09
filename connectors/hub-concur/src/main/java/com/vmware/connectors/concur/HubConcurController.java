@@ -33,7 +33,11 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.*;
@@ -202,42 +206,27 @@ public class HubConcurController {
     private CardBody buildCard(final Locale locale,
                                final ExpenseReportResponse report) {
         final CardBody.Builder cardBodyBuilder =  new CardBody.Builder()
-                .addField(makeGeneralField(locale, "hub.concur.report.name", report.getSubmitDate()))
+                .addField(makeGeneralField(locale, "hub.concur.report.name", report.getReportName()))
                 .addField(makeGeneralField(locale, "hub.concur.requester", report.getEmployeeName()))
                 .addField(makeGeneralField(locale, "hub.concur.expenseAmount",
                         formatCurrency(report.getReportTotal(), locale, report.getCurrencyCode())));
 
         if (!CollectionUtils.isEmpty(report.getExpenseEntriesList())) {
-            final List<CardBodyField> expenseItemsList = buildExpenseItemsList(report, locale);
-
-            expenseItemsList.forEach(expenseItem -> {
-                cardBodyBuilder.addField(expenseItem);
-            });
+            buildExpenseItemsList(report, locale).forEach(cardBodyBuilder::addField);
         }
         return cardBodyBuilder.build();
     }
 
     private List<CardBodyField> buildExpenseItemsList(final ExpenseReportResponse report, final Locale locale) {
-        if (CollectionUtils.isEmpty(report.getExpenseEntriesList())) {
-            return null;
-        }
-
-        final List<CardBodyField> bodyFields = new ArrayList<>();
-        report.getExpenseEntriesList().forEach(expenseEntry -> {
-            final CardBodyField.Builder builder = new CardBodyField.Builder()
-                    .setType(CardBodyFieldType.GENERAL);
-
-            if (StringUtils.isNotBlank(expenseEntry.getBusinessPurpose())) {
-                builder.setTitle(cardTextAccessor.getMessage("hub.concur.business.purpose", locale, expenseEntry.getBusinessPurpose()));
-            }
-
-            final Map<String, String> itemsMap = buildItemsMap(locale, expenseEntry);
-            builder.addContent(itemsMap);
-
-            bodyFields.add(builder.build());
-        });
-
-        return bodyFields;
+        return report.getExpenseEntriesList()
+                .stream()
+                .map(entry -> new CardBodyField.Builder()
+                        .setType(CardBodyFieldType.GENERAL)
+                        .setTitle(cardTextAccessor.getMessage("hub.concur.business.purpose", locale, entry.getBusinessPurpose()))
+                        .addContent(buildItemsMap(locale, entry))
+                        .build()
+                )
+                .collect(Collectors.toList());
     }
 
     private Map<String, String> buildItemsMap(Locale locale, ExpenseEntriesVO expenseEntry) {
