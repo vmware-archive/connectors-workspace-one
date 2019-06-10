@@ -1,3 +1,8 @@
+/*
+ * Copyright © 2019 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 package com.vmware.connectors.coupa.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -5,6 +10,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ShipToAddress {
+
+    @JsonProperty("name")
+    private String name;
+
+    @JsonProperty("location-code")
+    private String locationCode;
 
     @JsonProperty("street1")
     private String street1;
@@ -21,6 +32,21 @@ public class ShipToAddress {
     @JsonProperty("postal-code")
     private String postalCode;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLocationCode() {
+        return locationCode;
+    }
+
+    public void setLocationCode(String locationCode) {
+        this.locationCode = locationCode;
+    }
 
     public String getStreet1() {
         return street1;

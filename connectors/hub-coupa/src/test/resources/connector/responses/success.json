@@ -12,21 +12,6 @@
                 "fields": [
                     {
                         "type": "GENERAL",
-                        "title": "Order date",
-                        "description": "1970-01-01T00:00:00Z-07:00"
-                    },
-                    {
-                        "type": "GENERAL",
-                        "title": "Requester Cost Center",
-                        "description": "IN1019722"
-                    },
-                    {
-                        "type": "GENERAL",
-                        "title": "Requisition number",
-                        "description": "182964"
-                    },
-                    {
-                        "type": "GENERAL",
                         "title": "Requisition description",
                         "description": ""
                     },
@@ -42,8 +27,26 @@
                     },
                     {
                         "type": "GENERAL",
-                        "title": "Justification ",
+                        "title": "Justification",
                         "description": ""
+                    },
+                    {
+                        "type": "GENERAL",
+                        "content": [
+                            {
+                                "Item name": "AppBuilder Q1 PO",
+                                "Quantity": "1.0",
+                                "Unit Price": "43840.00",
+                                "Total Price": "43840.00",
+                                "Commodity": "Comp Storage Access",
+                                "Supplier Part Number": "0001000112|IN10",
+                                "Payment Terms": "Due in 45 Days from Invoice receipt date",
+                                "Shipping": "Destination",
+                                "SAP Group Material ID": "G25",
+                                "Billing address": "No. 165/2, Kalyani Magnum\n Block 1, III Floor, Doraisanipalya IIM Post, Bannerghatta Road,\nBengaluru 560076\nKA",
+                                "Billing account": "B-SG-IN"
+                            }
+                        ]
                     }
                 ]
             },

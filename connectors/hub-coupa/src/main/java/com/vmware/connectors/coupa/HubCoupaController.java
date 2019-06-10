@@ -9,9 +9,7 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.web.UserException;
-import com.vmware.connectors.coupa.domain.ApprovalDetails;
-import com.vmware.connectors.coupa.domain.RequisitionDetails;
-import com.vmware.connectors.coupa.domain.UserDetails;
+import com.vmware.connectors.coupa.domain.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -33,7 +32,11 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
@@ -180,14 +183,7 @@ public class HubCoupaController {
         Card.Builder builder = new Card.Builder()
                 .setName("Coupa")
                 .setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale, reportName))
-                .setBody(
-                        new CardBody.Builder()
-                                .addField(makeGeneralField(locale, "hub.coupa.requestDescription", requestDetails.getRequisitionDescription()))
-                                .addField(makeGeneralField(locale, "hub.coupa.requester", getRequestorName(requestDetails)))
-                                .addField(makeGeneralField(locale, "hub.coupa.expenseAmount", getFormattedAmount(requestDetails.getMobileTotal())))
-                                .addField(makeGeneralField(locale, "hub.coupa.justification", requestDetails.getJustification()))
-                                .build()
-                )
+                .setBody(buildCardBody(locale, requestDetails))
                 .addAction(makeApprovalAction(routingPrefix, requestId, locale,
                         true, "api/approve/", "hub.coupa.approve", "hub.coupa.approve.comment.label"))
                 .addAction(makeApprovalAction(routingPrefix, requestId, locale,
@@ -197,7 +193,61 @@ public class HubCoupaController {
         return builder.build();
     }
 
-    private List<CardBodyField> buildExpenseItems()
+    private CardBody buildCardBody(Locale locale, RequisitionDetails requestDetails) {
+        final CardBody.Builder cardBodyBuilder = new CardBody.Builder()
+                .addField(makeGeneralField(locale, "hub.coupa.requestDescription", requestDetails.getRequisitionDescription()))
+                .addField(makeGeneralField(locale, "hub.coupa.requester", getRequestorName(requestDetails)))
+                .addField(makeGeneralField(locale, "hub.coupa.expenseAmount", getFormattedAmount(requestDetails.getMobileTotal())))
+                .addField(makeGeneralField(locale, "hub.coupa.justification", requestDetails.getJustification()));
+
+        if (!CollectionUtils.isEmpty(requestDetails.getRequisitionLinesList())) {
+            buildRequisitionDetails(requestDetails, locale).forEach(cardBodyBuilder::addField);
+        }
+
+        return cardBodyBuilder.build();
+    }
+
+    private List<CardBodyField> buildRequisitionDetails(RequisitionDetails requisitionDetails, Locale locale) {
+        return requisitionDetails.getRequisitionLinesList()
+                .stream()
+                .map(lineDetails -> new CardBodyField.Builder()
+                        .setType(CardBodyFieldType.GENERAL)
+                        .addContent(buildItemsMap(requisitionDetails, lineDetails, locale))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("PMD.NcssCount")
+    private Map<String, String> buildItemsMap(RequisitionDetails requisitionDetails, RequisitionLineDetails lineDetails, Locale locale) {
+        final Map<String, String> map = new LinkedHashMap<>();
+
+        map.put(cardTextAccessor.getMessage("hub.coupa.item.name", locale), lineDetails.getDescription());
+        map.put(cardTextAccessor.getMessage("hub.coupa.item.quantity", locale), lineDetails.getQuantity());
+        map.put(cardTextAccessor.getMessage("hub.coupa.unit.price", locale), lineDetails.getUnitPrice());
+        map.put(cardTextAccessor.getMessage("hub.coupa.total.price", locale), lineDetails.getTotal());
+        map.put(cardTextAccessor.getMessage("hub.coupa.commodity", locale), lineDetails.getCommodity().getName());
+        map.put(cardTextAccessor.getMessage("hub.coupa.supplier.part.number", locale), lineDetails.getSupplier().getNumber());
+
+        if (StringUtils.isNotBlank(lineDetails.getNeedByDate())) {
+            map.put(cardTextAccessor.getMessage("hub.coupa.need.by", locale), lineDetails.getNeedByDate());
+        }
+        map.put(cardTextAccessor.getMessage("hub.coupa.payment.terms", locale), lineDetails.getPaymentTerm().getDescription());
+        map.put(cardTextAccessor.getMessage("hub.coupa.shipping", locale), lineDetails.getShippingTerm().getDescription());
+        map.put(cardTextAccessor.getMessage("hub.coupa.sap.group.material.id", locale), lineDetails.getSapMaterialGroupId());
+        map.put(cardTextAccessor.getMessage("hub.coupa.billing.address", locale), getShippingDetails(requisitionDetails.getShipToAddress()));
+        map.put(cardTextAccessor.getMessage("hub.coupa.billing.account", locale), requisitionDetails.getShipToAddress().getLocationCode());
+
+        return map;
+    }
+
+    private String getShippingDetails(final ShipToAddress shipToAddress) {
+        return shipToAddress.getStreet1() + "\n"
+                + shipToAddress.getStreet2() + "\n"
+                + shipToAddress.getCity() + " " + shipToAddress.getPostalCode() + "\n"
+                + shipToAddress.getState();
+
+    }
+
     private CardBodyField makeGeneralField(
             Locale locale,
             String labelKey,

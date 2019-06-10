@@ -2,6 +2,7 @@
  * Copyright © 2019 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
+
 package com.vmware.connectors.coupa.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -12,14 +13,6 @@ public class RequisitionLineDetails {
 
     @JsonProperty("description")
     private String description;
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     @JsonProperty("total")
     private String total;
@@ -47,6 +40,17 @@ public class RequisitionLineDetails {
 
     @JsonProperty("account")
     private Account account;
+
+    @JsonProperty("unit-price")
+    private String unitPrice;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public String getTotal() {
         return total;
@@ -118,5 +122,13 @@ public class RequisitionLineDetails {
 
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    public String getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(String unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }
