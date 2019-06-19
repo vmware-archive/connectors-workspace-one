@@ -154,8 +154,8 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
     @DisplayName("Card request invalid token cases")
     @ParameterizedTest(name = "{index} ==> ''{0}''")
     @CsvSource({
-            "/connector/requests/emptyRequest.json, connector/responses/emptyRequest.json",
-            "/connector/requests/emptyToken.json, connector/responses/emptyToken.json"
+            "/connector/requests/emptyRequest.json, /connector/responses/missingEmails.json",
+            "/connector/requests/emptyToken.json, /connector/responses/missingEmails.json"
     })
     void testRequestCardsInvalidTokens(String reqFile, String resFile) throws IOException {
         requestCards("abc", reqFile)
@@ -174,7 +174,9 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
     void testRequestCardsMissingTokens(String reqFile) throws IOException {
         requestCards("abc", reqFile)
                 .exchange()
-                .expectStatus().isBadRequest();
+                .expectStatus().isBadRequest()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON_UTF8)
+                .expectBody().json(fromFile("/connector/responses/missingEmails.json"));
     }
 
     // There are multiple opportunities found related to the email sender.

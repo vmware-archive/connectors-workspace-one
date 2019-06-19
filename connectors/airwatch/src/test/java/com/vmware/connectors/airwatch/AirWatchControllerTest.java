@@ -132,10 +132,11 @@ class AirWatchControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Request=''{0}'', Language=''{1}''")
     @CsvSource({
-            "request.json, " + StringUtils.EMPTY + ", success.json",
+            "request.json, , success.json",
             "request.json, xx;q=1.0, success_xx.json",
-            "requestDuplicate.json, " + StringUtils.EMPTY + ", success.json"})
-        // Expect DS request only once for each app.
+            "requestDuplicate.json, , success.json"
+    })
+    // Expect DS request only once for each app.
     void testRequestCardsSuccess(String requestFile, String acceptLanguage, String responseFile) throws Exception {
         expectAWRequest("/deviceservices/AppInstallationStatus?Udid=ABCD&BundleId=com.android.boxer")
                 .andRespond(withSuccess(awAppNotInstalled, APPLICATION_JSON));
@@ -301,7 +302,7 @@ class AirWatchControllerTest extends ControllerTestsBase {
 
     private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
         WebTestClient.RequestHeadersSpec<?> spec = requestCards(requestFile);
-        if (acceptLanguage != null) {
+        if (StringUtils.isNotBlank(acceptLanguage)) {
             spec = spec.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
         String body = spec.exchange()

@@ -7,12 +7,12 @@ package com.vmware.connectors.servicenow;
 
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.platform.commons.util.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -113,15 +113,15 @@ class ServiceNowControllerTest extends ControllerTestsBase {
                 .headers(ControllerTestsBase::headers)
                 .syncBody(fromFile("/servicenow/requests/" + requestFile));
 
-        if (authToken != null) {
-                spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
-            }
-    
-            if (language != null) {
-                spec = spec.header(ACCEPT_LANGUAGE, language);
-            }
-    
-            return spec.exchange();
+        if (StringUtils.isNotBlank(authToken)) {
+            spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
+        }
+
+        if (StringUtils.isNotBlank(language)) {
+            spec = spec.header(ACCEPT_LANGUAGE, language);
+        }
+
+        return spec.exchange();
     }
 
     private WebTestClient.ResponseSpec requestCards(String authToken, String requestFile) throws Exception {
@@ -186,13 +186,13 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json")
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("/servicenow/responses/success/cards/email-not-found.json"));
+                .expectBody().json(fromFile("/servicenow/responses/success/cards/no-results.json"));
      }
 
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            StringUtils.EMPTY + ", /servicenow/responses/success/cards/card.json",
+            ", /servicenow/responses/success/cards/card.json",
             "xx, /servicenow/responses/success/cards/card_xx.json"})
     void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         trainServiceNowForCards();
@@ -251,13 +251,15 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/empty-tickets.json")
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("/servicenow/responses/success/cards/empty-tickets.json"));
+                .expectBody().json(fromFile("/servicenow/responses/success/cards/no-results.json"));
     }
 
     @DisplayName("Card request invalid token cases")
     @ParameterizedTest(name = "{index} ==> ''{0}''")
-    @CsvSource({"valid/cards/missing-tickets.json, /servicenow/responses/success/cards/missing-tickets.json",
-            "valid/cards/empty-email.json, /servicenow/responses/success/cards/empty-email.json"})
+    @CsvSource({
+            "valid/cards/missing-tickets.json, /servicenow/responses/success/cards/no-results.json",
+            "valid/cards/empty-email.json, /servicenow/responses/success/cards/no-results.json"
+    })
     void testRequestCardsInvalidTokens(String reqFile, String resFile) throws Exception {
        requestCards(SNOW_AUTH_TOKEN, reqFile)
                 .expectStatus().isOk()
@@ -270,23 +272,23 @@ class ServiceNowControllerTest extends ControllerTestsBase {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/missing-email.json")
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("/servicenow/responses/success/cards/missing-email.json"));
+                .expectBody().json(fromFile("/servicenow/responses/success/cards/no-results.json"));
     }
 
     @Test
     void testRequestCardsEmptyTokens() throws Exception {
         requestCards(SNOW_AUTH_TOKEN, "invalid/cards/empty-tokens.json")
-                .expectStatus().isBadRequest()
+                .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("/servicenow/responses/error/cards/empty-tokens.json"));
+                .expectBody().json(fromFile("/servicenow/responses/success/cards/no-results.json"));
     }
 
     @Test
     void testRequestCardsMissingTokens() throws Exception {
         requestCards(SNOW_AUTH_TOKEN, "invalid/cards/missing-tokens.json")
-                .expectStatus().isBadRequest()
+                .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("/servicenow/responses/error/cards/missing-tokens.json"));
+                .expectBody().json(fromFile("/servicenow/responses/success/cards/no-results.json"));
     }
 
     /////////////////////////////

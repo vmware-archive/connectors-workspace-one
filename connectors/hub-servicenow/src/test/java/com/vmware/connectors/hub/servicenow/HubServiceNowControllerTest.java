@@ -82,11 +82,11 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
                 .headers(ControllerTestsBase::headers)
                 .syncBody(fromFile("/servicenow/requests/" + requestFile));
 
-        if (authToken != null) {
+        if (StringUtils.isNotBlank(authToken)) {
             spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
         }
 
-        if (language != null) {
+        if (StringUtils.isNotBlank(language)) {
             spec = spec.header(ACCEPT_LANGUAGE, language);
         }
 
@@ -161,7 +161,7 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            StringUtils.EMPTY + ", /servicenow/responses/success/cards/card.json",
+            ", /servicenow/responses/success/cards/card.json",
             "xx, /servicenow/responses/success/cards/card_xx.json"})
     void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         trainServiceNowForCards();

@@ -6,6 +6,8 @@
 package com.vmware.connectors.github.pr;
 
 import com.google.common.collect.ImmutableMap;
+import com.jayway.jsonpath.Configuration;
+import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
@@ -28,10 +31,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -78,19 +82,27 @@ public class GithubPrController {
     ) {
         logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
 
-        Stream<PullRequestId> pullRequestIds = cardRequest.getTokens("pull_request_urls")
-                .stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet()) // squash duplicates
-                .stream()
-                .sorted()
-                .map(this::parseUri)
-                .filter(Objects::nonNull)
-                .filter(this::validHost)
-                .map(this::getPullRequestId)
-                .filter(Objects::nonNull);
+        Set<String> prUrls = cardRequest.getTokens("pull_request_urls");
 
-        return Flux.fromStream(pullRequestIds)
+        Flux<String> prUrlsFlux;
+
+        if (CollectionUtils.isEmpty(prUrls)) {
+            prUrlsFlux = getUsername(baseUrl, auth)
+                    .flatMapMany(username -> getAllOpenPrs(baseUrl, auth, username));
+        } else {
+            prUrlsFlux = Flux.fromStream(
+                    prUrls.stream()
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toSet()) // squash duplicates
+                            .stream()
+                            .sorted()
+            );
+        }
+
+        return prUrlsFlux
+                .flatMap(this::parseUri)
+                .filter(this::validHost)
+                .flatMap(this::getPullRequestId)
                 .flatMap(pullRequestId -> fetchPullRequest(baseUrl, pullRequestId, auth))
                 .map(pair -> makeCard(routingPrefix, pair, locale, request))
                 .reduce(
@@ -103,15 +115,46 @@ public class GithubPrController {
                 .defaultIfEmpty(new Cards());
     }
 
-    private UriComponents parseUri(
+    private Mono<String> getUsername(
+            String baseUrl,
+            String auth
+    ) {
+        return rest.get()
+                .uri(baseUrl + "/user")
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(s -> new JsonDocument(Configuration.defaultConfiguration().jsonProvider().parse(s)))
+                .map(doc -> doc.read("$.login"));
+    }
+
+    private Flux<String> getAllOpenPrs(
+            String baseUrl,
+            String auth,
+            String username
+    ) {
+        String query = "state:open type:pr assignee:" + username;
+        return rest.get()
+                .uri(baseUrl + "/search/issues?q={query}", query)
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(s -> new JsonDocument(Configuration.defaultConfiguration().jsonProvider().parse(s)))
+                .map(doc -> doc.<List<String>>read("$.items[*].html_url"))
+                .flatMapMany(Flux::fromIterable);
+    }
+
+    private Mono<UriComponents> parseUri(
             String url
     ) {
         try {
-            return UriComponentsBuilder
-                    .fromHttpUrl(url)
-                    .build();
+            return Mono.just(
+                    UriComponentsBuilder
+                            .fromHttpUrl(url)
+                            .build()
+            );
         } catch (IllegalArgumentException e) {
-            return null;
+            return Mono.empty();
         }
     }
 
@@ -121,16 +164,19 @@ public class GithubPrController {
         return "github.com".equalsIgnoreCase(uriComponents.getHost());
     }
 
-    private PullRequestId getPullRequestId(
+    private Mono<PullRequestId> getPullRequestId(
             UriComponents uri
     ) {
         if (uri.getPathSegments().size() != URI_SEGMENT_SIZE) {
-            return null;
+            return Mono.empty();
         }
-        return new PullRequestId(
-                uri.getPathSegments().get(0),
-                uri.getPathSegments().get(1),
-                uri.getPathSegments().get(3));
+        return Mono.just(
+                new PullRequestId(
+                        uri.getPathSegments().get(0),
+                        uri.getPathSegments().get(1),
+                        uri.getPathSegments().get(3)
+                )
+        );
     }
 
     private Mono<Pair<PullRequestId, PullRequest>> fetchPullRequest(
@@ -237,6 +283,7 @@ public class GithubPrController {
                         .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("comment", locale))
                         .setActionKey(CardActionKey.USER_INPUT)
                         .setUrl(getActionUrl(routingPrefix, pullRequestId, "comment"))
+                        .setAllowRepeated(true)
                         .addUserInputField(
                                 new CardActionInputField.Builder()
                                         .setId(COMMENT_PARAM_KEY)

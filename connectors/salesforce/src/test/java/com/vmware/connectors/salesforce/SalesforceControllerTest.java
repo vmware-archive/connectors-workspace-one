@@ -177,8 +177,8 @@ class SalesforceControllerTest extends ControllerTestsBase {
 
     @DisplayName("Card request invalid token cases")
     @ParameterizedTest(name = "{index} ==> ''{0}''")
-    @CsvSource({"/connector/requests/emptyRequest.json, connector/responses/emptyRequest.json",
-            "/connector/requests/emptyToken.json, connector/responses/emptyToken.json"})
+    @CsvSource({"/connector/requests/emptyRequest.json, connector/responses/missingEmails.json",
+            "/connector/requests/emptyToken.json, connector/responses/missingEmails.json"})
     void testRequestCardsInvalidTokens(String reqFile, String resFile) throws Exception {
        requestCards("abc", reqFile)
                .exchange()
@@ -214,8 +214,9 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @DisplayName("Card request contact found with Opportunities.")
     @ParameterizedTest
     @CsvSource({
-            "successCardsForSender.json, " + StringUtils.EMPTY,
-            "successCardsForSender_xx.json, xx"})
+            "successCardsForSender.json, ",
+            "successCardsForSender_xx.json, xx"
+    })
     void testRequestCardSuccess(String resFile, String lang) throws Exception {
         final String requestFile = "/connector/requests/requestUber.json";
 
@@ -234,8 +235,9 @@ class SalesforceControllerTest extends ControllerTestsBase {
     @DisplayName("Card request sender related accounts cases")
     @ParameterizedTest(name = "{index} ==> Language=''{1}''")
     @CsvSource({
-            "successRelatedAccounts.json, " + StringUtils.EMPTY,
-            "successRelatedAccounts_xx.json, xx"})
+            "successRelatedAccounts.json, ",
+            "successRelatedAccounts_xx.json, xx"
+    })
     void testRequestCardRelatedAccountsSuccess(String resFile, String lang) throws Exception {
         /* In this case email sender details are not present in salesforce.
         Collect info about the accounts related to the sender's domain. */
@@ -344,7 +346,7 @@ class SalesforceControllerTest extends ControllerTestsBase {
 
     private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
         WebTestClient.RequestHeadersSpec<?> spec = requestCards("abc", requestFile);
-        if (acceptLanguage != null) {
+        if (StringUtils.isNotBlank(acceptLanguage)) {
             spec = spec.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
         String body = spec.exchange()
