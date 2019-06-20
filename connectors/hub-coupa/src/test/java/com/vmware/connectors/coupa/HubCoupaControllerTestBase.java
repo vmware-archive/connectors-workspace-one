@@ -100,7 +100,6 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
                 .block()
                 .replaceAll("[0-9]{4}[-][0-9]{2}[-][0-9]{2}T[0-9]{2}[:][0-9]{2}[:][0-9]{2}Z?", "1970-01-01T00:00:00Z")
                 .replaceAll("[a-z0-9]{40,}", "test-hash");
-        System.out.println(body);
 
         assertThat(
                 body,

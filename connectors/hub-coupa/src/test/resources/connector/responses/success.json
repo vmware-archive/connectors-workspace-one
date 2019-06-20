@@ -39,9 +39,9 @@
                                 "Unit Price": "43840.00",
                                 "Total Price": "43840.00",
                                 "Commodity": "Comp Storage Access",
-                                "Supplier Part Number": "0001000112|IN10",
-                                "Payment Terms": "Due in 45 Days from Invoice receipt date",
-                                "Shipping": "Destination",
+                                "Supplier Part Number": "IN10",
+                                "Payment Terms": "ZR45",
+                                "Shipping": "FOB",
                                 "SAP Group Material ID": "G25",
                                 "Billing address": "No. 165/2, Kalyani Magnum\n Block 1, III Floor, Doraisanipalya IIM Post, Bannerghatta Road,\nBengaluru 560076\nKA",
                                 "Billing account": "B-SG-IN"

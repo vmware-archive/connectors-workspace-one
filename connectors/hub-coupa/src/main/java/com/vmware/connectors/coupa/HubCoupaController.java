@@ -226,13 +226,13 @@ public class HubCoupaController {
         map.put(cardTextAccessor.getMessage("hub.coupa.unit.price", locale), lineDetails.getUnitPrice());
         map.put(cardTextAccessor.getMessage("hub.coupa.total.price", locale), lineDetails.getTotal());
         map.put(cardTextAccessor.getMessage("hub.coupa.commodity", locale), lineDetails.getCommodity().getName());
-        map.put(cardTextAccessor.getMessage("hub.coupa.supplier.part.number", locale), lineDetails.getSupplier().getNumber());
+        map.put(cardTextAccessor.getMessage("hub.coupa.supplier.part.number", locale), lineDetails.getSupplier().getCompanyCode());
 
         if (StringUtils.isNotBlank(lineDetails.getNeedByDate())) {
             map.put(cardTextAccessor.getMessage("hub.coupa.need.by", locale), lineDetails.getNeedByDate());
         }
-        map.put(cardTextAccessor.getMessage("hub.coupa.payment.terms", locale), lineDetails.getPaymentTerm().getDescription());
-        map.put(cardTextAccessor.getMessage("hub.coupa.shipping", locale), lineDetails.getShippingTerm().getDescription());
+        map.put(cardTextAccessor.getMessage("hub.coupa.payment.terms", locale), lineDetails.getPaymentTerm().getCode());
+        map.put(cardTextAccessor.getMessage("hub.coupa.shipping", locale), lineDetails.getShippingTerm().getCode());
         map.put(cardTextAccessor.getMessage("hub.coupa.sap.group.material.id", locale), lineDetails.getSapMaterialGroupId());
         map.put(cardTextAccessor.getMessage("hub.coupa.billing.address", locale), getShippingDetails(requisitionDetails.getShipToAddress()));
         map.put(cardTextAccessor.getMessage("hub.coupa.billing.account", locale), requisitionDetails.getShipToAddress().getLocationCode());
