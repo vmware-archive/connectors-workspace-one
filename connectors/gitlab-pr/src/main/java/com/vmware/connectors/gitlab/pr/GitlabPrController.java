@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
@@ -34,6 +35,7 @@ import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -88,7 +90,13 @@ public class GitlabPrController {
     ) {
         logger.trace("getCards called: baseUrl={}, routingPrefix={}, request={}", baseUrl, routingPrefix, cardRequest);
 
-        Stream<MergeRequestId> mergeRequestIds = cardRequest.getTokens("merge_request_urls")
+        Set<String> mergeRequestUrls = cardRequest.getTokens("merge_request_urls");
+
+        if (CollectionUtils.isEmpty(mergeRequestUrls)) {
+            return Mono.just(new Cards());
+        }
+
+        Stream<MergeRequestId> mergeRequestIds = mergeRequestUrls
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet()) // squash duplicates
@@ -261,6 +269,7 @@ public class GitlabPrController {
                         .setCompletedLabel(cardTextAccessor.getActionCompletedLabel("comment", locale))
                         .setActionKey(CardActionKey.USER_INPUT)
                         .setUrl(getActionUrl(routingPrefix, mergeRequestId, "comment"))
+                        .setAllowRepeated(true)
                         .addUserInputField(
                                 new CardActionInputField.Builder()
                                         .setId(COMMENT_PARAM_KEY)

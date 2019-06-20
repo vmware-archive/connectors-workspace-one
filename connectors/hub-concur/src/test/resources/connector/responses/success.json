@@ -47,9 +47,9 @@
       "body": {
         "fields": [
           {
-            "description": "1970-01-01T00:00:00Z",
-            "title": "Submitted On",
-            "type": "GENERAL"
+            "type": "GENERAL",
+            "title": "Report name",
+            "description": "Meals & Entertainment"
           },
           {
             "description": "Totla, Gaurav",
@@ -57,14 +57,23 @@
             "type": "GENERAL"
           },
           {
-            "description": "(IN1019722)IT - Apps Cloud-1021",
-            "title": "Cost Center",
-            "type": "GENERAL"
+            "type": "GENERAL",
+            "title": "Total Amount",
+            "description": "INR 23,340.21"
           },
           {
-            "description": "INR 23,340.21",
-            "title": "Amount",
-            "type": "GENERAL"
+            "type": "GENERAL",
+            "title": "Business Meeting",
+            "content": [
+              {
+                "Payment Type": "CASH",
+                "Amount": "India, Rupee 23,340.21",
+                "Expense Type": "Meals & Entertainment",
+                "Transaction Date": "1970-01-01T00:00:00Z",
+                "Vendor Name": "United 21",
+                "City of Purchase": "Bangalore"
+              }
+            ]
           }
         ]
       },
@@ -126,24 +135,61 @@
       "body": {
         "fields": [
           {
-            "description": "1970-01-01T00:00:00Z",
-            "title": "Submitted On",
-            "type": "GENERAL"
+            "type": "GENERAL",
+            "title": "Report name",
+            "description": "Campus Hiring Event 2018"
           },
           {
-            "description": "Totla, Gaurav",
+            "type": "GENERAL",
             "title": "Requested By",
-            "type": "GENERAL"
+            "description": "Totla, Gaurav"
           },
           {
-            "description": "(IN1019722)IT - Apps Cloud-1021",
-            "title": "Cost Center",
-            "type": "GENERAL"
+            "type": "GENERAL",
+            "title": "Total Amount",
+            "description": "INR 178,838.66"
           },
           {
-            "description": "INR 178,838.66",
-            "title": "Amount",
-            "type": "GENERAL"
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "Payment Type": "CASH",
+                "Amount": "India, Rupee 17,464.66",
+                "Expense Type": "Lodging",
+                "Transaction Date": "1970-01-01T00:00:00Z",
+                "Vendor Name": "Hilton Hotels",
+                "City of Purchase": "Bangalore"
+              }
+            ]
+          },
+          {
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "Payment Type": "CASH",
+                "Amount": "India, Rupee 158,374",
+                "Expense Type": "Airfare - Ticket",
+                "Transaction Date": "1970-01-01T00:00:00Z",
+                "Vendor Name": "Air India Regional",
+                "City of Purchase": "Bangalore"
+              }
+            ]
+          },
+          {
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "Payment Type": "CASH",
+                "Amount": "India, Rupee 3,000",
+                "Expense Type": "Bus/Public Transportation",
+                "Transaction Date": "1970-01-01T00:00:00Z",
+                "Vendor Name": "Volvo",
+                "City of Purchase": "Bangalore"
+              }
+            ]
           }
         ]
       },
@@ -205,24 +251,61 @@
       "body": {
         "fields": [
           {
-            "description": "1970-01-01T00:00:00Z",
-            "title": "Submitted On",
-            "type": "GENERAL"
+            "type": "GENERAL",
+            "title": "Report name",
+            "description": "Sales Kickoff Event"
           },
           {
-            "description": "Totla, Gaurav",
+            "type": "GENERAL",
             "title": "Requested By",
-            "type": "GENERAL"
+            "description": "Totla, Gaurav"
           },
           {
-            "description": "(IN1019722)IT - Apps Cloud-1021",
-            "title": "Cost Center",
-            "type": "GENERAL"
+            "type": "GENERAL",
+            "title": "Total Amount",
+            "description": "INR 183,838.66"
           },
           {
-            "description": "INR 183,838.66",
-            "title": "Amount",
-            "type": "GENERAL"
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "Payment Type": "CASH",
+                "Amount": "India, Rupee 17,464.66",
+                "Expense Type": "Lodging",
+                "Transaction Date": "1970-01-01T00:00:00Z",
+                "Vendor Name": "Hilton Hotels",
+                "City of Purchase": "Bangalore"
+              }
+            ]
+          },
+          {
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "Payment Type": "CASH",
+                "Amount": "India, Rupee 158,374",
+                "Expense Type": "Airfare - Ticket",
+                "Transaction Date": "1970-01-01T00:00:00Z",
+                "Vendor Name": "Air India Regional",
+                "City of Purchase": "Bangalore"
+              }
+            ]
+          },
+          {
+            "type": "GENERAL",
+            "title": "Test Purpose",
+            "content": [
+              {
+                "Payment Type": "CASH",
+                "Amount": "India, Rupee 8,000",
+                "Expense Type": "Bus/Public Transportation",
+                "Transaction Date": "1970-01-01T00:00:00Z",
+                "Vendor Name": "Volvo",
+                "City of Purchase": "Bangalore"
+              }
+            ]
           }
         ]
       },

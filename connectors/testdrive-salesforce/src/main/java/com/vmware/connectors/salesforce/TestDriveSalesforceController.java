@@ -151,7 +151,7 @@ public class TestDriveSalesforceController {
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Mono<ResponseEntity<Cards>> getCards(
+    public Mono<Cards> getCards(
             @RequestHeader(SALESFORCE_AUTH_HEADER) String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
@@ -168,7 +168,7 @@ public class TestDriveSalesforceController {
         // TODO: implement a better system of validating domain names than "yup, it's not empty"
         if (StringUtils.isBlank(bareSenderDomain) || StringUtils.isBlank(user)) {
             logger.warn("Either sender email or user email is blank");
-            return Mono.just(new ResponseEntity<>(BAD_REQUEST));
+            return Mono.error(new MissingEmailException("Must specify both the sender and user emails"));
         }
 
         return queryRelatedOpportunityIDs(auth, baseUrl, user, sender)
@@ -177,8 +177,7 @@ public class TestDriveSalesforceController {
                 .flatMapIterable(this::parseOpportunityObjects)
                 .map(opportunity -> buildCardForRelatedOpportunity(routingPrefix, locale, opportunity))
                 .collectList()
-                .map(this::toCards)
-                .map(ResponseEntity::ok);
+                .map(this::toCards);
     }
 
     // Get a list of relevant opportunity ID's
@@ -480,4 +479,17 @@ public class TestDriveSalesforceController {
                 .build()
                 .toUri();
     }
+
+    private static class MissingEmailException extends RuntimeException {
+        private MissingEmailException(String message) {
+            super(message);
+        }
+    }
+
+    @ExceptionHandler(MissingEmailException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public Map<String, String> handleMissingEmailException(MissingEmailException e) {
+        return Map.of("error", e.getMessage());
+    }
+
 }

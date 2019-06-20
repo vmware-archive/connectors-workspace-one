@@ -103,18 +103,18 @@ class JiraControllerTest extends ControllerTestsBase {
 
     @Test
     void testRequestWithEmptyIssue() throws Exception {
-        testRequestCards("emptyIssue.json", "emptyIssue.json", null);
+        testRequestCards("emptyIssue.json", "noResults.json", null);
     }
 
     @ParameterizedTest(name = "{index} ==> ''{0}''")
     @DisplayName("Missing parameter cases")
     @CsvSource({
-            "emptyRequest.json, emptyRequest.json",
-            "emptyToken.json, emptyToken.json"})
+            "emptyRequest.json, noResults.json",
+            "emptyToken.json, noResults.json"})
     void testRequestCardsWithMissingParameter(String requestFile, String responseFile) throws Exception {
         requestCards("abc", requestFile)
             .exchange()
-            .expectStatus().isBadRequest()
+            .expectStatus().isOk()
             .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
             .expectBody().json(fromFile("connector/responses/" + responseFile));
     }
@@ -122,7 +122,7 @@ class JiraControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            StringUtils.EMPTY + ", success.json",
+            ", success.json",
             "xx, success_xx.json"})
     void testRequestCardsSuccess(String lang, String resFile) throws Exception {
         expect("APF-27").andRespond(withSuccess(apf27, APPLICATION_JSON));
@@ -365,7 +365,7 @@ class JiraControllerTest extends ControllerTestsBase {
 
     private void testRequestCards(String requestFile, String responseFile, String acceptLanguage) throws Exception {
         WebTestClient.RequestHeadersSpec<?> spec = requestCards("abc", requestFile);
-        if (acceptLanguage != null) {
+        if (StringUtils.isNotBlank(acceptLanguage)) {
             spec = spec.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
         String body = spec.exchange()

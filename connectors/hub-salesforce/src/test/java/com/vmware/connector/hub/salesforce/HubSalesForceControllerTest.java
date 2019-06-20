@@ -92,8 +92,8 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
 
     @ParameterizedTest
     @CsvSource({
-            StringUtils.EMPTY + ",success.json",
-            "xx," + "success_xx.json"
+            ", success.json",
+            "xx, success_xx.json"
     })
     void testRequestCardSuccess(final String lang, final String responseFile) throws Exception {
         expectSalesforceRequest(String.format(WORK_ITEMS_QUERY, "admin@acme.com"))
@@ -144,7 +144,7 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
         expectSalesforceRequest(String.format(OPPORTUNITY_QUERY, "0062E00001Em72DQAR', '0062E00001Em757QAB', '0062E00001Em7iBQAR', '0062E00001Em7kWQAR', '0062E00001Em7lyQAB"))
                 .andRespond(withSuccess(opportunityResult, APPLICATION_JSON));
 
-        testRequestCards("empty_card_response.json", StringUtils.EMPTY);
+        testRequestCards("empty_card_response.json", "");
     }
 
     private Stream<Arguments> emptyWorkFlowArgument() {
@@ -164,7 +164,7 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
 
     private void testRequestCards(String responseFile, String acceptLanguage) throws Exception {
         WebTestClient.RequestHeadersSpec<?> spec = requestCards("abc", "request.json");
-        if (acceptLanguage != null) {
+        if (StringUtils.isNotBlank(acceptLanguage)) {
             spec = spec.header(ACCEPT_LANGUAGE, acceptLanguage);
         }
 

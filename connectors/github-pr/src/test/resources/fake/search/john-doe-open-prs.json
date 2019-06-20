@@ -1,0 +1,44 @@
+{
+  "total_count": 2,
+  "incomplete_results": false,
+  "items": [
+    {
+      "html_url": "https://github.com/vmware/test-repo/pull/13",
+      "assignee": {
+        "login": "JohnDoe"
+      },
+      "assignees": [
+        {
+          "login": "JohnDoe"
+        }
+      ],
+      "pull_request": {
+        "url": "https://api.github.com/repos/vmware/test-repo/pulls/13",
+        "html_url": "https://github.com/vmware/test-repo/pull/13",
+        "diff_url": "https://github.com/vmware/test-repo/pull/13.diff",
+        "patch_url": "https://github.com/vmware/test-repo/pull/13.patch"
+      },
+      "body": "blah1",
+      "score": 1
+    },
+    {
+      "html_url": "https://github.com/vmware/test-repo/pull/12",
+      "assignee": {
+        "login": "JohnDoe"
+      },
+      "assignees": [
+        {
+          "login": "JohnDoe"
+        }
+      ],
+      "pull_request": {
+        "url": "https://api.github.com/repos/vmware/test-repo/pulls/12",
+        "html_url": "https://github.com/vmware/test-repo/pull/12",
+        "diff_url": "https://github.com/vmware/test-repo/pull/12.diff",
+        "patch_url": "https://github.com/vmware/test-repo/pull/12.patch"
+      },
+      "body": "blah 2 body",
+      "score": 1
+    }
+  ]
+}

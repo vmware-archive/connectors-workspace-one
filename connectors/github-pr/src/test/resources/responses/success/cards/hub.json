@@ -2,13 +2,13 @@
   "objects": [
     {
       "id": "00000000-0000-0000-0000-000000000000",
-      "name": "GitlabPr",
+      "name": "GithubPr",
       "creation_date": "1970-01-01T00:00:00Z",
       "template": {
-        "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
+        "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[GITLAB] MERGE REQUEST #2 FROM TestUser1",
+        "title": "[Github] Pull Request #12 from JohnDoe",
         "subtitle": [
           "vmware/test-repo"
         ]
@@ -16,24 +16,22 @@
       "actions": [
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "APPROVE",
+          "label": "Approve",
           "url": {
-            "href": "https://hero/connectors/gitlab-pr/api/v1/vmware/test-repo/2/approve"
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/12/approve"
           },
           "type": "POST",
           "action_key": "DIRECT",
-          "request": {
-            "sha": "test-sha"
-          },
+          "request": {},
           "user_input": [],
-          "completed_label": "APPROVED",
+          "completed_label": "Approved",
           "allow_repeated": false
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "COMMENT",
+          "label": "Comment",
           "url": {
-            "href": "https://hero/connectors/gitlab-pr/api/v1/vmware/test-repo/2/comment"
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/12/comment"
           },
           "type": "POST",
           "action_key": "USER_INPUT",
@@ -41,12 +39,12 @@
           "user_input": [
             {
               "id": "message",
-              "label": "COMMENT",
+              "label": "Comment",
               "format": "textarea",
               "min_length": 1
             }
           ],
-          "completed_label": "COMMENTED",
+          "completed_label": "Commented",
           "allow_repeated": true
         }
       ],
@@ -57,13 +55,13 @@
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
-      "name": "GitlabPr",
+      "name": "GithubPr",
       "creation_date": "1970-01-01T00:00:00Z",
       "template": {
-        "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
+        "href": "https://hero/connectors/github-pr/templates/generic.hbs"
       },
       "header": {
-        "title": "[GITLAB] MERGE REQUEST #1 FROM TestUser1",
+        "title": "[Github] Pull Request #13 from janedoe",
         "subtitle": [
           "vmware/test-repo"
         ]
@@ -71,49 +69,22 @@
       "actions": [
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "COMMENT",
+          "label": "Approve",
           "url": {
-            "href": "https://hero/connectors/gitlab-pr/api/v1/vmware/test-repo/1/comment"
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/13/approve"
           },
           "type": "POST",
-          "action_key": "USER_INPUT",
+          "action_key": "DIRECT",
           "request": {},
-          "user_input": [
-            {
-              "id": "message",
-              "label": "COMMENT",
-              "format": "textarea",
-              "min_length": 1
-            }
-          ],
-          "completed_label": "COMMENTED",
-          "allow_repeated": true
-        }
-      ],
-      "image": {
-        "href": "https://my-connector/images/connector.png"
-      },
-      "hash": "test-hash"
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "name": "GitlabPr",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "template": {
-        "href": "https://hero/connectors/gitlab-pr/templates/generic.hbs"
-      },
-      "header": {
-        "title": "[GITLAB] MERGE REQUEST #3 FROM TestUser1",
-        "subtitle": [
-          "vmware/test-repo"
-        ]
-      },
-      "actions": [
+          "user_input": [],
+          "completed_label": "Approved",
+          "allow_repeated": false
+        },
         {
           "id": "00000000-0000-0000-0000-000000000000",
-          "label": "COMMENT",
+          "label": "Comment",
           "url": {
-            "href": "https://hero/connectors/gitlab-pr/api/v1/vmware/test-repo/3/comment"
+            "href": "https://hero/connectors/github-pr/api/v1/vmware/test-repo/13/comment"
           },
           "type": "POST",
           "action_key": "USER_INPUT",
@@ -121,12 +92,12 @@
           "user_input": [
             {
               "id": "message",
-              "label": "COMMENT",
+              "label": "Comment",
               "format": "textarea",
               "min_length": 1
             }
           ],
-          "completed_label": "COMMENTED",
+          "completed_label": "Commented",
           "allow_repeated": true
         }
       ],

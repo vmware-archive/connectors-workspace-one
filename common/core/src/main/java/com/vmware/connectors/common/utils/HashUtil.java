@@ -1,7 +1,6 @@
 package com.vmware.connectors.common.utils;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,7 @@ public final class HashUtil {
 
         final List<String> result = argList.stream()
                 .sorted()
-                .map(arg -> DigestUtils.sha1Hex(StringUtils.EMPTY + arg))
+                .map(arg -> DigestUtils.sha1Hex(arg == null ? "" : arg))
                 .collect(Collectors.toList());
         return DigestUtils.sha1Hex(result.toString());
     }
@@ -53,8 +52,8 @@ public final class HashUtil {
 
         final List<String> result = argMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
-                .map(entrySet -> DigestUtils.sha1Hex(StringUtils.EMPTY + entrySet.getKey())
-                        + DigestUtils.sha1Hex(StringUtils.EMPTY + entrySet.getValue()))
+                .map(entrySet -> DigestUtils.sha1Hex(entrySet.getKey() == null ? "" : entrySet.getKey())
+                        + DigestUtils.sha1Hex(entrySet.getValue() == null ? "" : entrySet.getValue()))
                 .collect(Collectors.toList());
         return DigestUtils.sha1Hex(result.toString());
     }

@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
  * This can't be done with the other test because we use OkHttp as the backend, whose hostname is localhost.
  */
 @ExtendWith(MockitoExtension.class)
-public class AwsCertControllerMockedTest {
+class AwsCertControllerMockedTest {
 
     private final static String APPROVAL_URL_WRONG_HOST_1 = "https://justwrong/approvals?code=test-auth-code-2&context=test-context-1";
     private final static String APPROVAL_URL_WRONG_HOST_2 = "https://test-aws-region-2.BADcertificates.Fake-Amazon.com/approvals?code=test-auth-code-2&context=test-context-2";

@@ -97,11 +97,11 @@ class GithubPrControllerTest extends ControllerTestsBase {
                 .headers(ControllerTestsBase::headers)
                 .syncBody(content);
 
-        if (authToken != null) {
+        if (StringUtils.isNotBlank(authToken)) {
             spec = spec.header(X_AUTH_HEADER, "Bearer " + authToken);
         }
 
-        if (language != null) {
+        if (StringUtils.isNotBlank(language)) {
             spec = spec.header(ACCEPT_LANGUAGE, language);
         }
 
@@ -163,9 +163,9 @@ class GithubPrControllerTest extends ControllerTestsBase {
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @CsvSource({
-            StringUtils.EMPTY + ", responses/success/cards/card.json",
+            ", responses/success/cards/card.json",
             "xx, responses/success/cards/card_xx.json"})
-    void testRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
+    void testBoxerRequestCardsSuccess(String acceptLanguage, String responseFile) throws Exception {
         trainGithubForCards();
 
         String body = requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/card.json"), acceptLanguage)
@@ -203,28 +203,39 @@ class GithubPrControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testRequestCardsEmptyPrUrlsSuccess() throws Exception {
-        requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/empty-pr-urls.json"))
+    void testHubRequestCardsSuccess() throws Exception {
+        mockBackend.expect(requestTo("/user"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + GITHUB_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("fake/user/john-doe.json"), APPLICATION_JSON));
+
+        mockBackend.expect(requestTo("/search/issues?q=state%3Aopen%20type%3Apr%20assignee%3AJohnDoe"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + GITHUB_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("fake/search/john-doe-open-prs.json"), APPLICATION_JSON));
+
+        mockBackend.expect(requestTo("/repos/vmware/test-repo/pulls/12"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + GITHUB_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("fake/prs/pr-12.json"), APPLICATION_JSON));
+
+        mockBackend.expect(requestTo("/repos/vmware/test-repo/pulls/13"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + GITHUB_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("fake/prs/pr-13.json"), APPLICATION_JSON));
+
+        String body = requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/hub.json"))
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("responses/success/cards/empty-pr-urls.json"));
-    }
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(JsonNormalizer::forCards)
+                .block();
 
-    @Test
-    void testRequestCardsMissingPrUrls() throws Exception {
-        requestCards(GITHUB_AUTH_TOKEN, fromFile("requests/valid/cards/missing-pr-urls.json"))
-                 .expectStatus().isBadRequest();
-    }
-
-    @DisplayName("Card request invalid token cases")
-    @ParameterizedTest(name = "{index} ==> ''{0}''")
-    @CsvSource({"requests/invalid/cards/empty-tokens.json, responses/error/cards/empty-tokens.json",
-            "requests/invalid/cards/missing-tokens.json, responses/error/cards/missing-tokens.json"})
-    void testRequestCardsInvalidTokens(String reqFile, String resFile) throws Exception {
-        requestCards(GITHUB_AUTH_TOKEN, fromFile(reqFile))
-                .expectStatus().isBadRequest()
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile(resFile));
+        String expected = fromFile("responses/success/cards/hub.json");
+        body = body.replaceAll("[a-z0-9]{40,}", "test-hash");
+        assertThat(body, sameJSONAs(expected).allowingAnyArrayOrdering());
     }
 
     /////////////////////////////

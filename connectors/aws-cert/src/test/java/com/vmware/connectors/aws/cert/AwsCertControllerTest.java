@@ -84,7 +84,7 @@ class AwsCertControllerTest extends ControllerTestsBase {
                 .accept(APPLICATION_JSON)
                 .syncBody(fromFile("/awscert/requests/" + requestFile).replace("${backend_host}", mockBackend.url("")));
 
-        if (language != null) {
+        if (StringUtils.isNotBlank(language)) {
             spec = spec.header(ACCEPT_LANGUAGE, language);
         }
 
@@ -111,7 +111,7 @@ class AwsCertControllerTest extends ControllerTestsBase {
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
     @DisplayName("Card request success cases")
     @CsvSource({
-            StringUtils.EMPTY + ", /awscert/responses/success/cards/card.json",
+            ", /awscert/responses/success/cards/card.json",
             "xx, /awscert/responses/success/cards/card_xx.json"})
     void testRequestCardsSuccess(String lang, String responseFile) throws Exception {
         trainAwsCertForCards();
@@ -171,17 +171,18 @@ class AwsCertControllerTest extends ControllerTestsBase {
         requestCards("valid/cards/empty-approval-urls.json")
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("/awscert/responses/success/cards/empty-approval-urls.json"));
+                .expectBody().json(fromFile("/awscert/responses/success/cards/no-results.json"));
     }
 
     @ParameterizedTest
     @DisplayName("Bad card request cases")
     @CsvSource({
-            "invalid/cards/empty-tokens.json, /awscert/responses/error/cards/empty-tokens.json",
-            "invalid/cards/missing-tokens.json, /awscert/responses/error/cards/missing-tokens.json"})
+            "invalid/cards/empty-tokens.json, /awscert/responses/success/cards/no-results.json",
+            "invalid/cards/missing-tokens.json, /awscert/responses/success/cards/no-results.json"
+    })
     void testRequestCardsInsufficientInput(String reqFile, String resFile) throws Exception {
         requestCards(reqFile)
-                .expectStatus().isBadRequest()
+                .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
                 .expectBody().json(fromFile(resFile));
     }
