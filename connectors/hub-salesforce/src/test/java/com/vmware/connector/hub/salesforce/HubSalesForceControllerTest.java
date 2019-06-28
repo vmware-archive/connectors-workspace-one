@@ -47,7 +47,7 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
 
     private final static String WORK_ITEMS_QUERY = "SELECT Id,TargetObjectid, Status,(select id,actor.name, actor.id, actor.email, actor.username from Workitems Where actor.email = '%s'),(SELECT Id, StepStatus, Comments,Actor.Name, Actor.Id, actor.email, actor.username FROM Steps) FROM ProcessInstance Where Status = 'Pending'";
 
-    private final static String OPPORTUNITY_QUERY = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name FROM opportunity WHERE Id IN ('%s')";
+    private final static String OPPORTUNITY_QUERY = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name, Discount_Percentage__c, Reason_for_Discount__c FROM opportunity WHERE Id IN ('%s')";
 
     @Value("classpath:workflow_step_result.json")
     private Resource workflowStepApproval;
@@ -151,6 +151,23 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
         return Stream.of(
                 Arguments.of("admin@acme.com", emptyRecords),
                 Arguments.of("admin@acme.com", emptyWorkItems)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidConfigParams")
+    void testInvalidConfigParams(String requestFilePath, String responseFilePath) throws Exception {
+        requestCards("abc", requestFilePath)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().json(fromFile(responseFilePath));
+    }
+
+    private Stream<Arguments> invalidConfigParams() {
+        return Stream.of(
+                Arguments.of("invalid/request/config_missing_request.json", "invalid/response/config_missing_response.json"),
+                Arguments.of("invalid/request/discount_percentage_missing.json", "invalid/response/discount_percent_missing.json"),
+                Arguments.of("invalid/request/discount_reason_missing.json", "invalid/response/discount_reason_missing.json")
         );
     }
 

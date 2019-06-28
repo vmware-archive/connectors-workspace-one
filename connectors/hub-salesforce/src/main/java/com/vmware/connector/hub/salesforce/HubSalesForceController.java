@@ -5,34 +5,39 @@
 
 package com.vmware.connector.hub.salesforce;
 
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.nimbusds.jose.util.StandardCharset;
 import com.vmware.connectors.common.json.JsonDocument;
+import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.Reactive;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
@@ -52,33 +57,29 @@ public class HubSalesForceController {
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
+    private final Resource metadata;
+    private final String sfSoqlQueryPath;
+    private final String workflowPath;
 
     private final static String REASON = "reason";
 
     private final static String WORK_ITEMS_QUERY = "SELECT Id,TargetObjectid, Status,(select id,actor.name, actor.id, actor.email, actor.username from Workitems Where actor.email = '%s'),(SELECT Id, StepStatus, Comments,Actor.Name, Actor.Id, actor.email, actor.username FROM Steps) FROM ProcessInstance Where Status = 'Pending'";
-    private final static String OPPORTUNITY_QUERY_1 = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name";
-    private final static String OPPORTUNITY_QUERY_2 = " FROM opportunity WHERE Id IN ('%s')";
+    private final static String OPPORTUNITY_QUERY = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name, %s, %s FROM opportunity WHERE Id IN ('%s')";
 
-    private final static String FIELD_FORMAT = ", %s";
-
-    private final String sfSoqlQueryPath;
-    private final String workflowPath;
-    private final String discountPercentageField;
-    private final String reasonForDiscountField;
+    private final static String DISCOUNT_PERCENTAGE = "Discount Percentage";
+    private final static String REASON_FOR_DISCOUNT = "Reason for Discount";
 
     @Autowired
     public HubSalesForceController(final WebClient rest,
                                    final CardTextAccessor cardTextAccessor,
                                    @Value("${sf.soqlQueryPath}") final String sfSoqlQueryPath,
                                    @Value("${sf.workflowPath}") final String workflowPath,
-                                   @Value("${custom-fields.discount-percentage}") final String discountPercentageField,
-                                   @Value("${custom-fields.reason-for-discount}") final String reasonForDiscountField) {
+                                   @Value("classpath:static/discovery/metadata.json") final Resource metadata) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.sfSoqlQueryPath = sfSoqlQueryPath;
         this.workflowPath = workflowPath;
-        this.discountPercentageField = discountPercentageField;
-        this.reasonForDiscountField = reasonForDiscountField;
+        this.metadata = metadata;
     }
 
     @PostMapping(
@@ -91,8 +92,9 @@ public class HubSalesForceController {
             @RequestHeader(AUTH_HEADER) final String connectorAuth,
             @RequestHeader(BASE_URL_HEADER) final String baseUrl,
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
+            @Valid @RequestBody final CardRequest cardRequest,
             final Locale locale
-    ) {
+    ) throws IOException {
         logger.trace("getCards called with baseUrl: {} and routingPrefix: {}", baseUrl, routingPrefix);
 
         final String userEmail = AuthUtil.extractUserEmail(auth);
@@ -101,11 +103,54 @@ public class HubSalesForceController {
             return Mono.just(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
         }
 
+        final Map<String, String> configParams = cardRequest.getConfig();
+        validateAPIFieldValues(configParams);
+
         return retrieveWorkItems(connectorAuth, baseUrl, userEmail)
-                .flatMapMany(Reactive.wrapFlatMapMany(result -> processWorkItemResult(result, baseUrl, connectorAuth, locale, routingPrefix)))
+                .flatMapMany(Reactive.wrapFlatMapMany(result -> processWorkItemResult(result, baseUrl, connectorAuth, locale, routingPrefix, configParams)))
                 .collectList()
                 .map(this::toCards)
                 .map(ResponseEntity::ok);
+    }
+
+    private void validateAPIFieldValues(final Map<String, String> configParams) throws IOException {
+        if (CollectionUtils.isEmpty(configParams)) {
+            throw new InvalidConfigParamException("Connector configuration parameters map is empty.");
+        }
+
+        if (StringUtils.isBlank(configParams.get(DISCOUNT_PERCENTAGE))) {
+            throw new InvalidConfigParamException("Discount Percentage field API name should not be empty.");
+        }
+
+        if (StringUtils.isBlank(configParams.get(REASON_FOR_DISCOUNT))) {
+            throw new InvalidConfigParamException("Reason for Discount field API name should not be empty.");
+        }
+
+        final String metadata = IOUtils.toString(this.metadata.getInputStream(), StandardCharset.UTF_8);
+        validateField(configParams, metadata,
+                "$.config.['Discount Percentage'].validators[1].value",
+                DISCOUNT_PERCENTAGE,
+                "Discount Percentage field API value is not valid.");
+
+        validateField(configParams, metadata,
+                "$.config.['Reason for Discount'].validators[1].value",
+                REASON_FOR_DISCOUNT,
+                "Reason for Discount field API value is not valid.");
+    }
+
+    private void validateField(final Map<String, String> configParams,
+                               final String metadata,
+                               final String path,
+                               final String fieldName,
+                               final String errorMessage) {
+        final String regex = JsonPath.using(Configuration.defaultConfiguration())
+                .parse(metadata)
+                .read(path);
+
+        final String discountPercentageFieldValue = configParams.get(fieldName);
+        if (!discountPercentageFieldValue.matches(regex)) {
+            throw new InvalidConfigParamException(errorMessage);
+        }
     }
 
     @PostMapping(
@@ -172,36 +217,27 @@ public class HubSalesForceController {
                                              final String baseUrl,
                                              final String connectorAuth,
                                              final Locale locale,
-                                             final String routingPrefix) {
+                                             final String routingPrefix,
+                                             final Map<String, String> configParams) {
         final List<String> opportunityIds = workItemResponse.read("$.records[*].TargetObjectId");
         if (CollectionUtils.isEmpty(opportunityIds)) {
             logger.warn("TargetObjectIds are empty for the base url [{}]", baseUrl);
             return Flux.empty();
         }
 
-        return retrieveOpportunities(baseUrl, opportunityIds, connectorAuth)
-                .flatMapMany(opportunityResponse -> buildCards(workItemResponse, opportunityResponse, locale, routingPrefix));
+        return retrieveOpportunities(baseUrl, opportunityIds, connectorAuth, configParams)
+                .flatMapMany(opportunityResponse -> buildCards(workItemResponse, opportunityResponse, locale, routingPrefix, configParams));
     }
 
     private Mono<JsonDocument> retrieveOpportunities(final String baseUrl,
                                                      final List<String> opportunityIds,
-                                                     final String connectorAuth) {
-        String sql = OPPORTUNITY_QUERY_1;
-        if (StringUtils.isNotBlank(this.discountPercentageField)) {
-            sql += String.format(FIELD_FORMAT, soqlEscape(this.discountPercentageField));
-        }
-
-        if (StringUtils.isNotBlank(this.reasonForDiscountField)) {
-            sql += String.format(FIELD_FORMAT, soqlEscape(this.reasonForDiscountField));
-        }
-
-        sql = sql + OPPORTUNITY_QUERY_2;
-
+                                                     final String connectorAuth,
+                                                     final Map<String, String> configParams) {
         final String idsFormat = opportunityIds.stream()
                 .map(this::soqlEscape)
                 .collect(Collectors.joining("', '"));
 
-        String soql = String.format(sql, idsFormat);
+        final String soql = String.format(OPPORTUNITY_QUERY, configParams.get(DISCOUNT_PERCENTAGE), configParams.get(REASON_FOR_DISCOUNT), idsFormat);
         return rest.get()
                 .uri(makeSoqlQueryUri(baseUrl, soql))
                 .header(AUTHORIZATION, connectorAuth)
@@ -212,7 +248,8 @@ public class HubSalesForceController {
     private Flux<Card> buildCards(final JsonDocument workItemResponse,
                                   final JsonDocument opportunityResponse,
                                   final Locale locale,
-                                  final String routingPrefix) {
+                                  final String routingPrefix,
+                                  final Map<String, String> configParams) {
         final int totalSize = workItemResponse.read("$.totalSize");
         final List<Card> cardList = new ArrayList<>();
 
@@ -228,7 +265,7 @@ public class HubSalesForceController {
                     .setName("Salesforce for WS1 Hub")
                     .setTemplate(routingPrefix + "templates/generic.hbs")
                     .setHeader(this.cardTextAccessor.getMessage("ws1.sf.card.header", locale))
-                    .setBody(buildCardBody(opportunityResponse, i, locale))
+                    .setBody(buildCardBody(opportunityResponse, i, locale, configParams))
                     .addAction(buildApproveAction(routingPrefix, locale, userId))
                     .addAction(buildRejectAction(routingPrefix, locale, userId));
 
@@ -240,8 +277,9 @@ public class HubSalesForceController {
     }
 
     private CardBody buildCardBody(final JsonDocument opportunityResponse,
-                                           final int index,
-                                           final Locale locale) {
+                                   final int index,
+                                   final Locale locale,
+                                   final Map<String, String> configParams) {
         final String opportunityName = opportunityResponse.read(String.format("$.records[%s].Name", index));
         final String opportunityOwnerName = opportunityResponse.read(String.format("$.records[%s].Account.Owner.Name", index));
         final String expectedRevenue = opportunityResponse.read(String.format("$.records[%s].ExpectedRevenue", index));
@@ -251,15 +289,11 @@ public class HubSalesForceController {
                 .addField(buildCardBodyField("opportunity.owner", opportunityOwnerName, locale))
                 .addField(buildCardBodyField("revenue.opportunity", expectedRevenue, locale));
 
-        if (StringUtils.isNotBlank(this.discountPercentageField)) {
-            final Double discountPercent = opportunityResponse.read(String.format("$.records[%s].%s", index, this.discountPercentageField));
-            cardBodyBuilder.addField(buildCardBodyField("discount.percent", String.valueOf(discountPercent), locale));
-        }
+        final Integer discountPercent = opportunityResponse.read(String.format("$.records[%s].%s", index, configParams.get(DISCOUNT_PERCENTAGE)));
+        cardBodyBuilder.addField(buildCardBodyField("discount.percent", String.valueOf(discountPercent), locale));
 
-        if (StringUtils.isNotBlank(this.reasonForDiscountField)) {
-            final String reasonForDiscount = opportunityResponse.read(String.format("$.records[%s].%s", index, this.reasonForDiscountField));
-            cardBodyBuilder.addField(buildCardBodyField("reason.for.discount", reasonForDiscount, locale));
-        }
+        final String reasonForDiscount = opportunityResponse.read(String.format("$.records[%s].%s", index, configParams.get(REASON_FOR_DISCOUNT)));
+        cardBodyBuilder.addField(buildCardBodyField("reason.for.discount", reasonForDiscount, locale));
 
         return cardBodyBuilder.build();
     }
@@ -350,5 +384,12 @@ public class HubSalesForceController {
 
     private String soqlEscape(String value) {
         return value.replace("\\", "\\\\").replace("\'", "\\\'");
+    }
+
+    @ExceptionHandler(InvalidConfigParamException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public Map<String, String> handleInvalidConnectorConfigError(InvalidConfigParamException e) {
+        return Map.of("message", e.getMessage());
     }
 }

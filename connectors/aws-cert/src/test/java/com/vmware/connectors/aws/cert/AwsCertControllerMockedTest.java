@@ -121,7 +121,7 @@ class AwsCertControllerMockedTest {
                 .thenReturn(Mono.just(mockResponse));
 
         Map<String, Set<String>> tokens = Collections.singletonMap("approval_urls", approvalUrls);
-        CardRequest cardRequest = new CardRequest(tokens);
+        CardRequest cardRequest = new CardRequest(tokens, null);
         ServerHttpRequest servletRequest = MockServerHttpRequest.post("/cards/requests").build();
 
         Cards cards = controller.getCards("https://hero/connectors/aws", null, cardRequest, servletRequest).block();

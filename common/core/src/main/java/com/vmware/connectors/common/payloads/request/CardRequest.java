@@ -23,9 +23,13 @@ public class CardRequest {
 
     private final Map<String, Set<String>> tokens;
 
+    private final Map<String, String> config;
+
     @JsonCreator
-    public CardRequest(@JsonProperty("tokens") Map<String, Set<String>> tokens) {
+    public CardRequest(@JsonProperty("tokens") Map<String, Set<String>> tokens,
+                       @JsonProperty("config") Map<String, String> config) {
         this.tokens = tokens == null ? Map.of() : Map.copyOf(tokens);
+        this.config = config == null ? Map.of() : Map.copyOf(config);
     }
 
     /**
@@ -81,6 +85,21 @@ public class CardRequest {
      */
     public String getTokenSingleValue(String key) {
         return getTokenSingleValue(key, null);
+    }
+
+    /**
+     * Returns the connector parameters config map.
+     * <p>
+     * For example:
+     * {
+     *     "Discount Percentage": "Discount_Percentage__c",
+     *     "Reason for Discount": "Reason_for_Discount__c"
+     * }
+     *
+     * @return the connector parameters config
+     */
+    public Map<String, String> getConfig() {
+        return this.config;
     }
 
     @Override

@@ -27,6 +27,16 @@
             "type": "GENERAL",
             "title": "Revenue Opportunity",
             "description": "$600,000.00"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Discount Percentage",
+            "description": "45"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Reason for Discount",
+            "description": "We might get more business from this client in future."
           }
         ]
       },
@@ -107,6 +117,16 @@
             "type": "GENERAL",
             "title": "Revenue Opportunity",
             "description": "$89,898,898.90"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Discount Percentage",
+            "description": "20"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Reason for Discount",
+            "description": "License cost per user is high. So we have to offer some discount."
           }
         ]
       },
