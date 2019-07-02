@@ -47,7 +47,7 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
 
     private final static String WORK_ITEMS_QUERY = "SELECT Id,TargetObjectid, Status,(select id,actor.name, actor.id, actor.email, actor.username from Workitems Where actor.email = '%s'),(SELECT Id, StepStatus, Comments,Actor.Name, Actor.Id, actor.email, actor.username FROM Steps) FROM ProcessInstance Where Status = 'Pending'";
 
-    private final static String OPPORTUNITY_QUERY = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name FROM opportunity WHERE Id IN ('%s')";
+    private final static String OPPORTUNITY_QUERY = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name, Discount_Percentage__c, Reason_for_Discount__c FROM opportunity WHERE Id IN ('%s')";
 
     @Value("classpath:workflow_step_result.json")
     private Resource workflowStepApproval;
@@ -152,6 +152,21 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
                 Arguments.of("admin@acme.com", emptyRecords),
                 Arguments.of("admin@acme.com", emptyWorkItems)
         );
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "config_missing.json",
+            "discount_percentage_missing.json",
+            "discount_reason_missing.json",
+            "invalid_discount_percentage_field_name.json",
+            "invalid_discount_reason_field_name.json"
+    })
+    void testInvalidConfigParams(String fileName) throws Exception {
+        requestCards("abc", "invalid/request/" + fileName)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().json(fromFile("invalid/response/" + fileName));
     }
 
     private void setupMock() {
