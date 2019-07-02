@@ -3,7 +3,10 @@
     "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-salesforce.png"
   },
   "config": {
-    "Discount Percentage": {
+    "discount_percentage_field_name": {
+      "label": {
+        "en-US": "Discount Percentage"
+      },
       "type": "STRING",
       "description": {
         "en-US": "Discount percentage custom field API name in Salesforce opportunity. This field is required to display Display percentage field in the notification. "
@@ -14,11 +17,14 @@
         },
         {
           "type": "regex",
-          "value": "[a-zA-Z0-9_]+"
+          "value": "^[a-zA-Z0-9_]+$"
         }
       ]
     },
-    "Reason for Discount": {
+    "reason_for_discount_field_name": {
+      "label": {
+        "en-US": "Reason for Discount"
+      },
       "type": "STRING",
       "description": {
         "en-US": "Reason for discount custom field API name in Salesforce opportunity. This field is required to display Reason for Discount field in the notification. "
@@ -29,7 +35,7 @@
         },
         {
           "type": "regex",
-          "value": "[a-zA-Z0-9_]+"
+          "value": "^[a-zA-Z0-9_]+$"
         }
       ]
     }

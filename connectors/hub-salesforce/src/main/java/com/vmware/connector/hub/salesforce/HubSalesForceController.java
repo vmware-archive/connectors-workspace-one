@@ -5,22 +5,17 @@
 
 package com.vmware.connector.hub.salesforce;
 
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.nimbusds.jose.util.StandardCharset;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.Reactive;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,7 +27,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,30 +51,27 @@ public class HubSalesForceController {
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
-    private final Resource metadata;
     private final String sfSoqlQueryPath;
     private final String workflowPath;
 
     private final static String REASON = "reason";
-    private final static String DEFAULT_REGEX = "[a-zA-Z0-9_]+";
+    private final static String FIELD_NAME_REGEX = "[a-zA-Z0-9_]+";
 
     private final static String WORK_ITEMS_QUERY = "SELECT Id,TargetObjectid, Status,(select id,actor.name, actor.id, actor.email, actor.username from Workitems Where actor.email = '%s'),(SELECT Id, StepStatus, Comments,Actor.Name, Actor.Id, actor.email, actor.username FROM Steps) FROM ProcessInstance Where Status = 'Pending'";
     private final static String OPPORTUNITY_QUERY = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name, %s, %s FROM opportunity WHERE Id IN ('%s')";
 
-    private final static String DISCOUNT_PERCENTAGE = "Discount Percentage";
-    private final static String REASON_FOR_DISCOUNT = "Reason for Discount";
+    private final static String DISCOUNT_PERCENTAGE = "discount_percentage_field_name";
+    private final static String REASON_FOR_DISCOUNT = "reason_for_discount_field_name";
 
     @Autowired
     public HubSalesForceController(final WebClient rest,
                                    final CardTextAccessor cardTextAccessor,
                                    @Value("${sf.soqlQueryPath}") final String sfSoqlQueryPath,
-                                   @Value("${sf.workflowPath}") final String workflowPath,
-                                   @Value("classpath:static/discovery/metadata.json") final Resource metadata) {
+                                   @Value("${sf.workflowPath}") final String workflowPath) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.sfSoqlQueryPath = sfSoqlQueryPath;
         this.workflowPath = workflowPath;
-        this.metadata = metadata;
     }
 
     @PostMapping(
@@ -95,7 +86,7 @@ public class HubSalesForceController {
             @RequestHeader(ROUTING_PREFIX) final String routingPrefix,
             @Valid @RequestBody final CardRequest cardRequest,
             final Locale locale
-    ) throws IOException {
+    ) {
         logger.trace("getCards called with baseUrl: {} and routingPrefix: {}", baseUrl, routingPrefix);
 
         final String userEmail = AuthUtil.extractUserEmail(auth);
@@ -114,7 +105,7 @@ public class HubSalesForceController {
                 .map(ResponseEntity::ok);
     }
 
-    private void validateAPIFieldValues(final Map<String, String> configParams) throws IOException {
+    private void validateAPIFieldValues(final Map<String, String> configParams) {
         if (CollectionUtils.isEmpty(configParams)) {
             throw new InvalidConfigParamException("Connector configuration parameters map is empty.");
         }
@@ -127,42 +118,22 @@ public class HubSalesForceController {
             throw new InvalidConfigParamException("Reason for Discount custom field API name should not be empty.");
         }
 
-        final String metadata = IOUtils.toString(this.metadata.getInputStream(), StandardCharset.UTF_8);
-        validateField(configParams, metadata,
-                "$.config.['Discount Percentage'].validators[*]",
+        validateField(configParams,
                 DISCOUNT_PERCENTAGE,
                 "Discount Percentage custom field API value is not valid.");
 
-        validateField(configParams, metadata,
-                "$.config.['Reason for Discount'].validators[*]",
+        validateField(configParams,
                 REASON_FOR_DISCOUNT,
                 "Reason for Discount custom field API value is not valid.");
     }
 
     private void validateField(final Map<String, String> configParams,
-                               final String metadata,
-                               final String path,
                                final String fieldName,
                                final String errorMessage) {
-        final String regex = extractRegexValue(metadata, path);
-
-        final String discountPercentageFieldValue = configParams.get(fieldName);
-        if (!discountPercentageFieldValue.matches(regex)) {
+        final String fieldValue = configParams.get(fieldName);
+        if (!fieldValue.matches(FIELD_NAME_REGEX)) {
             throw new InvalidConfigParamException(errorMessage);
         }
-    }
-
-    private String extractRegexValue(final String metadata, final String path) {
-        final List<Map<String, String>> validators = JsonPath.using(Configuration.defaultConfiguration())
-                .parse(metadata)
-                .read(path);
-
-        for (final Map<String, String> validatorMap: validators) {
-            if (validatorMap.containsValue("regex")) {
-                return validatorMap.get("value");
-            }
-        }
-        return DEFAULT_REGEX;
     }
 
     @PostMapping(
@@ -249,7 +220,7 @@ public class HubSalesForceController {
                 .map(this::soqlEscape)
                 .collect(Collectors.joining("', '"));
 
-        final String soql = String.format(OPPORTUNITY_QUERY, configParams.get(DISCOUNT_PERCENTAGE), configParams.get(REASON_FOR_DISCOUNT), idsFormat);
+        final String soql = String.format(OPPORTUNITY_QUERY, soqlEscape(configParams.get(DISCOUNT_PERCENTAGE)), soqlEscape(configParams.get(REASON_FOR_DISCOUNT)), idsFormat);
         return rest.get()
                 .uri(makeSoqlQueryUri(baseUrl, soql))
                 .header(AUTHORIZATION, connectorAuth)

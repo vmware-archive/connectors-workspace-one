@@ -1,5 +1,5 @@
 {
   "config": {
-    "Discount Percentage": "Discount_Percentage__c"
+    "discount_percentage_field_name": "Discount_Percentage__c"
   }
 }
