@@ -31,7 +31,7 @@
           {
             "type": "GENERAL",
             "title": "DISCOUNT PERCENTAGE",
-            "description": "45"
+            "description": "45.0"
           },
           {
             "type": "GENERAL",
@@ -121,7 +121,7 @@
           {
             "type": "GENERAL",
             "title": "DISCOUNT PERCENTAGE",
-            "description": "20"
+            "description": "20.0"
           },
           {
             "type": "GENERAL",

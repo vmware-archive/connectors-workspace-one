@@ -62,6 +62,7 @@ public class HubSalesForceController {
     private final String workflowPath;
 
     private final static String REASON = "reason";
+    private final static String DEFAULT_REGEX = "[a-zA-Z0-9_]+";
 
     private final static String WORK_ITEMS_QUERY = "SELECT Id,TargetObjectid, Status,(select id,actor.name, actor.id, actor.email, actor.username from Workitems Where actor.email = '%s'),(SELECT Id, StepStatus, Comments,Actor.Name, Actor.Id, actor.email, actor.username FROM Steps) FROM ProcessInstance Where Status = 'Pending'";
     private final static String OPPORTUNITY_QUERY = "SELECT Id, Name, FORMAT(ExpectedRevenue), Account.Owner.Name, %s, %s FROM opportunity WHERE Id IN ('%s')";
@@ -119,23 +120,23 @@ public class HubSalesForceController {
         }
 
         if (StringUtils.isBlank(configParams.get(DISCOUNT_PERCENTAGE))) {
-            throw new InvalidConfigParamException("Discount Percentage field API name should not be empty.");
+            throw new InvalidConfigParamException("Discount Percentage custom field API name should not be empty.");
         }
 
         if (StringUtils.isBlank(configParams.get(REASON_FOR_DISCOUNT))) {
-            throw new InvalidConfigParamException("Reason for Discount field API name should not be empty.");
+            throw new InvalidConfigParamException("Reason for Discount custom field API name should not be empty.");
         }
 
         final String metadata = IOUtils.toString(this.metadata.getInputStream(), StandardCharset.UTF_8);
         validateField(configParams, metadata,
-                "$.config.['Discount Percentage'].validators[1].value",
+                "$.config.['Discount Percentage'].validators[*]",
                 DISCOUNT_PERCENTAGE,
-                "Discount Percentage field API value is not valid.");
+                "Discount Percentage custom field API value is not valid.");
 
         validateField(configParams, metadata,
-                "$.config.['Reason for Discount'].validators[1].value",
+                "$.config.['Reason for Discount'].validators[*]",
                 REASON_FOR_DISCOUNT,
-                "Reason for Discount field API value is not valid.");
+                "Reason for Discount custom field API value is not valid.");
     }
 
     private void validateField(final Map<String, String> configParams,
@@ -143,14 +144,25 @@ public class HubSalesForceController {
                                final String path,
                                final String fieldName,
                                final String errorMessage) {
-        final String regex = JsonPath.using(Configuration.defaultConfiguration())
-                .parse(metadata)
-                .read(path);
+        final String regex = extractRegexValue(metadata, path);
 
         final String discountPercentageFieldValue = configParams.get(fieldName);
         if (!discountPercentageFieldValue.matches(regex)) {
             throw new InvalidConfigParamException(errorMessage);
         }
+    }
+
+    private String extractRegexValue(final String metadata, final String path) {
+        final List<Map<String, String>> validators = JsonPath.using(Configuration.defaultConfiguration())
+                .parse(metadata)
+                .read(path);
+
+        for (final Map<String, String> validatorMap: validators) {
+            if (validatorMap.containsValue("regex")) {
+                return validatorMap.get("value");
+            }
+        }
+        return DEFAULT_REGEX;
     }
 
     @PostMapping(
@@ -289,7 +301,7 @@ public class HubSalesForceController {
                 .addField(buildCardBodyField("opportunity.owner", opportunityOwnerName, locale))
                 .addField(buildCardBodyField("revenue.opportunity", expectedRevenue, locale));
 
-        final Integer discountPercent = opportunityResponse.read(String.format("$.records[%s].%s", index, configParams.get(DISCOUNT_PERCENTAGE)));
+        final Double discountPercent = opportunityResponse.read(String.format("$.records[%s].%s", index, configParams.get(DISCOUNT_PERCENTAGE)));
         cardBodyBuilder.addField(buildCardBodyField("discount.percent", String.valueOf(discountPercent), locale));
 
         final String reasonForDiscount = opportunityResponse.read(String.format("$.records[%s].%s", index, configParams.get(REASON_FOR_DISCOUNT)));

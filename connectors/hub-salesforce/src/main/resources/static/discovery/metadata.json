@@ -4,7 +4,6 @@
   },
   "config": {
     "Discount Percentage": {
-      "default": "",
       "type": "STRING",
       "description": {
         "en-US": "Discount percentage custom field API name in Salesforce opportunity. This field is required to display Display percentage field in the notification. "
@@ -20,7 +19,6 @@
       ]
     },
     "Reason for Discount": {
-      "default": "",
       "type": "STRING",
       "description": {
         "en-US": "Reason for discount custom field API name in Salesforce opportunity. This field is required to display Reason for Discount field in the notification. "
@@ -31,7 +29,7 @@
         },
         {
           "type": "regex",
-          "value": "^[a-zA-Z0-9_]+$"
+          "value": "[a-zA-Z0-9_]+"
         }
       ]
     }

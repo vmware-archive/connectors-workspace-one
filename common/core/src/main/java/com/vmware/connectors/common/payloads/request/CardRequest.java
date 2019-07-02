@@ -88,7 +88,7 @@ public class CardRequest {
     }
 
     /**
-     * Returns the connector parameters config map.
+     * Returns the tenant connector parameters configuration map.
      * <p>
      * For example:
      * {
@@ -96,7 +96,7 @@ public class CardRequest {
      *     "Reason for Discount": "Reason_for_Discount__c"
      * }
      *
-     * @return the connector parameters config
+     * @return the connector parameters configuration
      */
     public Map<String, String> getConfig() {
         return this.config;

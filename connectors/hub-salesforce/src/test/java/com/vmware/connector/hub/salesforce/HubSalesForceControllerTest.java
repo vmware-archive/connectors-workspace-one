@@ -155,20 +155,18 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
     }
 
     @ParameterizedTest
-    @MethodSource("invalidConfigParams")
-    void testInvalidConfigParams(String requestFilePath, String responseFilePath) throws Exception {
-        requestCards("abc", requestFilePath)
+    @CsvSource({
+            "config_missing.json",
+            "discount_percentage_missing.json",
+            "discount_reason_missing.json",
+            "invalid_discount_percentage_field_name.json",
+            "invalid_discount_reason_field_name.json"
+    })
+    void testInvalidConfigParams(String fileName) throws Exception {
+        requestCards("abc", "invalid/request/" + fileName)
                 .exchange()
                 .expectStatus().isBadRequest()
-                .expectBody().json(fromFile(responseFilePath));
-    }
-
-    private Stream<Arguments> invalidConfigParams() {
-        return Stream.of(
-                Arguments.of("invalid/request/config_missing_request.json", "invalid/response/config_missing_response.json"),
-                Arguments.of("invalid/request/discount_percentage_missing.json", "invalid/response/discount_percent_missing.json"),
-                Arguments.of("invalid/request/discount_reason_missing.json", "invalid/response/discount_reason_missing.json")
-        );
+                .expectBody().json(fromFile("invalid/response/" + fileName));
     }
 
     private void setupMock() {
