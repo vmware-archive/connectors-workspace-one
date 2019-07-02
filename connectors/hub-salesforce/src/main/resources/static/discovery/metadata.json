@@ -9,7 +9,7 @@
       },
       "type": "STRING",
       "description": {
-        "en-US": "Discount percentage custom field API name in Salesforce opportunity. This field is required to display Display percentage field in the notification. "
+        "en-US": "Discount percentage custom field API name in Salesforce opportunity. This field is required to display Discount percentage field in the notification. "
       },
       "validators": [
         {
