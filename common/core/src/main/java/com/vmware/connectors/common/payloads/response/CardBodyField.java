@@ -38,9 +38,14 @@ public class CardBodyField {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<Map<String, String>> content;
 
+    @JsonProperty("items")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private final List<CardBodyFieldItem> items;
+
     // Don't instantiate directly, use the Builder class below
     private CardBodyField() {
         content = new ArrayList<>();
+        items = new ArrayList<>();
     }
 
     /**
@@ -78,6 +83,15 @@ public class CardBodyField {
      */
     public List<Map<String, String>> getContent() {
         return Collections.unmodifiableList(content);
+    }
+
+    /**
+     * Get the card body fields item.
+     *
+     * @return An unmodifiable copy of the fields's item.
+     */
+    public List<CardBodyFieldItem> getItems() {
+        return Collections.unmodifiableList(items);
     }
 
     /**
@@ -160,6 +174,28 @@ public class CardBodyField {
         }
 
         /**
+         * Add a new object to field's items.
+         *
+         * @param item the object to be added to the field's items
+         * @return this Builder instance, for method chaining
+         */
+        public Builder addItem(CardBodyFieldItem item) {
+            field.items.add(item);
+            return this;
+        }
+
+        /**
+         * Add list of objects to field's items.
+         *
+         * @param items the list of object to be added to the field's items
+         * @return this Builder instance, for method chaining
+         */
+        public Builder addItems(List<CardBodyFieldItem> items) {
+            field.items.addAll(items);
+            return this;
+        }
+
+        /**
          * Return the CardBodyField under construction and reset the Builder to its initial state.
          *
          * @return The completed CardBodyField
@@ -180,11 +216,19 @@ public class CardBodyField {
             }
         }
 
+        final List<String> itemList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(items)) {
+            for (CardBodyFieldItem item: items) {
+                itemList.add(HashUtil.hash(item));
+            }
+        }
+
         return HashUtil.hash(
                 "type: ", this.type,
                 "title: ", this.title,
                 "description: ", this.description,
-                "content: ", HashUtil.hashList(contentList)
+                "content: ", HashUtil.hashList(contentList),
+                "items: ", HashUtil.hashList(itemList)
         );
     }
 

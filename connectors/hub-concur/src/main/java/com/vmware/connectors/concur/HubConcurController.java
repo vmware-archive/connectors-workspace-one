@@ -33,10 +33,9 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -221,29 +220,37 @@ public class HubConcurController {
         return report.getExpenseEntriesList()
                 .stream()
                 .map(entry -> new CardBodyField.Builder()
-                        .setType(CardBodyFieldType.GENERAL)
+                        .setType(CardBodyFieldType.SECTION)
                         .setTitle(cardTextAccessor.getMessage("hub.concur.business.purpose", locale, entry.getBusinessPurpose()))
-                        .addContent(buildItemsMap(locale, entry))
+                        .addItems(buildItems(locale, entry))
                         .build()
                 )
                 .collect(Collectors.toList());
     }
 
-    private Map<String, String> buildItemsMap(Locale locale, ExpenseEntriesVO expenseEntry) {
-        final Map<String, String> itemsMap = new HashMap<>();
-        itemsMap.put(cardTextAccessor.getMessage("hub.concur.expense.type.name", locale), expenseEntry.getExpenseTypeName());
-        itemsMap.put(cardTextAccessor.getMessage("hub.concur.transaction.date", locale), expenseEntry.getTransactionDate());
-        itemsMap.put(cardTextAccessor.getMessage("hub.concur.vendor.name", locale), expenseEntry.getVendorDescription());
-        itemsMap.put(cardTextAccessor.getMessage("hub.concur.city.of.purchase", locale), expenseEntry.getLocationName());
-        itemsMap.put(cardTextAccessor.getMessage("hub.concur.payment.type", locale), expenseEntry.getPaymentTypeCode());
-        itemsMap.put(cardTextAccessor.getMessage("hub.concur.amount", locale),
-                formatCurrency(expenseEntry.getPostedAmount(), locale, expenseEntry.getTransactionCurrencyName()));
+    private List<CardBodyFieldItem> buildItems(Locale locale, ExpenseEntriesVO expenseEntry) {
+        final List<CardBodyFieldItem> items = new ArrayList<>();
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.expense.type.name", locale), expenseEntry.getExpenseTypeName()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.transaction.date", locale),  expenseEntry.getTransactionDate()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.vendor.name", locale), expenseEntry.getVendorDescription()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.city.of.purchase", locale), expenseEntry.getLocationName()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.payment.type", locale), expenseEntry.getPaymentTypeCode()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.amount", locale),
+                formatCurrency(expenseEntry.getPostedAmount(), locale, expenseEntry.getTransactionCurrencyName())));
 
         final List<String> attendeesList = expenseEntry.getAttendeesList();
         if (!CollectionUtils.isEmpty(attendeesList)) {
-            itemsMap.put(cardTextAccessor.getMessage("hub.concur.attendees", locale), attendeesList.toString());
+            items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.attendees", locale), attendeesList.toString()));
         }
-        return itemsMap;
+        return items;
+    }
+
+    private CardBodyFieldItem makeCardBodyFieldItem(final String title, final String description) {
+        return new CardBodyFieldItem.Builder()
+                .setType(CardBodyFieldType.GENERAL)
+                .setTitle(title)
+                .setDescription(description)
+                .build();
     }
 
     private CardBodyField makeGeneralField(
