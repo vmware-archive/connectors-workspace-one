@@ -8,12 +8,13 @@ package com.vmware.connectors.common.payloads.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.connectors.common.utils.HashUtil;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
 import java.util.Arrays;
 
 /**
- * Represents an item inside CardBodyField to display a separate section in the notification hub.
+ * Represents an item inside CardBodyField to display a separate section in the hub notification.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuppressWarnings("PMD.LinguisticNaming")
@@ -42,6 +43,12 @@ public class CardBodyFieldItem {
 
     @JsonProperty("content_length")
     private Long contentLength;
+
+    @JsonProperty("action_url")
+    private String actionURL;
+
+    @JsonProperty("action_type")
+    private HttpMethod actionType;
 
     // Use builder class to instantiate the object.
     private CardBodyFieldItem() {
@@ -120,6 +127,24 @@ public class CardBodyFieldItem {
      */
     public Long getContentLength() {
         return contentLength;
+    }
+
+    /**
+     * Get the card body field item action url. Action URL is used to fetch the attachment when required by the hub client.
+     *
+     * @return Action URL.
+     */
+    public String getActionURL() {
+        return actionURL;
+    }
+
+    /**
+     * Get the card body field item action type. Action type indicates HTTP method used to access the action url.
+     *
+     * @return Action type.
+     */
+    public HttpMethod getActionType() {
+        return actionType;
     }
 
     public static class Builder {
@@ -226,6 +251,28 @@ public class CardBodyFieldItem {
         }
 
         /**
+         * Set the card body field item action url.
+         *
+         * @param actionURL the CardBodyFieldItem's action url.
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setActionURL(String actionURL) {
+            item.actionURL = actionURL;
+            return this;
+        }
+
+        /**
+         * Set the card body field item action type.
+         *
+         * @param actionType the CardBodyFieldItem's action type.
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setActionType(HttpMethod actionType) {
+            item.actionType = actionType;
+            return this;
+        }
+
+        /**
          * Return the CardBodyFieldItem under construction and reset the Builder to its initial state.
          *
          * @return The completed CardBodyFieldItem
@@ -244,6 +291,10 @@ public class CardBodyFieldItem {
         }
     }
 
+    /**
+     * Note: Hash calculation does not include attachment_url since it will keep changing for
+     * some service providers like Concur for the same attachment.
+     */
     public String hash() {
         return HashUtil.hash(
                 "type: ", this.type.name(),
@@ -251,7 +302,9 @@ public class CardBodyFieldItem {
                 "description: ", this.description,
                 "attachmentName: ", this.attachmentName,
                 "contentType: ", this.contentType == null ? null : this.contentType.toString(),
-                "contentLength: ", this.contentLength
+                "contentLength: ", this.contentLength,
+                "action_url: ", this.actionURL,
+                "action_type: ", this.actionType == null ? null : this.actionType.name()
         );
     }
 }

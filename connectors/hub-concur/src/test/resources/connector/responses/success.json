@@ -52,9 +52,9 @@
             "description": "Meals & Entertainment"
           },
           {
-            "type": "GENERAL",
+            "description": "Totla, Gaurav",
             "title": "Requested By",
-            "description": "Totla, Gaurav"
+            "type": "GENERAL"
           },
           {
             "type": "GENERAL",

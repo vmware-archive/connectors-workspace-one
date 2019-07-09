@@ -61,6 +61,7 @@
       "properties": {
         "type":        {"type": "string"},
         "title":       {"type": "string"},
+        "subtitle":    {"type": "string"},
         "description": {"type": "string"},
         "content":     {"type": "array", "items": {"type": "object"}},
         "items":       {"type": "array", "items": {"$ref": "#/definitions/CARD_BODY_FIELD_ITEM"}}
@@ -78,7 +79,9 @@
         "attachment_url":   {"type": "string"},
         "attachment_body":  {"type": "array", "items": {"type": "object"}},
         "content_type":     {"type": "string"},
-        "content_length":   {"type": "integer"}
+        "content_length":   {"type": "integer"},
+        "action_url":       {"type": "string"},
+        "action_type":      {"type": "string"}
       }
     },
 
