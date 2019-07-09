@@ -9,11 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.vmware.connectors.common.payloads.response.Card;
-import com.vmware.connectors.common.payloads.response.CardAction;
-import com.vmware.connectors.common.payloads.response.CardActionInputField;
-import com.vmware.connectors.common.payloads.response.CardBody;
-import com.vmware.connectors.common.payloads.response.CardBodyField;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
@@ -28,7 +23,6 @@ import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -73,17 +67,23 @@ public class CardTest {
         assertThat(differentJson, is(not(nullValue())));
 
         JSONAssert.assertNotEquals(rtOriginal, rtDifferent, true);
-
     }
 
     @Test
     void testCardBodyFieldBuilder() throws IOException, JSONException {
         CardBodyField.Builder builder = new CardBodyField.Builder();
 
+        CardBodyFieldItem.Builder item = new CardBodyFieldItem.Builder();
+        item.setType(CardBodyFieldType.GENERAL);
+        item.setTitle("Expense Type");
+        item.setDescription("Meals & Entertainment");
+
         builder.setTitle("Title of the Card");
+        builder.setSubtitle("Subtitle of the Card");
         builder.setType("BOYBAND");
         builder.setDescription("The ultimate boy-band hero card");
         builder.addContent(Collections.singletonMap("inspiration", "DaVinci's Notebook"));
+        builder.addItem(item.build());
 
         CardBodyField fieldFromBuilder = builder.build();
         String jsonFromBuilder = mapper.writeValueAsString(fieldFromBuilder);

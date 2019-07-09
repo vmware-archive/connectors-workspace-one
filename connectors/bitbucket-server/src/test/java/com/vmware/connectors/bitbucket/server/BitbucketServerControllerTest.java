@@ -333,7 +333,6 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .map(JsonNormalizer::forCards)
                 .block();
         body = body.replaceAll("[a-z0-9]{40,}", "test-hash");
-        System.err.println("\n\n\n" + body + "\n\n\n");
         assertThat(body,  sameJSONAs(fromFile("bitbucket/responses/" + responseFile)).allowingAnyArrayOrdering());
     }
 
