@@ -93,6 +93,7 @@
             "image": {
                 "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-coupa.png"
             },
+            "backend_id": "182964",
             "hash": "test-hash"
         }
     ]
