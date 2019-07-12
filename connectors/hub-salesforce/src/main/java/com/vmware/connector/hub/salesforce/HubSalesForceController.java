@@ -244,11 +244,14 @@ public class HubSalesForceController {
 
             final String userId = workItemResponse.read(String.format("$.records[%s].Workitems.records[0].Id", i));
 
+            String opportunityId = opportunityResponse.read(String.format("$.records[%s].Id", i));
+
             final Card.Builder card = new Card.Builder()
                     .setName("Salesforce for WS1 Hub")
                     .setTemplate(routingPrefix + "templates/generic.hbs")
                     .setHeader(this.cardTextAccessor.getMessage("ws1.sf.card.header", locale))
                     .setBody(buildCardBody(opportunityResponse, i, locale, configParams))
+                    .setBackendId(opportunityId)
                     .addAction(buildApproveAction(routingPrefix, locale, userId))
                     .addAction(buildRejectAction(routingPrefix, locale, userId));
 
