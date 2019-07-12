@@ -22,7 +22,9 @@
           },
           "Name": "opportunity user"
         }
-      }
+      },
+      "Discount_Percentage__c": 45.0,
+      "Reason_for_Discount__c": "We might get more business from this client in future."
     },
     {
       "attributes": {
@@ -44,7 +46,9 @@
           },
           "Name": "Jeff Jones"
         }
-      }
+      },
+      "Discount_Percentage__c": 20.0,
+      "Reason_for_Discount__c": "License cost per user is high. So we have to offer some discount."
     }
   ]
 }

@@ -62,16 +62,38 @@
             "description": "INR 23,340.21"
           },
           {
-            "type": "GENERAL",
+            "type": "SECTION",
             "title": "Business Meeting",
-            "content": [
+            "items": [
               {
-                "AMOUNT": "India, Rupee 23,340.21",
-                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
-                "VENDOR NAME": "United 21",
-                "EXPENSE TYPE": "Meals & Entertainment",
-                "CITY OF PURCHASE": "Bangalore",
-                "PAYMENT TYPE": "CASH"
+                "type": "GENERAL",
+                "title": "EXPENSE TYPE",
+                "description": "Meals & Entertainment"
+              },
+              {
+                "type": "GENERAL",
+                "title": "TRANSACTION DATE",
+                "description": "1970-01-01T00:00:00Z"
+              },
+              {
+                "type": "GENERAL",
+                "title": "VENDOR NAME",
+                "description": "United 21"
+              },
+              {
+                "type": "GENERAL",
+                "title": "CITY OF PURCHASE",
+                "description": "Bangalore"
+              },
+              {
+                "type": "GENERAL",
+                "title": "PAYMENT TYPE",
+                "description": "CASH"
+              },
+              {
+                "type": "GENERAL",
+                "title": "AMOUNT",
+                "description": "India, Rupee 23,340.21"
               }
             ]
           }
@@ -150,44 +172,110 @@
             "description": "INR 178,838.66"
           },
           {
-            "type": "GENERAL",
+            "type": "SECTION",
             "title": "Test Purpose",
-            "content": [
+            "items": [
               {
-                "AMOUNT": "India, Rupee 17,464.66",
-                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
-                "VENDOR NAME": "Hilton Hotels",
-                "EXPENSE TYPE": "Lodging",
-                "CITY OF PURCHASE": "Bangalore",
-                "PAYMENT TYPE": "CASH"
+                "type": "GENERAL",
+                "title": "EXPENSE TYPE",
+                "description": "Lodging"
+              },
+              {
+                "type": "GENERAL",
+                "title": "TRANSACTION DATE",
+                "description": "1970-01-01T00:00:00Z"
+              },
+              {
+                "type": "GENERAL",
+                "title": "VENDOR NAME",
+                "description": "Hilton Hotels"
+              },
+              {
+                "type": "GENERAL",
+                "title": "CITY OF PURCHASE",
+                "description": "Bangalore"
+              },
+              {
+                "type": "GENERAL",
+                "title": "PAYMENT TYPE",
+                "description": "CASH"
+              },
+              {
+                "type": "GENERAL",
+                "title": "AMOUNT",
+                "description": "India, Rupee 17,464.66"
               }
             ]
           },
           {
-            "type": "GENERAL",
+            "type": "SECTION",
             "title": "Test Purpose",
-            "content": [
+            "items": [
               {
-                "AMOUNT": "India, Rupee 158,374",
-                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
-                "VENDOR NAME": "Air India Regional",
-                "EXPENSE TYPE": "Airfare - Ticket",
-                "CITY OF PURCHASE": "Bangalore",
-                "PAYMENT TYPE": "CASH"
+                "type": "GENERAL",
+                "title": "EXPENSE TYPE",
+                "description": "Airfare - Ticket"
+              },
+              {
+                "type": "GENERAL",
+                "title": "TRANSACTION DATE",
+                "description": "1970-01-01T00:00:00Z"
+              },
+              {
+                "type": "GENERAL",
+                "title": "VENDOR NAME",
+                "description": "Air India Regional"
+              },
+              {
+                "type": "GENERAL",
+                "title": "CITY OF PURCHASE",
+                "description": "Bangalore"
+              },
+              {
+                "type": "GENERAL",
+                "title": "PAYMENT TYPE",
+                "description": "CASH"
+              },
+              {
+                "type": "GENERAL",
+                "title": "AMOUNT",
+                "description": "India, Rupee 158,374"
               }
             ]
           },
           {
-            "type": "GENERAL",
+            "type": "SECTION",
             "title": "Test Purpose",
-            "content": [
+            "items": [
               {
-                "AMOUNT": "India, Rupee 3,000",
-                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
-                "VENDOR NAME": "Volvo",
-                "EXPENSE TYPE": "Bus/Public Transportation",
-                "CITY OF PURCHASE": "Bangalore",
-                "PAYMENT TYPE": "CASH"
+                "type": "GENERAL",
+                "title": "EXPENSE TYPE",
+                "description": "Bus/Public Transportation"
+              },
+              {
+                "type": "GENERAL",
+                "title": "TRANSACTION DATE",
+                "description": "1970-01-01T00:00:00Z"
+              },
+              {
+                "type": "GENERAL",
+                "title": "VENDOR NAME",
+                "description": "Volvo"
+              },
+              {
+                "type": "GENERAL",
+                "title": "CITY OF PURCHASE",
+                "description": "Bangalore"
+              },
+              {
+                "type": "GENERAL",
+                "title": "PAYMENT TYPE",
+                "description": "CASH"
+              },
+              {
+                "type": "GENERAL",
+                "title": "AMOUNT",
+                "description": "India, Rupee 3,000"
               }
             ]
           }
@@ -269,44 +357,110 @@
             "description": "INR 183,838.66"
           },
           {
-            "type": "GENERAL",
+            "type": "SECTION",
             "title": "Test Purpose",
-            "content": [
+            "items": [
               {
-                "AMOUNT": "India, Rupee 17,464.66",
-                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
-                "VENDOR NAME": "Hilton Hotels",
-                "EXPENSE TYPE": "Lodging",
-                "CITY OF PURCHASE": "Bangalore",
-                "PAYMENT TYPE": "CASH"
+                "type": "GENERAL",
+                "title": "EXPENSE TYPE",
+                "description": "Lodging"
+              },
+              {
+                "type": "GENERAL",
+                "title": "TRANSACTION DATE",
+                "description": "1970-01-01T00:00:00Z"
+              },
+              {
+                "type": "GENERAL",
+                "title": "VENDOR NAME",
+                "description": "Hilton Hotels"
+              },
+              {
+                "type": "GENERAL",
+                "title": "CITY OF PURCHASE",
+                "description": "Bangalore"
+              },
+              {
+                "type": "GENERAL",
+                "title": "PAYMENT TYPE",
+                "description": "CASH"
+              },
+              {
+                "type": "GENERAL",
+                "title": "AMOUNT",
+                "description": "India, Rupee 17,464.66"
               }
             ]
           },
           {
-            "type": "GENERAL",
+            "type": "SECTION",
             "title": "Test Purpose",
-            "content": [
+            "items": [
               {
-                "AMOUNT": "India, Rupee 158,374",
-                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
-                "VENDOR NAME": "Air India Regional",
-                "EXPENSE TYPE": "Airfare - Ticket",
-                "CITY OF PURCHASE": "Bangalore",
-                "PAYMENT TYPE": "CASH"
+                "type": "GENERAL",
+                "title": "EXPENSE TYPE",
+                "description": "Airfare - Ticket"
+              },
+              {
+                "type": "GENERAL",
+                "title": "TRANSACTION DATE",
+                "description": "1970-01-01T00:00:00Z"
+              },
+              {
+                "type": "GENERAL",
+                "title": "VENDOR NAME",
+                "description": "Air India Regional"
+              },
+              {
+                "type": "GENERAL",
+                "title": "CITY OF PURCHASE",
+                "description": "Bangalore"
+              },
+              {
+                "type": "GENERAL",
+                "title": "PAYMENT TYPE",
+                "description": "CASH"
+              },
+              {
+                "type": "GENERAL",
+                "title": "AMOUNT",
+                "description": "India, Rupee 158,374"
               }
             ]
           },
           {
-            "type": "GENERAL",
+            "type": "SECTION",
             "title": "Test Purpose",
-            "content": [
+            "items": [
               {
-                "AMOUNT": "India, Rupee 8,000",
-                "TRANSACTION DATE": "1970-01-01T00:00:00Z",
-                "VENDOR NAME": "Volvo",
-                "EXPENSE TYPE": "Bus/Public Transportation",
-                "CITY OF PURCHASE": "Bangalore",
-                "PAYMENT TYPE": "CASH"
+                "type": "GENERAL",
+                "title": "EXPENSE TYPE",
+                "description": "Bus/Public Transportation"
+              },
+              {
+                "type": "GENERAL",
+                "title": "TRANSACTION DATE",
+                "description": "1970-01-01T00:00:00Z"
+              },
+              {
+                "type": "GENERAL",
+                "title": "VENDOR NAME",
+                "description": "Volvo"
+              },
+              {
+                "type": "GENERAL",
+                "title": "CITY OF PURCHASE",
+                "description": "Bangalore"
+              },
+              {
+                "type": "GENERAL",
+                "title": "PAYMENT TYPE",
+                "description": "CASH"
+              },
+              {
+                "type": "GENERAL",
+                "title": "AMOUNT",
+                "description": "India, Rupee 8,000"
               }
             ]
           }

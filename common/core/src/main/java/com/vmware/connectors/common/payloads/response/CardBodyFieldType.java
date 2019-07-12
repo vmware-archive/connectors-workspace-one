@@ -18,6 +18,16 @@ public enum CardBodyFieldType {
     COMMENT,
 
     /**
+     * Display information in a separate section in the notification hub.
+     */
+    SECTION,
+
+    /**
+     * Contains URL for an expense item report available for download.
+     */
+    ATTACHMENT_URL,
+
+    /**
      * Display information as attachments.
      */
     ATTACHMENT,
