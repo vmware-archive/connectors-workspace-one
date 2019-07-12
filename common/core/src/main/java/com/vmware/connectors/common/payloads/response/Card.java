@@ -37,7 +37,6 @@ public class Card {
     private OffsetDateTime creationDate;
 
     @JsonProperty("expiration_date")
-    @JsonInclude(NON_NULL)
     private OffsetDateTime expirationDate;
 
     @JsonProperty("importance")
@@ -60,6 +59,9 @@ public class Card {
 
     @JsonProperty("tags")
     private final Set<String> tags;
+
+    @JsonProperty("backend_id")
+    private String backendId;
 
     @JsonProperty("hash")
     private String hash;
@@ -175,6 +177,16 @@ public class Card {
     @JsonInclude(NON_EMPTY)
     public Set<String> getTags() {
         return Collections.unmodifiableSet(tags);
+    }
+
+    /**
+     * Return backend id of the card.
+     *
+     * @return hash value
+     */
+    @JsonProperty("backend_id")
+    public String getBackendId() {
+        return this.backendId;
     }
 
     /**
@@ -368,6 +380,17 @@ public class Card {
         }
 
         /**
+         * Set the backend id of a card.
+         *
+         * @param backendId backend id of a card.
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setBackendId(String backendId) {
+            card.backendId = backendId;
+            return this;
+        }
+
+        /**
          * Set SHA-1 of card fields.
          *
          * @param hash SHA-1 of card header, body, and action fields.
@@ -412,6 +435,7 @@ public class Card {
 
             return HashUtil.hash(
                     "name: ", card.name,
+                    "backend_id: ", card.backendId,
                     "template: ", templateUrl,
                     "header: ", headerHash,
                     "body: ", bodyHash,
