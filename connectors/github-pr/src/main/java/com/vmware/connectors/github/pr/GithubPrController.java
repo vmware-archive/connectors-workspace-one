@@ -150,7 +150,7 @@ public class GithubPrController {
         try {
             return Mono.just(
                     UriComponentsBuilder
-                            .fromHttpUrl(url)
+                            .fromUriString(url)
                             .build()
             );
         } catch (IllegalArgumentException e) {
@@ -199,7 +199,7 @@ public class GithubPrController {
             PullRequestId pullRequestId
     ) {
         return UriComponentsBuilder
-                .fromHttpUrl(baseUrl)
+                .fromUriString(baseUrl)
                 .path("/repos/{owner}/{repo}/pulls/{number}")
                 .buildAndExpand(
                         ImmutableMap.of(

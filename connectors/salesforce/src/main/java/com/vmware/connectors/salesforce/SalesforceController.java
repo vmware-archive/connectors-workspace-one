@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.*;
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
+import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 @RestController
 public class SalesforceController {
@@ -151,7 +151,7 @@ public class SalesforceController {
             String baseUrl,
             String soql
     ) {
-        return fromHttpUrl(baseUrl)
+        return fromUriString(baseUrl)
                 .path(sfSoqlQueryPath)
                 .queryParam("q", soql)
                 .build()
@@ -162,7 +162,7 @@ public class SalesforceController {
             String baseUrl,
             String path
     ) {
-        return fromHttpUrl(baseUrl)
+        return fromUriString(baseUrl)
                 .path(path)
                 .build()
                 .toUri();
@@ -171,7 +171,7 @@ public class SalesforceController {
     private URI buildUri(final String baseUrl,
                          final String path,
                          final String opportunityId) {
-        return fromHttpUrl(baseUrl)
+        return fromUriString(baseUrl)
                 .path(path)
                 .path(opportunityId)
                 .build()

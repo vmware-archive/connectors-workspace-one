@@ -154,7 +154,7 @@ public class ServiceNowController {
             return Mono.just(new Cards());
         }
 
-        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return callForUserSysId(baseUri, email, auth)
                 .flux()
                 .flatMap(userSysId -> callForApprovalRequests(baseUri, auth, userSysId))
@@ -528,7 +528,7 @@ public class ServiceNowController {
     ) {
         logger.trace("approve called: baseUrl={}, requestSysId={}", baseUrl, requestSysId);
 
-        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return updateRequest(auth, baseUri, requestSysId, SysApprovalApprover.States.APPROVED, null);
     }
 
@@ -593,7 +593,7 @@ public class ServiceNowController {
     ) {
         logger.trace("reject called: baseUrl={}, requestSysId={}, reason={}", baseUrl, requestSysId, form.getReason());
 
-        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return updateRequest(auth, baseUri, requestSysId, SysApprovalApprover.States.REJECTED, form.getReason());
     }
 
@@ -616,7 +616,7 @@ public class ServiceNowController {
         var type = cardRequest.getTokenSingleValue("type");
 
         logger.trace("getItems for catalog: {}, category: {}, type: {}", catalogName, categoryName, type);
-        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return getCatalogId(catalogName, auth, baseUri)
                 .flatMap(catalogId -> getCategoryId(categoryName, catalogId, auth, baseUri))
                 .flatMap(categoryId -> getItems(type, categoryId,
@@ -716,7 +716,7 @@ public class ServiceNowController {
 
     private URI buildTasksUriByReqParam(String taskType, String taskNumber, String userEmail, String baseUrl, String limit, String offset) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
-                .fromHttpUrl(baseUrl)
+                .fromUriString(baseUrl)
                 .replacePath("/api/now/table/");
 
         if (StringUtils.isBlank(taskNumber)) {
@@ -753,7 +753,7 @@ public class ServiceNowController {
             @RequestHeader(BASE_URL_HEADER) String baseUrl) {
 
         // A user will have only 1 cart. Its wrapped as list, to go with the standard object response.
-        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
 
         return rest.get()
                 .uri(uriBuilder -> uriBuilder
@@ -814,7 +814,7 @@ public class ServiceNowController {
 
         logger.trace("createTicket for baseUrl={}, taskType={}, userEmail={}", baseUrl, taskType, userEmail);
 
-        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return this.createTask(taskType, shortDescription, userEmail, baseUri, auth)
                 .map(createTaskResponse -> Map.of(ACTION_RESULT_KEY, createTaskResponse));
     }
@@ -860,7 +860,7 @@ public class ServiceNowController {
 
         logger.trace("addToCart itemId={}, count={}, baseUrl={}", itemId, itemCount, baseUrl);
 
-        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return rest.post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme(baseUri.getScheme())
@@ -888,7 +888,7 @@ public class ServiceNowController {
             @Valid DeleteFromCartForm form) {
         logger.trace("deleteFromCart cartItem entryId={}, baseUrl={}", form.getEntryId(), baseUrl);
 
-        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return rest.delete()
                 .uri(uriBuilder -> uriBuilder
                         .scheme(baseUri.getScheme())
@@ -929,7 +929,7 @@ public class ServiceNowController {
 
         logger.trace("checkout cart for user={}, baseUrl={}", userEmail, baseUrl);
 
-        URI baseUri = UriComponentsBuilder.fromHttpUrl(baseUrl).build().toUri();
+        URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         // ToDo: If Bot needs cart subtotal, include that by making an extra call to SNow.
         return rest.post()
                 .uri(uriBuilder -> uriBuilder

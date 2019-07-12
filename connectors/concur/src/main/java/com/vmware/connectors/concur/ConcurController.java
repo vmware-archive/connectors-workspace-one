@@ -153,7 +153,7 @@ public class ConcurController {
         final MultiValueMap<String, String> body = getBody(clientId, clientSecret, userName, password);
 
         return rest.post()
-                .uri(UriComponentsBuilder.fromHttpUrl(oauthTokenUrl).path("/oauth2/v0/token").toUriString())
+                .uri(UriComponentsBuilder.fromUriString(oauthTokenUrl).path("/oauth2/v0/token").toUriString())
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData(body))
                 .retrieve()

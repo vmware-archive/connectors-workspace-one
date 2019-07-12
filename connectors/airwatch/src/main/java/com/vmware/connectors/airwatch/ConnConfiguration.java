@@ -27,7 +27,7 @@ import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
+import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 /**
  * Created by harshas on 9/19/17.
@@ -85,7 +85,7 @@ public class ConnConfiguration {
     @Bean
     public URI gbBaseUrl() {
         try {
-            return fromHttpUrl(environment.getProperty("greenbox.url")).build().toUri();
+            return fromUriString(environment.getProperty("greenbox.url")).build().toUri();
         } catch (IllegalArgumentException ex) {
             logger.error("Greenbox URL config is invalid. ", ex);
             throw new ConfigException("Greenbox URL config is invalid.", ex);

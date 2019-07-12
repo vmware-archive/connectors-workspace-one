@@ -126,7 +126,7 @@ public class GitlabPrController {
     ) {
         try {
             return UriComponentsBuilder
-                    .fromHttpUrl(url)
+                    .fromUriString(url)
                     .build();
         } catch (IllegalArgumentException e) {
             return null;
