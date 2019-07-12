@@ -180,6 +180,7 @@ public class HubCoupaController {
         Card.Builder builder = new Card.Builder()
                 .setName("Coupa")
                 .setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale, reportName))
+                .setBackendId(requestId)
                 .setBody(
                         new CardBody.Builder()
                                 .addField(makeGeneralField(locale, "hub.coupa.submissionDate", requestDetails.getSubmittedAt()))
