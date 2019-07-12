@@ -32,10 +32,7 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -211,33 +208,42 @@ public class HubCoupaController {
         return requisitionDetails.getRequisitionLinesList()
                 .stream()
                 .map(lineDetails -> new CardBodyField.Builder()
-                        .setType(CardBodyFieldType.GENERAL)
-                        .addContent(buildItemsMap(requisitionDetails, lineDetails, locale))
+                        .setType(CardBodyFieldType.SECTION)
+                        .setTitle(cardTextAccessor.getMessage("hub.coupa.item.name", locale, lineDetails.getDescription()))
+                        .addItems(buildItems(requisitionDetails, lineDetails, locale))
                         .build())
                 .collect(Collectors.toList());
     }
 
     @SuppressWarnings("PMD.NcssCount")
-    private Map<String, String> buildItemsMap(RequisitionDetails requisitionDetails, RequisitionLineDetails lineDetails, Locale locale) {
-        final Map<String, String> map = new LinkedHashMap<>();
+    private List<CardBodyFieldItem> buildItems(RequisitionDetails requisitionDetails, RequisitionLineDetails lineDetails, Locale locale) {
+        final List<CardBodyFieldItem> items = new ArrayList<>();
 
-        map.put(cardTextAccessor.getMessage("hub.coupa.item.name", locale), lineDetails.getDescription());
-        map.put(cardTextAccessor.getMessage("hub.coupa.item.quantity", locale), lineDetails.getQuantity());
-        map.put(cardTextAccessor.getMessage("hub.coupa.unit.price", locale), lineDetails.getUnitPrice());
-        map.put(cardTextAccessor.getMessage("hub.coupa.total.price", locale), lineDetails.getTotal());
-        map.put(cardTextAccessor.getMessage("hub.coupa.commodity", locale), lineDetails.getCommodity().getName());
-        map.put(cardTextAccessor.getMessage("hub.coupa.supplier.part.number", locale), lineDetails.getSupplier().getCompanyCode());
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.item.name", locale), lineDetails.getDescription()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.item.quantity", locale), lineDetails.getQuantity()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.unit.price", locale), lineDetails.getUnitPrice()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.total.price", locale), lineDetails.getTotal()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.commodity", locale), lineDetails.getCommodity().getName()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.supplier.part.number", locale), lineDetails.getSupplier().getCompanyCode()));
 
         if (StringUtils.isNotBlank(lineDetails.getNeedByDate())) {
-            map.put(cardTextAccessor.getMessage("hub.coupa.need.by", locale), lineDetails.getNeedByDate());
+            items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.need.by", locale), lineDetails.getNeedByDate()));
         }
-        map.put(cardTextAccessor.getMessage("hub.coupa.payment.terms", locale), lineDetails.getPaymentTerm().getCode());
-        map.put(cardTextAccessor.getMessage("hub.coupa.shipping", locale), lineDetails.getShippingTerm().getCode());
-        map.put(cardTextAccessor.getMessage("hub.coupa.sap.group.material.id", locale), lineDetails.getSapMaterialGroupId());
-        map.put(cardTextAccessor.getMessage("hub.coupa.billing.address", locale), getShippingDetails(requisitionDetails.getShipToAddress()));
-        map.put(cardTextAccessor.getMessage("hub.coupa.billing.account", locale), requisitionDetails.getShipToAddress().getLocationCode());
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.payment.terms", locale), lineDetails.getPaymentTerm().getCode()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.shipping", locale), lineDetails.getShippingTerm().getCode()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.sap.group.material.id", locale), lineDetails.getSapMaterialGroupId()));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.billing.address", locale), getShippingDetails(requisitionDetails.getShipToAddress())));
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.billing.account", locale), requisitionDetails.getShipToAddress().getLocationCode()));
 
-        return map;
+        return items;
+    }
+
+    private CardBodyFieldItem makeCardBodyFieldItem(final String title, final String description) {
+        return new CardBodyFieldItem.Builder()
+                .setType(CardBodyFieldType.GENERAL)
+                .setTitle(title)
+                .setDescription(description)
+                .build();
     }
 
     private String getShippingDetails(final ShipToAddress shipToAddress) {

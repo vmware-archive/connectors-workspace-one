@@ -31,20 +31,63 @@
                         "description": ""
                     },
                     {
-                        "type": "GENERAL",
-                        "content": [
+                        "type": "SECTION",
+                        "title": "ITEM NAME",
+                        "items": [
                             {
-                                "ITEM NAME": "AppBuilder Q1 PO",
-                                "QUANTITY": "1.0",
-                                "UNIT PRICE": "43840.00",
-                                "TOTAL PRICE": "43840.00",
-                                "COMMODITY": "Comp Storage Access",
-                                "SUPPLIER PART NUMBER": "IN10",
-                                "PAYMENT TERMS": "ZR45",
-                                "SHIPPING": "FOB",
-                                "SAP GROUP MATERIAL ID": "G25",
-                                "BILLING ADDRESS": "No. 165/2, Kalyani Magnum\n Block 1, III Floor, Doraisanipalya IIM Post, Bannerghatta Road,\nBengaluru 560076\nKA",
-                                "BILLING ACCOUNT": "B-SG-IN"
+                                "type": "GENERAL",
+                                "title": "ITEM NAME",
+                                "description": "AppBuilder Q1 PO"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "QUANTITY",
+                                "description": "1.0"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "UNIT PRICE",
+                                "description": "43840.00"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "TOTAL PRICE",
+                                "description": "43840.00"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "COMMODITY",
+                                "description": "Comp Storage Access"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "SUPPLIER PART NUMBER",
+                                "description": "IN10"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "PAYMENT TERMS",
+                                "description": "ZR45"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "SHIPPING",
+                                "description": "FOB"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "SAP GROUP MATERIAL ID",
+                                "description": "G25"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "BILLING ADDRESS",
+                                "description": "No. 165/2, Kalyani Magnum\n Block 1, III Floor, Doraisanipalya IIM Post, Bannerghatta Road,\nBengaluru 560076\nKA"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "BILLING ACCOUNT",
+                                "description": "B-SG-IN"
                             }
                         ]
                     }
