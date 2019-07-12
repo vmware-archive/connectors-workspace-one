@@ -334,6 +334,7 @@ public class HubServiceNowController {
                         cardTextAccessor.getMessage("subtitle", locale, info.getInfo().getNumber())
                 )
                 .setHash(toCardHash(info))
+                .setBackendId(info.getInfo().getNumber())
                 .setBody(makeBody(info, locale))
                 .addAction(
                         new CardAction.Builder()
