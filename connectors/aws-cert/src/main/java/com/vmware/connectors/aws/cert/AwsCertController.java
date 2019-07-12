@@ -111,7 +111,7 @@ public class AwsCertController {
     private boolean validateUrl(String approvalUrl) {
         boolean isValid;
         try {
-            UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(approvalUrl).build();
+            UriComponents uriComponents = UriComponentsBuilder.fromUriString(approvalUrl).build();
             isValid = verifyHost(uriComponents) && verifyPath(uriComponents);
         } catch (IllegalArgumentException e) {
             isValid = false;
@@ -142,7 +142,7 @@ public class AwsCertController {
 
         return rest.get()
                 .uri( UriComponentsBuilder
-                        .fromHttpUrl(approvalUrl)
+                        .fromUriString(approvalUrl)
                         .build()
                         .toUri())
                 .exchange()
