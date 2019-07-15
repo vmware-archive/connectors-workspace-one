@@ -38,7 +38,7 @@ import java.util.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-@RestController
+//@RestController
 public class SNowBotController {
 
     private static final Logger logger = LoggerFactory.getLogger(SNowBotController.class);
