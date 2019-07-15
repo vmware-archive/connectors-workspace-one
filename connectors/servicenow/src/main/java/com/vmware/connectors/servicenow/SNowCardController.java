@@ -46,7 +46,9 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @RestController
+@SuppressWarnings("PMD.ExcessiveClassLength")
 public class SNowCardController {
+    // ToDo: Avoid pmd issue. (APF-2376)
 
     private static final Logger logger = LoggerFactory.getLogger(SNowCardController.class);
 
