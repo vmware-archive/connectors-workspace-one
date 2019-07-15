@@ -30,6 +30,10 @@
         },
         "category": {
           "env": "CATEGORY_NAME"
+        },
+        "context_id": {
+          "env": "CONTEXT_ID",
+          "mandatory": false
         }
       },
       "endpoint": {
@@ -45,6 +49,10 @@
         "number": {
           "env": "TASK_NUMBER",
           "mandatory": false
+        },
+        "contextId": {
+          "env": "CONTEXT_ID",
+          "mandatory": false
         }
       },
       "endpoint": {
@@ -52,6 +60,12 @@
       }
     },
     "cart": {
+      "fields": {
+        "contextId": {
+          "env": "CONTEXT_ID",
+          "mandatory": false
+        }
+      },
       "endpoint": {
         "href": "${CONNECTOR_HOST}/api/v1/cart"
       }
@@ -74,47 +88,6 @@
       "label": "Create Task",
       "type": "POST",
       "action_key": "USER_INPUT"
-    },
-    "addCart": {
-      "url": {
-        "href": "${CONNECTOR_HOST}/api/v1/cart"
-      },
-      "user_input": [],
-      "request": {
-        "item_id": {
-          "env": "CATALOGITEM_ID"
-        },
-        "item_count": {
-          "env": "ITEM_COUNT"
-        }
-      },
-      "label": "Add an item to cart",
-      "type": "PUT",
-      "action_key": "USER_INPUT"
-    },
-    "deleteCart": {
-      "url": {
-        "href": "${CONNECTOR_HOST}/api/v1/cart"
-      },
-      "user_input": [],
-      "request": {
-        "entry_id": {
-          "env": "CART_ENTRY_ID"
-        }
-      },
-      "label": "Remove an item from cart",
-      "type": "DELETE",
-      "action_key": "USER_INPUT"
-    },
-    "checkout": {
-      "url": {
-        "href": "${CONNECTOR_HOST}/api/v1/checkout"
-      },
-      "user_input": [],
-      "request": {},
-      "label": "Checkout cart",
-      "type": "POST",
-      "action_key": "DIRECT"
     }
   }
 }
