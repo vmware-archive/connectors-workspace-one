@@ -121,7 +121,7 @@ public class HubServiceNowController {
 
         return rest.get()
                 .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                        .fromUriString(baseUrl)
                         .path("/api/now/table/{userTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(SysUser.Fields.SYS_ID))
                         .queryParam(SNOW_SYS_PARAM_LIMIT, 1)
@@ -165,7 +165,7 @@ public class HubServiceNowController {
         );
         return rest.get()
                 .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                        .fromUriString(baseUrl)
                         .path("/api/now/table/{apTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, fields)
                         .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
@@ -230,7 +230,7 @@ public class HubServiceNowController {
 
         return rest.get()
                 .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                        .fromUriString(baseUrl)
                         .path("/api/now/table/{scTableName}/{approvalSysId}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
                         .buildAndExpand(
@@ -278,7 +278,7 @@ public class HubServiceNowController {
 
         return rest.get()
                 .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                        .fromUriString(baseUrl)
                         .path("/api/now/table/{scTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(fields))
                         .queryParam(SNOW_SYS_PARAM_LIMIT, MAX_APPROVAL_RESULTS)
@@ -334,6 +334,7 @@ public class HubServiceNowController {
                         cardTextAccessor.getMessage("subtitle", locale, info.getInfo().getNumber())
                 )
                 .setHash(toCardHash(info))
+                .setBackendId(info.getInfo().getNumber())
                 .setBody(makeBody(info, locale))
                 .addAction(
                         new CardAction.Builder()
@@ -462,7 +463,7 @@ public class HubServiceNowController {
         );
         return rest.patch()
                 .uri(UriComponentsBuilder
-                        .fromHttpUrl(baseUrl)
+                        .fromUriString(baseUrl)
                         .path("/api/now/table/{apTableName}/{requestSysId}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, fields)
                         .buildAndExpand(

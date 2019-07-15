@@ -561,5 +561,4 @@ public class SNowCardController {
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return updateRequest(auth, baseUri, requestSysId, SysApprovalApprover.States.REJECTED, form.getReason());
     }
-
 }
