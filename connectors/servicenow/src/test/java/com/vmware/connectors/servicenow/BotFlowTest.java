@@ -45,8 +45,8 @@ class BotFlowTest extends ControllerTestsBase {
 
     private static final String SNOW_AUTH_TOKEN = "test-GOOD-auth-token";
 
-    private static final String OBJ_TYPE_CATALOG_ITEM = "catalogItem";
-    private static final String OBJ_TYPE_TASK = "taskItem";
+    private static final String OBJ_TYPE_CATALOG_ITEM = "catalog";
+    private static final String OBJ_TYPE_TASK = "task";
     private static final String OBJ_TYPE_CART = "cart";
 
     @ParameterizedTest
@@ -152,12 +152,15 @@ class BotFlowTest extends ControllerTestsBase {
         assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/task_ticket.json")).allowingAnyArrayOrdering());
     }
 
-    @Test
-    void testCartObject() throws Exception {
+    @ParameterizedTest
+    @CsvSource({
+            " , /botflows/connector/response/cart.json",
+            "xx, /botflows/connector/response/cart_xx.json"})
+    void testCartObject(String language, String expectedCartFileName) throws Exception {
         expectCartRequest();
 
         String body = requestObjects("/api/v1/cart", SNOW_AUTH_TOKEN, "/botflows/connector/request/cart.json",
-                OBJ_TYPE_CART, null)
+                OBJ_TYPE_CART, language)
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -165,7 +168,7 @@ class BotFlowTest extends ControllerTestsBase {
                 .map(BotFlowTest::normalizeBotObjects)
                 .block();
 
-        assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/cart.json")).allowingAnyArrayOrdering());
+        assertThat(body, sameJSONAs(fromFile(expectedCartFileName)).allowingAnyArrayOrdering());
     }
 
     @Test

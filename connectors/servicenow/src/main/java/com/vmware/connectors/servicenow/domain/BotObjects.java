@@ -42,7 +42,7 @@ public class BotObjects {
             objectResults = new BotObjects();
         }
 
-        public Builder setObject(BotItem object) {
+        public Builder addObject(BotItem object) {
             objectResults.objects.add(object);
             return this;
         }

@@ -11,7 +11,7 @@
           "description": "Delete this ticket from ServiceNow.",
           "type": "DELETE",
           "url": {
-            "href": "https://mf/connectors/abc123/taskItem/api/v1/tasks/f8cfe469db153300ea92eb41ca96198b"
+            "href": "https://mf/connectors/abc123/task/api/v1/tasks/f8cfe469db153300ea92eb41ca96198b"
           },
           "payload": {},
           "user_inputs": {}
@@ -29,7 +29,7 @@
           "description": "Delete this ticket from ServiceNow.",
           "type": "DELETE",
           "url": {
-            "href": "https://mf/connectors/abc123/taskItem/api/v1/tasks/f9817ca9db153300ea92eb41ca9619d7"
+            "href": "https://mf/connectors/abc123/task/api/v1/tasks/f9817ca9db153300ea92eb41ca9619d7"
           },
           "payload": {},
           "user_inputs": {}

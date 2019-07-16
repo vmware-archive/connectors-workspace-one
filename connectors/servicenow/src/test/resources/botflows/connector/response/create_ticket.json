@@ -10,7 +10,7 @@
           "description": "Delete this ticket from ServiceNow.",
           "type": "DELETE",
           "url": {
-            "href": "https://mf/connectors/abc123/taskItem/api/v1/tasks/00909613db113300ea92eb41ca961949"
+            "href": "https://mf/connectors/abc123/task/api/v1/tasks/00909613db113300ea92eb41ca961949"
           },
           "payload": {},
           "user_inputs": {}

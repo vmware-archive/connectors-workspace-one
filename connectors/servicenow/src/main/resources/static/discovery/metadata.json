@@ -20,7 +20,7 @@
         "href": "${CONNECTOR_HOST}/cards/requests"
       }
     },
-    "catalogItem": {
+    "catalog": {
       "fields": {
         "type": {
           "env": "ITEM_TYPE"
@@ -40,7 +40,7 @@
         "href": "${CONNECTOR_HOST}/api/v1/catalog-items"
       }
     },
-    "taskItem": {
+    "task": {
       "fields": {
         "type": {
           "env": "TASK_TYPE",
