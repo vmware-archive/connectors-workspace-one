@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package com.vmware.connectors.servicenow.domain;
+package com.vmware.connectors.servicenow.domain.snow;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +17,8 @@ public class Task {
 
     private String shortDescription;
 
-    @JsonProperty("number")
+    private String sysId;
+
     public String getNumber() {
         return number;
     }
@@ -27,7 +28,6 @@ public class Task {
         this.number = number;
     }
 
-    @JsonProperty("created_on")
     public String getCreatedOn() {
         return createdOn;
     }
@@ -37,7 +37,6 @@ public class Task {
         this.createdOn = createdOn;
     }
 
-    @JsonProperty("short_description")
     public String getShortDescription() {
         return shortDescription;
     }
@@ -45,5 +44,14 @@ public class Task {
     @JsonProperty("short_description")
     public void setShortDescription(String shortDescription) {
         this.shortDescription = shortDescription;
+    }
+
+    public String getSysId() {
+        return sysId;
+    }
+
+    @JsonProperty("sys_id")
+    public void setSysId(String sysId) {
+        this.sysId = sysId;
     }
 }

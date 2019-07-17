@@ -2,12 +2,13 @@
   "objects": [
     {
       "id": "00000000-0000-0000-0000-000000000000",
-      "title": "ServiceNow Shopping Cart",
-      "description": "Things in your shopping cart.",
+      "title": "SERVICENOW SHOPPING CART",
+      "context_id": "cart-context-1",
+      "description": "THINGS IN YOUR SHOPPING CART.",
       "actions": [
         {
-          "title": "Empty this cart",
-          "description": "Empty everything in the cart.",
+          "title": "EMPTY THIS CART",
+          "description": "EMPTY EVERYTHING IN THE CART.",
           "type": "DELETE",
           "url": {
             "href": "https://mf/connectors/abc123/cart/api/v1/cart"
@@ -16,8 +17,8 @@
           "user_inputs": {}
         },
         {
-          "title": "Checkout",
-          "description": "Checkout your cart.",
+          "title": "CHECKOUT",
+          "description": "CHECKOUT YOUR CART.",
           "type": "POST",
           "url": {
             "href": "https://mf/connectors/abc123/cart/api/v1/checkout"
@@ -30,11 +31,12 @@
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "title": "Development Laptop (PC)",
+          "context_id": "cart-context-1",
           "description": "Dell XPS 13",
           "actions": [
             {
-              "title": "Remove from cart",
-              "description": "Remove this item from the cart.",
+              "title": "REMOVE FROM CART",
+              "description": "REMOVE THIS ITEM FROM THE CART.",
               "type": "DELETE",
               "url": {
                 "href": "https://mf/connectors/abc123/cart/api/v1/cart/cd5fad02db113300ea92eb41ca961965"
@@ -47,11 +49,12 @@
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "title": "Apple MacBook Pro 15\"",
+          "context_id": "cart-context-1",
           "description": "Apple MacBook Pro",
           "actions": [
             {
-              "title": "Remove from cart",
-              "description": "Remove this item from the cart.",
+              "title": "REMOVE FROM CART",
+              "description": "REMOVE THIS ITEM FROM THE CART.",
               "type": "DELETE",
               "url": {
                 "href": "https://mf/connectors/abc123/cart/api/v1/cart/3c7f6d42db113300ea92eb41ca9619f1"
@@ -64,11 +67,12 @@
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "title": "Apple MacBook Pro 15\"",
+          "context_id": "cart-context-1",
           "description": "Apple MacBook Pro",
           "actions": [
             {
-              "title": "Remove from cart",
-              "description": "Remove this item from the cart.",
+              "title": "REMOVE FROM CART",
+              "description": "REMOVE THIS ITEM FROM THE CART.",
               "type": "DELETE",
               "url": {
                 "href": "https://mf/connectors/abc123/cart/api/v1/cart/26a54e4adb513300ea92eb41ca9619cd"

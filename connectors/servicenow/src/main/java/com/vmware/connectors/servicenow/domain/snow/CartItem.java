@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package com.vmware.connectors.servicenow.domain;
+package com.vmware.connectors.servicenow.domain.snow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -13,7 +13,8 @@ public class CartItem {
 
     private String name;
 
-    @JsonProperty("entry_id")
+    private String shortDescription;
+
     public String getEntryId() {
         return entryId;
     }
@@ -23,7 +24,6 @@ public class CartItem {
         this.entryId = entryId;
     }
 
-    @JsonProperty("name")
     public String getName() {
         return name;
     }
@@ -31,5 +31,14 @@ public class CartItem {
     @JsonProperty("name")
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    @JsonProperty("short_description")
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
     }
 }
