@@ -774,18 +774,17 @@ public class SNowCardController {
     private URI buildTasksUriByReqParam(String taskType, String taskNumber, String userEmail, String baseUrl, Integer limit, Integer offset) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                 .fromUriString(baseUrl)
-                .replacePath("/api/now/table/");
+                .replacePath("/api/now/table/")
+                .path(taskType);
 
         if (StringUtils.isBlank(taskNumber)) {
             uriComponentsBuilder
-                    .path(taskType)
                     .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
                     .queryParam(SNOW_SYS_PARAM_OFFSET, offset)
                     .queryParam("opened_by.email", userEmail);
         } else {
             // If task number is provided, may be it doesn't matter to apply the filter about who created the ticket.
             uriComponentsBuilder
-                    .path(taskType)
                     .queryParam(NUMBER, taskNumber);
         }
 
