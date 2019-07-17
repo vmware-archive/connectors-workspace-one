@@ -192,6 +192,7 @@ public class HubConcurController {
                 .setName("Concur")
                 .setHeader(cardTextAccessor.getMessage("hub.concur.header", locale, reportName))
                 .setBody(buildCard(locale, report))
+                .setBackendId(report.getReportID())
                 .addAction(makeAction(routingPrefix, locale, reportId,
                         true, "hub.concur.approve", COMMENT_KEY, "hub.concur.approve.comment.label", "/approve"))
                 .addAction(makeAction(routingPrefix, locale, reportId,

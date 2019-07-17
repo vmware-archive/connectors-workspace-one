@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.*;
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
+import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 
 /**
@@ -349,7 +349,7 @@ public class TestDriveSalesforceController {
 
     // Assemble the URL for the action
     private String buildActionUrlFromTemplate(String template, String routingPrefix, String opportunityId) {
-        return fromHttpUrl(routingPrefix)
+        return fromUriString(routingPrefix)
                 .path(template)
                 .buildAndExpand(opportunityId)
                 .encode()
@@ -358,7 +358,7 @@ public class TestDriveSalesforceController {
 
     // Assemble the Salesforce query into a URL
     private URI makeSoqlQueryUri(String baseUrl, String soql) {
-        return fromHttpUrl(baseUrl)
+        return fromUriString(baseUrl)
                 .path(sfSoqlQueryPath)
                 .queryParam("q", soql)
                 .build()
@@ -473,7 +473,7 @@ public class TestDriveSalesforceController {
 
     // Insert the opportunity ID into the URL
     private URI buildOpportunityUri(final String baseUrl, final String path, final String opportunityId) {
-        return fromHttpUrl(baseUrl)
+        return fromUriString(baseUrl)
                 .path(path)
                 .path(opportunityId)
                 .build()

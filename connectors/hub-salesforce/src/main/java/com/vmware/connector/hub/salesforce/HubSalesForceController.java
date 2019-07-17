@@ -38,7 +38,7 @@ import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
+import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 @RestController
 public class HubSalesForceController {
@@ -155,7 +155,7 @@ public class HubSalesForceController {
         requests.setRequests(List.of(request));
 
         return rest.post()
-                .uri(fromHttpUrl(baseUrl).path(workflowPath).build().toUri())
+                .uri(fromUriString(baseUrl).path(workflowPath).build().toUri())
                 .header(AUTHORIZATION, connectorAuth)
                 .contentType(APPLICATION_JSON)
                 .syncBody(requests)
@@ -182,7 +182,7 @@ public class HubSalesForceController {
         requests.setRequests(List.of(request));
 
         return rest.post()
-                .uri(fromHttpUrl(baseUrl).path(workflowPath).build().toUri())
+                .uri(fromUriString(baseUrl).path(workflowPath).build().toUri())
                 .header(AUTHORIZATION, connectorAuth)
                 .contentType(APPLICATION_JSON)
                 .syncBody(requests)
@@ -244,11 +244,14 @@ public class HubSalesForceController {
 
             final String userId = workItemResponse.read(String.format("$.records[%s].Workitems.records[0].Id", i));
 
+            String opportunityId = opportunityResponse.read(String.format("$.records[%s].Id", i));
+
             final Card.Builder card = new Card.Builder()
                     .setName("Salesforce for WS1 Hub")
                     .setTemplate(routingPrefix + "templates/generic.hbs")
                     .setHeader(this.cardTextAccessor.getMessage("ws1.sf.card.header", locale))
                     .setBody(buildCardBody(opportunityResponse, i, locale, configParams))
+                    .setBackendId(opportunityId)
                     .addAction(buildApproveAction(routingPrefix, locale, userId))
                     .addAction(buildRejectAction(routingPrefix, locale, userId));
 
@@ -358,7 +361,7 @@ public class HubSalesForceController {
             final String soql
     ) {
 
-        return fromHttpUrl(baseUrl)
+        return fromUriString(baseUrl)
                 .path(sfSoqlQueryPath)
                 .queryParam("q", soql)
                 .build()

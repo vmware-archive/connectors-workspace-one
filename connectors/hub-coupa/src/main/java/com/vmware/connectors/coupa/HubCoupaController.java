@@ -181,6 +181,7 @@ public class HubCoupaController {
                 .setName("Coupa")
                 .setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale, reportName))
                 .setBody(buildCardBody(locale, requestDetails))
+                .setBackendId(requestId)
                 .addAction(makeApprovalAction(routingPrefix, requestId, locale,
                         true, "api/approve/", "hub.coupa.approve", "hub.coupa.approve.comment.label"))
                 .addAction(makeApprovalAction(routingPrefix, requestId, locale,
