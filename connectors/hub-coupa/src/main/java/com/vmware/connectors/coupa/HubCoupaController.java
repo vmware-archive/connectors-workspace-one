@@ -250,11 +250,11 @@ public class HubCoupaController {
     }
 
     private String getShippingDetails(final ShipToAddress shipToAddress) {
-        return shipToAddress.getStreet1() + "\n"
-                + shipToAddress.getStreet2() + "\n"
-                + shipToAddress.getCity() + " " + shipToAddress.getPostalCode() + "\n"
+        return shipToAddress.getStreet1() + " "
+                + shipToAddress.getStreet2() + " "
+                + shipToAddress.getCity() + " "
+                + shipToAddress.getPostalCode() + " "
                 + shipToAddress.getState();
-
     }
 
     private CardBodyField makeGeneralField(
