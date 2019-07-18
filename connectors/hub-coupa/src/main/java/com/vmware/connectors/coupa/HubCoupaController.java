@@ -78,6 +78,8 @@ public class HubCoupaController {
             Locale locale
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
+        logger.debug("getCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
+
         validateEmailAddress(userEmail);
 
         if (isServiceAccountCredentialEmpty(connectorAuth)) {
@@ -336,6 +338,8 @@ public class HubCoupaController {
             @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
+        logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, form.getComment());
+
         validateEmailAddress(userEmail);
 
         if (isServiceAccountCredentialEmpty(connectorAuth)) {
@@ -402,6 +406,8 @@ public class HubCoupaController {
             @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
+        logger.debug("declineRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, form.getComment());
+
         validateEmailAddress(userEmail);
 
         if (isServiceAccountCredentialEmpty(connectorAuth)) {
