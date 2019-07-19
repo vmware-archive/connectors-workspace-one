@@ -60,6 +60,9 @@ public class RequisitionDetails {
     @JsonProperty("requisition-lines")
     private List<RequisitionLineDetails> requisitionLinesList;
 
+    @JsonProperty("ship-to-address")
+    private ShipToAddress shipToAddress;
+
     public String getId() {
         return id;
     }
@@ -188,4 +191,11 @@ public class RequisitionDetails {
         this.requisitionLinesList = requisitionLinesList;
     }
 
+    public ShipToAddress getShipToAddress() {
+        return shipToAddress;
+    }
+
+    public void setShipToAddress(ShipToAddress shipToAddress) {
+        this.shipToAddress = shipToAddress;
+    }
 }

@@ -12,21 +12,6 @@
                 "fields": [
                     {
                         "type": "GENERAL",
-                        "title": "Order date",
-                        "description": "1970-01-01T00:00:00Z-07:00"
-                    },
-                    {
-                        "type": "GENERAL",
-                        "title": "Requester Cost Center",
-                        "description": "IN1019722"
-                    },
-                    {
-                        "type": "GENERAL",
-                        "title": "Requisition number",
-                        "description": "182964"
-                    },
-                    {
-                        "type": "GENERAL",
                         "title": "Requisition description",
                         "description": ""
                     },
@@ -42,8 +27,69 @@
                     },
                     {
                         "type": "GENERAL",
-                        "title": "Justification ",
+                        "title": "Justification",
                         "description": ""
+                    },
+                    {
+                        "type": "SECTION",
+                        "title": "Item name",
+                        "items": [
+                            {
+                                "type": "GENERAL",
+                                "title": "Item name",
+                                "description": "AppBuilder Q1 PO"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "Quantity",
+                                "description": "1.0"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "Unit Price",
+                                "description": "43840.00"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "Total Price",
+                                "description": "43840.00"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "Commodity",
+                                "description": "Comp Storage Access"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "Supplier Part Number",
+                                "description": "IN10"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "Payment Terms",
+                                "description": "ZR45"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "Shipping",
+                                "description": "FOB"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "SAP Group Material ID",
+                                "description": "G25"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "Billing address",
+                                "description": "No. 165/2, Kalyani Magnum  Block 1, III Floor, Doraisanipalya IIM Post, Bannerghatta Road, Bengaluru 560076 KA"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "Billing account",
+                                "description": "B-SG-IN"
+                            }
+                        ]
                     }
                 ]
             },
