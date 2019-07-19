@@ -4,15 +4,37 @@
     "subtotal": "$1,499.00",
     "items": [
       {
-        "catalog_item_id": "774906834fbb4200086eeed18110c737",
+        "catalog_item_id": "3cecd2350a0a0a6a013a3a35a5e41c07",
         "quantity": "1",
-        "localized_price": "$1,499.00",
-        "price": "$1,499.00",
-        "recurring_frequency": "Annually",
-        "localized_recurring_price": "$100.00",
-        "recurring_price": "$100.00",
-        "item_name": "Developer Laptop (Mac)",
-        "cart_item_id": "88faa613db113300ea92eb41ca961950"
+        "localized_price": "$1,100.00",
+        "price": "$1,000.00",
+        "recurring_frequency": "",
+        "localized_recurring_price": "$0.00",
+        "recurring_price": "$0.00",
+        "item_name": "Development Laptop (PC)",
+        "cart_item_id": "cd5fad02db113300ea92eb41ca961965"
+      },
+      {
+        "catalog_item_id": "2ab7077237153000158bbfc8bcbe5da9",
+        "quantity": "1",
+        "localized_price": "$1,099.99",
+        "price": "$1,099.99",
+        "recurring_frequency": "Weekly",
+        "localized_recurring_price": "$0.00",
+        "recurring_price": "$0.00",
+        "item_name": "Apple MacBook Pro 15\"",
+        "cart_item_id": "3c7f6d42db113300ea92eb41ca9619f1"
+      },
+      {
+        "catalog_item_id": "2ab7077237153000158bbfc8bcbe5da9",
+        "quantity": "1",
+        "localized_price": "$1,099.99",
+        "price": "$1,099.99",
+        "recurring_frequency": "Weekly",
+        "localized_recurring_price": "$0.00",
+        "recurring_price": "$0.00",
+        "item_name": "Apple MacBook Pro 15\"",
+        "cart_item_id": "26a54e4adb513300ea92eb41ca9619cd"
       }
     ]
   }

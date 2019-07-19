@@ -11,16 +11,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
-import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.utils.CommonUtils;
-import com.vmware.connectors.common.utils.HashUtil;
-import com.vmware.connectors.common.utils.AuthUtil;
-import com.vmware.connectors.common.utils.Reactive;
-import com.vmware.connectors.servicenow.domain.*;
+import com.vmware.connectors.common.utils.*;
+import com.vmware.connectors.servicenow.domain.BotAction;
+import com.vmware.connectors.servicenow.domain.BotItem;
+import com.vmware.connectors.servicenow.domain.BotObjects;
+import com.vmware.connectors.servicenow.domain.snow.*;
 import com.vmware.connectors.servicenow.exception.CatalogReadException;
 import com.vmware.connectors.servicenow.forms.AddToCartForm;
 import com.vmware.connectors.servicenow.forms.CreateTaskForm;
-import com.vmware.connectors.servicenow.forms.DeleteFromCartForm;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +46,11 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @RestController
-public class ServiceNowController {
+@SuppressWarnings("PMD.ExcessiveClassLength")
+public class SNowCardController {
+    // ToDo: Avoid pmd issue. (APF-2376)
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceNowController.class);
+    private static final Logger logger = LoggerFactory.getLogger(SNowCardController.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -63,6 +63,17 @@ public class ServiceNowController {
     private static final String AUTH_HEADER = "X-Connector-Authorization";
     private static final String BASE_URL_HEADER = "X-Connector-Base-Url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
+    private static final String ROUTING_PREFIX_TEMPLATE = "X-Routing-Template";
+
+    private static final String SNOW_ADD_TO_CART_ENDPOINT = "/api/sn_sc/servicecatalog/items/{item_id}/add_to_cart";
+
+    private static final String SNOW_CHECKOUT_ENDPOINT = "/api/sn_sc/servicecatalog/cart/checkout";
+
+    private static final String SNOW_DELETE_FROM_CART_ENDPOINT = "/api/sn_sc/servicecatalog/cart/{cart_item_id}";
+
+    private static final String SNOW_DELETE_CART_ENDPOINT = "/api/sn_sc/servicecatalog/cart/{cart_id}/empty";
+
+    private static final String SNOW_DELETE_TASK_ENDPOINT = "/api/now/table/task/{task_id}";
 
     private static final String REASON_PARAM_KEY = "reason";
 
@@ -71,12 +82,6 @@ public class ServiceNowController {
      * ServiceNow REST calls.
      */
     private static final String SNOW_SYS_PARAM_FIELDS = "sysparm_fields";
-
-    private static final String SNOW_ADD_TO_CART_ENDPOINT = "/api/sn_sc/servicecatalog/items/{item_id}/add_to_cart";
-
-    private static final String SNOW_CHECKOUT_ENDPOINT = "/api/sn_sc/servicecatalog/cart/checkout";
-
-    private static final String SNOW_DELETE_CART_ENDPOINT = "/api/sn_sc/servicecatalog/cart/{cart_item_id}";
 
     /**
      * The query param to specify a limit of the results coming back in your
@@ -110,22 +115,27 @@ public class ServiceNowController {
 
     private static final String NUMBER = "number";
 
-    private static final String OBJECTS = "objects";
+    private static final String INSERT_OBJECT_TYPE = "INSERT_OBJECT_TYPE";
 
     private static final String ACTION_RESULT_KEY = "result";
 
+    private static final String OBJECT_TYPE_TASK = "task";
+
+    private static final String OBJECT_TYPE_CART = "cart";
+
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
+    private final BotTextAccessor botTextAccessor;
 
     @Autowired
-    public ServiceNowController(
+    public SNowCardController(
             WebClient rest,
-            CardTextAccessor cardTextAccessor
+            CardTextAccessor cardTextAccessor,
+            BotTextAccessor botTextAccessor
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
-
-
+        this.botTextAccessor = botTextAccessor;
     }
 
     @PostMapping(
@@ -597,15 +607,16 @@ public class ServiceNowController {
         return updateRequest(auth, baseUri, requestSysId, SysApprovalApprover.States.REJECTED, form.getReason());
     }
 
-
     @PostMapping(
             path = "/api/v1/catalog-items",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<Map<String, List<CatalogItem>>> getCatalogItems(
+    public Mono<BotObjects> getCatalogItems(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(ROUTING_PREFIX) String routingPrefix,
+            Locale locale,
             @RequestParam(name = "limit", required = false, defaultValue = "10") String limit,
             @RequestParam(name = "offset", required = false, defaultValue = "0") String offset,
             @Valid @RequestBody CardRequest cardRequest
@@ -614,6 +625,7 @@ public class ServiceNowController {
         var catalogName = cardRequest.getTokenSingleValue("catalog");
         var categoryName = cardRequest.getTokenSingleValue("category");
         var type = cardRequest.getTokenSingleValue("type");
+        String contextId = cardRequest.getTokenSingleValue("context_id");
 
         logger.trace("getItems for catalog: {}, category: {}, type: {}", catalogName, categoryName, type);
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
@@ -622,7 +634,7 @@ public class ServiceNowController {
                 .flatMap(categoryId -> getItems(type, categoryId,
                         auth, baseUri,
                         limit, offset))
-                .map(itemList -> Map.of("objects", itemList));
+                .map(itemList -> toCatalogBotObj(itemList, routingPrefix, contextId, locale));
     }
 
     private Mono<String> getCatalogId(String catalogTitle, String auth, URI baseUri) {
@@ -637,7 +649,7 @@ public class ServiceNowController {
 
     // ToDo: If it can filter, don't ask much from SNow. Go only with those needed for chatbot.
     private Mono<List<CatalogItem>> getItems(String type, String categoryId, String auth, URI baseUri,
-                                        String limit, String offset) {
+                                             String limit, String offset) {
         logger.trace("getItems type:{}, categoryId:{}, baseUrl={}.", type, categoryId, baseUri);
         return rest.get()
                 .uri(uriBuilder -> uriBuilder
@@ -654,6 +666,22 @@ public class ServiceNowController {
                 .retrieve()
                 .bodyToMono(CatalogItemResults.class)
                 .map(CatalogItemResults::getResult);
+    }
+
+    private BotObjects toCatalogBotObj(List<CatalogItem> itemList, String routingPrefix, String contextId, Locale locale) {
+        BotObjects.Builder objectsBuilder = new BotObjects.Builder();
+
+        itemList.forEach(catalogItem ->
+                objectsBuilder.addObject(
+                        new BotItem.Builder()
+                                .setTitle(catalogItem.getName())
+                                .setDescription(catalogItem.getShortDescription())
+                                .addAction(getAddToCartAction(catalogItem.getId(), routingPrefix, locale))
+                                .setContextId(contextId)
+                                .build())
+        );
+
+        return objectsBuilder.build();
     }
 
     //returns id of service catalog for matching title from the results.
@@ -681,17 +709,45 @@ public class ServiceNowController {
                 });
     }
 
-    @PostMapping(
-            path = "/api/v1/tasks",
+    @DeleteMapping(
+            path = "/api/v1/tasks/{taskId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<Map<String, List<Task>>> getTasks(
+    public Mono<ResponseEntity<Map<String, Object>>> deleteTask(
             @RequestHeader(AUTHORIZATION) String mfToken,
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @PathVariable String taskId) {
+
+        URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
+        return rest.delete()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
+                        .path(SNOW_DELETE_TASK_ENDPOINT)
+                        .build(Map.of("task_id", taskId))
+                )
+                .header(AUTHORIZATION, auth)
+                .exchange()
+                .flatMap(this::toDeleteItemResponse);
+    }
+
+
+    @PostMapping(
+            path = "/api/v1/tasks",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<BotObjects> getTasks(
+            @RequestHeader(AUTHORIZATION) String mfToken,
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(ROUTING_PREFIX) String routingPrefix,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            Locale locale,
             @RequestBody CardRequest cardRequest,
-            @RequestParam(name = "limit", required = false, defaultValue = "10") String limit,
-            @RequestParam(name = "offset", required = false, defaultValue = "0") String offset) {
+            @RequestParam(name = "limit", required = false, defaultValue = "10") Integer limit,
+            @RequestParam(name = "offset", required = false, defaultValue = "0") Integer offset) {
         // Both task type and number are optional.
         // If a specific type is not specified, default to task.
         // If ticket number is not specified, deliver user created tasks/specific-types.
@@ -704,6 +760,7 @@ public class ServiceNowController {
             taskType = cardRequest.getTokenSingleValue("type");
         }
         String taskNumber = cardRequest.getTokenSingleValue(NUMBER);
+        String contextId = cardRequest.getTokenSingleValue("context_id");
 
         var userEmail = AuthUtil.extractUserEmail(mfToken);
 
@@ -711,20 +768,20 @@ public class ServiceNowController {
         URI taskUri = buildTasksUriByReqParam(taskType, taskNumber, userEmail, baseUrl, limit, offset);
 
         return retrieveTasks(taskUri, auth)
-                .map(taskList -> Map.of("objects", taskList));
+                .map(taskList -> toTaskBotObj(taskList, routingPrefix, contextId, locale));
     }
 
-    private URI buildTasksUriByReqParam(String taskType, String taskNumber, String userEmail, String baseUrl, String limit, String offset) {
+    private URI buildTasksUriByReqParam(String taskType, String taskNumber, String userEmail, String baseUrl, Integer limit, Integer offset) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                 .fromUriString(baseUrl)
-                .replacePath("/api/now/table/");
+                .replacePath("/api/now/table/")
+                .path(taskType);
 
         if (StringUtils.isBlank(taskNumber)) {
             uriComponentsBuilder
-                    .path(taskType)
                     .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
                     .queryParam(SNOW_SYS_PARAM_OFFSET, offset)
-                    .queryParam("opened_by", userEmail);
+                    .queryParam("opened_by.email", userEmail);
         } else {
             // If task number is provided, may be it doesn't matter to apply the filter about who created the ticket.
             uriComponentsBuilder
@@ -744,15 +801,40 @@ public class ServiceNowController {
                 .map(TaskResults::getResult);
     }
 
+    private BotObjects toTaskBotObj(List<Task> tasks, String routingPrefix, String contextId, Locale locale) {
+        BotObjects.Builder objectsBuilder = new BotObjects.Builder();
+
+        tasks.forEach(task ->
+                objectsBuilder.addObject(new BotItem.Builder()
+                        .setTitle(botTextAccessor.getObjectTitle(OBJECT_TYPE_TASK, locale, task.getNumber()))
+                        .setShortDescription(task.getShortDescription())
+                        .addAction(getDeleteTaskAction(task.getSysId(), routingPrefix, locale))
+                        .setContextId(contextId)
+                        .build())
+        );
+
+        return objectsBuilder.build();
+    }
+
     @PostMapping(
             path = "/api/v1/cart",
-            produces = MediaType.APPLICATION_JSON_VALUE
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<Map<String, List<Cart>>> lookupCart(
+    public Mono<BotObjects> lookupCart(
             @RequestHeader(AUTH_HEADER) String auth,
-            @RequestHeader(BASE_URL_HEADER) String baseUrl) {
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(ROUTING_PREFIX) String routingPrefix,
+            Locale locale,
+            @RequestBody CardRequest cardRequest) {
 
-        // A user will have only 1 cart. Its wrapped as list, to go with the standard object response.
+        String contextId = cardRequest.getTokenSingleValue("context_id");
+
+        return retrieveUserCart(baseUrl, auth)
+                .map(cartDocument -> toCartBotObj(cartDocument, routingPrefix, contextId, locale));
+    }
+
+    private Mono<JsonDocument> retrieveUserCart(String baseUrl, String auth) {
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
 
         return rest.get()
@@ -765,32 +847,87 @@ public class ServiceNowController {
                 )
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToMono(JsonDocument.class)
-                .map(this::toCartObj)
-                .map(List::of)
-                .map(wrappedCart -> Map.of(OBJECTS, wrappedCart));
+                .bodyToMono(JsonDocument.class);
     }
 
-    private Cart toCartObj(JsonDocument cartResponse) {
-        Cart cart = new Cart();
-
-        cart.setId(cartResponse.read("$.result.cart_id"));
-        cart.setTotalAmount(cartResponse.read("$.result.subtotal_price"));
+    private BotObjects toCartBotObj(JsonDocument cartResponse, String routingPrefix, String contextId, Locale locale) {
+        BotItem.Builder botObjectBuilder = new BotItem.Builder()
+                .setTitle(botTextAccessor.getObjectTitle(OBJECT_TYPE_CART, locale))
+                .setContextId(contextId);
 
         List<LinkedHashMap> items = cartResponse.read("$.result.*.items.*");
-        if (items == null) {
-            cart.setItems(List.of());
-            return cart;
+        if (CollectionUtils.isEmpty(items)) {
+            botObjectBuilder.setDescription(botTextAccessor.getMessage(OBJECT_TYPE_CART + ".description.empty", locale));
+        } else {
+            botObjectBuilder.setDescription(botTextAccessor.getObjectDescription(OBJECT_TYPE_CART, locale))
+                    .addAction(getEmptyCartAction(routingPrefix, locale))
+                    .addAction(getCheckoutCartAction(routingPrefix, locale));
+
+            List<CartItem> cartItems = objectMapper.convertValue(items, new TypeReference<List<CartItem>>(){});
+            cartItems.forEach(
+                    cartItem -> botObjectBuilder.addChild(getCartItemChildObject(cartItem, routingPrefix, contextId, locale))
+            );
         }
 
-        cart.setItems(objectMapper.convertValue(items, new TypeReference<List<CartItem>>(){}));
+        return new BotObjects.Builder()
+                .addObject(botObjectBuilder.build())
+                .build();
+    }
 
-        // This a little hack. ServiceNow sends a '-', when the cart is empty.
-        if ("-".equals(cart.getTotalAmount())) {
-            cart.setTotalAmount("");
-        }
+    private BotItem getCartItemChildObject(CartItem cartItem, String routingPrefix, String contextId, Locale locale) {
+        return new BotItem.Builder()
+                .setTitle(cartItem.getName())
+                .setContextId(contextId)
+                .setDescription(cartItem.getShortDescription())
+                .addAction(getRemoveFromCartAction(cartItem.getEntryId(), routingPrefix, locale))
+                .build();
+    }
 
-        return cart;
+    private BotAction getRemoveFromCartAction(String entryId, String routingPrefix, Locale locale) {
+        return new BotAction.Builder()
+                .setTitle(botTextAccessor.getActionTitle("removeFromCart", locale))
+                .setDescription(botTextAccessor.getActionDescription("removeFromCart", locale))
+                .setType(HttpMethod.DELETE)
+                .setUrl(new Link(routingPrefix + "api/v1/cart/" + entryId))
+                .build();
+    }
+
+    private BotAction getCheckoutCartAction(String routingPrefix, Locale locale) {
+        return new BotAction.Builder()
+                .setTitle(botTextAccessor.getActionTitle("checkout", locale))
+                .setDescription(botTextAccessor.getActionDescription("checkout", locale))
+                .setType(HttpMethod.POST)
+                .setUrl(new Link(routingPrefix + "api/v1/checkout"))
+                .build();
+    }
+
+    private BotAction getEmptyCartAction(String routingPrefix, Locale locale) {
+        return new BotAction.Builder()
+                .setTitle(botTextAccessor.getActionTitle("emptyCart", locale))
+                .setDescription(botTextAccessor.getActionDescription("emptyCart", locale))
+                .setType(HttpMethod.DELETE)
+                .setUrl(new Link(routingPrefix + "api/v1/cart"))
+                .build();
+    }
+
+    private BotAction getAddToCartAction(String itemId, String routingPrefix, Locale locale) {
+        return new BotAction.Builder()
+                .setTitle(botTextAccessor.getActionTitle("addToCart", locale))
+                .setDescription(botTextAccessor.getActionDescription("addToCart", locale))
+                .setType(HttpMethod.PUT)
+                .addReqParam("item_id", itemId)
+                .addUserInputParam("item_count", botTextAccessor.getActionUserInputLabel("addToCart", "itemCount", locale))
+                .setUrl(new Link(routingPrefix + "api/v1/cart"))
+                .build();
+    }
+
+    private BotAction getDeleteTaskAction(String taskSysId, String routingPrefix, Locale locale) {
+        return new BotAction.Builder()
+                .setTitle(botTextAccessor.getActionTitle("deleteTicket", locale))
+                .setDescription(botTextAccessor.getActionDescription("deleteTicket", locale))
+                .setType(HttpMethod.DELETE)
+                .setUrl(new Link(routingPrefix + "api/v1/tasks/" + taskSysId))
+                .build();
     }
 
     @PostMapping(
@@ -798,10 +935,12 @@ public class ServiceNowController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<Map<String, Object>> createTask(
+    public Mono<BotObjects> createTask(
             @RequestHeader(AUTHORIZATION) String mfToken,
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(ROUTING_PREFIX_TEMPLATE) String routingPrefixTemplate,
+            Locale locale,
             @Valid CreateTaskForm form) {
 
         // ToDo: Validate.
@@ -812,15 +951,18 @@ public class ServiceNowController {
 
         var userEmail = AuthUtil.extractUserEmail(mfToken);
 
-        logger.trace("createTicket for baseUrl={}, taskType={}, userEmail={}", baseUrl, taskType, userEmail);
+        logger.trace("createTicket for baseUrl={}, taskType={}, userEmail={}, routingTemplate={}", baseUrl, taskType, userEmail, routingPrefixTemplate);
+
+        String routingPrefix = routingPrefixTemplate.replace(INSERT_OBJECT_TYPE, OBJECT_TYPE_TASK);
 
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return this.createTask(taskType, shortDescription, userEmail, baseUri, auth)
-                .map(createTaskResponse -> Map.of(ACTION_RESULT_KEY, createTaskResponse));
+                .map(taskNumber -> new CardRequest(Map.of("number", Set.of((String) taskNumber)), null))
+                .flatMap(taskObjReq -> getTasks(mfToken, auth, routingPrefix, baseUrl, locale, taskObjReq, 1, 0));
     }
 
-    private Mono<Map<String, String>> createTask(String taskType, String shortDescription, String callerEmailId,
-                                                   URI baseUri, String auth) {
+    private Mono<String> createTask(String taskType, String shortDescription, String callerEmailId,
+                                    URI baseUri, String auth) {
         return rest.post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme(baseUri.getScheme())
@@ -834,31 +976,30 @@ public class ServiceNowController {
                 // ToDo: Improve this request body, if somehow chat-bot is able to supply more info.
                 .syncBody(Map.of(
                         "short_description", shortDescription,
-                            "caller_id", callerEmailId))
+                        "caller_id", callerEmailId))
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(this::toCreateTaskActionResponse);
-    }
-
-    private Map<String, String> toCreateTaskActionResponse(JsonDocument responseDoc) {
-        return Map.of(
-                "task_id", responseDoc.read("$.result.sys_id"),
-                NUMBER, responseDoc.read("$.result.number"));
+                .map(doc -> doc.read("$.result.number"));
     }
 
     @PutMapping(
             path = "/api/v1/cart",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Mono<Map<String, Object>> addToCart(
+    public Mono<BotObjects> addToCart(
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(ROUTING_PREFIX_TEMPLATE) String routingPrefixTemplate,
+            Locale locale,
             @Valid AddToCartForm form) {
 
         String itemId = form.getItemId();
+        // ToDo: Default itemCount to 1 ?
         Integer itemCount = form.getItemCount();
 
         logger.trace("addToCart itemId={}, count={}, baseUrl={}", itemId, itemCount, baseUrl);
+
+        String routingPrefix = routingPrefixTemplate.replace(INSERT_OBJECT_TYPE, OBJECT_TYPE_CART);
 
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return rest.post()
@@ -872,37 +1013,70 @@ public class ServiceNowController {
                 .header(AUTHORIZATION, auth)
                 .syncBody(Map.of(SNOW_SYS_PARAM_QUAN, itemCount))
                 .retrieve()
-                .bodyToMono(JsonDocument.class)
-                .map(doc -> Map.of(ACTION_RESULT_KEY, Map.of(
-                        "subtotal", doc.read("$.result.subtotal"))));
+                .bodyToMono(Void.class)
+                .then(this.lookupCart(auth, baseUrl, routingPrefix, locale, new CardRequest(null, null)));
     }
 
     @DeleteMapping(
             path = "/api/v1/cart",
-            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<ResponseEntity<Map<String, Object>>> deleteFromCart(
+    public Mono<ResponseEntity<Map<String, Object>>> emptyCart(
             @RequestHeader(AUTH_HEADER) String auth,
-            @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            @Valid DeleteFromCartForm form) {
-        logger.trace("deleteFromCart cartItem entryId={}, baseUrl={}", form.getEntryId(), baseUrl);
+            @RequestHeader(BASE_URL_HEADER) String baseUrl) {
+        logger.trace("emptyCart baseUrl={}", baseUrl);
 
+        return retrieveUserCart(baseUrl, auth)
+                .map(cartDocument -> cartDocument.read("$.result.cart_id"))
+                .flatMap(cartId -> deleteCart(baseUrl, auth, (String) cartId))
+                .flatMap(this::toDeleteItemResponse);
+
+    }
+
+    private Mono<ClientResponse> deleteCart(String baseUrl, String auth, String cartId) {
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
+
         return rest.delete()
                 .uri(uriBuilder -> uriBuilder
                         .scheme(baseUri.getScheme())
                         .host(baseUri.getHost())
                         .port(baseUri.getPort())
                         .path(SNOW_DELETE_CART_ENDPOINT)
-                        .build(Map.of("cart_item_id", form.getEntryId()))
+                        .build(Map.of("cart_id", cartId))
+                )
+                .header(AUTHORIZATION, auth)
+                .exchange();
+    }
+
+    //ToDo: Add path variable to take cart-item-id.
+    @DeleteMapping(
+            path = "/api/v1/cart/{cartItemId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Mono<BotObjects> deleteFromCart(
+            @RequestHeader(AUTH_HEADER) String auth,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            Locale locale,
+            @PathVariable("cartItemId") String cartItemId,
+            @RequestHeader(ROUTING_PREFIX_TEMPLATE) String routingPrefixTemplate) {
+        logger.trace("deleteFromCart cartItem entryId={}, baseUrl={}", cartItemId, baseUrl);
+
+        String routingPrefix = routingPrefixTemplate.replace(INSERT_OBJECT_TYPE, OBJECT_TYPE_CART);
+        URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
+        return rest.delete()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
+                        .path(SNOW_DELETE_FROM_CART_ENDPOINT)
+                        .build(Map.of("cart_item_id", cartItemId))
                 )
                 .header(AUTHORIZATION, auth)
                 .exchange()
-                .flatMap(this::toDeleteFromCartResponse);
+                .then(this.lookupCart(auth, baseUrl, routingPrefix, locale, new CardRequest(null, null)));
     }
 
-    private Mono<ResponseEntity<Map<String, Object>>> toDeleteFromCartResponse(ClientResponse sNowResponse) {
+    private Mono<ResponseEntity<Map<String, Object>>> toDeleteItemResponse(ClientResponse sNowResponse) {
         if (sNowResponse.statusCode().is2xxSuccessful()) {
             return Mono.just(
                     ResponseEntity
@@ -920,17 +1094,21 @@ public class ServiceNowController {
     @PostMapping(
             path = "/api/v1/checkout"
     )
-    public Mono<Map<String, Object>> checkout(
+    public Mono<BotObjects> checkout(
             @RequestHeader(AUTHORIZATION) String mfToken,
             @RequestHeader(AUTH_HEADER) String auth,
-            @RequestHeader(BASE_URL_HEADER) String baseUrl) {
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(ROUTING_PREFIX_TEMPLATE) String routingPrefixTemplate,
+            Locale locale) {
 
         var userEmail = AuthUtil.extractUserEmail(mfToken);
 
-        logger.trace("checkout cart for user={}, baseUrl={}", userEmail, baseUrl);
+        logger.trace("checkout cart for user={}, baseUrl={}, routingTemplate={}", userEmail, baseUrl, routingPrefixTemplate);
+
+        String routingPrefix = routingPrefixTemplate.replace(INSERT_OBJECT_TYPE, OBJECT_TYPE_TASK);
 
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
-        // ToDo: If Bot needs cart subtotal, include that by making an extra call to SNow.
+        // If Bot needs cart subtotal, include that by making an extra call to SNow.
         return rest.post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme(baseUri.getScheme())
@@ -942,8 +1120,11 @@ public class ServiceNowController {
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(doc -> Map.of(ACTION_RESULT_KEY, Map.of(
-                        "request_number", doc.read("$.result.request_number"))));
+                .map(doc -> doc.read("$.result.request_number"))
+                .doOnSuccess(no -> logger.debug("Ticket created {}", no))
+                .map(reqNumber -> new CardRequest(Map.of("number", Set.of((String) reqNumber)), null))
+                .flatMap(taskObjReq -> getTasks(mfToken, auth, routingPrefix, baseUrl, locale, taskObjReq, 1, 0));
+
     }
 
     @ExceptionHandler(CatalogReadException.class)

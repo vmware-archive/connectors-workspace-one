@@ -1,6 +1,21 @@
 {
-  "result": {
-    "number": "TKT0010006",
-    "task_id": "00909613db113300ea92eb41ca961949"
-  }
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "title": "ServiceNow ticket: TKT0010006",
+      "short_description": "My mouse is not working.",
+      "actions": [
+        {
+          "title": "Delete ticket",
+          "description": "Delete this ticket from ServiceNow.",
+          "type": "DELETE",
+          "url": {
+            "href": "https://mf/connectors/abc123/task/api/v1/tasks/00909613db113300ea92eb41ca961949"
+          },
+          "payload": {},
+          "user_inputs": {}
+        }
+      ]
+    }
+  ]
 }

@@ -1,14 +1,40 @@
 {
   "objects": [
     {
-      "number": "TKT0010001",
-      "created_on": "2019-05-08 13:25:20",
-      "short_description": "Via connector action"
+      "id": "00000000-0000-0000-0000-000000000000",
+      "title": "ServiceNow ticket: TKT0010001",
+      "context_id": "task-context-1",
+      "short_description": "Via connector action",
+      "actions": [
+        {
+          "title": "Delete ticket",
+          "description": "Delete this ticket from ServiceNow.",
+          "type": "DELETE",
+          "url": {
+            "href": "https://mf/connectors/abc123/task/api/v1/tasks/f8cfe469db153300ea92eb41ca96198b"
+          },
+          "payload": {},
+          "user_inputs": {}
+        }
+      ]
     },
     {
-      "number": "TKT0010002",
-      "created_on": "2019-05-08 13:33:04",
-      "short_description": "Via connector action 2"
+      "id": "00000000-0000-0000-0000-000000000000",
+      "title": "ServiceNow ticket: TKT0010002",
+      "context_id": "task-context-1",
+      "short_description": "Via connector action 2",
+      "actions": [
+        {
+          "title": "Delete ticket",
+          "description": "Delete this ticket from ServiceNow.",
+          "type": "DELETE",
+          "url": {
+            "href": "https://mf/connectors/abc123/task/api/v1/tasks/f9817ca9db153300ea92eb41ca9619d7"
+          },
+          "payload": {},
+          "user_inputs": {}
+        }
+      ]
     }
   ]
 }

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package com.vmware.connectors.servicenow.domain;
+package com.vmware.connectors.servicenow.domain.snow;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -23,7 +23,6 @@ public class CatalogItem {
 
     private String localizedPrice;
 
-    @JsonProperty("name")
     public String getName() {
         return name;
     }
@@ -33,7 +32,6 @@ public class CatalogItem {
         this.name = name;
     }
 
-    @JsonProperty("id")
     public String getId() {
         return id;
     }
@@ -43,7 +41,6 @@ public class CatalogItem {
         this.id = id;
     }
 
-    @JsonProperty("short_description")
     public String getShortDescription() {
         return shortDescription;
     }
@@ -53,7 +50,6 @@ public class CatalogItem {
         this.shortDescription = shortDescription;
     }
 
-    @JsonProperty("description")
     public String getDescription() {
         return description;
     }
@@ -63,7 +59,6 @@ public class CatalogItem {
         this.description = description;
     }
 
-    @JsonProperty("picture")
     public String getPicture() {
         return picture;
     }
@@ -73,7 +68,6 @@ public class CatalogItem {
         this.picture = picture;
     }
 
-    @JsonProperty("localized_price")
     public String getLocalizedPrice() {
         return localizedPrice;
     }

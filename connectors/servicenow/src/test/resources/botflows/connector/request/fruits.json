@@ -8,6 +8,9 @@
     ],
     "category": [
       "fruits"
+    ],
+    "context_id": [
+      "fruits-context-1"
     ]
   }
 }
