@@ -94,6 +94,23 @@
                 "type": "GENERAL",
                 "title": "Amount",
                 "description": "India, Rupee 23,340.21"
+              },
+              {
+                "type": "ATTACHMENT_URL",
+                "title": "Click here to download the attachment",
+                "content_type": {
+                  "type": "application",
+                  "subtype": "pdf",
+                  "parameters": {
+                  },
+                  "qualityValue": 1.0,
+                  "wildcardType": false,
+                  "wildcardSubtype": false,
+                  "charset": null,
+                  "concrete": true
+                },
+                "action_url": "https://hero/connectors/concur/api/expense/report/1D3BD2E14D144508B05F/attachment",
+                "action_type": "GET"
               }
             ]
           }
@@ -205,6 +222,23 @@
                 "type": "GENERAL",
                 "title": "Amount",
                 "description": "India, Rupee 17,464.66"
+              },
+              {
+                "type": "ATTACHMENT_URL",
+                "title": "Click here to download the attachment",
+                "content_type": {
+                  "type": "application",
+                  "subtype": "pdf",
+                  "parameters": {
+                  },
+                  "qualityValue": 1.0,
+                  "wildcardType": false,
+                  "wildcardSubtype": false,
+                  "charset": null,
+                  "concrete": true
+                },
+                "action_url": "https://hero/connectors/concur/api/expense/report/683105624FD74A1B9C13/attachment",
+                "action_type": "GET"
               }
             ]
           },
@@ -388,6 +422,22 @@
                 "type": "GENERAL",
                 "title": "Amount",
                 "description": "India, Rupee 17,464.66"
+              },
+              {
+                "type": "ATTACHMENT_URL",
+                "title": "Click here to download the attachment",
+                "content_type": {
+                  "type": "application",
+                  "subtype": "pdf",
+                  "parameters": {},
+                  "qualityValue": 1.0,
+                  "wildcardType": false,
+                  "wildcardSubtype": false,
+                  "charset": null,
+                  "concrete": true
+                },
+                "action_url": "https://hero/connectors/concur/api/expense/report/A77D016732974B5F8E23/attachment",
+                "action_type": "GET"
               }
             ]
           },

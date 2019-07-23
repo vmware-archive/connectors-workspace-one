@@ -8,28 +8,35 @@ package com.vmware.connectors.concur;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Flux;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.springframework.http.HttpHeaders.ACCEPT;
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_XML;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
@@ -37,6 +44,11 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
 
     static final String CALLER_SERVICE_CREDS = "OAuth service-creds-from-http-request";
     static final String CONFIG_SERVICE_CREDS = "OAuth service-creds-from-config";
+
+    static final String BEARER_CALLER_SERVICE_CREDS = "service-creds-from-http-request";
+
+    @Value("classpath:com/vmware/connectors/concur/download.pdf")
+    private Resource attachment;
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -125,6 +137,20 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
         );
     }
 
+    void fetchAttachment(String serviceCredential) throws IOException, URISyntaxException, InterruptedException {
+        byte[] body = webClient.get()
+                .uri("/api/expense/report/{id}/attachment", "1D3BD2E14D144508B05F")
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(X_AUTH_HEADER, serviceCredential)
+                .headers(ControllerTestsBase::headers)
+                .exchange().expectStatus().isOk()
+                .expectBody(byte[].class).returnResult().getResponseBody();
+
+        byte[] expected = this.attachment.getInputStream().readAllBytes();
+        Assert.assertArrayEquals(expected, body);
+    }
+
     void mockActionRequests(String serviceCredential) throws Exception {
         mockReportsDigest(serviceCredential);
         mockReport1(serviceCredential);
@@ -146,6 +172,13 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andExpect(header(AUTHORIZATION, serviceCredential))
                 .andRespond(withSuccess(fromFile("/fake/report-3.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
+    }
+
+    void mockFetchAttachment(String serviceCredential) {
+        mockBackend.expect(requestTo("/file/t0030426uvdx/C720AECBB775A1D24B70DAF086760A9C5BA3ECDE4423886FAB4A72C717A584E3DA4B78A36E0F24651A84FC091F6E434DEAD2A464F8CF60EFFAB96F456DFD3188H9AAD83239F0E2B9D554093BEAF888BF4?id=1D3BD2E14D144508B05F&e=t0030426uvdx&t=AN&s=ConcurConnect"))
+                .andExpect(method(GET))
+                .andExpect(header(AUTHORIZATION, serviceCredential))
+                .andRespond(withSuccess(attachment, APPLICATION_PDF));
     }
 
     void mockEmptyReportsDigest(String expectedServiceCredential) throws Exception {
@@ -173,7 +206,11 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andExpect(header(AUTHORIZATION, serviceCredential))
-                .andRespond(withSuccess(fromFile("/fake/report-1.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
+                .andRespond(withSuccess(
+                                fromFile("/fake/report-1.json")
+                                .replaceAll("\\$\\{concur_host\\}", mockBackend.url("")
+                        )
+                        , APPLICATION_JSON));
     }
 
     void mockUserDetailReport(String serviceCredential) throws Exception {

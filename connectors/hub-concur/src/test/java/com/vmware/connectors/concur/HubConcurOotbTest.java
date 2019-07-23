@@ -78,4 +78,11 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
                 .expectStatus().isNotFound();
     }
 
+    @Test
+    void testFetchAttachment() throws Exception {
+        mockReport1("Bearer " + BEARER_CALLER_SERVICE_CREDS);
+        mockFetchAttachment("Bearer " + BEARER_CALLER_SERVICE_CREDS);
+
+        fetchAttachment(BEARER_CALLER_SERVICE_CREDS);
+    }
 }
