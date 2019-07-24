@@ -33,7 +33,7 @@
         },
         "context_id": {
           "env": "CONTEXT_ID",
-          "mandatory": false
+          "required": false
         }
       },
       "endpoint": {
@@ -44,15 +44,15 @@
       "fields": {
         "type": {
           "env": "TASK_TYPE",
-          "mandatory": false
+          "required": false
         },
         "number": {
           "env": "TASK_NUMBER",
-          "mandatory": false
+          "required": false
         },
-        "contextId": {
+        "context_id": {
           "env": "CONTEXT_ID",
-          "mandatory": false
+          "required": false
         }
       },
       "endpoint": {
@@ -61,9 +61,9 @@
     },
     "cart": {
       "fields": {
-        "contextId": {
+        "context_id": {
           "env": "CONTEXT_ID",
-          "mandatory": false
+          "required": false
         }
       },
       "endpoint": {
@@ -72,7 +72,7 @@
     }
   },
   "actions": {
-    "createTask": {
+    "create_task": {
       "url": {
         "href": "${CONNECTOR_HOST}/api/v1/task/create"
       },
