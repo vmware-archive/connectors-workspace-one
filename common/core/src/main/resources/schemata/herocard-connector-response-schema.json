@@ -82,8 +82,8 @@
         "content_length":   {"type": "integer"},
         "action_url":       {"type": "string"},
         "action_type":      {"type": "string"},
-        "created_at":       {"type": "string"},
-        "updated_at":       {"type": "string"}
+        "created_at":       {"type": "string", "format": "date-time"},
+        "updated_at":       {"type": "string", "format": "date-time"}
       }
     },
 
