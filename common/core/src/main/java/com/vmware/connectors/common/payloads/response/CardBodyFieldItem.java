@@ -12,6 +12,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Optional;
 
 /**
  * Represents an item inside CardBodyField to display a separate section in the hub notification.
@@ -49,6 +51,12 @@ public class CardBodyFieldItem {
 
     @JsonProperty("action_type")
     private HttpMethod actionType;
+
+    @JsonProperty("created_at")
+    private Date createdAt;
+
+    @JsonProperty("updated_at")
+    private Date updatedAt;
 
     // Use builder class to instantiate the object.
     private CardBodyFieldItem() {
@@ -145,6 +153,24 @@ public class CardBodyFieldItem {
      */
     public HttpMethod getActionType() {
         return actionType;
+    }
+
+    /**
+     * Get the card body field item created at.
+     *
+     * @return Created At.
+     */
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    /**
+     * Get the card body field item updated at.
+     *
+     * @return Updated At.
+     */
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
     public static class Builder {
@@ -262,6 +288,34 @@ public class CardBodyFieldItem {
         }
 
         /**
+         * Set the card body field item created_at.
+         *
+         * @param createdAt the CardBodyFieldItem's created at.
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setCreatedAt(Date createdAt) {
+            item.createdAt = Optional.ofNullable(createdAt)
+                    .map(Date::getTime)
+                    .map(Date::new)
+                    .orElse(null);
+            return this;
+        }
+
+        /**
+         * Set the card body field item updated_at.
+         *
+         * @param updatedAt the CardBodyFieldItem's updated at.
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setUpdatedAt(Date updatedAt) {
+            item.updatedAt = Optional.ofNullable(updatedAt)
+                    .map(Date::getTime)
+                    .map(Date::new)
+                    .orElse(null);
+            return this;
+        }
+
+        /**
          * Set the card body field item action type.
          *
          * @param actionType the CardBodyFieldItem's action type.
@@ -292,8 +346,10 @@ public class CardBodyFieldItem {
     }
 
     /**
-     * Note: Hash calculation does not include attachment_url since it will keep changing for
-     * some service providers like Concur for the same attachment.
+     * Note: Hash calculation does not include the below fields
+     * 1. attachment_url - since it will keep changing for some service providers like Concur for the same attachment.
+     * 2. created_at - since timestamp fields are not reliable for hash calculation.
+     * 3. updated_at - since timestamp fields are not reliable for hash calculation.
      */
     public String hash() {
         return HashUtil.hash(
