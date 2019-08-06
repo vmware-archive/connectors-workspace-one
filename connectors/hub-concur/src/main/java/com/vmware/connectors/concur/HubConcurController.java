@@ -107,6 +107,7 @@ public class HubConcurController {
     }
 
     private String getAuthHeader(final String connectorAuth) {
+        // TODO: APF-2324 - Modify this logic to extract the password grant credentials from service account creds.
         if (StringUtils.isBlank(this.serviceAccountAuthHeader)) {
             return connectorAuth;
         } else {
@@ -441,7 +442,7 @@ public class HubConcurController {
     ) {
         final String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, reportId={}", baseUrl, userEmail, reportId);
-        final String connectorAuthWithBearer = "Bearer " + connectorAuth;
+        final String connectorAuthWithBearer = getAuthHeader("Bearer " + connectorAuth);
 
         return fetchLoginIdFromUserEmail(userEmail, baseUrl, connectorAuthWithBearer)
                 .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, connectorAuthWithBearer))
