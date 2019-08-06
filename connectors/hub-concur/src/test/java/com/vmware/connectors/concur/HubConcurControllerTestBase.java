@@ -14,21 +14,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
-import reactor.core.publisher.Flux;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.channels.WritableByteChannel;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -45,7 +34,7 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     static final String CALLER_SERVICE_CREDS = "OAuth service-creds-from-http-request";
     static final String CONFIG_SERVICE_CREDS = "OAuth service-creds-from-config";
 
-    static final String BEARER_CALLER_SERVICE_CREDS = "service-creds-from-http-request";
+    static final String SERVICE_CREDS = "service-creds-from-http-request";
 
     @Value("classpath:com/vmware/connectors/concur/download.pdf")
     private Resource attachment;
@@ -137,13 +126,8 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
         );
     }
 
-    void fetchAttachment(String serviceCredential) throws IOException, URISyntaxException, InterruptedException {
-        byte[] body = webClient.get()
-                .uri("/api/expense/report/{id}/attachment", "1D3BD2E14D144508B05F")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .header(X_AUTH_HEADER, serviceCredential)
-                .headers(ControllerTestsBase::headers)
+    void fetchAttachment(String serviceCredential, String attachmentId) throws IOException {
+        byte[] body = getAttachment(serviceCredential, attachmentId)
                 .exchange().expectStatus().isOk()
                 .expectBody(byte[].class).returnResult().getResponseBody();
 
@@ -151,14 +135,28 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
         Assert.assertArrayEquals(expected, body);
     }
 
+    void fetchAttachmentForInvalidDetails(String serviceCredential, String attachmentId) {
+        getAttachment(serviceCredential, attachmentId)
+                .exchange().expectStatus().isNotFound();
+    }
+
+    private WebTestClient.RequestHeadersSpec<?> getAttachment(String serviceCredential, String attachmentId) {
+        return webClient.get()
+                .uri("/api/expense/report/{id}/attachment", attachmentId)
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(X_AUTH_HEADER, serviceCredential)
+                .headers(ControllerTestsBase::headers);
+    }
+
     void mockActionRequests(String serviceCredential) throws Exception {
-        mockReportsDigest(serviceCredential);
+        mockUserReportsDigest(serviceCredential);
         mockReport1(serviceCredential);
         mockReport1Action();
     }
 
     void mockConcurRequests(String serviceCredential) throws Exception {
-        mockReportsDigest(serviceCredential);
+        mockUserReportsDigest(serviceCredential);
         mockReport1(serviceCredential);
 
         mockBackend.expect(requestTo("/api/expense/expensereport/v2.0/report/683105624FD74A1B9C13"))
@@ -182,7 +180,7 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     }
 
     void mockEmptyReportsDigest(String expectedServiceCredential) throws Exception {
-        mockUserDetailReport(expectedServiceCredential);
+        mockUserDetailReport(expectedServiceCredential, "/fake/user-details.json");
 
         mockBackend.expect(requestTo("/api/v3.0/expense/reportdigests?approverLoginID=admin%40acme.com&limit=50&user=all"))
                 .andExpect(method(GET))
@@ -191,10 +189,14 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .andRespond(withSuccess(fromFile("/fake/empty-report-digest.json"), APPLICATION_JSON));
     }
 
-    void mockReportsDigest(String serviceCredential) throws Exception {
-        mockUserDetailReport(serviceCredential);
+    void mockUserReportsDigest(String serviceCredential) throws Exception {
+        mockUserDetailReport(serviceCredential, "/fake/user-details.json");
 
-        mockBackend.expect(requestTo("/api/v3.0/expense/reportdigests?approverLoginID=admin%40acme.com&limit=50&user=all"))
+        mockReportsDigest(serviceCredential, "admin%40acme.com");
+    }
+
+    void mockReportsDigest(String serviceCredential, String loginID) throws IOException {
+        mockBackend.expect(requestTo(String.format("/api/v3.0/expense/reportdigests?approverLoginID=%s&limit=50&user=all", loginID)))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andExpect(header(AUTHORIZATION, serviceCredential))
@@ -213,12 +215,12 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                         , APPLICATION_JSON));
     }
 
-    void mockUserDetailReport(String serviceCredential) throws Exception {
+    void mockUserDetailReport(String serviceCredential, String userDetails) throws Exception {
         mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin%40acme.com"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andExpect(header(AUTHORIZATION, serviceCredential))
-                .andRespond(withSuccess(fromFile("/fake/user-details.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
+                .andRespond(withSuccess(fromFile(userDetails).replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
     void mockReport1Action() {

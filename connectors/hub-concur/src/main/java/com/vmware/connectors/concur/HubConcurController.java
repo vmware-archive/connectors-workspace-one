@@ -34,7 +34,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.*;
@@ -213,33 +213,25 @@ public class HubConcurController {
                         formatCurrency(report.getReportTotal(), locale, report.getCurrencyCode())));
 
         if (!CollectionUtils.isEmpty(report.getExpenseEntriesList())) {
-            buildExpenseItemsList(report, locale, routingPrefix).forEach(cardBodyBuilder::addField);
+            final List<CardBodyField.Builder> bodyFields = buildExpenseItems(report, locale);
+            bodyFields.iterator().next().addItem(buildAttachmentURL(routingPrefix, report.getReportID(), locale));
+
+            bodyFields.forEach(builder -> cardBodyBuilder.addField(builder.build()));
         }
         return cardBodyBuilder.build();
     }
 
-    private List<CardBodyField> buildExpenseItemsList(final ExpenseReportResponse report,
-                                                      final Locale locale,
-                                                      final String routingPrefix) {
-        AtomicBoolean isURLAdded = new AtomicBoolean(false);
-
-        List<CardBodyField> cardBodyFields = new ArrayList<>();
-        for (ExpenseEntriesVO entry: report.getExpenseEntriesList()) {
-            CardBodyField cardBodyField = new CardBodyField.Builder()
-                    .setType(CardBodyFieldType.SECTION)
-                    .setTitle(cardTextAccessor.getMessage("hub.concur.business.purpose", locale, entry.getBusinessPurpose()))
-                    .addItems(buildItems(locale, entry, isURLAdded, routingPrefix, report.getReportID()))
-                    .build();
-            cardBodyFields.add(cardBodyField);
-        }
-        return cardBodyFields;
+    private List<CardBodyField.Builder> buildExpenseItems(final ExpenseReportResponse report, final Locale locale) {
+        return report.getExpenseEntriesList()
+                .stream()
+                .map(entry -> new CardBodyField.Builder()
+                        .setType(CardBodyFieldType.SECTION)
+                        .setTitle(cardTextAccessor.getMessage("hub.concur.business.purpose", locale, entry.getBusinessPurpose()))
+                        .addItems(buildItems(locale, entry)))
+                .collect(Collectors.toList());
     }
 
-    private List<CardBodyFieldItem> buildItems(final Locale locale,
-                                               final ExpenseEntriesVO expenseEntry,
-                                               final AtomicBoolean isURLAdded,
-                                               final String routingPrefix,
-                                               final String reportID) {
+    private List<CardBodyFieldItem> buildItems(final Locale locale, final ExpenseEntriesVO expenseEntry) {
         final List<CardBodyFieldItem> items = new ArrayList<>();
         items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.expense.type.name", locale), expenseEntry.getExpenseTypeName()));
         items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.transaction.date", locale),  expenseEntry.getTransactionDate()));
@@ -254,9 +246,6 @@ public class HubConcurController {
             items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.attendees", locale), attendeesList.toString()));
         }
 
-        if (!isURLAdded.get()) {
-            items.add(buildAttachmentURL(routingPrefix, reportID, locale, isURLAdded));
-        }
         return items;
     }
 
@@ -321,9 +310,7 @@ public class HubConcurController {
 
     private CardBodyFieldItem buildAttachmentURL(final String routingPrefix,
                                                  final String reportID,
-                                                 final Locale locale,
-                                                 final AtomicBoolean isURLAdded) {
-        isURLAdded.set(true);
+                                                 final Locale locale) {
 
         return new CardBodyFieldItem.Builder()
                 .setTitle(cardTextAccessor.getMessage("hub.concur.report.image.url", locale))
@@ -409,12 +396,12 @@ public class HubConcurController {
     private Mono<?> validateUser(
             String baseUrl,
             String reportId,
-            String userEmail,
+            String loginID,
             String connectorAuth
     ) {
-        return fetchAllApprovals(baseUrl, userEmail, connectorAuth)
+        return fetchAllApprovals(baseUrl, loginID, connectorAuth)
                 .filter(expense -> expense.getId().equals(reportId))
-                .filter(expense -> expense.getApproverLoginID().equals(userEmail))
+                .filter(expense -> expense.getApproverLoginID().equals(loginID))
                 .next()
                 .switchIfEmpty(Mono.error(new UserException("Not Found"))); // CustomException
     }
@@ -454,15 +441,17 @@ public class HubConcurController {
     ) {
         final String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, reportId={}", baseUrl, userEmail, reportId);
+        final String connectorAuthWithBearer = "Bearer " + connectorAuth;
 
-        return fetchRequestData(baseUrl, reportId, "Bearer " + connectorAuth)
-                .map(ExpenseReportResponse::getReportImageURL)
-                .flatMapMany(reportImageUrl -> getAttachment(reportImageUrl, connectorAuth));
+        return fetchLoginIdFromUserEmail(userEmail, baseUrl, connectorAuthWithBearer)
+                .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, connectorAuthWithBearer))
+                .flatMap(ignore -> fetchRequestData(baseUrl, reportId, connectorAuthWithBearer))
+                .flatMapMany(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth));
     }
 
-    private Flux<DataBuffer> getAttachment(String reportImageUrl, String connectorAuth) {
+    private Flux<DataBuffer> getAttachment(ExpenseReportResponse response, String connectorAuth) {
         return this.rest.get()
-                .uri(reportImageUrl)
+                .uri(response.getReportImageURL())
                 .header(AUTHORIZATION, "Bearer " + connectorAuth)
                 .retrieve()
                 .bodyToFlux(DataBuffer.class);

@@ -79,10 +79,29 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
     }
 
     @Test
-    void testFetchAttachment() throws Exception {
-        mockReport1("Bearer " + BEARER_CALLER_SERVICE_CREDS);
-        mockFetchAttachment("Bearer " + BEARER_CALLER_SERVICE_CREDS);
+    void fetchAttachmentForValidUser() throws Exception {
+        mockReport1("Bearer " + SERVICE_CREDS);
+        mockFetchAttachment("Bearer " + SERVICE_CREDS);
+        mockUserReportsDigest("Bearer " + SERVICE_CREDS);
 
-        fetchAttachment(BEARER_CALLER_SERVICE_CREDS);
+        fetchAttachment(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+    }
+
+    @Test
+    void fetchAttachmentForInvalidUserLoginID() throws Exception {
+        // Invalid user tries to fetch an expense report attachment.
+        mockUserDetailReport("Bearer " + SERVICE_CREDS, "/fake/invalid-user-details.json");
+        mockReportsDigest("Bearer " + SERVICE_CREDS, "invalid%40acme.com");
+
+        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+    }
+
+    @Test
+    void fetchAttachmentForInvalidAttachmentID() throws Exception {
+        // Valid user tries to fetch an expense report attachment which does not belong to them.
+        mockUserDetailReport("Bearer " + SERVICE_CREDS, "/fake/user-details.json");
+        mockReportsDigest("Bearer " + SERVICE_CREDS, "admin%40acme.com");
+
+        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "invalid-attachment-id");
     }
 }
