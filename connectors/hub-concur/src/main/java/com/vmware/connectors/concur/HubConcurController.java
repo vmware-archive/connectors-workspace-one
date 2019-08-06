@@ -442,18 +442,18 @@ public class HubConcurController {
     ) {
         final String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, reportId={}", baseUrl, userEmail, reportId);
-        final String connectorAuthWithBearer = getAuthHeader("Bearer " + connectorAuth);
+        final String authHeader = getAuthHeader(connectorAuth);
 
-        return fetchLoginIdFromUserEmail(userEmail, baseUrl, connectorAuthWithBearer)
-                .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, connectorAuthWithBearer))
-                .flatMap(ignore -> fetchRequestData(baseUrl, reportId, connectorAuthWithBearer))
+        return fetchLoginIdFromUserEmail(userEmail, baseUrl, authHeader)
+                .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, authHeader))
+                .flatMap(ignore -> fetchRequestData(baseUrl, reportId, authHeader))
                 .flatMapMany(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth));
     }
 
     private Flux<DataBuffer> getAttachment(ExpenseReportResponse response, String connectorAuth) {
         return this.rest.get()
                 .uri(response.getReportImageURL())
-                .header(AUTHORIZATION, "Bearer " + connectorAuth)
+                .header(AUTHORIZATION, connectorAuth)
                 .retrieve()
                 .bodyToFlux(DataBuffer.class);
     }
