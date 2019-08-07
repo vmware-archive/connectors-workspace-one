@@ -38,6 +38,9 @@
       },
       "endpoint": {
         "href": "${CONNECTOR_HOST}/api/v1/catalog-items"
+      },
+      "metadata": {
+        "workflow_id": "ViewItem"
       }
     },
     "task": {
@@ -57,6 +60,9 @@
       },
       "endpoint": {
         "href": "${CONNECTOR_HOST}/api/v1/tasks"
+      },
+      "metadata": {
+        "workflow_id": "ViewTask"
       }
     },
     "cart": {
@@ -68,6 +74,9 @@
       },
       "endpoint": {
         "href": "${CONNECTOR_HOST}/api/v1/cart"
+      },
+      "metadata": {
+        "workflow_id": "ViewCart"
       }
     }
   },
@@ -87,7 +96,10 @@
       },
       "label": "Create Task",
       "type": "POST",
-      "action_key": "USER_INPUT"
+      "action_key": "USER_INPUT",
+      "metadata": {
+        "workflow_id": "CreateTask"
+      }
     }
   }
 }

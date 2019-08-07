@@ -4,10 +4,12 @@
       "id": "00000000-0000-0000-0000-000000000000",
       "title": "ServiceNow Shopping Cart",
       "description": "Things in your shopping cart.",
+      "workflow_id": "ViewCart",
       "actions": [
         {
           "title": "Empty this cart",
           "description": "Empty everything in the cart.",
+          "workflow_id": "EmptyCart",
           "type": "DELETE",
           "url": {
             "href": "https://mf/connectors/abc123/cart/api/v1/cart"
@@ -18,6 +20,7 @@
         {
           "title": "Checkout",
           "description": "Checkout your cart.",
+          "workflow_id": "Checkout",
           "type": "POST",
           "url": {
             "href": "https://mf/connectors/abc123/cart/api/v1/checkout"
@@ -31,10 +34,12 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "title": "Development Laptop (PC)",
           "description": "Dell XPS 13",
+          "workflow_id": "ViewCart",
           "actions": [
             {
               "title": "Remove from cart",
               "description": "Remove this item from the cart.",
+              "workflow_id": "RemoveItem",
               "type": "DELETE",
               "url": {
                 "href": "https://mf/connectors/abc123/cart/api/v1/cart/cd5fad02db113300ea92eb41ca961965"
@@ -48,10 +53,12 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "title": "Apple MacBook Pro 15\"",
           "description": "Apple MacBook Pro",
+          "workflow_id": "ViewCart",
           "actions": [
             {
               "title": "Remove from cart",
               "description": "Remove this item from the cart.",
+              "workflow_id": "RemoveItem",
               "type": "DELETE",
               "url": {
                 "href": "https://mf/connectors/abc123/cart/api/v1/cart/3c7f6d42db113300ea92eb41ca9619f1"
@@ -65,10 +72,12 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "title": "Apple MacBook Pro 15\"",
           "description": "Apple MacBook Pro",
+          "workflow_id": "ViewCart",
           "actions": [
             {
               "title": "Remove from cart",
               "description": "Remove this item from the cart.",
+              "workflow_id": "RemoveItem",
               "type": "DELETE",
               "url": {
                 "href": "https://mf/connectors/abc123/cart/api/v1/cart/26a54e4adb513300ea92eb41ca9619cd"
