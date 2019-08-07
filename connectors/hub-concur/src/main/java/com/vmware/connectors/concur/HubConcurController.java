@@ -318,7 +318,7 @@ public class HubConcurController {
                 .setActionType(HttpMethod.GET)
                 .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, reportID))
                 .setType(CardBodyFieldType.ATTACHMENT_URL)
-                .setContentType(APPLICATION_PDF)
+                .setContentType(APPLICATION_PDF_VALUE)
                 .build();
     }
 
