@@ -15,29 +15,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.*;
 
 @RestController
 public class HubCoupaController {
@@ -49,6 +51,8 @@ public class HubCoupaController {
     private static final String X_BASE_URL_HEADER = "X-Connector-Base-Url";
 
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
+
+    private static final String ATTACHMENT_URL = "/api/users/{user_id}/attachments/{attachment_id}";
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
@@ -123,15 +127,19 @@ public class HubCoupaController {
     ) {
         logger.debug("Getting user id of {}", userEmail);
 
-        return rest.get()
-                .uri(baseUrl + "/api/users?email={userEmail}", userEmail)
-                .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
-                .retrieve()
-                .bodyToFlux(UserDetails.class)
+        return getUserDetails(userEmail, baseUrl, connectorAuth)
                 .flatMap(u -> getApprovalDetails(baseUrl, u.getId(), userEmail, connectorAuth))
                 .map(req -> makeCards(routingPrefix, locale, req))
                 .reduce(new Cards(), this::addCard);
+    }
+
+    private Flux<UserDetails> getUserDetails(String userEmail, String baseUrl, String connectorAuth) {
+        return rest.get()
+                .uri(baseUrl + "/api/users?email={userEmail}", userEmail)
+                .accept(APPLICATION_JSON)
+                .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
+                .retrieve()
+                .bodyToFlux(UserDetails.class);
     }
 
     private Flux<RequisitionDetails> getApprovalDetails(
@@ -144,7 +152,7 @@ public class HubCoupaController {
 
         return rest.get()
                 .uri(baseUrl + "/api/approvals?approver_id={userId}&status=pending_approval", userId)
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
                 .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
                 .retrieve()
                 .bodyToFlux(ApprovalDetails.class)
@@ -161,7 +169,7 @@ public class HubCoupaController {
 
         return rest.get()
                 .uri(baseUrl + "/api/requisitions?id={approvableId}&status=pending_approval", approvableId)
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
                 .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
                 .retrieve()
                 .bodyToFlux(RequisitionDetails.class)
@@ -377,7 +385,7 @@ public class HubCoupaController {
         return rest.put()
                 .uri(baseUrl + "/api/approvals/{id}/{action}?reason={reason}", id, action, reason)
                 .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
                 .onErrorMap(WebClientResponseException.class, this::handleClientError);
@@ -418,4 +426,40 @@ public class HubCoupaController {
                 .map(ResponseEntity::ok);
     }
 
+    @GetMapping(
+            path = "/api/user/{user_id}/attachment/{attachment_id}",
+            produces = APPLICATION_OCTET_STREAM_VALUE
+    )
+    public Flux<DataBuffer> fetchAttachment(@RequestHeader(AUTHORIZATION) final String authorization,
+                                            @RequestHeader(CONNECTOR_AUTH) final String connectorAuth,
+                                            @RequestHeader(X_BASE_URL_HEADER) final String baseUrl,
+                                            @PathVariable("user_id") final String userId,
+                                            @PathVariable("attachment_id") final String attachmentId) {
+        final String userEmail = AuthUtil.extractUserEmail(authorization);
+        logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, userId={}, attachmentId={}", baseUrl, userEmail, userEmail, attachmentId);
+
+        validateEmailAddress(userEmail);
+
+        final URI attachmentUri = getAttachmentURI(baseUrl, userId, attachmentId);
+        return this.rest.get()
+                .uri(attachmentUri)
+                .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
+                .header(ACCEPT, APPLICATION_JSON_VALUE)
+                .retrieve()
+                .bodyToFlux(DataBuffer.class);
+    }
+
+    private URI getAttachmentURI(final String baseUrl,
+                                 final String userId,
+                                 final String attachmentId) {
+        return UriComponentsBuilder.fromUriString(baseUrl)
+                .path(ATTACHMENT_URL)
+                .buildAndExpand(
+                        Map.of(
+                                "user_id", userId,
+                                "attachment_id", attachmentId
+                        )
+                )
+                .toUri();
+    }
 }
