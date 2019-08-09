@@ -214,21 +214,23 @@ public class HubConcurController {
                         formatCurrency(report.getReportTotal(), locale, report.getCurrencyCode())));
 
         if (!CollectionUtils.isEmpty(report.getExpenseEntriesList())) {
-            final List<CardBodyField.Builder> bodyFields = buildExpenseItems(report, locale);
-            bodyFields.iterator().next().addItem(buildAttachmentURL(routingPrefix, report.getReportID(), locale));
+            buildExpenseItems(report, locale).forEach(cardBodyBuilder::addField);
 
-            bodyFields.forEach(builder -> cardBodyBuilder.addField(builder.build()));
+            // Add expense report attachment URL.
+            cardBodyBuilder.addField(buildAttachmentURL(routingPrefix, report.getReportID(), locale));
         }
         return cardBodyBuilder.build();
     }
 
-    private List<CardBodyField.Builder> buildExpenseItems(final ExpenseReportResponse report, final Locale locale) {
+    private List<CardBodyField> buildExpenseItems(final ExpenseReportResponse report, final Locale locale) {
         return report.getExpenseEntriesList()
                 .stream()
                 .map(entry -> new CardBodyField.Builder()
                         .setType(CardBodyFieldType.SECTION)
                         .setTitle(cardTextAccessor.getMessage("hub.concur.business.purpose", locale, entry.getBusinessPurpose()))
-                        .addItems(buildItems(locale, entry)))
+                        .addItems(buildItems(locale, entry))
+                        .build()
+                )
                 .collect(Collectors.toList());
     }
 
@@ -309,17 +311,22 @@ public class HubConcurController {
                 .build();
     }
 
-    private CardBodyFieldItem buildAttachmentURL(final String routingPrefix,
-                                                 final String reportID,
-                                                 final Locale locale) {
+    private CardBodyField buildAttachmentURL(final String routingPrefix,
+                                             final String reportID,
+                                             final Locale locale) {
+        CardBodyField.Builder builder = new CardBodyField.Builder()
+                .setTitle(cardTextAccessor.getMessage("hub.concur.attachment", locale))
+                .setType(CardBodyFieldType.SECTION)
+                .addItem(new CardBodyFieldItem.Builder()
+                        .setAttachmentName(reportID)
+                        .setTitle(cardTextAccessor.getMessage("hub.concur.report.image.url", locale))
+                        .setActionType(HttpMethod.GET)
+                        .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, reportID))
+                        .setType(CardBodyFieldType.ATTACHMENT_URL)
+                        .setContentType(APPLICATION_PDF_VALUE)
+                        .build());
 
-        return new CardBodyFieldItem.Builder()
-                .setTitle(cardTextAccessor.getMessage("hub.concur.report.image.url", locale))
-                .setActionType(HttpMethod.GET)
-                .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, reportID))
-                .setType(CardBodyFieldType.ATTACHMENT_URL)
-                .setContentType(APPLICATION_PDF_VALUE)
-                .build();
+        return builder.build();
     }
 
     private Cards addCard(
