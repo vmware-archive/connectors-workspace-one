@@ -10,6 +10,7 @@ import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.web.UserException;
 import com.vmware.connectors.concur.domain.*;
+import com.vmware.connectors.concur.exception.AttachmentURLNotFoundException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +36,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -217,7 +220,9 @@ public class HubConcurController {
             buildExpenseItems(report, locale).forEach(cardBodyBuilder::addField);
 
             // Add expense report attachment URL.
-            cardBodyBuilder.addField(buildAttachmentURL(routingPrefix, report.getReportID(), locale));
+            if (StringUtils.isNotBlank(report.getReportImageURL())) {
+                cardBodyBuilder.addField(buildAttachmentURL(routingPrefix, report.getReportID(), locale));
+            }
         }
         return cardBodyBuilder.build();
     }
@@ -236,13 +241,14 @@ public class HubConcurController {
 
     private List<CardBodyFieldItem> buildItems(final Locale locale, final ExpenseEntriesVO expenseEntry) {
         final List<CardBodyFieldItem> items = new ArrayList<>();
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.expense.type.name", locale), expenseEntry.getExpenseTypeName()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.transaction.date", locale),  expenseEntry.getTransactionDate()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.vendor.name", locale), expenseEntry.getVendorDescription()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.city.of.purchase", locale), expenseEntry.getLocationName()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.payment.type", locale), expenseEntry.getPaymentTypeCode()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.amount", locale),
-                formatCurrency(expenseEntry.getPostedAmount(), locale, expenseEntry.getTransactionCurrencyName())));
+
+        addItem("hub.concur.expense.type.name", expenseEntry.getExpenseTypeName(), locale, items);
+        addItem("hub.concur.transaction.date", expenseEntry.getTransactionDate(), locale, items);
+        addItem("hub.concur.vendor.name", expenseEntry.getVendorDescription(), locale, items);
+        addItem("hub.concur.city.of.purchase", expenseEntry.getLocationName(), locale, items);
+        addItem("hub.concur.payment.type", expenseEntry.getPaymentTypeCode(), locale, items);
+        addItem("hub.concur.amount", formatCurrency(expenseEntry.getPostedAmount(),
+                locale, expenseEntry.getTransactionCurrencyName()), locale, items);
 
         final List<String> attendeesList = expenseEntry.getAttendeesList();
         if (!CollectionUtils.isEmpty(attendeesList)) {
@@ -250,6 +256,17 @@ public class HubConcurController {
         }
 
         return items;
+    }
+
+    private void addItem(final String title,
+                         final String description,
+                         final Locale locale,
+                         final List<CardBodyFieldItem> items) {
+        if (StringUtils.isBlank(description)) {
+            return;
+        }
+
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage(title, locale), description));
     }
 
     private CardBodyFieldItem makeCardBodyFieldItem(final String title, final String description) {
@@ -265,6 +282,10 @@ public class HubConcurController {
             String labelKey,
             String value
     ) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+
         return new CardBodyField.Builder()
                 .setType(CardBodyFieldType.GENERAL)
                 .setTitle(cardTextAccessor.getMessage(labelKey, locale))
@@ -457,11 +478,22 @@ public class HubConcurController {
                 .flatMapMany(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth));
     }
 
-    private Flux<DataBuffer> getAttachment(ExpenseReportResponse response, String connectorAuth) {
+    private Flux<DataBuffer> getAttachment(ExpenseReportResponse report, String connectorAuth) {
+        if (StringUtils.isBlank(report.getReportImageURL())) {
+            throw new AttachmentURLNotFoundException("Concur expense report with ID " + report.getReportID() + " does not have any attachments.");
+        }
+
         return this.rest.get()
-                .uri(response.getReportImageURL())
+                .uri(report.getReportImageURL())
                 .header(AUTHORIZATION, connectorAuth)
                 .retrieve()
                 .bodyToFlux(DataBuffer.class);
+    }
+
+    @ExceptionHandler(AttachmentURLNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public Map<String, String> handleAttachmentURLNotFoundException(AttachmentURLNotFoundException e) {
+        return Map.of("message", e.getMessage());
     }
 }
