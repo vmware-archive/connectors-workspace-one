@@ -104,4 +104,12 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
 
         fetchAttachmentForInvalidDetails(SERVICE_CREDS, "invalid-attachment-id");
     }
+
+    @Test
+    void testAttachmentUrlNotFound() throws Exception {
+        mockUserReportsDigest(SERVICE_CREDS);
+        mockReportWithEmptyAttachmentURL(SERVICE_CREDS);
+
+        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+    }
 }

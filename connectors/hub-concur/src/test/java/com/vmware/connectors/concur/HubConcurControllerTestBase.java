@@ -215,6 +215,14 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                         , APPLICATION_JSON));
     }
 
+    void mockReportWithEmptyAttachmentURL(String serviceCredential) throws IOException {
+        mockBackend.expect(requestTo("/api/expense/expensereport/v2.0/report/1D3BD2E14D144508B05F"))
+                .andExpect(method(GET))
+                .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION, serviceCredential))
+                .andRespond(withSuccess(fromFile("/fake/report-with-empty-attachment-url.json"), APPLICATION_JSON));
+    }
+
     void mockUserDetailReport(String serviceCredential, String userDetails) throws Exception {
         mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin%40acme.com"))
                 .andExpect(method(GET))
