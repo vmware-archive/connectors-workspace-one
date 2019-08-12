@@ -10,6 +10,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.test.context.TestPropertySource;
 
+import java.io.IOException;
+
 /**
  * Test cases with empty service api key from configuration.
  */
@@ -78,4 +80,18 @@ class HubCoupaOotbTest extends HubCoupaControllerTestBase {
                 .expectStatus().isNotFound();
     }
 
+    @Test
+    void testFetchAttachmentForValidDetails() throws Exception {
+        mockFetchAttachment(CALLER_SERVICE_CREDS);
+        mockRequisitionDetails(CALLER_SERVICE_CREDS);
+
+        fetchAttachment(CALLER_SERVICE_CREDS);
+    }
+
+    @Test
+    void testFetchAttachmentForInvalidDetails() throws Exception {
+        mockOtherRequisitionDetails(CALLER_SERVICE_CREDS);
+
+        fetchAttachmentForInvalidDetails(CALLER_SERVICE_CREDS);
+    }
 }

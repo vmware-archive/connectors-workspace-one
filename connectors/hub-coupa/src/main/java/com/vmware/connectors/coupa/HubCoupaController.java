@@ -54,6 +54,8 @@ public class HubCoupaController {
 
     private static final String ATTACHMENT_URL = "/api/users/{user_id}/attachments/{attachment_id}";
 
+    private static final String UNAUTHORIZED_ATTACHMENT_ACCESS = "User with approvable ID: %s is trying to fetch an attachment with ID: %s which does not belong to them.";
+
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
     private final String apiKey;
@@ -440,7 +442,12 @@ public class HubCoupaController {
 
         validateEmailAddress(userEmail);
 
-        final URI attachmentUri = getAttachmentURI(baseUrl, userId, attachmentId);
+        return getRequisitionDetails(baseUrl, userId, userEmail, connectorAuth)
+                .switchIfEmpty(Mono.error(new UserException(String.format(UNAUTHORIZED_ATTACHMENT_ACCESS, userId, attachmentId))))
+                .flatMap(ignore -> getAttachment(connectorAuth, getAttachmentURI(baseUrl, userId, attachmentId)));
+    }
+
+    private Flux<DataBuffer> getAttachment(String connectorAuth, URI attachmentUri) {
         return this.rest.get()
                 .uri(attachmentUri)
                 .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
