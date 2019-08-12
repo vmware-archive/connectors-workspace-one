@@ -9,6 +9,7 @@ import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import okio.Buffer;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
@@ -18,7 +19,6 @@ import org.springframework.test.web.client.*;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.Charset;
 
 public class MockWebServerWrapper {
     private final MockWebServer mockWebServer;
@@ -82,7 +82,9 @@ public class MockWebServerWrapper {
         mockResponse.setResponseCode(clientResponse.getStatusCode().value());
         clientResponse.getHeaders().forEach((name, values) ->
                 values.forEach(value -> mockResponse.addHeader(name, value)));
-        mockResponse.setBody(IOUtils.toString(clientResponse.getBody(), Charset.defaultCharset()));
+        Buffer buffer = new Buffer();
+        IOUtils.copy(clientResponse.getBody(), buffer.outputStream());
+        mockResponse.setBody(buffer);
         return mockResponse;
     }
 }

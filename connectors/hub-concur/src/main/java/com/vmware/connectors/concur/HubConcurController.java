@@ -17,13 +17,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.HtmlUtils;
 import reactor.core.publisher.Flux;
@@ -55,6 +53,8 @@ public class HubConcurController {
     private static final String REJECT = "Send Back to Employee";
 
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
+
+    private static final String ATTACHMENT_URL = "%sapi/expense/report/%s/attachment";
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
@@ -107,6 +107,7 @@ public class HubConcurController {
     }
 
     private String getAuthHeader(final String connectorAuth) {
+        // TODO: APF-2324 - Modify this logic to extract the password grant credentials from service account creds.
         if (StringUtils.isBlank(this.serviceAccountAuthHeader)) {
             return connectorAuth;
         } else {
@@ -191,7 +192,7 @@ public class HubConcurController {
         Card.Builder builder = new Card.Builder()
                 .setName("Concur")
                 .setHeader(cardTextAccessor.getMessage("hub.concur.header", locale, reportName))
-                .setBody(buildCard(locale, report))
+                .setBody(buildCard(locale, report, routingPrefix))
                 .setBackendId(report.getReportID())
                 .addAction(makeAction(routingPrefix, locale, reportId,
                         true, "hub.concur.approve", COMMENT_KEY, "hub.concur.approve.comment.label", "/approve"))
@@ -204,7 +205,8 @@ public class HubConcurController {
     }
 
     private CardBody buildCard(final Locale locale,
-                               final ExpenseReportResponse report) {
+                               final ExpenseReportResponse report,
+                               final String routingPrefix) {
         final CardBody.Builder cardBodyBuilder =  new CardBody.Builder()
                 .addField(makeGeneralField(locale, "hub.concur.report.name", report.getReportName()))
                 .addField(makeGeneralField(locale, "hub.concur.requester", report.getEmployeeName()))
@@ -212,12 +214,15 @@ public class HubConcurController {
                         formatCurrency(report.getReportTotal(), locale, report.getCurrencyCode())));
 
         if (!CollectionUtils.isEmpty(report.getExpenseEntriesList())) {
-            buildExpenseItemsList(report, locale).forEach(cardBodyBuilder::addField);
+            buildExpenseItems(report, locale).forEach(cardBodyBuilder::addField);
+
+            // Add expense report attachment URL.
+            cardBodyBuilder.addField(buildAttachmentURL(routingPrefix, report.getReportID(), locale));
         }
         return cardBodyBuilder.build();
     }
 
-    private List<CardBodyField> buildExpenseItemsList(final ExpenseReportResponse report, final Locale locale) {
+    private List<CardBodyField> buildExpenseItems(final ExpenseReportResponse report, final Locale locale) {
         return report.getExpenseEntriesList()
                 .stream()
                 .map(entry -> new CardBodyField.Builder()
@@ -229,7 +234,7 @@ public class HubConcurController {
                 .collect(Collectors.toList());
     }
 
-    private List<CardBodyFieldItem> buildItems(Locale locale, ExpenseEntriesVO expenseEntry) {
+    private List<CardBodyFieldItem> buildItems(final Locale locale, final ExpenseEntriesVO expenseEntry) {
         final List<CardBodyFieldItem> items = new ArrayList<>();
         items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.expense.type.name", locale), expenseEntry.getExpenseTypeName()));
         items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.transaction.date", locale),  expenseEntry.getTransactionDate()));
@@ -243,6 +248,7 @@ public class HubConcurController {
         if (!CollectionUtils.isEmpty(attendeesList)) {
             items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.concur.attendees", locale), attendeesList.toString()));
         }
+
         return items;
     }
 
@@ -303,6 +309,24 @@ public class HubConcurController {
                                 .build()
                 )
                 .build();
+    }
+
+    private CardBodyField buildAttachmentURL(final String routingPrefix,
+                                             final String reportID,
+                                             final Locale locale) {
+        CardBodyField.Builder builder = new CardBodyField.Builder()
+                .setTitle(cardTextAccessor.getMessage("hub.concur.attachment", locale))
+                .setType(CardBodyFieldType.SECTION)
+                .addItem(new CardBodyFieldItem.Builder()
+                        .setAttachmentName(reportID)
+                        .setTitle(cardTextAccessor.getMessage("hub.concur.report.image.url", locale))
+                        .setActionType(HttpMethod.GET)
+                        .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, reportID))
+                        .setType(CardBodyFieldType.ATTACHMENT_URL)
+                        .setContentType(APPLICATION_PDF_VALUE)
+                        .build());
+
+        return builder.build();
     }
 
     private Cards addCard(
@@ -380,12 +404,12 @@ public class HubConcurController {
     private Mono<?> validateUser(
             String baseUrl,
             String reportId,
-            String userEmail,
+            String loginID,
             String connectorAuth
     ) {
-        return fetchAllApprovals(baseUrl, userEmail, connectorAuth)
+        return fetchAllApprovals(baseUrl, loginID, connectorAuth)
                 .filter(expense -> expense.getId().equals(reportId))
-                .filter(expense -> expense.getApproverLoginID().equals(userEmail))
+                .filter(expense -> expense.getApproverLoginID().equals(loginID))
                 .next()
                 .switchIfEmpty(Mono.error(new UserException("Not Found"))); // CustomException
     }
@@ -413,4 +437,31 @@ public class HubConcurController {
                 .map(ResponseEntity::ok);
     }
 
+    @GetMapping(
+            path = "api/expense/report/{id}/attachment",
+            produces = APPLICATION_OCTET_STREAM_VALUE
+    )
+    public Flux<DataBuffer> fetchAttachment(
+            @RequestHeader(AUTHORIZATION) String authorization,
+            @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
+            @PathVariable("id") String reportId
+    ) {
+        final String userEmail = AuthUtil.extractUserEmail(authorization);
+        logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, reportId={}", baseUrl, userEmail, reportId);
+        final String authHeader = getAuthHeader(connectorAuth);
+
+        return fetchLoginIdFromUserEmail(userEmail, baseUrl, authHeader)
+                .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, authHeader))
+                .flatMap(ignore -> fetchRequestData(baseUrl, reportId, authHeader))
+                .flatMapMany(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth));
+    }
+
+    private Flux<DataBuffer> getAttachment(ExpenseReportResponse response, String connectorAuth) {
+        return this.rest.get()
+                .uri(response.getReportImageURL())
+                .header(AUTHORIZATION, connectorAuth)
+                .retrieve()
+                .bodyToFlux(DataBuffer.class);
+    }
 }

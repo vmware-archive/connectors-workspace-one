@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.connectors.common.utils.HashUtil;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -41,7 +40,7 @@ public class CardBodyFieldItem {
     private byte[] attachmentBody;
 
     @JsonProperty("content_type")
-    private MediaType contentType;
+    private String contentType;
 
     @JsonProperty("content_length")
     private Long contentLength;
@@ -124,7 +123,7 @@ public class CardBodyFieldItem {
      *
      * @return Attachment content type
      */
-    public MediaType getContentType() {
+    public String getContentType() {
         return contentType;
     }
 
@@ -260,7 +259,7 @@ public class CardBodyFieldItem {
          * @param contentType the CardBodyFieldItem's content type
          * @return this Builder instance, for method chaining
          */
-        public Builder setContentType(MediaType contentType) {
+        public Builder setContentType(String contentType) {
             item.contentType = contentType;
             return this;
         }
@@ -357,7 +356,7 @@ public class CardBodyFieldItem {
                 "title: ", this.title,
                 "description: ", this.description,
                 "attachmentName: ", this.attachmentName,
-                "contentType: ", this.contentType == null ? null : this.contentType.toString(),
+                "contentType: ", this.contentType,
                 "contentLength: ", this.contentLength,
                 "action_url: ", this.actionURL,
                 "action_type: ", this.actionType == null ? null : this.actionType.name()

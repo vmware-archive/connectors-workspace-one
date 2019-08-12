@@ -8,28 +8,24 @@ package com.vmware.connectors.concur;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.springframework.http.HttpHeaders.ACCEPT;
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_XML;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
@@ -37,6 +33,11 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
 
     static final String CALLER_SERVICE_CREDS = "OAuth service-creds-from-http-request";
     static final String CONFIG_SERVICE_CREDS = "OAuth service-creds-from-config";
+
+    static final String SERVICE_CREDS = "service-creds-from-http-request";
+
+    @Value("classpath:com/vmware/connectors/concur/download.pdf")
+    private Resource attachment;
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -125,14 +126,37 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
         );
     }
 
+    void fetchAttachment(String serviceCredential, String attachmentId) throws IOException {
+        byte[] body = getAttachment(serviceCredential, attachmentId)
+                .exchange().expectStatus().isOk()
+                .expectBody(byte[].class).returnResult().getResponseBody();
+
+        byte[] expected = this.attachment.getInputStream().readAllBytes();
+        Assert.assertArrayEquals(expected, body);
+    }
+
+    void fetchAttachmentForInvalidDetails(String serviceCredential, String attachmentId) {
+        getAttachment(serviceCredential, attachmentId)
+                .exchange().expectStatus().isNotFound();
+    }
+
+    private WebTestClient.RequestHeadersSpec<?> getAttachment(String serviceCredential, String attachmentId) {
+        return webClient.get()
+                .uri("/api/expense/report/{id}/attachment", attachmentId)
+                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(X_AUTH_HEADER, serviceCredential)
+                .headers(ControllerTestsBase::headers);
+    }
+
     void mockActionRequests(String serviceCredential) throws Exception {
-        mockReportsDigest(serviceCredential);
+        mockUserReportsDigest(serviceCredential);
         mockReport1(serviceCredential);
         mockReport1Action();
     }
 
     void mockConcurRequests(String serviceCredential) throws Exception {
-        mockReportsDigest(serviceCredential);
+        mockUserReportsDigest(serviceCredential);
         mockReport1(serviceCredential);
 
         mockBackend.expect(requestTo("/api/expense/expensereport/v2.0/report/683105624FD74A1B9C13"))
@@ -148,8 +172,15 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .andRespond(withSuccess(fromFile("/fake/report-3.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
+    void mockFetchAttachment(String serviceCredential) {
+        mockBackend.expect(requestTo("/file/t0030426uvdx/C720AECBB775A1D24B70DAF086760A9C5BA3ECDE4423886FAB4A72C717A584E3DA4B78A36E0F24651A84FC091F6E434DEAD2A464F8CF60EFFAB96F456DFD3188H9AAD83239F0E2B9D554093BEAF888BF4?id=1D3BD2E14D144508B05F&e=t0030426uvdx&t=AN&s=ConcurConnect"))
+                .andExpect(method(GET))
+                .andExpect(header(AUTHORIZATION, serviceCredential))
+                .andRespond(withSuccess(attachment, APPLICATION_PDF));
+    }
+
     void mockEmptyReportsDigest(String expectedServiceCredential) throws Exception {
-        mockUserDetailReport(expectedServiceCredential);
+        mockUserDetailReport(expectedServiceCredential, "/fake/user-details.json");
 
         mockBackend.expect(requestTo("/api/v3.0/expense/reportdigests?approverLoginID=admin%40acme.com&limit=50&user=all"))
                 .andExpect(method(GET))
@@ -158,10 +189,14 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .andRespond(withSuccess(fromFile("/fake/empty-report-digest.json"), APPLICATION_JSON));
     }
 
-    void mockReportsDigest(String serviceCredential) throws Exception {
-        mockUserDetailReport(serviceCredential);
+    void mockUserReportsDigest(String serviceCredential) throws Exception {
+        mockUserDetailReport(serviceCredential, "/fake/user-details.json");
 
-        mockBackend.expect(requestTo("/api/v3.0/expense/reportdigests?approverLoginID=admin%40acme.com&limit=50&user=all"))
+        mockReportsDigest(serviceCredential, "admin%40acme.com");
+    }
+
+    void mockReportsDigest(String serviceCredential, String loginID) throws IOException {
+        mockBackend.expect(requestTo(String.format("/api/v3.0/expense/reportdigests?approverLoginID=%s&limit=50&user=all", loginID)))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andExpect(header(AUTHORIZATION, serviceCredential))
@@ -173,15 +208,19 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andExpect(header(AUTHORIZATION, serviceCredential))
-                .andRespond(withSuccess(fromFile("/fake/report-1.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
+                .andRespond(withSuccess(
+                                fromFile("/fake/report-1.json")
+                                .replaceAll("\\$\\{concur_host\\}", mockBackend.url("")
+                        )
+                        , APPLICATION_JSON));
     }
 
-    void mockUserDetailReport(String serviceCredential) throws Exception {
+    void mockUserDetailReport(String serviceCredential, String userDetails) throws Exception {
         mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin%40acme.com"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andExpect(header(AUTHORIZATION, serviceCredential))
-                .andRespond(withSuccess(fromFile("/fake/user-details.json").replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
+                .andRespond(withSuccess(fromFile(userDetails).replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
     void mockReport1Action() {
