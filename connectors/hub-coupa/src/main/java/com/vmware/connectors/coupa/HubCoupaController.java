@@ -222,23 +222,32 @@ public class HubCoupaController {
     private List<CardBodyFieldItem> buildItems(RequisitionDetails requisitionDetails, RequisitionLineDetails lineDetails, Locale locale) {
         final List<CardBodyFieldItem> items = new ArrayList<>();
 
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.item.name", locale), lineDetails.getDescription()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.item.quantity", locale), lineDetails.getQuantity()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.unit.price", locale), lineDetails.getUnitPrice()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.total.price", locale), lineDetails.getTotal()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.commodity", locale), lineDetails.getCommodity().getName()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.supplier.part.number", locale), lineDetails.getSupplier().getCompanyCode()));
+        addItem("hub.coupa.item.name", lineDetails.getDescription(), locale, items);
+        addItem("hub.coupa.item.quantity", lineDetails.getQuantity(), locale, items);
+        addItem("hub.coupa.unit.price", lineDetails.getUnitPrice(), locale, items);
+        addItem("hub.coupa.total.price", lineDetails.getTotal(), locale, items);
+        addItem("hub.coupa.commodity", lineDetails.getCommodity().getName(), locale, items);
+        addItem("hub.coupa.supplier.part.number", lineDetails.getSupplier().getCompanyCode(), locale, items);
 
-        if (StringUtils.isNotBlank(lineDetails.getNeedByDate())) {
-            items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.need.by", locale), lineDetails.getNeedByDate()));
-        }
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.payment.terms", locale), lineDetails.getPaymentTerm().getCode()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.shipping", locale), lineDetails.getShippingTerm().getCode()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.sap.group.material.id", locale), lineDetails.getSapMaterialGroupId()));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.billing.address", locale), getShippingDetails(requisitionDetails.getShipToAddress())));
-        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage("hub.coupa.billing.account", locale), requisitionDetails.getShipToAddress().getLocationCode()));
+        addItem("hub.coupa.need.by", lineDetails.getNeedByDate(), locale, items);
+        addItem("hub.coupa.payment.terms", lineDetails.getPaymentTerm().getCode(), locale, items);
+        addItem("hub.coupa.shipping", lineDetails.getShippingTerm().getCode(), locale, items);
+        addItem("hub.coupa.sap.group.material.id", lineDetails.getSapMaterialGroupId(), locale, items);
+        addItem("hub.coupa.billing.address", getShippingDetails(requisitionDetails.getShipToAddress()), locale, items);
+        addItem("hub.coupa.billing.account", requisitionDetails.getShipToAddress().getLocationCode(), locale, items);
 
         return items;
+    }
+
+    private void addItem(final String title,
+                         final String description,
+                         final Locale locale,
+                         final List<CardBodyFieldItem> items) {
+        if (StringUtils.isBlank(description)) {
+            return;
+        }
+
+        items.add(makeCardBodyFieldItem(cardTextAccessor.getMessage(title, locale), description));
     }
 
     private CardBodyFieldItem makeCardBodyFieldItem(final String title, final String description) {
@@ -250,6 +259,10 @@ public class HubCoupaController {
     }
 
     private String getShippingDetails(final ShipToAddress shipToAddress) {
+        if (shipToAddress == null) {
+            return null;
+        }
+
         return shipToAddress.getStreet1() + " "
                 + shipToAddress.getStreet2() + " "
                 + shipToAddress.getCity() + " "
@@ -262,6 +275,10 @@ public class HubCoupaController {
             String labelKey,
             String value
     ) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+
         return new CardBodyField.Builder()
                 .setType(CardBodyFieldType.GENERAL)
                 .setTitle(cardTextAccessor.getMessage(labelKey, locale))

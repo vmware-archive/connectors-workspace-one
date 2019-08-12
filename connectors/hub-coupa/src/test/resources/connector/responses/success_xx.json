@@ -12,11 +12,6 @@
                 "fields": [
                     {
                         "type": "GENERAL",
-                        "title": "REQUISITION DESCRIPTION",
-                        "description": ""
-                    },
-                    {
-                        "type": "GENERAL",
                         "title": "REQUESTER",
                         "description": "Gaurav Totla"
                     },
@@ -24,11 +19,6 @@
                         "type": "GENERAL",
                         "title": "TOTAL PRICE",
                         "description": "43,840.00"
-                    },
-                    {
-                        "type": "GENERAL",
-                        "title": "JUSTIFICATION",
-                        "description": ""
                     },
                     {
                         "type": "SECTION",
