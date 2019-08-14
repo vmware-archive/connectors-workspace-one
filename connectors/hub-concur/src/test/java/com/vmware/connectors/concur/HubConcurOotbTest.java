@@ -78,5 +78,38 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
                 .expectStatus().isNotFound();
     }
 
+    @Test
+    void fetchAttachmentForValidUser() throws Exception {
+        mockReport1(SERVICE_CREDS);
+        mockFetchAttachment(SERVICE_CREDS);
+        mockUserReportsDigest(SERVICE_CREDS);
 
+        fetchAttachment(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+    }
+
+    @Test
+    void fetchAttachmentForInvalidUserLoginID() throws Exception {
+        // Invalid user tries to fetch an expense report attachment.
+        mockUserDetailReport(SERVICE_CREDS, "/fake/invalid-user-details.json");
+        mockReportsDigest(SERVICE_CREDS, "invalid%40acme.com");
+
+        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+    }
+
+    @Test
+    void fetchAttachmentForInvalidAttachmentID() throws Exception {
+        // Valid user tries to fetch an expense report attachment which does not belong to them.
+        mockUserDetailReport(SERVICE_CREDS, "/fake/user-details.json");
+        mockReportsDigest(SERVICE_CREDS, "admin%40acme.com");
+
+        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "invalid-attachment-id");
+    }
+
+    @Test
+    void testAttachmentUrlNotFound() throws Exception {
+        mockUserReportsDigest(SERVICE_CREDS);
+        mockReportWithEmptyAttachmentURL(SERVICE_CREDS);
+
+        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+    }
 }

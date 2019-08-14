@@ -45,6 +45,9 @@ public class BotItem {
     @JsonProperty("children")
     private final List<BotItem> children;
 
+    @JsonProperty("workflow_id")
+    private String workflowId;
+
     public UUID getId() {
         return id;
     }
@@ -71,6 +74,10 @@ public class BotItem {
 
     public List<BotItem> getChildren() {
         return Collections.unmodifiableList(children);
+    }
+
+    public String getWorkflowId() {
+        return workflowId;
     }
 
     private BotItem() {
@@ -118,6 +125,11 @@ public class BotItem {
 
         public Builder addChild(BotItem childObject) {
             botItem.children.add(childObject);
+            return this;
+        }
+
+        public Builder setWorkflowId(String workflowId) {
+            botItem.workflowId = workflowId;
             return this;
         }
 

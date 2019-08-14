@@ -28,6 +28,9 @@ public class BotAction {
     @JsonProperty("description")
     private String description;
 
+    @JsonProperty("workflow_id")
+    private String workflowId;
+
     @JsonProperty("type")
     private HttpMethod type;
 
@@ -51,6 +54,10 @@ public class BotAction {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getWorkflowId() {
+        return workflowId;
     }
 
     public HttpMethod getType() {
@@ -88,6 +95,11 @@ public class BotAction {
 
         public Builder setDescription(String description) {
             botAction.description = description;
+            return this;
+        }
+
+        public Builder setWorkflowId(String workflowId) {
+            botAction.workflowId = workflowId;
             return this;
         }
 

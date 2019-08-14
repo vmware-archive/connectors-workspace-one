@@ -57,7 +57,7 @@
   "LedgerName": "ORACLE",
   "PolicyID": "gWjL1hzZzp5O6jXtgEUrfSsvz$sudb2epuKA",
   "EverSentBack": "Y",
-  "ReportImageURL": "${concur_host}/file/t0030426uvdx/C720AECBB775A1D24B70DAF086760A9C5BA3ECDE4423886FAB4A72C717A584E3DA4B78A36E0F24651A84FC091F6E434DEAD2A464F8CF60EFFAB96F456DFD3188H9AAD83239F0E2B9D554093BEAF888BF4?id=1D3BD2E14D144508B05F&e=t0030426uvdx&t=AN&s=ConcurConnect",
+  "ReportImageURL": "",
   "HasException": "Y",
   "WorkflowActionURL": "${concur_host}/api/expense/expensereport/v1.1/report/gWqmsMJ27KYsYDsraMCRfUtd5Y9ha96y0lRUG0nBXhO0/WorkFlowAction",
   "ExpenseEntriesList": [

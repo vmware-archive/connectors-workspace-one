@@ -84,6 +84,18 @@ public class SNowBotController {
 
     private static final String OBJECT_TYPE_CART = "cart";
 
+    // Workflow ids for objects.
+    private static final String WF_ID_CATALOG = "ViewItem";
+    private static final String WF_ID_TASK = "ViewTask";
+    private static final String WF_ID_CART = "ViewCart";
+
+    // Workflow ids for object-actions.
+    private static final String WF_ID_ADD_TO_CART = "AddItem";
+    private static final String WF_ID_DELETE_TASK = "DeleteTask";
+    private static final String WF_ID_EMPTY_CART = "EmptyCart";
+    private static final String WF_ID_CHECKOUT = "Checkout";
+    private static final String WF_ID_REMOVE_FROM_CART = "RemoveItem";
+
     private final WebClient rest;
     private final BotTextAccessor botTextAccessor;
 
@@ -167,6 +179,7 @@ public class SNowBotController {
                                 .setDescription(catalogItem.getShortDescription())
                                 .addAction(getAddToCartAction(catalogItem.getId(), routingPrefix, locale))
                                 .setContextId(contextId)
+                                .setWorkflowId(WF_ID_CATALOG)
                                 .build())
         );
 
@@ -299,6 +312,7 @@ public class SNowBotController {
                         .setShortDescription(task.getShortDescription())
                         .addAction(getDeleteTaskAction(task.getSysId(), routingPrefix, locale))
                         .setContextId(contextId)
+                        .setWorkflowId(WF_ID_TASK)
                         .build())
         );
 
@@ -342,7 +356,8 @@ public class SNowBotController {
     private BotObjects toCartBotObj(JsonDocument cartResponse, String routingPrefix, String contextId, Locale locale) {
         BotItem.Builder botObjectBuilder = new BotItem.Builder()
                 .setTitle(botTextAccessor.getObjectTitle(OBJECT_TYPE_CART, locale))
-                .setContextId(contextId);
+                .setContextId(contextId)
+                .setWorkflowId(WF_ID_CART);
 
         List<LinkedHashMap> items = cartResponse.read("$.result.*.items.*");
         if (CollectionUtils.isEmpty(items)) {
@@ -367,6 +382,7 @@ public class SNowBotController {
         return new BotItem.Builder()
                 .setTitle(cartItem.getName())
                 .setContextId(contextId)
+                .setWorkflowId(WF_ID_CART)
                 .setDescription(cartItem.getShortDescription())
                 .addAction(getRemoveFromCartAction(cartItem.getEntryId(), routingPrefix, locale))
                 .build();
@@ -376,6 +392,7 @@ public class SNowBotController {
         return new BotAction.Builder()
                 .setTitle(botTextAccessor.getActionTitle("removeFromCart", locale))
                 .setDescription(botTextAccessor.getActionDescription("removeFromCart", locale))
+                .setWorkflowId(WF_ID_REMOVE_FROM_CART)
                 .setType(HttpMethod.DELETE)
                 .setUrl(new Link(routingPrefix + "api/v1/cart/" + entryId))
                 .build();
@@ -385,6 +402,7 @@ public class SNowBotController {
         return new BotAction.Builder()
                 .setTitle(botTextAccessor.getActionTitle("checkout", locale))
                 .setDescription(botTextAccessor.getActionDescription("checkout", locale))
+                .setWorkflowId(WF_ID_CHECKOUT)
                 .setType(HttpMethod.POST)
                 .setUrl(new Link(routingPrefix + "api/v1/checkout"))
                 .build();
@@ -394,6 +412,7 @@ public class SNowBotController {
         return new BotAction.Builder()
                 .setTitle(botTextAccessor.getActionTitle("emptyCart", locale))
                 .setDescription(botTextAccessor.getActionDescription("emptyCart", locale))
+                .setWorkflowId(WF_ID_EMPTY_CART)
                 .setType(HttpMethod.DELETE)
                 .setUrl(new Link(routingPrefix + "api/v1/cart"))
                 .build();
@@ -403,6 +422,7 @@ public class SNowBotController {
         return new BotAction.Builder()
                 .setTitle(botTextAccessor.getActionTitle("addToCart", locale))
                 .setDescription(botTextAccessor.getActionDescription("addToCart", locale))
+                .setWorkflowId(WF_ID_ADD_TO_CART)
                 .setType(HttpMethod.PUT)
                 .addReqParam("item_id", itemId)
                 .addUserInputParam("item_count", botTextAccessor.getActionUserInputLabel("addToCart", "itemCount", locale))
@@ -414,6 +434,7 @@ public class SNowBotController {
         return new BotAction.Builder()
                 .setTitle(botTextAccessor.getActionTitle("deleteTicket", locale))
                 .setDescription(botTextAccessor.getActionDescription("deleteTicket", locale))
+                .setWorkflowId(WF_ID_DELETE_TASK)
                 .setType(HttpMethod.DELETE)
                 .setUrl(new Link(routingPrefix + "api/v1/tasks/" + taskSysId))
                 .build();
