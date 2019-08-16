@@ -22,7 +22,7 @@
     },
     "catalog": {
       "fields": {
-        "type": {
+        "text": {
           "env": "ITEM_TYPE"
         },
         "catalog": {

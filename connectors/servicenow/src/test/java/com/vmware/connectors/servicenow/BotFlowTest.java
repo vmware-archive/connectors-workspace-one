@@ -79,19 +79,19 @@ class BotFlowTest extends ControllerTestsBase {
 
         // Find out the id of the category requested.
         String catalogId = "e0d08b13c3330100c8b837659bba8fb4";
-        mockBackend.expect(requestToUriTemplate("/api/sn_sc/servicecatalog/catalogs/{catalogId}/categories", catalogId))
+        mockBackend.expect(requestToUriTemplate("/api/sn_sc/servicecatalog/catalogs/{catalogId}", catalogId))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(fromFile("/botflows/servicenow/response/service_catalog_categories.json"), APPLICATION_JSON));
+                .andRespond(withSuccess(fromFile("/botflows/servicenow/response/service_catalog.json"), APPLICATION_JSON));
 
         // Find out available items of type 'laptop' within 'hardware' category.
-        String type = "laptop";
+        String searchText = "laptop";
         String categoryId = "d258b953c611227a0146101fb1be7c31";
         mockBackend.expect(requestToUriTemplate("/api/sn_sc/servicecatalog/items" +
-                "?sysparm_text={type}" +
+                "?sysparm_text={searchText}" +
                         "&sysparm_category={categoryId}" +
                         "&sysparm_limit=10&sysparm_offset=0",
-                type, categoryId))
+                searchText, categoryId))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/botflows/servicenow/response/laptop_items.json"), APPLICATION_JSON));
@@ -118,10 +118,10 @@ class BotFlowTest extends ControllerTestsBase {
                 .andRespond(withSuccess(fromFile("/botflows/servicenow/response/catalogs.json"), APPLICATION_JSON));
 
         String catalogId = "e0d08b13c3330100c8b837659bba8fb4";
-        mockBackend.expect(requestToUriTemplate("/api/sn_sc/servicecatalog/catalogs/{catalogId}/categories", catalogId))
+        mockBackend.expect(requestToUriTemplate("/api/sn_sc/servicecatalog/catalogs/{catalogId}", catalogId))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(fromFile("/botflows/servicenow/response/service_catalog_categories.json"), APPLICATION_JSON));
+                .andRespond(withSuccess(fromFile("/botflows/servicenow/response/service_catalog.json"), APPLICATION_JSON));
 
 
         requestObjects("/api/v1/catalog-items", SNOW_AUTH_TOKEN, "/botflows/connector/request/fruits.json",
