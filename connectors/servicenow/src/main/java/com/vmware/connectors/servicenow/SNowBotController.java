@@ -139,7 +139,7 @@ public class SNowBotController {
                 .flatMap(categoryId -> getItems(searchText, categoryId,
                         auth, baseUri,
                         limit, offset))
-                .map(itemList -> toCatalogBotObj(itemList, routingPrefix, contextId, locale));
+                .map(itemList -> toCatalogBotObj(baseUrl, itemList, routingPrefix, contextId, locale));
     }
 
     private Mono<String> getCatalogId(String catalogTitle, String auth, URI baseUri) {
@@ -210,7 +210,7 @@ public class SNowBotController {
                 .map(CatalogItemResults::getResult);
     }
 
-    private BotObjects toCatalogBotObj(List<CatalogItem> itemList, String routingPrefix, String contextId, Locale locale) {
+    private BotObjects toCatalogBotObj(String baseUrl, List<CatalogItem> itemList, String routingPrefix, String contextId, Locale locale) {
         BotObjects.Builder objectsBuilder = new BotObjects.Builder();
 
         itemList.forEach(catalogItem ->
@@ -218,6 +218,7 @@ public class SNowBotController {
                         new BotItem.Builder()
                                 .setTitle(catalogItem.getName())
                                 .setDescription(catalogItem.getShortDescription())
+                                .setImage(getItemImageLink(baseUrl, catalogItem.getPicture()))
                                 .addAction(getAddToCartAction(catalogItem.getId(), routingPrefix, locale))
                                 .setContextId(contextId)
                                 .setWorkflowId(WF_ID_CATALOG)
@@ -225,6 +226,18 @@ public class SNowBotController {
         );
 
         return objectsBuilder.build();
+    }
+
+    private Link getItemImageLink(String baseUrl, String itemPicture) {
+        // When there isn't a picture associated, it says - "picture": ""
+        if (StringUtils.isBlank(itemPicture)) {
+            return null;
+        }
+        return new Link(
+                UriComponentsBuilder.fromUriString(baseUrl)
+                        .replacePath(itemPicture)
+                        .build()
+                        .toUriString());
     }
 
     @DeleteMapping(
@@ -350,7 +363,7 @@ public class SNowBotController {
         String contextId = cardRequest.getTokenSingleValue("context_id");
 
         return retrieveUserCart(baseUrl, auth)
-                .map(cartDocument -> toCartBotObj(cartDocument, routingPrefix, contextId, locale));
+                .map(cartDocument -> toCartBotObj(baseUrl, cartDocument, routingPrefix, contextId, locale));
     }
 
     private Mono<JsonDocument> retrieveUserCart(String baseUrl, String auth) {
@@ -369,7 +382,7 @@ public class SNowBotController {
                 .bodyToMono(JsonDocument.class);
     }
 
-    private BotObjects toCartBotObj(JsonDocument cartResponse, String routingPrefix, String contextId, Locale locale) {
+    private BotObjects toCartBotObj(String baseUrl, JsonDocument cartResponse, String routingPrefix, String contextId, Locale locale) {
         BotItem.Builder botObjectBuilder = new BotItem.Builder()
                 .setTitle(botTextAccessor.getObjectTitle(OBJECT_TYPE_CART, locale))
                 .setContextId(contextId)
@@ -385,7 +398,7 @@ public class SNowBotController {
 
             List<CartItem> cartItems = objectMapper.convertValue(items, new TypeReference<List<CartItem>>(){});
             cartItems.forEach(
-                    cartItem -> botObjectBuilder.addChild(getCartItemChildObject(cartItem, routingPrefix, contextId, locale))
+                    cartItem -> botObjectBuilder.addChild(getCartItemChildObject(baseUrl, cartItem, routingPrefix, contextId, locale))
             );
         }
 
@@ -394,12 +407,13 @@ public class SNowBotController {
                 .build();
     }
 
-    private BotItem getCartItemChildObject(CartItem cartItem, String routingPrefix, String contextId, Locale locale) {
+    private BotItem getCartItemChildObject(String baseUrl, CartItem cartItem, String routingPrefix, String contextId, Locale locale) {
         return new BotItem.Builder()
                 .setTitle(cartItem.getName())
                 .setContextId(contextId)
                 .setWorkflowId(WF_ID_CART)
                 .setDescription(cartItem.getShortDescription())
+                .setImage(getItemImageLink(baseUrl, cartItem.getPicture()))
                 .addAction(getRemoveFromCartAction(cartItem.getEntryId(), routingPrefix, locale))
                 .build();
     }

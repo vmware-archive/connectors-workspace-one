@@ -104,6 +104,7 @@ class BotFlowTest extends ControllerTestsBase {
                 .getResponseBody()
                 .collect(Collectors.joining())
                 .map(BotFlowTest::normalizeBotObjects)
+                .map(json -> json.replaceAll(mockBackend.url("/"), "https://mock-snow.com/"))
                 .block();
 
         assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/laptop_items.json")).allowingAnyArrayOrdering());
@@ -166,6 +167,7 @@ class BotFlowTest extends ControllerTestsBase {
                 .getResponseBody()
                 .collect(Collectors.joining())
                 .map(BotFlowTest::normalizeBotObjects)
+                .map(json -> json.replaceAll(mockBackend.url("/"), "https://mock-snow.com/"))
                 .block();
 
         assertThat(body, sameJSONAs(fromFile(expectedCartFileName)).allowingAnyArrayOrdering());
@@ -226,6 +228,7 @@ class BotFlowTest extends ControllerTestsBase {
                 .getResponseBody()
                 .collect(Collectors.joining())
                 .map(BotFlowTest::normalizeBotObjects)
+                .map(json -> json.replaceAll(mockBackend.url("/"), "https://mock-snow.com/"))
                 .block();
 
         assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/add_mac_to_cart.json")).allowingAnyArrayOrdering());
@@ -249,6 +252,7 @@ class BotFlowTest extends ControllerTestsBase {
                 .getResponseBody()
                 .collect(Collectors.joining())
                 .map(BotFlowTest::normalizeBotObjects)
+                .map(json -> json.replaceAll(mockBackend.url("/"), "https://mock-snow.com/"))
                 .block();
 
         assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/delete_mouse_from_cart.json")).allowingAnyArrayOrdering());
