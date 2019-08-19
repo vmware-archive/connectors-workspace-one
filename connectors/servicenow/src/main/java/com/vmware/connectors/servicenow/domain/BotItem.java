@@ -8,6 +8,7 @@ package com.vmware.connectors.servicenow.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vmware.connectors.common.payloads.response.Link;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +37,9 @@ public class BotItem {
 
     @JsonProperty("description")
     private String description;
+
+    @JsonProperty("image")
+    private Link image;
 
     @JsonInclude(NON_EMPTY)
     @JsonProperty("actions")
@@ -66,6 +70,10 @@ public class BotItem {
 
     public String getDescription() {
         return description;
+    }
+
+    public Link getImage() {
+        return image;
     }
 
     public List<BotAction> getActions() {
@@ -115,6 +123,11 @@ public class BotItem {
 
         public Builder setDescription(String description) {
             botItem.description = description;
+            return this;
+        }
+
+        public Builder setImage(Link imageLink) {
+            botItem.image = imageLink;
             return this;
         }
 

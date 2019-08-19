@@ -15,6 +15,8 @@ public class CartItem {
 
     private String shortDescription;
 
+    private String picture;
+
     public String getEntryId() {
         return entryId;
     }
@@ -40,5 +42,14 @@ public class CartItem {
     @JsonProperty("short_description")
     public void setShortDescription(String shortDescription) {
         this.shortDescription = shortDescription;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    @JsonProperty("picture")
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 }
