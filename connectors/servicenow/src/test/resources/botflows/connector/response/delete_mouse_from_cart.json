@@ -35,6 +35,9 @@
           "title": "Development Laptop (PC)",
           "description": "Dell XPS 13",
           "workflow_id": "ViewCart",
+          "image": {
+            "href": "https://mock-snow.com/407e31844f889200086eeed18110c7ef.iix"
+          },
           "actions": [
             {
               "title": "Remove from cart",
@@ -54,6 +57,9 @@
           "title": "Apple MacBook Pro 15\"",
           "description": "Apple MacBook Pro",
           "workflow_id": "ViewCart",
+          "image": {
+            "href": "https://mock-snow.com/c82c480ccb821200f2de77a4634c9c64.iix"
+          },
           "actions": [
             {
               "title": "Remove from cart",
@@ -73,6 +79,9 @@
           "title": "Apple MacBook Pro 15\"",
           "description": "Apple MacBook Pro",
           "workflow_id": "ViewCart",
+          "image": {
+            "href": "https://mock-snow.com/c82c480ccb821200f2de77a4634c9c64.iix"
+          },
           "actions": [
             {
               "title": "Remove from cart",

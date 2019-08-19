@@ -6,6 +6,9 @@
       "context_id": "laptops-context-1",
       "description": "Acer Aspire NX",
       "workflow_id": "ViewItem",
+      "image": {
+        "href": "https://mock-snow.com/bbc00e844f889200086eeed18110c756.iix"
+      },
       "actions": [
         {
           "title": "Add to cart",
@@ -30,6 +33,9 @@
       "context_id": "laptops-context-1",
       "description": "Dell XPS 13",
       "workflow_id": "ViewItem",
+      "image": {
+        "href": "https://mock-snow.com/407e31844f889200086eeed18110c7ef.iix"
+      },
       "actions": [
         {
           "title": "Add to cart",
@@ -54,6 +60,9 @@
       "context_id": "laptops-context-1",
       "description": "Macbook Pro",
       "workflow_id": "ViewItem",
+      "image": {
+        "href": "https://mock-snow.com/4e4efd444f889200086eeed18110c7e6.iix"
+      },
       "actions": [
         {
           "title": "Add to cart",
@@ -78,6 +87,9 @@
       "context_id": "laptops-context-1",
       "description": "Loaner Laptop",
       "workflow_id": "ViewItem",
+      "image": {
+        "href": "https://mock-snow.com/67cdf9444f889200086eeed18110c7f9.iix"
+      },
       "actions": [
         {
           "title": "Add to cart",
@@ -102,6 +114,9 @@
       "context_id": "laptops-context-1",
       "description": "Lenovo - Carbon x1",
       "workflow_id": "ViewItem",
+      "image": {
+        "href": "https://mock-snow.com/b28db9444f889200086eeed18110c724.iix"
+      },
       "actions": [
         {
           "title": "Add to cart",
@@ -150,6 +165,9 @@
       "context_id": "laptops-context-1",
       "description": "Microsoft Surface Pro 4",
       "workflow_id": "ViewItem",
+      "image": {
+        "href": "https://mock-snow.com/61828abf9f021200736af84bc42e7044.iix"
+      },
       "actions": [
         {
           "title": "Add to cart",
@@ -174,6 +192,9 @@
       "context_id": "laptops-context-1",
       "description": "Apple MacBook Pro",
       "workflow_id": "ViewItem",
+      "image": {
+        "href": "https://mock-snow.com/c82c480ccb821200f2de77a4634c9c64.iix"
+      },
       "actions": [
         {
           "title": "Add to cart",
