@@ -53,6 +53,10 @@ public class SNowBotController {
     private static final String ROUTING_PREFIX = "x-routing-prefix";
     private static final String ROUTING_PREFIX_TEMPLATE = "X-Routing-Template";
 
+    private static final String SNOW_CATALOG_ENDPOINT = "/api/sn_sc/servicecatalog/catalogs";
+
+    private static final String SNOW_CATALOG_CATEGORY_ENDPOINT = "/api/sn_sc/servicecatalog/catalogs/{catalog_id}";
+
     private static final String SNOW_ADD_TO_CART_ENDPOINT = "/api/sn_sc/servicecatalog/items/{item_id}/add_to_cart";
 
     private static final String SNOW_CHECKOUT_ENDPOINT = "/api/sn_sc/servicecatalog/cart/checkout";
@@ -125,40 +129,77 @@ public class SNowBotController {
 
         var catalogName = cardRequest.getTokenSingleValue("catalog");
         var categoryName = cardRequest.getTokenSingleValue("category");
-        var type = cardRequest.getTokenSingleValue("type");
+        var searchText = cardRequest.getTokenSingleValue("text");
         String contextId = cardRequest.getTokenSingleValue("context_id");
 
-        logger.trace("getItems for catalog: {}, category: {}, type: {}", catalogName, categoryName, type);
+        logger.trace("getItems for catalog: {}, category: {}, searchText: {}", catalogName, categoryName, searchText);
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return getCatalogId(catalogName, auth, baseUri)
                 .flatMap(catalogId -> getCategoryId(categoryName, catalogId, auth, baseUri))
-                .flatMap(categoryId -> getItems(type, categoryId,
+                .flatMap(categoryId -> getItems(searchText, categoryId,
                         auth, baseUri,
                         limit, offset))
                 .map(itemList -> toCatalogBotObj(baseUrl, itemList, routingPrefix, contextId, locale));
     }
 
     private Mono<String> getCatalogId(String catalogTitle, String auth, URI baseUri) {
-        return callForSysIdByResultTitle("/api/sn_sc/servicecatalog/catalogs", catalogTitle,
-                auth, baseUri);
+        return rest.get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
+                        .path(SNOW_CATALOG_ENDPOINT)
+                        .build())
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .flatMap(doc -> {
+                    List<String> sysIds = doc.read(String.format("$.result[?(@.title=~/.*%s/i)].sys_id", catalogTitle));
+                    if (sysIds != null && sysIds.size() == 1) {
+                        return Mono.just(sysIds.get(0));
+                    }
+
+                    logger.debug("Couldn't find the sys_id for title:{}, endpoint:{}, baseUrl:{}",
+                            catalogTitle, SNOW_CATALOG_ENDPOINT, baseUri);
+                    return Mono.error(new CatalogReadException("Can't find " + catalogTitle));
+                });
     }
 
     private Mono<String> getCategoryId(String categoryTitle, String catalogId, String auth, URI baseUri) {
-        return callForSysIdByResultTitle(String.format("/api/sn_sc/servicecatalog/catalogs/%s/categories", catalogId), categoryTitle,
-                auth, baseUri);
+        return rest.get()
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(baseUri.getScheme())
+                        .host(baseUri.getHost())
+                        .port(baseUri.getPort())
+                        .path(SNOW_CATALOG_CATEGORY_ENDPOINT)
+                        .build(Map.of("catalog_id", catalogId))
+                )
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .flatMap(doc -> {
+                    List<String> sysIds = doc.read(String.format("$.result.categories[?(@.title=~/.*%s/i)].sys_id", categoryTitle));
+                    if (sysIds != null && sysIds.size() == 1) {
+                        return Mono.just(sysIds.get(0));
+                    }
+
+                    logger.debug("Couldn't find the sys_id for title:{}, endpoint:{}, category_id:{}, baseUrl:{}",
+                            categoryTitle, SNOW_CATALOG_CATEGORY_ENDPOINT, catalogId, baseUri);
+                    return Mono.error(new CatalogReadException("Can't find " + categoryTitle));
+                });
     }
 
     // ToDo: If it can filter, don't ask much from SNow. Go only with those needed for chatbot.
-    private Mono<List<CatalogItem>> getItems(String type, String categoryId, String auth, URI baseUri,
+    private Mono<List<CatalogItem>> getItems(String searchText, String categoryId, String auth, URI baseUri,
                                              String limit, String offset) {
-        logger.trace("getItems type:{}, categoryId:{}, baseUrl={}.", type, categoryId, baseUri);
+        logger.trace("getItems searchText:{}, categoryId:{}, baseUrl={}.", searchText, categoryId, baseUri);
         return rest.get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme(baseUri.getScheme())
                         .host(baseUri.getHost())
                         .port(baseUri.getPort())
                         .path("/api/sn_sc/servicecatalog/items")
-                        .queryParam(SNOW_SYS_PARAM_TEXT, type)
+                        .queryParam(SNOW_SYS_PARAM_TEXT, searchText)
                         .queryParam(SNOW_SYS_PARAM_CAT, categoryId)
                         .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
                         .queryParam(SNOW_SYS_PARAM_OFFSET, offset)
@@ -197,31 +238,6 @@ public class SNowBotController {
                         .replacePath(itemPicture)
                         .build()
                         .toUriString());
-    }
-
-    //returns id of service catalog for matching title from the results.
-    private Mono<String> callForSysIdByResultTitle(String endpoint, String title, String auth, URI baseUri) {
-        logger.trace("read sys_id by title for endpoint:{}, title:{}", endpoint, title);
-        return rest.get()
-                .uri(uriBuilder -> uriBuilder
-                        .scheme(baseUri.getScheme())
-                        .host(baseUri.getHost())
-                        .port(baseUri.getPort())
-                        .path(endpoint)
-                        .build())
-                .header(AUTHORIZATION, auth)
-                .retrieve()
-                .bodyToMono(JsonDocument.class)
-                .flatMap(doc -> {
-                    List<String> sysIds = doc.read(String.format("$.result[?(@.title=~/.*%s/i)].sys_id", title));
-                    if (sysIds != null && sysIds.size() == 1) {
-                        return Mono.just(sysIds.get(0));
-                    }
-
-                    logger.debug("Couldn't find the sys_id for title:{}, endpoint:{}, baseUrl:{}",
-                            title, endpoint, baseUri);
-                    return Mono.error(new CatalogReadException("Can't find " + title));
-                });
     }
 
     @DeleteMapping(
