@@ -3,9 +3,9 @@
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "title": "Sales Laptop",
-      "context_id": "laptops-context-1",
+      "contextId": "laptops-context-1",
       "description": "Acer Aspire NX",
-      "workflow_id": "ViewItem",
+      "workflowId": "ViewItem",
       "image": {
         "href": "https://mock-snow.com/bbc00e844f889200086eeed18110c756.iix"
       },
@@ -13,7 +13,7 @@
         {
           "title": "Add to cart",
           "description": "Add this item to my shopping cart.",
-          "workflow_id": "AddItem",
+          "workflowId": "AddItem",
           "type": "PUT",
           "url": {
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
@@ -21,7 +21,7 @@
           "payload": {
             "item_id": "e212a942c0a80165008313c59764eea1"
           },
-          "user_inputs": {
+          "userInput": {
             "item_count": "How many units should be added to cart ?"
           }
         }
@@ -30,9 +30,9 @@
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "title": "Development Laptop (PC)",
-      "context_id": "laptops-context-1",
+      "contextId": "laptops-context-1",
       "description": "Dell XPS 13",
-      "workflow_id": "ViewItem",
+      "workflowId": "ViewItem",
       "image": {
         "href": "https://mock-snow.com/407e31844f889200086eeed18110c7ef.iix"
       },
@@ -40,7 +40,7 @@
         {
           "title": "Add to cart",
           "description": "Add this item to my shopping cart.",
-          "workflow_id": "AddItem",
+          "workflowId": "AddItem",
           "type": "PUT",
           "url": {
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
@@ -48,7 +48,7 @@
           "payload": {
             "item_id": "3cecd2350a0a0a6a013a3a35a5e41c07"
           },
-          "user_inputs": {
+          "userInput": {
             "item_count": "How many units should be added to cart ?"
           }
         }
@@ -57,9 +57,9 @@
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "title": "Developer Laptop (Mac)",
-      "context_id": "laptops-context-1",
+      "contextId": "laptops-context-1",
       "description": "Macbook Pro",
-      "workflow_id": "ViewItem",
+      "workflowId": "ViewItem",
       "image": {
         "href": "https://mock-snow.com/4e4efd444f889200086eeed18110c7e6.iix"
       },
@@ -67,7 +67,7 @@
         {
           "title": "Add to cart",
           "description": "Add this item to my shopping cart.",
-          "workflow_id": "AddItem",
+          "workflowId": "AddItem",
           "type": "PUT",
           "url": {
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
@@ -75,7 +75,7 @@
           "payload": {
             "item_id": "774906834fbb4200086eeed18110c737"
           },
-          "user_inputs": {
+          "userInput": {
             "item_count": "How many units should be added to cart ?"
           }
         }
@@ -84,9 +84,9 @@
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "title": "Notebook Computer Loaner",
-      "context_id": "laptops-context-1",
+      "contextId": "laptops-context-1",
       "description": "Loaner Laptop",
-      "workflow_id": "ViewItem",
+      "workflowId": "ViewItem",
       "image": {
         "href": "https://mock-snow.com/67cdf9444f889200086eeed18110c7f9.iix"
       },
@@ -94,7 +94,7 @@
         {
           "title": "Add to cart",
           "description": "Add this item to my shopping cart.",
-          "workflow_id": "AddItem",
+          "workflowId": "AddItem",
           "type": "PUT",
           "url": {
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
@@ -102,7 +102,7 @@
           "payload": {
             "item_id": "10f110aec611227601fbe1841e7e417c"
           },
-          "user_inputs": {
+          "userInput": {
             "item_count": "How many units should be added to cart ?"
           }
         }
@@ -111,9 +111,9 @@
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "title": "Standard Laptop",
-      "context_id": "laptops-context-1",
+      "contextId": "laptops-context-1",
       "description": "Lenovo - Carbon x1",
-      "workflow_id": "ViewItem",
+      "workflowId": "ViewItem",
       "image": {
         "href": "https://mock-snow.com/b28db9444f889200086eeed18110c724.iix"
       },
@@ -121,7 +121,7 @@
         {
           "title": "Add to cart",
           "description": "Add this item to my shopping cart.",
-          "workflow_id": "AddItem",
+          "workflowId": "AddItem",
           "type": "PUT",
           "url": {
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
@@ -129,7 +129,7 @@
           "payload": {
             "item_id": "04b7e94b4f7b4200086eeed18110c7fd"
           },
-          "user_inputs": {
+          "userInput": {
             "item_count": "How many units should be added to cart ?"
           }
         }
@@ -138,14 +138,14 @@
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "title": "Microsoft Surface Pro 3",
-      "context_id": "laptops-context-1",
+      "contextId": "laptops-context-1",
       "description": "Microsoft Surface Pro 3",
-      "workflow_id": "ViewItem",
+      "workflowId": "ViewItem",
       "actions": [
         {
           "title": "Add to cart",
           "description": "Add this item to my shopping cart.",
-          "workflow_id": "AddItem",
+          "workflowId": "AddItem",
           "type": "PUT",
           "url": {
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
@@ -153,7 +153,7 @@
           "payload": {
             "item_id": "d130ad75d7620200a9ad1e173e24d43c"
           },
-          "user_inputs": {
+          "userInput": {
             "item_count": "How many units should be added to cart ?"
           }
         }
@@ -162,9 +162,9 @@
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "title": "Windows Surface Pro 4",
-      "context_id": "laptops-context-1",
+      "contextId": "laptops-context-1",
       "description": "Microsoft Surface Pro 4",
-      "workflow_id": "ViewItem",
+      "workflowId": "ViewItem",
       "image": {
         "href": "https://mock-snow.com/61828abf9f021200736af84bc42e7044.iix"
       },
@@ -172,7 +172,7 @@
         {
           "title": "Add to cart",
           "description": "Add this item to my shopping cart.",
-          "workflow_id": "AddItem",
+          "workflowId": "AddItem",
           "type": "PUT",
           "url": {
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
@@ -180,7 +180,7 @@
           "payload": {
             "item_id": "ae44f5804f889200086eeed18110c73f"
           },
-          "user_inputs": {
+          "userInput": {
             "item_count": "How many units should be added to cart ?"
           }
         }
@@ -189,9 +189,9 @@
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "title": "Apple MacBook Pro 15\"",
-      "context_id": "laptops-context-1",
+      "contextId": "laptops-context-1",
       "description": "Apple MacBook Pro",
-      "workflow_id": "ViewItem",
+      "workflowId": "ViewItem",
       "image": {
         "href": "https://mock-snow.com/c82c480ccb821200f2de77a4634c9c64.iix"
       },
@@ -199,7 +199,7 @@
         {
           "title": "Add to cart",
           "description": "Add this item to my shopping cart.",
-          "workflow_id": "AddItem",
+          "workflowId": "AddItem",
           "type": "PUT",
           "url": {
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
@@ -207,7 +207,7 @@
           "payload": {
             "item_id": "2ab7077237153000158bbfc8bcbe5da9"
           },
-          "user_inputs": {
+          "userInput": {
             "item_count": "How many units should be added to cart ?"
           }
         }

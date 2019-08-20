@@ -3,19 +3,19 @@
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "title": "ServiceNow ticket: REQ0010033",
-      "short_description": "",
-      "workflow_id": "ViewTask",
+      "shortDescription": "",
+      "workflowId": "ViewTask",
       "actions": [
         {
           "title": "Delete ticket",
           "description": "Delete this ticket from ServiceNow.",
-          "workflow_id": "DeleteTask",
+          "workflowId": "DeleteTask",
           "type": "DELETE",
           "url": {
             "href": "https://mf/connectors/abc123/task/api/v1/tasks/6dbd2692dba23300d5b3a455ca9619c6"
           },
           "payload": {},
-          "user_inputs": {}
+          "userInput": {}
         }
       ]
     }
