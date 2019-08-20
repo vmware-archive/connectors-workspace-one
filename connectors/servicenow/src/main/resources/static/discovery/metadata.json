@@ -40,7 +40,7 @@
         "href": "${CONNECTOR_HOST}/api/v1/catalog-items"
       },
       "metadata": {
-        "workflow_id": "ViewItem"
+        "workflowId": "ViewItem"
       }
     },
     "task": {
@@ -62,7 +62,7 @@
         "href": "${CONNECTOR_HOST}/api/v1/tasks"
       },
       "metadata": {
-        "workflow_id": "ViewTask"
+        "workflowId": "ViewTask"
       }
     },
     "cart": {
@@ -76,7 +76,7 @@
         "href": "${CONNECTOR_HOST}/api/v1/cart"
       },
       "metadata": {
-        "workflow_id": "ViewCart"
+        "workflowId": "ViewCart"
       }
     }
   },
@@ -98,7 +98,7 @@
       "type": "POST",
       "action_key": "USER_INPUT",
       "metadata": {
-        "workflow_id": "CreateTask"
+        "workflowId": "CreateTask"
       }
     }
   }
