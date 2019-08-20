@@ -312,12 +312,11 @@ class BotFlowTest extends ControllerTestsBase {
                                                      String sNowAuthToken, MultiValueMap<String, String> formData) {
         WebTestClient.RequestBodySpec requestSpec = webClient.method(method)
                 .uri(actionPath)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .accept(APPLICATION_JSON)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header(X_AUTH_HEADER, "Bearer " + sNowAuthToken)
                 .header("x-routing-template", "https://mf/connectors/abc123/INSERT_OBJECT_TYPE/")
-                .headers(ControllerTestsBase::headers);
+                .headers(headers -> headers(headers, actionPath));
 
         if (formData != null) {
             requestSpec.contentType(APPLICATION_FORM_URLENCODED)
@@ -350,13 +349,12 @@ class BotFlowTest extends ControllerTestsBase {
 
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri(path)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header(X_AUTH_HEADER, "Bearer " + authToken)
                 .header("x-routing-prefix", String.format("https://mf/connectors/abc123/%s/", objectType))
-                .headers(ControllerTestsBase::headers)
+                .headers(headers -> headers(headers, path))
                 .syncBody(fromFile(requestFile));
 
         if (StringUtils.isNotBlank(language)) {

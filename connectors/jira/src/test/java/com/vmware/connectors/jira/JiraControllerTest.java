@@ -137,9 +137,10 @@ class JiraControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andRespond(withSuccess("foo", TEXT_HTML));
 
+        String uri = "/test-auth";
         webClient.head()
-                .uri("/test-auth")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_AUTH_HEADER, "Bearer abc")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .exchange()
@@ -153,9 +154,10 @@ class JiraControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
                 .andRespond(withUnauthorizedRequest());
 
+        String uri = "/test-auth";
         webClient.head()
-                .uri("/test-auth")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_AUTH_HEADER, "Bearer abc")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .exchange()
@@ -168,9 +170,10 @@ class JiraControllerTest extends ControllerTestsBase {
      */
     @Test
     void testMissingRequestHeaders() throws Exception {
+        String uri = "/cards/requests";
         webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/jira/")
@@ -231,9 +234,10 @@ class JiraControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.content().string("{\"body\":\"Hello\"}"))
                 .andRespond(withStatus(CREATED));
 
+        String uri = "/api/v1/issues/1234/comment";
         webClient.post()
-                .uri("/api/v1/issues/1234/comment")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_AUTH_HEADER, "Bearer abc")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
@@ -256,9 +260,10 @@ class JiraControllerTest extends ControllerTestsBase {
 
     @Test
     void testAddCommentWithMissingConnectorAuthorization() throws Exception {
+        String uri = "/api/v1/issues/1234/comment";
         webClient.post()
-                .uri("/api/v1/issues/1234/comment")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_BASE_URL_HEADER, "https://jira.acme.com")
                 .syncBody("body=Hello")
@@ -273,9 +278,10 @@ class JiraControllerTest extends ControllerTestsBase {
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.content().string("{\"body\":\"Hello\"}"))
                 .andRespond(withStatus(UNAUTHORIZED));
+        String uri = "/api/v1/issues/1234/comment";
         webClient.post()
-                .uri("/api/v1/issues/1234/comment")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_AUTH_HEADER, "Bearer bogus")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
@@ -298,9 +304,10 @@ class JiraControllerTest extends ControllerTestsBase {
                 .andRespond(withStatus(NO_CONTENT));
 
 
+        String uri = "/api/v1/issues/1234/watchers";
         webClient.post()
-                .uri("/api/v1/issues/1234/watchers")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_AUTH_HEADER, "Bearer abc")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .exchange()
@@ -320,9 +327,10 @@ class JiraControllerTest extends ControllerTestsBase {
 
     @Test
     void testAddWatcherWithMissingConnectorAuthorization() throws Exception {
+        String uri = "/api/v1/issues/1234/watchers";
         webClient.post()
-                .uri("/api/v1/issues/1234/watchers")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                  .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .exchange()
                 .expectStatus().isBadRequest();
@@ -336,9 +344,10 @@ class JiraControllerTest extends ControllerTestsBase {
                 .andRespond(withStatus(UNAUTHORIZED));
 
 
+        String uri = "/api/v1/issues/1234/watchers";
         webClient.post()
-                .uri("/api/v1/issues/1234/watchers")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_AUTH_HEADER, "Bearer bogus")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .exchange()
@@ -383,12 +392,12 @@ class JiraControllerTest extends ControllerTestsBase {
     }
 
     private WebTestClient.RequestHeadersSpec<?> requestCards(String authToken, String requestfile) throws IOException {
+        String uri = "/cards/requests";
         return webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .headers(ControllerTestsBase::headers)
+                .headers(headers -> headers(headers, uri))
                 .header(X_AUTH_HEADER, "Bearer " + authToken)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/jira/")

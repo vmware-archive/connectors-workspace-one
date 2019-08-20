@@ -77,9 +77,8 @@ class AwsCertControllerTest extends ControllerTestsBase {
 
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri(path)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header("x-routing-prefix", "https://hero/connectors/aws-cert/")
-                .headers(ControllerTestsBase::headers)
+                 .header("x-routing-prefix", "https://hero/connectors/aws-cert/")
+                .headers(headers -> headers(headers, path))
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
                 .syncBody(fromFile("/awscert/requests/" + requestFile).replace("${backend_host}", mockBackend.url("")));

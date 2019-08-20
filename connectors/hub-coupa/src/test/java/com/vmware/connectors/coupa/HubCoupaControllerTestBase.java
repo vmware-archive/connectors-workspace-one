@@ -53,9 +53,10 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
     }
 
     WebTestClient.ResponseSpec approveRequest(String authHeader) {
+        String uri = "/api/approve/182964?comment=Approved";
         return webClient.post()
-                .uri("/api/approve/{id}?comment=Approved", "182964")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_AUTH_HEADER, authHeader)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
@@ -63,8 +64,9 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
     }
 
     WebTestClient.ResponseSpec rejectRequest(String authHeader) {
-        return webClient.post().uri("/api/decline/{id}?comment=Declined", "182964")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+        String uri = "/api/decline/182964?comment=Declined";
+        return webClient.post().uri("/api/decline/182964?comment=Declined")
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_AUTH_HEADER, authHeader)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
@@ -72,13 +74,13 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
     }
 
     WebTestClient.ResponseSpec cardsRequest(String lang, String authHeader) {
+        String uri = "/cards/requests";
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .uri(uri)
+                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header(X_AUTH_HEADER, authHeader)
                 .header("x-routing-prefix", "https://hero/connectors/coupa/")
-                .headers(ControllerTestsBase::headers)
+                .headers(headers -> headers(headers, uri))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON);
 

@@ -89,12 +89,11 @@ class GithubPrControllerTest extends ControllerTestsBase {
 
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri(path)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/github-pr/")
-                .headers(ControllerTestsBase::headers)
+                .headers(headers -> headers(headers, path))
                 .syncBody(content);
 
         if (StringUtils.isNotBlank(authToken)) {
