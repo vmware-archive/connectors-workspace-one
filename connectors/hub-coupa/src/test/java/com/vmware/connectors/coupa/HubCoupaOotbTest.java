@@ -10,8 +10,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.test.context.TestPropertySource;
 
-import java.io.IOException;
-
 /**
  * Test cases with empty service api key from configuration.
  */

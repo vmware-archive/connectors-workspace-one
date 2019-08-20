@@ -7,3 +7,12 @@ server:
 management:
   endpoints:
     web.base-path: /
+
+coupa:
+  api-key: e3572200f5bad3c62dc5fc5e17584267ab8d8ce7
+
+security:
+  oauth2:
+    resource:
+      jwt:
+        key-uri: https://prod.hero.vmwservices.com/security/public-key

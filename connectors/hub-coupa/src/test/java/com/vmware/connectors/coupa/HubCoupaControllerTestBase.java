@@ -33,7 +33,7 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
 
     private static final String AUTHORIZATION_HEADER_NAME = "X-COUPA-API-KEY";
 
-    @Value("classpath:fake/attachment/stash.jpg")
+    @Value("classpath:fake/attachment/attachment.jpg")
     private Resource attachment;
 
     @ParameterizedTest

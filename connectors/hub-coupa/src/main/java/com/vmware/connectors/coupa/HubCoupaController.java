@@ -28,8 +28,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +56,7 @@ public class HubCoupaController {
 
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
 
-    private static final String ATTACHMENT_URL = "/api/users/{user_id}/attachments/{attachment_id}";
+    private static final String ATTACHMENT_URL = "%s/api/user/%s/attachment/%s";
 
     private static final String UNAUTHORIZED_ATTACHMENT_ACCESS = "User with approvable ID: %s is trying to fetch an attachment with ID: %s which does not belong to them.";
 
@@ -212,6 +216,8 @@ public class HubCoupaController {
 
         if (!CollectionUtils.isEmpty(requestDetails.getRequisitionLinesList())) {
             buildRequisitionDetails(requestDetails, locale).forEach(cardBodyBuilder::addField);
+
+            buildAttachments(requestDetails, cardBodyBuilder, locale);
         }
 
         return cardBodyBuilder.build();
@@ -247,6 +253,52 @@ public class HubCoupaController {
         addItem("hub.coupa.billing.account", requisitionDetails.getShipToAddress().getLocationCode(), locale, items);
 
         return items;
+    }
+
+    private void buildAttachments(final RequisitionDetails requisitionDetails,
+                                  final CardBody.Builder builder,
+                                  final Locale locale) {
+        if (CollectionUtils.isEmpty(requisitionDetails.getAttachments())) {
+            logger.debug("No attachments found for coupa report with request ID: {}", requisitionDetails.getId());
+            return;
+        }
+
+        CardBodyField.Builder attachmentField = new CardBodyField.Builder()
+                .setTitle(this.cardTextAccessor.getMessage("hub.concur.attachment", locale))
+                .setType(CardBodyFieldType.SECTION);
+
+
+        builder.addField(attachmentField.build());
+    }
+
+    @SuppressWarnings("PMD.UnusedPrivateMethod")
+    private CardBodyFieldItem buildAttachmentItem(final Attachment attachment,
+                                                  final String reportId,
+                                                  final Locale locale,
+                                                  final String routingPrefix) {
+        final String fileName = StringUtils.substringAfterLast(attachment.getFile(), "/");
+        final String contentType = getContentType(fileName, reportId, attachment.getId());
+
+        return new CardBodyFieldItem.Builder()
+                .setAttachmentName(fileName)
+                .setTitle(cardTextAccessor.getMessage("hub.coupa.report.title", locale))
+                .setActionType(HttpMethod.GET)
+                .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, attachment.getId()))
+                .setType(CardBodyFieldType.ATTACHMENT_URL)
+                .setContentType(contentType)
+                .build();
+    }
+
+    private String getContentType(final String fileName,
+                                  final String reportId,
+                                  final String attachmentId) {
+        try {
+            final Path path = new File(fileName).toPath();
+            return Files.probeContentType(path);
+        } catch (IOException e) {
+            logger.error("Failed to retrieve the file content type for the report with ID: {} and attachment with ID: {}", reportId, attachmentId, e);
+            return null;
+        }
     }
 
     private void addItem(final String title,
@@ -477,7 +529,7 @@ public class HubCoupaController {
                                  final String userId,
                                  final String attachmentId) {
         return UriComponentsBuilder.fromUriString(baseUrl)
-                .path(ATTACHMENT_URL)
+                .path("/api/users/{user_id}/attachments/{attachment_id}")
                 .buildAndExpand(
                         Map.of(
                                 "user_id", userId,
