@@ -344,7 +344,7 @@ public class HubConcurController {
                         .setActionType(HttpMethod.GET)
                         .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, reportID))
                         .setType(CardBodyFieldType.ATTACHMENT_URL)
-                        .setContentType(APPLICATION_PDF_VALUE)
+                        .setContentType(APPLICATION_PDF_VALUE) // Concur always returns a PDF file. It consolidates all the attachments into a single PDF file.
                         .build());
 
         return builder.build();
