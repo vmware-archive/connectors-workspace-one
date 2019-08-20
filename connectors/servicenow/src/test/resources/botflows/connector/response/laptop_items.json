@@ -19,10 +19,10 @@
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
           },
           "payload": {
-            "item_id": "e212a942c0a80165008313c59764eea1"
+            "itemId": "e212a942c0a80165008313c59764eea1"
           },
           "userInput": {
-            "item_count": "How many units should be added to cart ?"
+            "itemCount": "How many units should be added to cart ?"
           }
         }
       ]
@@ -46,10 +46,10 @@
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
           },
           "payload": {
-            "item_id": "3cecd2350a0a0a6a013a3a35a5e41c07"
+            "itemId": "3cecd2350a0a0a6a013a3a35a5e41c07"
           },
           "userInput": {
-            "item_count": "How many units should be added to cart ?"
+            "itemCount": "How many units should be added to cart ?"
           }
         }
       ]
@@ -73,10 +73,10 @@
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
           },
           "payload": {
-            "item_id": "774906834fbb4200086eeed18110c737"
+            "itemId": "774906834fbb4200086eeed18110c737"
           },
           "userInput": {
-            "item_count": "How many units should be added to cart ?"
+            "itemCount": "How many units should be added to cart ?"
           }
         }
       ]
@@ -100,10 +100,10 @@
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
           },
           "payload": {
-            "item_id": "10f110aec611227601fbe1841e7e417c"
+            "itemId": "10f110aec611227601fbe1841e7e417c"
           },
           "userInput": {
-            "item_count": "How many units should be added to cart ?"
+            "itemCount": "How many units should be added to cart ?"
           }
         }
       ]
@@ -127,10 +127,10 @@
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
           },
           "payload": {
-            "item_id": "04b7e94b4f7b4200086eeed18110c7fd"
+            "itemId": "04b7e94b4f7b4200086eeed18110c7fd"
           },
           "userInput": {
-            "item_count": "How many units should be added to cart ?"
+            "itemCount": "How many units should be added to cart ?"
           }
         }
       ]
@@ -151,10 +151,10 @@
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
           },
           "payload": {
-            "item_id": "d130ad75d7620200a9ad1e173e24d43c"
+            "itemId": "d130ad75d7620200a9ad1e173e24d43c"
           },
           "userInput": {
-            "item_count": "How many units should be added to cart ?"
+            "itemCount": "How many units should be added to cart ?"
           }
         }
       ]
@@ -178,10 +178,10 @@
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
           },
           "payload": {
-            "item_id": "ae44f5804f889200086eeed18110c73f"
+            "itemId": "ae44f5804f889200086eeed18110c73f"
           },
           "userInput": {
-            "item_count": "How many units should be added to cart ?"
+            "itemCount": "How many units should be added to cart ?"
           }
         }
       ]
@@ -205,10 +205,10 @@
             "href": "https://mf/connectors/abc123/catalog/api/v1/cart"
           },
           "payload": {
-            "item_id": "2ab7077237153000158bbfc8bcbe5da9"
+            "itemId": "2ab7077237153000158bbfc8bcbe5da9"
           },
           "userInput": {
-            "item_count": "How many units should be added to cart ?"
+            "itemCount": "How many units should be added to cart ?"
           }
         }
       ]

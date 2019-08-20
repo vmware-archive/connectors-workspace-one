@@ -219,8 +219,8 @@ class BotFlowTest extends ControllerTestsBase {
 
 
         MultiValueMap<String, String> actionFormData = new LinkedMultiValueMap<>();
-        actionFormData.set("item_id", itemId);
-        actionFormData.set("item_count", String.valueOf(itemCount));
+        actionFormData.set("itemId", itemId);
+        actionFormData.set("itemCount", String.valueOf(itemCount));
 
         String body = performAction(PUT, "/api/v1/cart", SNOW_AUTH_TOKEN, actionFormData)
                 .expectStatus().is2xxSuccessful()

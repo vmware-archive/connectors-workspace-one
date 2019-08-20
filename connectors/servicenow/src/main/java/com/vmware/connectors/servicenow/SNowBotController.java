@@ -454,8 +454,8 @@ public class SNowBotController {
                 .setDescription(botTextAccessor.getActionDescription("addToCart", locale))
                 .setWorkflowId(WF_ID_ADD_TO_CART)
                 .setType(HttpMethod.PUT)
-                .addReqParam("item_id", itemId)
-                .addUserInputParam("item_count", botTextAccessor.getActionUserInputLabel("addToCart", "itemCount", locale))
+                .addReqParam("itemId", itemId)
+                .addUserInputParam("itemCount", botTextAccessor.getActionUserInputLabel("addToCart", "itemCount", locale))
                 .setUrl(new Link(routingPrefix + "api/v1/cart"))
                 .build();
     }
