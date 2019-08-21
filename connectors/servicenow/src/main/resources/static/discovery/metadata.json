@@ -31,7 +31,7 @@
         "category": {
           "env": "CATEGORY_NAME"
         },
-        "context_id": {
+        "contextId": {
           "env": "CONTEXT_ID",
           "required": false
         }
@@ -53,7 +53,7 @@
           "env": "TASK_NUMBER",
           "required": false
         },
-        "context_id": {
+        "contextId": {
           "env": "CONTEXT_ID",
           "required": false
         }
@@ -67,7 +67,7 @@
     },
     "cart": {
       "fields": {
-        "context_id": {
+        "contextId": {
           "env": "CONTEXT_ID",
           "required": false
         }

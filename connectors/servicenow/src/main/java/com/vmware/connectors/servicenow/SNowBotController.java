@@ -130,7 +130,7 @@ public class SNowBotController {
         var catalogName = cardRequest.getTokenSingleValue("catalog");
         var categoryName = cardRequest.getTokenSingleValue("category");
         var searchText = cardRequest.getTokenSingleValue("text");
-        String contextId = cardRequest.getTokenSingleValue("context_id");
+        String contextId = cardRequest.getTokenSingleValue("contextId");
 
         logger.trace("getItems for catalog: {}, category: {}, searchText: {}", catalogName, categoryName, searchText);
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
@@ -291,7 +291,7 @@ public class SNowBotController {
             taskType = cardRequest.getTokenSingleValue("type");
         }
         String taskNumber = cardRequest.getTokenSingleValue(NUMBER);
-        String contextId = cardRequest.getTokenSingleValue("context_id");
+        String contextId = cardRequest.getTokenSingleValue("contextId");
 
         var userEmail = AuthUtil.extractUserEmail(mfToken);
 
@@ -360,7 +360,7 @@ public class SNowBotController {
             Locale locale,
             @RequestBody CardRequest cardRequest) {
 
-        String contextId = cardRequest.getTokenSingleValue("context_id");
+        String contextId = cardRequest.getTokenSingleValue("contextId");
 
         return retrieveUserCart(baseUrl, auth)
                 .map(cartDocument -> toCartBotObj(baseUrl, cartDocument, routingPrefix, contextId, locale));
