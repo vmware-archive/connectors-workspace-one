@@ -163,9 +163,10 @@ class SalesforceControllerTest extends ControllerTestsBase {
 
     @Test
     void testMissingRequestHeaders() throws Exception {
+        String uri = "/cards/requests";
         webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("x-routing-prefix", "https://hero/connectors/salesforce/")
@@ -325,9 +326,9 @@ class SalesforceControllerTest extends ControllerTestsBase {
     void updateOpportunityFields(final String uri, final String body) {
         mockSalesforceOpportunityAPI();
 
-        webClient.post()
+         webClient.post()
                 .uri(uri)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_AUTH_HEADER, "Bearer abc")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
@@ -362,22 +363,23 @@ class SalesforceControllerTest extends ControllerTestsBase {
     }
 
     private WebTestClient.RequestHeadersSpec<?> requestCards(String authToken, String filePath) throws Exception {
+        String uri = "/cards/requests";
         return webClient.post()
                 .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header(X_AUTH_HEADER, "Bearer " + authToken)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/salesforce/")
-                .headers(ControllerTestsBase::headers)
+                .headers(headers -> headers(headers, uri))
                 .syncBody(fromFile(filePath));
     }
 
     private WebTestClient.ResponseSpec requestAddContact(String authToken, String accountId, String filePath) throws Exception {
+        String uri = String.format("/accounts/%s/contacts", accountId);
         return webClient.post()
-                .uri(String.format("/accounts/%s/contacts", accountId))
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .accept(APPLICATION_JSON)
                 .header(X_AUTH_HEADER, "Bearer " + authToken)

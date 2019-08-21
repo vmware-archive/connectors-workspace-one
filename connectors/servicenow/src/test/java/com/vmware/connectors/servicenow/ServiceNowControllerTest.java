@@ -105,12 +105,11 @@ class ServiceNowControllerTest extends ControllerTestsBase {
 
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri(path)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
                 .contentType(contentType)
                 .accept(APPLICATION_JSON)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/servicenow/")
-                .headers(ControllerTestsBase::headers)
+                .headers(headers -> headers(headers, path))
                 .syncBody(fromFile("/servicenow/requests/" + requestFile));
 
         if (StringUtils.isNotBlank(authToken)) {

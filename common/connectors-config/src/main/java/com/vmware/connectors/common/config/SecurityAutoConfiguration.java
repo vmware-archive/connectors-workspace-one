@@ -5,16 +5,16 @@
 
 package com.vmware.connectors.common.config;
 
+import com.vmware.connectors.common.security.AudienceAuthorizationManager;
+import com.vmware.connectors.common.security.ConnectorAuthentication;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.openssl.PEMParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
@@ -26,7 +26,6 @@ import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Collections;
 
 @EnableWebFluxSecurity
 public class SecurityAutoConfiguration {
@@ -66,30 +65,12 @@ public class SecurityAutoConfiguration {
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, RSAPublicKey publicKey) {
         http.authorizeExchange().pathMatchers(HttpMethod.GET, "/health", "/templates/**", "/images/**", "/").permitAll()
         .and().csrf().disable()
-        .authorizeExchange().anyExchange().authenticated()
+        .authorizeExchange().anyExchange().access(new AudienceAuthorizationManager())
         .and()
         .oauth2ResourceServer()
         .jwt().publicKey(publicKey).jwtAuthenticationConverter(source -> Mono.just(new ConnectorAuthentication(source)));
+
         return http.build();
     }
 
-    private static class ConnectorAuthentication extends AbstractAuthenticationToken {
-        private final Jwt jwt;
-
-        private ConnectorAuthentication(Jwt jwt) {
-            super(Collections.emptyList());
-            setAuthenticated(true);
-            this.jwt = jwt;
-        }
-
-        @Override
-        public Object getCredentials() {
-            return jwt.getTokenValue();
-        }
-
-        @Override
-        public Object getPrincipal() {
-            return jwt.getClaims().get("prn");
-        }
-    }
 }

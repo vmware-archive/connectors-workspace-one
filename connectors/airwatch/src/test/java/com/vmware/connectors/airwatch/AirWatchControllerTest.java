@@ -179,9 +179,10 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .andExpect(header("X-XSRF-TOKEN", "csrf123"))
                 .andRespond(withSuccess().body(gbInstallApp).contentType(HAL_JSON_UTF8));
 
+        String uri = "/mdm/app/install";
         webClient.post()
-                .uri("/mdm/app/install")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header("X-Connector-Authorization", "Bearer vidm")
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
@@ -206,9 +207,10 @@ class AirWatchControllerTest extends ControllerTestsBase {
                 .andRespond(withSuccess().body(fromFile("greenbox/responses/" + gbResponseFile))
                         .contentType(HAL_JSON_UTF8));
 
+        String uri = "/mdm/app/install";
         webClient.post()
-                .uri("/mdm/app/install")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header("X-Connector-Authorization", "Bearer vidm")
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
@@ -221,9 +223,10 @@ class AirWatchControllerTest extends ControllerTestsBase {
 
     @Test
     void testMissingRequestHeaders() throws Exception {
+        String uri = "/cards/requests";
         webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header("X-Connector-Authorization", "Bearer vidm")
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
@@ -318,9 +321,10 @@ class AirWatchControllerTest extends ControllerTestsBase {
      }
 
     private WebTestClient.RequestHeadersSpec<?> requestCards(String requestfile) throws IOException {
+        String uri = "/cards/requests";
         return webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header("X-Connector-Authorization", "Bearer vidm")
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)

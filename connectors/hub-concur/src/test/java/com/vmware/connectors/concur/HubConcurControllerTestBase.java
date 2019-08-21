@@ -55,9 +55,10 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     }
 
     WebTestClient.ResponseSpec approveRequest(String authHeader) {
+        String uri = "/api/expense/1D3BD2E14D144508B05F/approve";
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
-                .uri("/api/expense/{id}/approve", "1D3BD2E14D144508B05F")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("comment", "Approval Done"));
@@ -70,9 +71,10 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     }
 
     WebTestClient.ResponseSpec rejectRequest(String authHeader) {
+        String uri = "/api/expense/1D3BD2E14D144508B05F/decline";
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
-                .uri("/api/expense/{id}/decline", "1D3BD2E14D144508B05F")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("reason", "Decline Done"));
@@ -85,12 +87,12 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     }
 
     WebTestClient.ResponseSpec cardsRequest(String lang, String authHeader) throws Exception {
+        String uri = "/cards/requests";
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
-                .headers(ControllerTestsBase::headers)
+                .headers(headers -> headers(headers, uri))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .syncBody(fromFile("/connector/requests/request.json"));
@@ -141,12 +143,12 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     }
 
     private WebTestClient.RequestHeadersSpec<?> getAttachment(String serviceCredential, String attachmentId) {
+        String uri = String.format("/api/expense/report/%s/attachment", attachmentId);
         return webClient.get()
-                .uri("/api/expense/report/{id}/attachment", attachmentId)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header(X_AUTH_HEADER, serviceCredential)
-                .headers(ControllerTestsBase::headers);
+                .headers(headers -> headers(headers, uri));
     }
 
     void mockActionRequests(String serviceCredential) throws Exception {

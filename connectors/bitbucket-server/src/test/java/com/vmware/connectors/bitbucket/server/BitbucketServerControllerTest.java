@@ -177,9 +177,10 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.header(ATLASSIAN_TOKEN, "no-check"))
                 .andRespond(withSuccess(approve, APPLICATION_JSON));
 
+        String uri = "/api/v1/app-platform-server/236/approve";
         webClient.post()
-                .uri("/api/v1/app-platform-server/236/approve")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
@@ -200,9 +201,10 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.header(ATLASSIAN_TOKEN, "no-check"))
                 .andRespond(withSuccess(testRepoPr1Approved, APPLICATION_JSON));
 
+        String uri = "/api/v1/test-repo/1/approve";
         webClient.post()
-                .uri("/api/v1/test-repo/1/approve")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
@@ -223,9 +225,10 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.header(ATLASSIAN_TOKEN, "no-check"))
                 .andRespond(withBadRequest().contentType(APPLICATION_JSON).body(testRepoPr1Approved));
 
+        String uri = "/api/v1/test-repo/1/approve";
         webClient.post()
-                .uri("/api/v1/test-repo/1/approve")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
@@ -250,9 +253,10 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
         );
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>(payload);
 
+        String uri = "/api/v1/app-platform-server/236/comments";
         webClient.post()
-                .uri("/api/v1/app-platform-server/236/comments")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
@@ -275,9 +279,10 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
         );
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>(payload);
 
+        String uri = "/api/v1/test-repo/1/comments";
         webClient.post()
-                .uri("/api/v1/test-repo/1/comments")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
@@ -293,9 +298,10 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
                 .andRespond(withSuccess());
 
+        String uri = "/test-auth";
         webClient.head()
-                .uri("/test-auth")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
                 .exchange()
@@ -309,9 +315,10 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN))
                 .andRespond(withUnauthorizedRequest());
 
+        String uri = "/test-auth";
         webClient.head()
-                .uri("/test-auth")
-                .header(AUTHORIZATION, "Bearer "  + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
                 .exchange()
@@ -337,15 +344,15 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     private WebTestClient.RequestHeadersSpec<?> requestCard(String requestFile) throws IOException {
+        String uri = "/cards/requests";
         return webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
-                .contentType(APPLICATION_JSON)
+                .uri(uri)
+                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header(AUTH_HEADER, "Basic " + BITBUCKET_SERVER_AUTH_TOKEN)
                 .header(BASE_URL_HEADER, mockBackend.url(""))
                 .header(ROUTING_PREFIX, "https://hero/connectors/stash/")
-                .headers(ControllerTestsBase::headers)
+                .headers(headers -> headers(headers, uri))
                 .syncBody(fromFile("/bitbucket/requests/" + requestFile));
     }
 

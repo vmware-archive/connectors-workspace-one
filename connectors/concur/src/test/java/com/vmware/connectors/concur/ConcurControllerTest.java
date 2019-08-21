@@ -212,7 +212,7 @@ class ConcurControllerTest extends ControllerTestsBase {
 
         webClient.post()
                 .uri(uri + expenseReportId)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri + expenseReportId))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
@@ -243,9 +243,10 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
                 .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
 
+        String uri = "/api/expense/reject/" + REPORT_ID_2;
         webClient.post()
-                .uri("/api/expense/reject/" + REPORT_ID_2)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
@@ -275,7 +276,7 @@ class ConcurControllerTest extends ControllerTestsBase {
 
         webClient.post()
                 .uri(uri + REPORT_ID_1)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri + REPORT_ID_1))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
@@ -305,9 +306,10 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
                 .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
 
+        String uri = "/test-auth";
         webClient.head()
-                .uri("/test-auth")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .exchange()
                 .expectStatus().isNoContent();
@@ -320,9 +322,10 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
                 .andRespond(withStatus(HttpStatus.FORBIDDEN));
 
+        String uri = "/test-auth";
         webClient.head()
-                .uri("/test-auth")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .exchange()
                 .expectStatus().isBadRequest()
@@ -357,15 +360,15 @@ class ConcurControllerTest extends ControllerTestsBase {
     }
 
     private WebTestClient.RequestHeadersSpec<?> requestCards(final String requestFile) throws Exception {
+        String uri = "/cards/requests";
         return webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header(X_AUTH_HEADER, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/concur/")
-                .headers(ControllerTestsBase::headers)
+                .headers(headers -> headers(headers, uri))
                 .syncBody(fromFile("/concur/requests/" + requestFile));
     }
 
