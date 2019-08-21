@@ -28,7 +28,7 @@ public class BotAction {
     @JsonProperty("description")
     private String description;
 
-    @JsonProperty("workflow_id")
+    @JsonProperty("workflowId")
     private String workflowId;
 
     @JsonProperty("type")
@@ -40,12 +40,12 @@ public class BotAction {
     @JsonProperty("payload")
     private final Map<String, String> payload;
 
-    @JsonProperty("user_inputs")
-    private final Map<String, String> userInputs;
+    @JsonProperty("userInput")
+    private final Map<String, String> userInput;
 
     private BotAction() {
         this.payload = new HashMap<>();
-        this.userInputs = new HashMap<>();
+        this.userInput = new HashMap<>();
     }
 
     public String getTitle() {
@@ -72,8 +72,8 @@ public class BotAction {
         return Collections.unmodifiableMap(payload);
     }
 
-    public Map<String, String> getUserInputs() {
-        return Collections.unmodifiableMap(userInputs);
+    public Map<String, String> getUserInput() {
+        return Collections.unmodifiableMap(userInput);
     }
 
     public static class Builder {
@@ -119,7 +119,7 @@ public class BotAction {
         }
 
         public Builder addUserInputParam(String key, String msgLabel) {
-            botAction.userInputs.put(key, msgLabel);
+            botAction.userInput.put(key, msgLabel);
             return this;
         }
 

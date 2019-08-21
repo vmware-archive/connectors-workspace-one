@@ -26,13 +26,13 @@ public class BotItem {
     @JsonProperty("id")
     private final UUID id;
 
-    @JsonProperty("context_id")
+    @JsonProperty("contextId")
     private String contextId;
 
     @JsonProperty("title")
     private String title;
 
-    @JsonProperty("short_description")
+    @JsonProperty("shortDescription")
     private String shortDescription;
 
     @JsonProperty("description")
@@ -49,7 +49,7 @@ public class BotItem {
     @JsonProperty("children")
     private final List<BotItem> children;
 
-    @JsonProperty("workflow_id")
+    @JsonProperty("workflowId")
     private String workflowId;
 
     public UUID getId() {
