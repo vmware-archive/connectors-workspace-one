@@ -14,6 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
@@ -131,6 +132,8 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     void fetchAttachment(String serviceCredential, String attachmentId) throws IOException {
         byte[] body = getAttachment(serviceCredential, attachmentId)
                 .exchange().expectStatus().isOk()
+                .expectHeader().contentType(APPLICATION_PDF)
+                .expectHeader().contentDisposition(ContentDisposition.parse("Content-Disposition: inline; filename=\"1D3BD2E14D144508B05F.pdf\""))
                 .expectBody(byte[].class).returnResult().getResponseBody();
 
         byte[] expected = this.attachment.getInputStream().readAllBytes();

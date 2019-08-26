@@ -39,7 +39,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.MediaType.*;
 
 @RestController
@@ -58,6 +58,8 @@ public class HubConcurController {
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
 
     private static final String ATTACHMENT_URL = "%sapi/expense/report/%s/attachment";
+
+    private static final String CONTENT_DISPOSITION_FORMAT = "Content-Disposition: inline; filename=\"%s.pdf\"";
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
@@ -462,7 +464,7 @@ public class HubConcurController {
             path = "api/expense/report/{id}/attachment",
             produces = APPLICATION_OCTET_STREAM_VALUE
     )
-    public Flux<DataBuffer> fetchAttachment(
+    public ResponseEntity<Flux<DataBuffer>> fetchAttachment(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
@@ -472,10 +474,15 @@ public class HubConcurController {
         logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, reportId={}", baseUrl, userEmail, reportId);
         final String authHeader = getAuthHeader(connectorAuth);
 
-        return fetchLoginIdFromUserEmail(userEmail, baseUrl, authHeader)
+        Flux<DataBuffer> response = fetchLoginIdFromUserEmail(userEmail, baseUrl, authHeader)
                 .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, authHeader))
                 .flatMap(ignore -> fetchRequestData(baseUrl, reportId, authHeader))
                 .flatMapMany(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth));
+
+        return ResponseEntity.ok()
+                .header(CONTENT_TYPE, APPLICATION_PDF_VALUE)
+                .header(CONTENT_DISPOSITION, String.format(CONTENT_DISPOSITION_FORMAT, reportId))
+                .body(response);
     }
 
     private Flux<DataBuffer> getAttachment(ExpenseReportResponse report, String connectorAuth) {
