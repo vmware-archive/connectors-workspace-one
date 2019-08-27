@@ -80,6 +80,15 @@ public final class Reactive {
                 .flatMapMany(context -> wrapCall(context, () -> mapper.apply(item)));
     }
 
+    public static Mono<Void> wrapCall(Runnable runnable) {
+        return Mono.subscriberContext()
+                .doOnNext(context -> wrapCall(context, () -> {
+                    runnable.run();
+                    return null;
+                }))
+                .then();
+    }
+
     public static Mono<ClientResponse> checkStatus(ClientResponse response) {
         return checkStatus(response, httpStatus -> !httpStatus.isError());
     }
