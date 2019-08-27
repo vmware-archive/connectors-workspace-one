@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.HtmlUtils;
 import reactor.core.publisher.Flux;
@@ -39,7 +40,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpHeaders.*;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.MediaType.*;
 
 @RestController
@@ -461,10 +463,9 @@ public class HubConcurController {
     }
 
     @GetMapping(
-            path = "api/expense/report/{id}/attachment",
-            produces = APPLICATION_OCTET_STREAM_VALUE
+            path = "api/expense/report/{id}/attachment"
     )
-    public ResponseEntity<Flux<DataBuffer>> fetchAttachment(
+    public Mono<ResponseEntity<Flux<DataBuffer>>> fetchAttachment(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
@@ -474,18 +475,14 @@ public class HubConcurController {
         logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, reportId={}", baseUrl, userEmail, reportId);
         final String authHeader = getAuthHeader(connectorAuth);
 
-        Flux<DataBuffer> response = fetchLoginIdFromUserEmail(userEmail, baseUrl, authHeader)
+        return fetchLoginIdFromUserEmail(userEmail, baseUrl, authHeader)
                 .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, authHeader))
-                .flatMap(ignore -> fetchRequestData(baseUrl, reportId, authHeader))
-                .flatMapMany(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth));
-
-        return ResponseEntity.ok()
-                .header(CONTENT_TYPE, APPLICATION_PDF_VALUE)
-                .header(CONTENT_DISPOSITION, String.format(CONTENT_DISPOSITION_FORMAT, reportId))
-                .body(response);
+                .then(fetchRequestData(baseUrl, reportId, authHeader))
+                .flatMap(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth))
+                .map(clientResponse -> handleClientResponse(clientResponse, reportId));
     }
 
-    private Flux<DataBuffer> getAttachment(ExpenseReportResponse report, String connectorAuth) {
+    private Mono<ClientResponse> getAttachment(ExpenseReportResponse report, String connectorAuth) {
         if (StringUtils.isBlank(report.getReportImageURL())) {
             throw new AttachmentURLNotFoundException("Concur expense report with ID " + report.getReportID() + " does not have any attachments.");
         }
@@ -493,8 +490,18 @@ public class HubConcurController {
         return this.rest.get()
                 .uri(report.getReportImageURL())
                 .header(AUTHORIZATION, connectorAuth)
-                .retrieve()
-                .bodyToFlux(DataBuffer.class);
+                .exchange();
+    }
+
+    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(ClientResponse response, String reportId) {
+        if (response.statusCode().is2xxSuccessful()) {
+            return ResponseEntity.ok()
+                    .contentType(response.headers().contentType().orElse(APPLICATION_PDF))
+                    .header(CONTENT_DISPOSITION, String.format(CONTENT_DISPOSITION_FORMAT, reportId))
+                    .body(response.bodyToFlux(DataBuffer.class));
+
+        }
+        return ResponseEntity.status(response.statusCode()).build();
     }
 
     @ExceptionHandler(AttachmentURLNotFoundException.class)
