@@ -153,6 +153,11 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
     }
 
+    void fetchAttachmentWithBadStatusCode(String serviceCredential, String attachmentId) throws IOException {
+        getAttachment(serviceCredential, attachmentId)
+                .exchange().expectStatus().is5xxServerError();
+    }
+
     private WebTestClient.RequestHeadersSpec<?> getAttachment(String serviceCredential, String attachmentId) {
         String uri = String.format("/api/expense/report/%s/attachment", attachmentId);
         return webClient.get()
@@ -197,6 +202,13 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .andExpect(method(GET))
                 .andExpect(header(AUTHORIZATION, serviceCredential))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
+    }
+
+    void mockFetchAttachmentWithInternalServerError(String serviceCredential) {
+        mockBackend.expect(requestTo("/file/t0030426uvdx/C720AECBB775A1D24B70DAF086760A9C5BA3ECDE4423886FAB4A72C717A584E3DA4B78A36E0F24651A84FC091F6E434DEAD2A464F8CF60EFFAB96F456DFD3188H9AAD83239F0E2B9D554093BEAF888BF4?id=1D3BD2E14D144508B05F&e=t0030426uvdx&t=AN&s=ConcurConnect"))
+                .andExpect(method(GET))
+                .andExpect(header(AUTHORIZATION, serviceCredential))
+                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     void mockEmptyReportsDigest(String expectedServiceCredential) throws Exception {

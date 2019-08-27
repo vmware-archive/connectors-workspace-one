@@ -121,4 +121,13 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
 
         fetchAttachmentForUnauthorizedCredential(SERVICE_CREDS, "1D3BD2E14D144508B05F");
     }
+
+    @Test
+    void testBadStatusCode() throws Exception {
+        mockReport1(SERVICE_CREDS);
+        mockUserReportsDigest(SERVICE_CREDS);
+        mockFetchAttachmentWithInternalServerError(SERVICE_CREDS);
+
+        fetchAttachmentWithBadStatusCode(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+    }
 }
