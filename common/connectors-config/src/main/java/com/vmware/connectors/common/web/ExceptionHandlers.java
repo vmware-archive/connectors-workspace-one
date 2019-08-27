@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.vmware.connectors.common.utils.CommonUtils.BACKEND_STATUS;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -30,8 +31,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @ControllerAdvice
 public class ExceptionHandlers {
 	private final static Logger logger = LoggerFactory.getLogger(ExceptionHandlers.class);
-
-	private final static String BACKEND_STATUS = "X-Backend-Status";
 
 	// Handles validation exceptions
 	@ExceptionHandler(WebExchangeBindException.class)

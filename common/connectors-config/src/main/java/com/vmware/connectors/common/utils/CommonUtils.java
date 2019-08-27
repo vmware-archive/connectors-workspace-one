@@ -15,6 +15,8 @@ public final class CommonUtils {
 
     private static final String DEFAULT_IMAGE_PATH = "/images/connector.png";
 
+    public final static String BACKEND_STATUS = "X-Backend-Status";
+
     private CommonUtils() {
         // Utility class.
     }

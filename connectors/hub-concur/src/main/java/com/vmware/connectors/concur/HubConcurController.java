@@ -5,12 +5,14 @@
 
 package com.vmware.connectors.concur;
 
+import com.nimbusds.jose.util.StandardCharset;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.web.UserException;
 import com.vmware.connectors.concur.domain.*;
 import com.vmware.connectors.concur.exception.AttachmentURLNotFoundException;
+import io.netty.buffer.ByteBufAllocator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -19,8 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -40,8 +44,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.vmware.connectors.common.utils.CommonUtils.BACKEND_STATUS;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.*;
 
 @RestController
@@ -493,7 +499,7 @@ public class HubConcurController {
                 .exchange();
     }
 
-    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(ClientResponse response, String reportId) {
+    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(final ClientResponse response, final String reportId) {
         if (response.statusCode().is2xxSuccessful()) {
             return ResponseEntity.ok()
                     .contentType(response.headers().contentType().orElse(APPLICATION_PDF))
@@ -501,11 +507,38 @@ public class HubConcurController {
                     .body(response.bodyToFlux(DataBuffer.class));
 
         }
-        return ResponseEntity.status(response.statusCode()).build();
+
+        return handleErrorStatus(response);
+    }
+
+    private ResponseEntity<Flux<DataBuffer>> handleErrorStatus(final ClientResponse response) {
+        final HttpStatus status = response.statusCode();
+        final String backendStatus = Integer.toString(response.rawStatusCode());
+
+        if (status == UNAUTHORIZED) {
+            String body = "{\"error\" : \"invalid_connector_token\"}";
+            final DataBuffer dataBuffer = convertStringToDataBuffer(body);
+            return ResponseEntity.status(BAD_REQUEST)
+                    .header(BACKEND_STATUS, backendStatus)
+                    .contentType(APPLICATION_JSON)
+                    .body(Flux.just(dataBuffer));
+        } else {
+            final ResponseEntity.BodyBuilder builder = ResponseEntity.status(INTERNAL_SERVER_ERROR).header(BACKEND_STATUS, backendStatus);
+            final MediaType contentType = response.headers().contentType().orElse(null);
+            if (contentType != null) {
+                builder.contentType(contentType);
+            }
+            return builder.body(response.bodyToFlux(DataBuffer.class));
+        }
+    }
+
+    private DataBuffer convertStringToDataBuffer(String body) {
+        final NettyDataBufferFactory factory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
+        return factory.wrap(body.getBytes(StandardCharset.UTF_8));
     }
 
     @ExceptionHandler(AttachmentURLNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(NOT_FOUND)
     @ResponseBody
     public Map<String, String> handleAttachmentURLNotFoundException(AttachmentURLNotFoundException e) {
         return Map.of("message", e.getMessage());
