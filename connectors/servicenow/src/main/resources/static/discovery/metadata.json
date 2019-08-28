@@ -78,25 +78,17 @@
       "metadata": {
         "workflowId": "ViewCart"
       }
-    }
-  },
-  "actions": {
-    "create_task": {
-      "url": {
-        "href": "${CONNECTOR_HOST}/api/v1/task/create"
-      },
-      "user_input": [],
-      "request": {
-        "type": {
-          "env": "TASK_TYPE"
-        },
-        "short_description": {
-          "env": "TASK_SHORT_DESCRIPTION"
+    },
+    "createTask": {
+      "fields": {
+        "contextId": {
+          "env": "CONTEXT_ID",
+          "required": false
         }
       },
-      "label": "Create Task",
-      "type": "POST",
-      "action_key": "USER_INPUT",
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/task/create-object"
+      },
       "metadata": {
         "workflowId": "CreateTask"
       }

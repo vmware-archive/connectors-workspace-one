@@ -1,44 +1,46 @@
 {
   "objects": [
     {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "title": "ServiceNow ticket: TKT0010001",
-      "contextId": "task-context-1",
-      "shortDescription": "Via connector action",
-      "workflowId": "ViewTask",
-      "actions": [
-        {
-          "title": "Delete ticket",
-          "description": "Delete this ticket from ServiceNow.",
-          "workflowId": "DeleteTask",
-          "type": "DELETE",
-          "url": {
-            "href": "https://mf/connectors/abc123/task/api/v1/tasks/f8cfe469db153300ea92eb41ca96198b"
-          },
-          "payload": {},
-          "userInput": {}
-        }
-      ]
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "ServiceNow ticket: TKT0010001",
+        "contextId": "task-context-1",
+        "description": "Via connector action",
+        "workflowId": "ViewTask",
+        "actions": [
+          {
+            "title": "Delete ticket",
+            "description": "Delete this ticket from ServiceNow.",
+            "type": "DELETE",
+            "url": {
+              "href": "https://mf/connectors/abc123/task/api/v1/tasks/f8cfe469db153300ea92eb41ca96198b"
+            },
+            "payload": {},
+            "userInput": []
+          }
+        ]
+      }
     },
     {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "title": "ServiceNow ticket: TKT0010002",
-      "contextId": "task-context-1",
-      "shortDescription": "Via connector action 2",
-      "workflowId": "ViewTask",
-      "actions": [
-        {
-          "title": "Delete ticket",
-          "description": "Delete this ticket from ServiceNow.",
-          "workflowId": "DeleteTask",
-          "type": "DELETE",
-          "url": {
-            "href": "https://mf/connectors/abc123/task/api/v1/tasks/f9817ca9db153300ea92eb41ca9619d7"
-          },
-          "payload": {},
-          "userInput": {}
-        }
-      ]
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "ServiceNow ticket: TKT0010002",
+        "contextId": "task-context-1",
+        "description": "Via connector action 2",
+        "workflowId": "ViewTask",
+        "actions": [
+          {
+            "title": "Delete ticket",
+            "description": "Delete this ticket from ServiceNow.",
+            "type": "DELETE",
+            "url": {
+              "href": "https://mf/connectors/abc123/task/api/v1/tasks/f9817ca9db153300ea92eb41ca9619d7"
+            },
+            "payload": {},
+            "userInput": []
+          }
+        ]
+      }
     }
   ]
 }

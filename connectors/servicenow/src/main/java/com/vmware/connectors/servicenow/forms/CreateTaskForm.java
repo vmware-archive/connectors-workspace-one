@@ -7,7 +7,6 @@ package com.vmware.connectors.servicenow.forms;
 
 import javax.validation.constraints.NotBlank;
 
-@SuppressWarnings("PMD.MethodNamingConventions")
 public class CreateTaskForm {
 
     @NotBlank
@@ -28,7 +27,7 @@ public class CreateTaskForm {
         return shortDescription;
     }
 
-    public void setShort_description(String shortDescription) {
+    public void setShortDescription(String shortDescription) {
         this.shortDescription = shortDescription;
     }
 }
