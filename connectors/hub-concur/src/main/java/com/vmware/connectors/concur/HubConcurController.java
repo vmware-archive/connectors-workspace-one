@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.concur;
 
+import com.nimbusds.jose.util.StandardCharset;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
@@ -19,11 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.HtmlUtils;
 import reactor.core.publisher.Flux;
@@ -39,7 +42,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.vmware.connectors.common.utils.CommonUtils.BACKEND_STATUS;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.*;
 
 @RestController
@@ -58,6 +64,8 @@ public class HubConcurController {
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
 
     private static final String ATTACHMENT_URL = "%sapi/expense/report/%s/attachment";
+
+    private static final String CONTENT_DISPOSITION_FORMAT = "Content-Disposition: inline; filename=\"%s.pdf\"";
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
@@ -459,10 +467,9 @@ public class HubConcurController {
     }
 
     @GetMapping(
-            path = "api/expense/report/{id}/attachment",
-            produces = APPLICATION_OCTET_STREAM_VALUE
+            path = "api/expense/report/{id}/attachment"
     )
-    public Flux<DataBuffer> fetchAttachment(
+    public Mono<ResponseEntity<Flux<DataBuffer>>> fetchAttachment(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
@@ -474,11 +481,12 @@ public class HubConcurController {
 
         return fetchLoginIdFromUserEmail(userEmail, baseUrl, authHeader)
                 .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, authHeader))
-                .flatMap(ignore -> fetchRequestData(baseUrl, reportId, authHeader))
-                .flatMapMany(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth));
+                .then(fetchRequestData(baseUrl, reportId, authHeader))
+                .flatMap(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth))
+                .map(clientResponse -> handleClientResponse(clientResponse, reportId));
     }
 
-    private Flux<DataBuffer> getAttachment(ExpenseReportResponse report, String connectorAuth) {
+    private Mono<ClientResponse> getAttachment(ExpenseReportResponse report, String connectorAuth) {
         if (StringUtils.isBlank(report.getReportImageURL())) {
             throw new AttachmentURLNotFoundException("Concur expense report with ID " + report.getReportID() + " does not have any attachments.");
         }
@@ -486,12 +494,43 @@ public class HubConcurController {
         return this.rest.get()
                 .uri(report.getReportImageURL())
                 .header(AUTHORIZATION, connectorAuth)
-                .retrieve()
-                .bodyToFlux(DataBuffer.class);
+                .exchange();
+    }
+
+    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(final ClientResponse response, final String reportId) {
+        if (response.statusCode().is2xxSuccessful()) {
+            return ResponseEntity.ok()
+                    .contentType(response.headers().contentType().orElse(APPLICATION_PDF))
+                    .header(CONTENT_DISPOSITION, String.format(CONTENT_DISPOSITION_FORMAT, reportId))
+                    .body(response.bodyToFlux(DataBuffer.class));
+
+        }
+
+        return handleErrorStatus(response);
+    }
+
+    private ResponseEntity<Flux<DataBuffer>> handleErrorStatus(final ClientResponse response) {
+        final HttpStatus status = response.statusCode();
+        final String backendStatus = Integer.toString(response.rawStatusCode());
+
+        logger.error("Concur backend returned the status code [{}] and reason phrase [{}] ", status, status.getReasonPhrase());
+
+        if (status == UNAUTHORIZED) {
+            String body = "{\"error\" : \"invalid_connector_token\"}";
+            final DataBuffer dataBuffer = new DefaultDataBufferFactory().wrap(body.getBytes(StandardCharset.UTF_8));
+            return ResponseEntity.status(BAD_REQUEST)
+                    .header(BACKEND_STATUS, backendStatus)
+                    .contentType(APPLICATION_JSON)
+                    .body(Flux.just(dataBuffer));
+        } else {
+            final ResponseEntity.BodyBuilder builder = ResponseEntity.status(INTERNAL_SERVER_ERROR).header(BACKEND_STATUS, backendStatus);
+            response.headers().contentType().ifPresent(builder::contentType);
+            return builder.body(response.bodyToFlux(DataBuffer.class));
+        }
     }
 
     @ExceptionHandler(AttachmentURLNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(NOT_FOUND)
     @ResponseBody
     public Map<String, String> handleAttachmentURLNotFoundException(AttachmentURLNotFoundException e) {
         return Map.of("message", e.getMessage());
