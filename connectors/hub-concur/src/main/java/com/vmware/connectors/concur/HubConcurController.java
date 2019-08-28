@@ -12,7 +12,6 @@ import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.web.UserException;
 import com.vmware.connectors.concur.domain.*;
 import com.vmware.connectors.concur.exception.AttachmentURLNotFoundException;
-import io.netty.buffer.ByteBufAllocator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -21,10 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.NettyDataBufferFactory;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -515,26 +513,20 @@ public class HubConcurController {
         final HttpStatus status = response.statusCode();
         final String backendStatus = Integer.toString(response.rawStatusCode());
 
+        logger.error("Concur backend returned the status code [{}] and reason phrase [{}] ", status, status.getReasonPhrase());
+
         if (status == UNAUTHORIZED) {
             String body = "{\"error\" : \"invalid_connector_token\"}";
-            final DataBuffer dataBuffer = convertStringToDataBuffer(body);
+            final DataBuffer dataBuffer = new DefaultDataBufferFactory().wrap(body.getBytes(StandardCharset.UTF_8));
             return ResponseEntity.status(BAD_REQUEST)
                     .header(BACKEND_STATUS, backendStatus)
                     .contentType(APPLICATION_JSON)
                     .body(Flux.just(dataBuffer));
         } else {
             final ResponseEntity.BodyBuilder builder = ResponseEntity.status(INTERNAL_SERVER_ERROR).header(BACKEND_STATUS, backendStatus);
-            final MediaType contentType = response.headers().contentType().orElse(null);
-            if (contentType != null) {
-                builder.contentType(contentType);
-            }
+            response.headers().contentType().ifPresent(builder::contentType);
             return builder.body(response.bodyToFlux(DataBuffer.class));
         }
-    }
-
-    private DataBuffer convertStringToDataBuffer(String body) {
-        final NettyDataBufferFactory factory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
-        return factory.wrap(body.getBytes(StandardCharset.UTF_8));
     }
 
     @ExceptionHandler(AttachmentURLNotFoundException.class)
