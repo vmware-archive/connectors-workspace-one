@@ -16,7 +16,7 @@
             "href": "https://mf/connectors/abc123/cart/api/v1/cart"
           },
           "payload": {},
-          "userInput": {}
+          "userInput": []
         },
         {
           "title": "Checkout",
@@ -27,7 +27,7 @@
             "href": "https://mf/connectors/abc123/cart/api/v1/checkout"
           },
           "payload": {},
-          "userInput": {}
+          "userInput": []
         }
       ],
       "children": [
@@ -50,7 +50,7 @@
                 "href": "https://mf/connectors/abc123/cart/api/v1/cart/cd5fad02db113300ea92eb41ca961965"
               },
               "payload": {},
-              "userInput": {}
+              "userInput": []
             }
           ]
         },
@@ -73,7 +73,7 @@
                 "href": "https://mf/connectors/abc123/cart/api/v1/cart/3c7f6d42db113300ea92eb41ca9619f1"
               },
               "payload": {},
-              "userInput": {}
+              "userInput": []
             }
           ]
         },
@@ -96,7 +96,7 @@
                 "href": "https://mf/connectors/abc123/cart/api/v1/cart/26a54e4adb513300ea92eb41ca9619cd"
               },
               "payload": {},
-              "userInput": {}
+              "userInput": []
             }
           ]
         }

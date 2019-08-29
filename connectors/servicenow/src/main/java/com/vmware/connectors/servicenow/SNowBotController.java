@@ -13,6 +13,7 @@ import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.Link;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.servicenow.domain.BotAction;
+import com.vmware.connectors.servicenow.domain.BotActionUserInput;
 import com.vmware.connectors.servicenow.domain.BotItem;
 import com.vmware.connectors.servicenow.domain.BotObjects;
 import com.vmware.connectors.servicenow.domain.snow.*;
@@ -88,14 +89,16 @@ public class SNowBotController {
 
     private static final String OBJECT_TYPE_CART = "cart";
 
+    private static final String CONTEXT_ID = "contextId";
+
     // Workflow ids for objects.
     private static final String WF_ID_CATALOG = "ViewItem";
+    private static final String WF_ID_CREATE_TASK = "CreateTask";
     private static final String WF_ID_TASK = "ViewTask";
     private static final String WF_ID_CART = "ViewCart";
 
     // Workflow ids for object-actions.
     private static final String WF_ID_ADD_TO_CART = "AddItem";
-    private static final String WF_ID_DELETE_TASK = "DeleteTask";
     private static final String WF_ID_EMPTY_CART = "EmptyCart";
     private static final String WF_ID_CHECKOUT = "Checkout";
     private static final String WF_ID_REMOVE_FROM_CART = "RemoveItem";
@@ -130,7 +133,7 @@ public class SNowBotController {
         var catalogName = cardRequest.getTokenSingleValue("catalog");
         var categoryName = cardRequest.getTokenSingleValue("category");
         var searchText = cardRequest.getTokenSingleValue("text");
-        String contextId = cardRequest.getTokenSingleValue("contextId");
+        String contextId = cardRequest.getTokenSingleValue(CONTEXT_ID);
 
         logger.trace("getItems for catalog: {}, category: {}, searchText: {}", catalogName, categoryName, searchText);
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
@@ -270,7 +273,7 @@ public class SNowBotController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<BotObjects> getTasks(
+    public Mono<Map<String, List<Map<String, BotItem>>>> getTasks(
             @RequestHeader(AUTHORIZATION) String mfToken,
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
@@ -291,7 +294,7 @@ public class SNowBotController {
             taskType = cardRequest.getTokenSingleValue("type");
         }
         String taskNumber = cardRequest.getTokenSingleValue(NUMBER);
-        String contextId = cardRequest.getTokenSingleValue("contextId");
+        String contextId = cardRequest.getTokenSingleValue(CONTEXT_ID);
 
         var userEmail = AuthUtil.extractUserEmail(mfToken);
 
@@ -332,20 +335,21 @@ public class SNowBotController {
                 .map(TaskResults::getResult);
     }
 
-    private BotObjects toTaskBotObj(List<Task> tasks, String routingPrefix, String contextId, Locale locale) {
-        BotObjects.Builder objectsBuilder = new BotObjects.Builder();
+    private Map<String, List<Map<String, BotItem>>> toTaskBotObj(List<Task> tasks, String routingPrefix, String contextId, Locale locale) {
+        List<Map<String, BotItem>> taskObjects = new ArrayList<>();
 
         tasks.forEach(task ->
-                objectsBuilder.addObject(new BotItem.Builder()
-                        .setTitle(botTextAccessor.getObjectTitle(OBJECT_TYPE_TASK, locale, task.getNumber()))
-                        .setShortDescription(task.getShortDescription())
-                        .addAction(getDeleteTaskAction(task.getSysId(), routingPrefix, locale))
-                        .setContextId(contextId)
-                        .setWorkflowId(WF_ID_TASK)
-                        .build())
+                taskObjects.add(Map.of("itemDetails",
+                        new BotItem.Builder()
+                                .setTitle(botTextAccessor.getObjectTitle(OBJECT_TYPE_TASK, locale, task.getNumber()))
+                                .setDescription(task.getShortDescription())
+                                .addAction(getDeleteTaskAction(task.getSysId(), routingPrefix, locale))
+                                .setContextId(contextId)
+                                .setWorkflowId(WF_ID_TASK)
+                                .build()))
         );
 
-        return objectsBuilder.build();
+        return Map.of("objects", List.copyOf(taskObjects));
     }
 
     @PostMapping(
@@ -360,7 +364,7 @@ public class SNowBotController {
             Locale locale,
             @RequestBody CardRequest cardRequest) {
 
-        String contextId = cardRequest.getTokenSingleValue("contextId");
+        String contextId = cardRequest.getTokenSingleValue(CONTEXT_ID);
 
         return retrieveUserCart(baseUrl, auth)
                 .map(cartDocument -> toCartBotObj(baseUrl, cartDocument, routingPrefix, contextId, locale));
@@ -455,8 +459,17 @@ public class SNowBotController {
                 .setWorkflowId(WF_ID_ADD_TO_CART)
                 .setType(HttpMethod.PUT)
                 .addReqParam("itemId", itemId)
-                .addUserInputParam("itemCount", botTextAccessor.getActionUserInputLabel("addToCart", "itemCount", locale))
+                .addUserInput(getCartItemCountUserInput(locale))
                 .setUrl(new Link(routingPrefix + "api/v1/cart"))
+                .build();
+    }
+
+    private BotActionUserInput getCartItemCountUserInput(Locale locale) {
+        return new BotActionUserInput.Builder()
+                .setId("itemCount")
+                .setFormat("textarea")
+                .setLabel(botTextAccessor.getActionUserInputLabel("addToCart", "itemCount", locale))
+                .setMinLength(1)
                 .build();
     }
 
@@ -464,18 +477,75 @@ public class SNowBotController {
         return new BotAction.Builder()
                 .setTitle(botTextAccessor.getActionTitle("deleteTicket", locale))
                 .setDescription(botTextAccessor.getActionDescription("deleteTicket", locale))
-                .setWorkflowId(WF_ID_DELETE_TASK)
+                 // Workflow ids not required in actions ?
                 .setType(HttpMethod.DELETE)
                 .setUrl(new Link(routingPrefix + "api/v1/tasks/" + taskSysId))
                 .build();
     }
+
+    private BotAction getCreateTaskAction(String taskType, String routingPrefix, Locale locale) {
+        return new BotAction.Builder()
+                .setTitle(botTextAccessor.getMessage("createTaskAction.title", locale))
+                .setDescription(botTextAccessor.getMessage("createTaskAction.description", locale))
+                .setType(HttpMethod.POST)
+                .setUrl(new Link(routingPrefix + "api/v1/task/create"))
+                .addReqParam("type", taskType)
+                .addUserInput(getTicketDescriptionUserInput(locale))
+                .build();
+    }
+
+    private BotActionUserInput getTicketDescriptionUserInput(Locale locale) {
+        return new BotActionUserInput.Builder()
+                .setId("shortDescription")
+                .setFormat("textarea")
+                .setLabel(botTextAccessor.getMessage("createTaskAction.shortDescription.label", locale))
+                .setMinLength(1)
+                .build();
+    }
+
+    // It is the object which wraps the action - createTask.
+    // Though it best suites as a CLA, for bot specific needs its converted as an object-action.
+    @PostMapping(
+            path = "/api/v1/task/create-object",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Map<String, List<Map<String, BotItem>>>> createTaskObject(
+            @RequestHeader(ROUTING_PREFIX) String routingPrefix,
+            Locale locale,
+            @RequestBody CardRequest cardRequest) {
+
+        String contextId = cardRequest.getTokenSingleValue(CONTEXT_ID);
+        String taskType = "task"; // ToDo: Allow admins to define their "general" type of ticket. (APF-2473)
+
+        return ResponseEntity.ok(
+                getCreateTaskObject(taskType, routingPrefix, contextId, locale)
+        );
+
+    }
+
+    private Map<String, List<Map<String, BotItem>>> getCreateTaskObject(String taskType, String routingPrefix, String contextId, Locale locale) {
+        BotItem.Builder botItemBuilder = new BotItem.Builder()
+                .setTitle(botTextAccessor.getMessage("createTaskObject.title", locale))
+                .setDescription(botTextAccessor.getMessage("createTaskObject.description", locale))
+                .setContextId(contextId)
+                .setWorkflowId(WF_ID_CREATE_TASK)
+                .addAction(getCreateTaskAction(taskType, routingPrefix, locale));
+
+        return Map.of("objects",
+                List.of(
+                        Map.of("itemDetails", botItemBuilder.build())
+                )
+        );
+    }
+
 
     @PostMapping(
             path = "/api/v1/task/create",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Mono<BotObjects> createTask(
+    public Mono<Map<String, List<Map<String, BotItem>>>> createTask(
             @RequestHeader(AUTHORIZATION) String mfToken,
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
@@ -634,7 +704,7 @@ public class SNowBotController {
     @PostMapping(
             path = "/api/v1/checkout"
     )
-    public Mono<BotObjects> checkout(
+    public Mono<Map<String, List<Map<String, BotItem>>>> checkout(
             @RequestHeader(AUTHORIZATION) String mfToken,
             @RequestHeader(AUTH_HEADER) String auth,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,

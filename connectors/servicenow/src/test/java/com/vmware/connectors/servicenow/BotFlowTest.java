@@ -48,6 +48,7 @@ class BotFlowTest extends ControllerTestsBase {
     private static final String OBJ_TYPE_CATALOG_ITEM = "catalog";
     private static final String OBJ_TYPE_TASK = "task";
     private static final String OBJ_TYPE_CART = "cart";
+    private static final String OBJ_TYPE_CREATE_TASK = "createTask";
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -174,7 +175,24 @@ class BotFlowTest extends ControllerTestsBase {
     }
 
     @Test
-    void testCreateTask() throws IOException {
+    void testCreateTaskObject() throws Exception {
+
+        String body = requestObjects("/api/v1/task/create-object", SNOW_AUTH_TOKEN,
+                "/botflows/connector/request/create_task_object.json",
+                OBJ_TYPE_CREATE_TASK, null)
+                .expectStatus().is2xxSuccessful()
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(BotFlowTest::normalizeBotObjects)
+                .block();
+
+        assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/create_task_object.json")).allowingAnyArrayOrdering());
+
+    }
+
+    @Test
+    void testCreateTaskAction() throws IOException {
         String taskType = "ticket";
         mockBackend.expect(requestToUriTemplate("/api/now/table/{taskType}", taskType))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
@@ -189,7 +207,7 @@ class BotFlowTest extends ControllerTestsBase {
 
         MultiValueMap<String, String> actionFormData = new LinkedMultiValueMap<>();
         actionFormData.set("type", taskType);
-        actionFormData.set("short_description", "My mouse is not working.");
+        actionFormData.set("shortDescription", "My mouse is not working.");
 
         String body = performAction(POST, "/api/v1/task/create", SNOW_AUTH_TOKEN, actionFormData)
                 .expectStatus().is2xxSuccessful()
@@ -371,6 +389,8 @@ class BotFlowTest extends ControllerTestsBase {
 
         DocumentContext context = JsonPath.using(configuration).parse(body);
         context.set("$.objects[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
+        // Above line can be removed, when all the bot flows move to the latest schema.
+        context.set("$.objects[*].itemDetails[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
         context.set("$.objects[*].children[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
         return context.jsonString();
     }
