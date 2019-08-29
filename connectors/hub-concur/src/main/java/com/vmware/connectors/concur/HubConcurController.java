@@ -128,7 +128,8 @@ public class HubConcurController {
 
     }
 
-    private Mono<String> fetchOAuthToken(final String connectorAuth) {
+    private Mono<String> fetchOAuthToken(final String auth) {
+        final String connectorAuth = getAuthHeader(auth);
         final String[] authValues = connectorAuth.split(":");
 
         // Service account credential format - username:password:client-id:client-secret
@@ -154,7 +155,7 @@ public class HubConcurController {
     }
 
     public Throwable handleForbiddenException(WebClientResponseException e) {
-        // We have to convert the exception to return 401, since concur returns 403 for invalid credentials.
+        // We have to convert the exception to return UNAUTHORIZED(401), since concur returns FORBIDDEN(403) for invalid credentials.
         if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
             return new WebClientResponseException(
                     e.getMessage(),
@@ -204,6 +205,14 @@ public class HubConcurController {
                 .flatMap(expense -> fetchRequestData(baseUrl, expense.getId(), connectorAuth))
                 .map(report -> makeCards(routingPrefix, locale, report))
                 .reduce(new Cards(), this::addCard);
+    }
+
+    private String getAuthHeader(final String connectorAuth) {
+        if (StringUtils.isBlank(this.serviceAccountAuthHeader)) {
+            return connectorAuth;
+        } else {
+            return this.serviceAccountAuthHeader;
+        }
     }
 
     private Mono<String> fetchLoginIdFromUserEmail(

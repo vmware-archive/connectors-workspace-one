@@ -5,17 +5,26 @@
 
 package com.vmware.connectors.concur;
 
+import com.vmware.connectors.mock.MockWebServerWrapper;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.connectors.test.JsonNormalizer;
+import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.support.TestPropertySourceUtils;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
@@ -32,15 +41,36 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
+@ContextConfiguration(initializers = HubConcurControllerTestBase.CustomInitializer.class)
 class HubConcurControllerTestBase extends ControllerTestsBase {
 
     static final String CALLER_SERVICE_CREDS = "OAuth service-creds-from-http-request";
     static final String CONFIG_SERVICE_CREDS = "OAuth service-creds-from-config";
 
-    static final String SERVICE_CREDS = "service-creds-from-http-request";
+    static final String SERVICE_CREDS = "Bearer username:password:client-id:client-secret";
 
     @Value("classpath:com/vmware/connectors/concur/download.pdf")
     private Resource attachment;
+
+    @Value("classpath:fake/oauth_token.json")
+    private Resource oauthToken;
+
+    private static MockWebServerWrapper mockConcurServer;
+
+    @BeforeAll
+    static void createMock() {
+        mockConcurServer = new MockWebServerWrapper(new MockWebServer());
+    }
+
+    @BeforeEach
+    void resetConcurServer() {
+        mockConcurServer.reset();
+    }
+
+    @AfterEach
+    void verifyConcurServer() {
+      mockConcurServer.verify();
+    }
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -256,6 +286,8 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     }
 
     void mockUserDetailReport(String serviceCredential, String userDetails) throws Exception {
+        mockOAuthToken();
+
         mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin%40acme.com"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
@@ -263,10 +295,26 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .andRespond(withSuccess(fromFile(userDetails).replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
+    void mockOAuthToken() {
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                //.andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
+    }
+
     void mockReport1Action() {
         mockBackend.expect(requestTo("/api/expense/expensereport/v1.1/report/gWqmsMJ27KYsYDsraMCRfUtd5Y9ha96y0lRUG0nBXhO0/WorkFlowAction"))
                 .andExpect(method(POST))
                 .andExpect(content().contentType(APPLICATION_XML))
                 .andRespond(withSuccess());
+    }
+
+    public static class CustomInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+        @Override
+        public void initialize(ConfigurableApplicationContext applicationContext) {
+            final String concurUrl = HubConcurControllerTestBase.mockConcurServer.url("");
+            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(applicationContext, "concur.oauth-instance-url=" + concurUrl);
+        }
     }
 }

@@ -22,8 +22,8 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
             "xx, success_xx.json"
     })
     void testCardsRequests(String lang, String expected) throws Exception {
-        mockConcurRequests(CALLER_SERVICE_CREDS);
-        cardsRequest(lang, expected, CALLER_SERVICE_CREDS);
+        mockConcurRequests(SERVICE_CREDS);
+        cardsRequest(lang, expected, SERVICE_CREDS);
     }
 
     @Test
@@ -34,9 +34,9 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
 
     @Test
     void testApproveRequest() throws Exception {
-        mockActionRequests(CALLER_SERVICE_CREDS);
+        mockActionRequests(SERVICE_CREDS);
 
-        approveRequest(CALLER_SERVICE_CREDS)
+        approveRequest(SERVICE_CREDS)
                 .expectStatus().isOk();
     }
 
@@ -49,17 +49,17 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
     @Test
     void testUnauthorizedApproveRequest() throws Exception {
         // User tries to approve an expense report that isn't theirs
-        mockEmptyReportsDigest(CALLER_SERVICE_CREDS);
+        mockEmptyReportsDigest(SERVICE_CREDS);
 
-        approveRequest(CALLER_SERVICE_CREDS)
+        approveRequest(SERVICE_CREDS)
                 .expectStatus().isNotFound();
     }
 
     @Test
     void testRejectRequest() throws Exception {
-        mockActionRequests(CALLER_SERVICE_CREDS);
+        mockActionRequests(SERVICE_CREDS);
 
-        rejectRequest(CALLER_SERVICE_CREDS)
+        rejectRequest(SERVICE_CREDS)
                 .expectStatus().isOk();
     }
 
@@ -72,9 +72,9 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
     @Test
     void testUnauthorizedRejectRequest() throws Exception {
         // User tries to reject an expense report that isn't theirs
-        mockEmptyReportsDigest(CALLER_SERVICE_CREDS);
+        mockEmptyReportsDigest(SERVICE_CREDS);
 
-        rejectRequest(CALLER_SERVICE_CREDS)
+        rejectRequest(SERVICE_CREDS)
                 .expectStatus().isNotFound();
     }
 
