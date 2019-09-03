@@ -191,6 +191,14 @@ public class HubConcurController {
         }
     }
 
+    private String getAuthHeader(final String connectorAuth) {
+        if (StringUtils.isBlank(this.serviceAccountAuthHeader)) {
+            return connectorAuth;
+        } else {
+            return this.serviceAccountAuthHeader;
+        }
+    }
+
     private Mono<Cards> fetchCards(
             String baseUrl,
             Locale locale,
@@ -205,14 +213,6 @@ public class HubConcurController {
                 .flatMap(expense -> fetchRequestData(baseUrl, expense.getId(), connectorAuth))
                 .map(report -> makeCards(routingPrefix, locale, report))
                 .reduce(new Cards(), this::addCard);
-    }
-
-    private String getAuthHeader(final String connectorAuth) {
-        if (StringUtils.isBlank(this.serviceAccountAuthHeader)) {
-            return connectorAuth;
-        } else {
-            return this.serviceAccountAuthHeader;
-        }
     }
 
     private Mono<String> fetchLoginIdFromUserEmail(

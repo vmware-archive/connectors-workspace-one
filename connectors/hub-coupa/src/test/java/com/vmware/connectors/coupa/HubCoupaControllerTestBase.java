@@ -10,8 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.stream.Collectors;
@@ -188,6 +186,5 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
                         APPLICATION_JSON
                 ));
     }
-
 
 }

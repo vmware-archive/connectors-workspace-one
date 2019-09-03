@@ -22,8 +22,8 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
             "xx, success_xx.json"
     })
     void testCardsRequests(String lang, String expected) throws Exception {
-        mockConcurRequests(SERVICE_CREDS);
-        cardsRequest(lang, expected, SERVICE_CREDS);
+        mockConcurRequests(CALLER_SERVICE_CREDS);
+        cardsRequest(lang, expected, CALLER_SERVICE_CREDS);
     }
 
     @Test
@@ -34,9 +34,9 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
 
     @Test
     void testApproveRequest() throws Exception {
-        mockActionRequests(SERVICE_CREDS);
+        mockActionRequests(CALLER_SERVICE_CREDS);
 
-        approveRequest(SERVICE_CREDS)
+        approveRequest(CALLER_SERVICE_CREDS)
                 .expectStatus().isOk();
     }
 
@@ -49,17 +49,17 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
     @Test
     void testUnauthorizedApproveRequest() throws Exception {
         // User tries to approve an expense report that isn't theirs
-        mockEmptyReportsDigest(SERVICE_CREDS);
+        mockEmptyReportsDigest(CALLER_SERVICE_CREDS);
 
-        approveRequest(SERVICE_CREDS)
+        approveRequest(CALLER_SERVICE_CREDS)
                 .expectStatus().isNotFound();
     }
 
     @Test
     void testRejectRequest() throws Exception {
-        mockActionRequests(SERVICE_CREDS);
+        mockActionRequests(CALLER_SERVICE_CREDS);
 
-        rejectRequest(SERVICE_CREDS)
+        rejectRequest(CALLER_SERVICE_CREDS)
                 .expectStatus().isOk();
     }
 
@@ -72,62 +72,62 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
     @Test
     void testUnauthorizedRejectRequest() throws Exception {
         // User tries to reject an expense report that isn't theirs
-        mockEmptyReportsDigest(SERVICE_CREDS);
+        mockEmptyReportsDigest(CALLER_SERVICE_CREDS);
 
-        rejectRequest(SERVICE_CREDS)
+        rejectRequest(CALLER_SERVICE_CREDS)
                 .expectStatus().isNotFound();
     }
 
     @Test
     void fetchAttachmentForValidUser() throws Exception {
-        mockReport1(SERVICE_CREDS);
-        mockFetchAttachment(SERVICE_CREDS);
-        mockUserReportsDigest(SERVICE_CREDS);
+        mockReport1(CALLER_SERVICE_CREDS);
+        mockFetchAttachment(CALLER_SERVICE_CREDS);
+        mockUserReportsDigest(CALLER_SERVICE_CREDS);
 
-        fetchAttachment(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+        fetchAttachment(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F");
     }
 
     @Test
     void fetchAttachmentForInvalidUserLoginID() throws Exception {
         // Invalid user tries to fetch an expense report attachment.
-        mockUserDetailReport(SERVICE_CREDS, "/fake/invalid-user-details.json");
-        mockReportsDigest(SERVICE_CREDS, "invalid%40acme.com");
+        mockUserDetailReport(CALLER_SERVICE_CREDS, "/fake/invalid-user-details.json");
+        mockReportsDigest(CALLER_SERVICE_CREDS, "invalid%40acme.com");
 
-        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+        fetchAttachmentForInvalidDetails(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F");
     }
 
     @Test
     void fetchAttachmentForInvalidAttachmentID() throws Exception {
         // Valid user tries to fetch an expense report attachment which does not belong to them.
-        mockUserDetailReport(SERVICE_CREDS, "/fake/user-details.json");
-        mockReportsDigest(SERVICE_CREDS, "admin%40acme.com");
+        mockUserDetailReport(CALLER_SERVICE_CREDS, "/fake/user-details.json");
+        mockReportsDigest(CALLER_SERVICE_CREDS, "admin%40acme.com");
 
-        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "invalid-attachment-id");
+        fetchAttachmentForInvalidDetails(CALLER_SERVICE_CREDS, "invalid-attachment-id");
     }
 
     @Test
     void testAttachmentUrlNotFound() throws Exception {
-        mockUserReportsDigest(SERVICE_CREDS);
-        mockReportWithEmptyAttachmentURL(SERVICE_CREDS);
+        mockUserReportsDigest(CALLER_SERVICE_CREDS);
+        mockReportWithEmptyAttachmentURL(CALLER_SERVICE_CREDS);
 
-        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+        fetchAttachmentForInvalidDetails(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F");
     }
 
     @Test
     void testUnauthorizedError() throws Exception {
-        mockReport1(SERVICE_CREDS);
-        mockUserReportsDigest(SERVICE_CREDS);
-        mockFetchAttachmentWithUnauthorized(SERVICE_CREDS);
+        mockReport1(CALLER_SERVICE_CREDS);
+        mockUserReportsDigest(CALLER_SERVICE_CREDS);
+        mockFetchAttachmentWithUnauthorized(CALLER_SERVICE_CREDS);
 
-        fetchAttachmentForUnauthorizedCredential(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+        fetchAttachmentForUnauthorizedCredential(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F");
     }
 
     @Test
     void testBadStatusCode() throws Exception {
-        mockReport1(SERVICE_CREDS);
-        mockUserReportsDigest(SERVICE_CREDS);
-        mockFetchAttachmentWithInternalServerError(SERVICE_CREDS);
+        mockReport1(CALLER_SERVICE_CREDS);
+        mockUserReportsDigest(CALLER_SERVICE_CREDS);
+        mockFetchAttachmentWithInternalServerError(CALLER_SERVICE_CREDS);
 
-        fetchAttachmentWithBadStatusCode(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+        fetchAttachmentWithBadStatusCode(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F");
     }
 }
