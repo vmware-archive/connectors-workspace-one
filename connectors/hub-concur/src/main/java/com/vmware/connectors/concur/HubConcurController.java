@@ -5,7 +5,6 @@
 
 package com.vmware.connectors.concur;
 
-import com.google.common.collect.ImmutableList;
 import com.nimbusds.jose.util.StandardCharset;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
@@ -122,18 +121,17 @@ public class HubConcurController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        return fetchOAuthToken(connectorAuth)
+        return getAuthHeader(connectorAuth)
                 .flatMap(accessToken -> fetchCards(baseUrl, locale, routingPrefix, userEmail, accessToken)
                         .map(ResponseEntity::ok));
-
     }
 
-    private Mono<String> fetchOAuthToken(final String auth) {
-        final String connectorAuth = getAuthHeader(auth);
+    private Mono<String> getAuthHeader(final String auth) {
+        final String connectorAuth = getServiceAccountCredential(auth);
         final String[] authValues = connectorAuth.split(":");
 
         // Service account credential format - username:password:client-id:client-secret
-        if (authValues.length < AUTH_VALUES_COUNT) {
+        if (authValues.length != AUTH_VALUES_COUNT) {
             throw new InvalidServiceAccountCredentialException("Service account credential is invalid.");
         }
 
@@ -173,11 +171,11 @@ public class HubConcurController {
                                                   final String clientSecret) {
         final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 
-        body.put(CLIENT_ID, ImmutableList.of(clientId));
-        body.put(CLIENT_SECRET, ImmutableList.of(clientSecret));
-        body.put(USERNAME, ImmutableList.of(username));
-        body.put(PASSWORD, ImmutableList.of(password));
-        body.put(GRANT_TYPE, ImmutableList.of(PASSWORD));
+        body.put(CLIENT_ID, List.of(clientId));
+        body.put(CLIENT_SECRET, List.of(clientSecret));
+        body.put(USERNAME, List.of(username));
+        body.put(PASSWORD, List.of(password));
+        body.put(GRANT_TYPE, List.of(PASSWORD));
 
         return body;
     }
@@ -191,7 +189,7 @@ public class HubConcurController {
         }
     }
 
-    private String getAuthHeader(final String connectorAuth) {
+    private String getServiceAccountCredential(final String connectorAuth) {
         if (StringUtils.isBlank(this.serviceAccountAuthHeader)) {
             return connectorAuth;
         } else {
@@ -458,7 +456,7 @@ public class HubConcurController {
         }
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return fetchOAuthToken(connectorAuth)
+        return getAuthHeader(connectorAuth)
                 .flatMap(accessToken -> makeConcurRequest(form.getComment(), baseUrl, APPROVE, id, userEmail, accessToken)
                         .map(ResponseEntity::ok));
     }
@@ -536,7 +534,7 @@ public class HubConcurController {
         }
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return fetchOAuthToken(connectorAuth)
+        return getAuthHeader(connectorAuth)
                 .flatMap(accessToken -> makeConcurRequest(form.getReason(), baseUrl, REJECT, id, userEmail, accessToken)
                         .map(ResponseEntity::ok));
     }
@@ -553,7 +551,7 @@ public class HubConcurController {
         final String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, reportId={}", baseUrl, userEmail, reportId);
 
-        return fetchOAuthToken(connectorAuth)
+        return getAuthHeader(connectorAuth)
                 .flatMap(accessToken -> fetchLoginIdFromUserEmail(userEmail, baseUrl, accessToken)
                         .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, accessToken))
                         .then(fetchRequestData(baseUrl, reportId, accessToken))
@@ -612,7 +610,7 @@ public class HubConcurController {
     }
 
     @ExceptionHandler(InvalidServiceAccountCredentialException.class)
-    @ResponseStatus(UNAUTHORIZED)
+    @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public Map<String, String> handleInvalidServiceAccountCredentialException(InvalidServiceAccountCredentialException e) {
         return Map.of("message", e.getMessage());

@@ -69,5 +69,4 @@ class HubConcurCustomerHostedTest extends HubConcurControllerTestBase {
         rejectRequest("")
                 .expectStatus().isNotFound();
     }
-
 }

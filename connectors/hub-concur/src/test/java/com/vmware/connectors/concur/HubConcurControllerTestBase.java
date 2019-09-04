@@ -25,6 +25,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
+import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -38,15 +39,14 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 @ContextConfiguration(initializers = HubConcurControllerTestBase.CustomInitializer.class)
 class HubConcurControllerTestBase extends ControllerTestsBase {
 
     static final String CALLER_SERVICE_CREDS = "Bearer username:password:client-id:client-secret-from-http-request";
-    static final String CONFIG_SERVICE_CREDS = "Bearer username:password:client-id:client-secret-from-config";
+    static final String CONFIG_SERVICE_CREDS = "Bearer abc-from-config";
 
     @Value("classpath:com/vmware/connectors/concur/download.pdf")
     private Resource attachment;
@@ -163,6 +163,11 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
         );
     }
 
+    void testServiceAccountCredential(String serviceCredential) {
+        getAttachment(serviceCredential, "1D3BD2E14D144508B05F")
+                .exchange().expectStatus().isBadRequest();
+    }
+
     void fetchAttachment(String serviceCredential, String attachmentId) throws IOException {
         byte[] body = getAttachment(serviceCredential, attachmentId)
                 .exchange().expectStatus().isOk()
@@ -188,6 +193,16 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     void fetchAttachmentWithBadStatusCode(String serviceCredential, String attachmentId) throws IOException {
         getAttachment(serviceCredential, attachmentId)
                 .exchange().expectStatus().is5xxServerError();
+    }
+
+    void unauthorizedServiceAccountCredential() {
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+                .andRespond(withUnauthorizedRequest());
+
+        getAttachment(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("X-Backend-Status", "401");
     }
 
     private WebTestClient.RequestHeadersSpec<?> getAttachment(String serviceCredential, String attachmentId) {
@@ -298,16 +313,14 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     }
 
     void mockOAuthToken(String serviceCredential) {
+        ResponseActions responseActions = mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED));
+
         if (CONFIG_SERVICE_CREDS.equals(serviceCredential)) {
-            mockConcurServer.expect(requestTo("/oauth2/v0/token"))
-                    .andExpect(method(POST))
-                    .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
-                    .andRespond(withSuccess(oauthTokenFromConfig, APPLICATION_JSON));
+            responseActions.andRespond(withSuccess(oauthTokenFromConfig, APPLICATION_JSON));
         } else {
-            mockConcurServer.expect(requestTo("/oauth2/v0/token"))
-                    .andExpect(method(POST))
-                    .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
-                    .andRespond(withSuccess(oauthTokenFromHttpRequest, APPLICATION_JSON));
+            responseActions.andRespond(withSuccess(oauthTokenFromHttpRequest, APPLICATION_JSON));
         }
     }
 

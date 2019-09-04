@@ -130,4 +130,20 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
 
         fetchAttachmentWithBadStatusCode(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F");
     }
+
+    @ParameterizedTest
+    @CsvSource({
+            // Service account credential length < 4
+            "username:client-id:client-secret",
+            // Service account credential length > 4
+            "username:password:client-id:client-secret:junk"
+    })
+    void testInvalidServiceAccountCredential(String serviceCredential) {
+        testServiceAccountCredential(serviceCredential);
+    }
+
+    @Test
+    void testUnauthorizedServiceAccountCredential() {
+        unauthorizedServiceAccountCredential();
+    }
 }
