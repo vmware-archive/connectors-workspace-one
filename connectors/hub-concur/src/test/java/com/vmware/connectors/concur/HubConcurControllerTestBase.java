@@ -25,9 +25,8 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
-import org.springframework.test.web.client.ResponseActions;
-import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.io.IOException;
@@ -45,17 +44,22 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 @ContextConfiguration(initializers = HubConcurControllerTestBase.CustomInitializer.class)
 class HubConcurControllerTestBase extends ControllerTestsBase {
 
-    static final String CALLER_SERVICE_CREDS = "Bearer username:password:client-id:client-secret-from-http-request";
-    static final String CONFIG_SERVICE_CREDS = "Bearer abc-from-config";
+    static final String CALLER_SERVICE_CREDS = "username:password:client-id:client-secret-from-http-request";
+    static final String CONFIG_SERVICE_CREDS = "username:password:client-id:client-secret-from-config";
+
+    static final String EXPECTED_AUTH_HEADER = "Bearer test-access-token";
+
+    protected static final String CLIENT_ID = "client_id";
+    protected static final String CLIENT_SECRET = "client_secret";
+    protected static final String USERNAME = "username";
+    protected static final String PASSWORD = "password";
+    protected static final String GRANT_TYPE = "grant_type";
 
     @Value("classpath:com/vmware/connectors/concur/download.pdf")
     private Resource attachment;
 
-    @Value("classpath:fake/oauth_token_from_config.json")
-    private Resource oauthTokenFromConfig;
-
-    @Value("classpath:fake/oauth_token_from_http_request.json")
-    private Resource oauthTokenFromHttpRequest;
+    @Value("classpath:fake/oauth_token.json")
+    private Resource oauthToken;
 
     private static MockWebServerWrapper mockConcurServer;
 
@@ -303,8 +307,6 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     }
 
     void mockUserDetailReport(String serviceCredential, String userDetails) throws Exception {
-        mockOAuthToken(serviceCredential);
-
         mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin%40acme.com"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
@@ -312,16 +314,12 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .andRespond(withSuccess(fromFile(userDetails).replace("${concur_host}", mockBackend.url("")), APPLICATION_JSON));
     }
 
-    void mockOAuthToken(String serviceCredential) {
-        ResponseActions responseActions = mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+    void mockOAuthToken(MultiValueMap<String, String> body) {
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
                 .andExpect(method(POST))
-                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED));
-
-        if (CONFIG_SERVICE_CREDS.equals(serviceCredential)) {
-            responseActions.andRespond(withSuccess(oauthTokenFromConfig, APPLICATION_JSON));
-        } else {
-            responseActions.andRespond(withSuccess(oauthTokenFromHttpRequest, APPLICATION_JSON));
-        }
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(body))
+                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
     }
 
     void mockReport1Action() {

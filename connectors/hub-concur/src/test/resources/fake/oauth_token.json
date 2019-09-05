@@ -2,7 +2,7 @@
   "expires_in": 3600,
   "scope": "CCARD COMPD USER user_read EMERG ERECPT ITINER LIST PASSV CONFIG CONREQ COMPANY EVS TRVPTS ATTEND INVPO TRVREQ SUPSVC EXPRPT EXTRCT PAYBAT INVPMT IMAGE TAXINV RCTIMG UNUTX TWS TMCSP INVVEN openid INVTV MEDIC TSAI",
   "token_type": "Bearer",
-  "access_token": "abc-from-config",
+  "access_token": "test-access-token",
   "refresh_token": "dummy-refresh-token",
   "refresh_expires_in": 1548221423,
   "id_token": "abc",

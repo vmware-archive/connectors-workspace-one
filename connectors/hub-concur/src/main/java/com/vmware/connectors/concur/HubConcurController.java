@@ -555,7 +555,7 @@ public class HubConcurController {
                 .flatMap(accessToken -> fetchLoginIdFromUserEmail(userEmail, baseUrl, accessToken)
                         .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, accessToken))
                         .then(fetchRequestData(baseUrl, reportId, accessToken))
-                        .flatMap(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth))
+                        .flatMap(expenseReportResponse -> getAttachment(expenseReportResponse, accessToken))
                         .map(clientResponse -> handleClientResponse(clientResponse, reportId)));
     }
 
