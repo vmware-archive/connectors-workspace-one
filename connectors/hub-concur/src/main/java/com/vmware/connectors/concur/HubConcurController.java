@@ -122,7 +122,7 @@ public class HubConcurController {
         }
 
         return getAuthHeader(connectorAuth)
-                .flatMap(accessToken -> fetchCards(baseUrl, locale, routingPrefix, userEmail, accessToken)
+                .flatMap(authHeader -> fetchCards(baseUrl, locale, routingPrefix, userEmail, authHeader)
                         .map(ResponseEntity::ok));
     }
 
@@ -165,6 +165,7 @@ public class HubConcurController {
         }
         return e;
     }
+
     private MultiValueMap<String, String> getBody(final String username,
                                                   final String password,
                                                   final String clientId,
@@ -457,7 +458,7 @@ public class HubConcurController {
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
         return getAuthHeader(connectorAuth)
-                .flatMap(accessToken -> makeConcurRequest(form.getComment(), baseUrl, APPROVE, id, userEmail, accessToken)
+                .flatMap(authHeader -> makeConcurRequest(form.getComment(), baseUrl, APPROVE, id, userEmail, authHeader)
                         .map(ResponseEntity::ok));
     }
 
@@ -535,7 +536,7 @@ public class HubConcurController {
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
         return getAuthHeader(connectorAuth)
-                .flatMap(accessToken -> makeConcurRequest(form.getReason(), baseUrl, REJECT, id, userEmail, accessToken)
+                .flatMap(authHeader -> makeConcurRequest(form.getReason(), baseUrl, REJECT, id, userEmail, authHeader)
                         .map(ResponseEntity::ok));
     }
 
@@ -552,10 +553,10 @@ public class HubConcurController {
         logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, reportId={}", baseUrl, userEmail, reportId);
 
         return getAuthHeader(connectorAuth)
-                .flatMap(accessToken -> fetchLoginIdFromUserEmail(userEmail, baseUrl, accessToken)
-                        .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, accessToken))
-                        .then(fetchRequestData(baseUrl, reportId, accessToken))
-                        .flatMap(expenseReportResponse -> getAttachment(expenseReportResponse, accessToken))
+                .flatMap(authHeader -> fetchLoginIdFromUserEmail(userEmail, baseUrl, authHeader)
+                        .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, authHeader))
+                        .then(fetchRequestData(baseUrl, reportId, authHeader))
+                        .flatMap(expenseReportResponse -> getAttachment(expenseReportResponse, authHeader))
                         .map(clientResponse -> handleClientResponse(clientResponse, reportId)));
     }
 
@@ -610,9 +611,10 @@ public class HubConcurController {
     }
 
     @ExceptionHandler(InvalidServiceAccountCredentialException.class)
-    @ResponseStatus(BAD_REQUEST)
     @ResponseBody
-    public Map<String, String> handleInvalidServiceAccountCredentialException(InvalidServiceAccountCredentialException e) {
-        return Map.of("message", e.getMessage());
+    public ResponseEntity<Map<String, String>> handleInvalidServiceAccountCredentialException(InvalidServiceAccountCredentialException e) {
+        return ResponseEntity.status(BAD_REQUEST)
+                .header(BACKEND_STATUS, Integer.toString(UNAUTHORIZED.value()))
+                .body(Map.of("message", e.getMessage()));
     }
 }
