@@ -93,7 +93,7 @@ public class ConcurController {
     @GetMapping("/test-auth")
     public Mono<ResponseEntity<Void>> verifyAuth(@RequestHeader(name = AUTHORIZATION_HEADER) final String authHeader) {
         return getAuthHeader(authHeader, clientId, clientSecret)
-                .map(ignoredToken -> ResponseEntity.noContent().build());
+                .thenReturn(ResponseEntity.noContent().build());
     }
 
     @PostMapping(path = "/cards/requests",
