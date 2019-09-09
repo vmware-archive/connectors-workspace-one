@@ -3,13 +3,13 @@
     "catalog": [
       "Service Catalog"
     ],
-    "type": [
+    "text": [
       "laptop"
     ],
     "category": [
       "hardware"
     ],
-    "context_id": [
+    "contextId": [
       "laptops-context-1"
     ]
   }

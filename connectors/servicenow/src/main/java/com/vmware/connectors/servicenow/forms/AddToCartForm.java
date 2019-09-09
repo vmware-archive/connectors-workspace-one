@@ -10,7 +10,6 @@ import org.hibernate.validator.constraints.Range;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@SuppressWarnings("PMD.MethodNamingConventions")
 public class AddToCartForm {
 
     @NotBlank
@@ -24,7 +23,7 @@ public class AddToCartForm {
         return itemId;
     }
 
-    public void setItem_id(String itemId) {
+    public void setItemId(String itemId) {
         this.itemId = itemId;
     }
 
@@ -32,7 +31,7 @@ public class AddToCartForm {
         return itemCount;
     }
 
-    public void setItem_count(Integer itemCount) {
+    public void setItemCount(Integer itemCount) {
         this.itemCount = itemCount;
     }
 }

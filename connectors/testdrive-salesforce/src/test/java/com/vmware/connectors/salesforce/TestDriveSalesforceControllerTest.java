@@ -113,9 +113,10 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
 
     @Test
     void testMissingRequestHeaders() throws IOException {
+        String uri = "/cards/requests";
         webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header(X_ROUTING_HEADER, "https://hero/connectors/salesforce/")
@@ -206,7 +207,7 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
 
         webClient.post()
                 .uri(uri)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_AUTH_HEADER, "Bearer abc")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
@@ -232,7 +233,7 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
 
         webClient.post()
                 .uri(uri)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_FORM_URLENCODED)
                 .header(X_AUTH_HEADER, "Bearer abc")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
@@ -270,15 +271,15 @@ class TestDriveSalesforceControllerTest extends ControllerTestsBase {
     }
 
     private WebTestClient.RequestHeadersSpec<?> requestCards(String authToken, String filePath) throws IOException {
+        String uri = "/cards/requests";
         return webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header(X_AUTH_HEADER, "Bearer " + authToken)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header(X_ROUTING_HEADER, "https://hero/connectors/salesforce/")
-                .headers(ControllerTestsBase::headers)
+                .headers(headers -> headers(headers, uri))
                 .syncBody(fromFile(filePath));
     }
 

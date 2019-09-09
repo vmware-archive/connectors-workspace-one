@@ -78,9 +78,10 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
 
     @Test
     public void testMissingRequestHeaders() throws IOException {
+        String uri = "/cards/requests";
         webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("X-Connector-Authorization", "Bearer abc")
@@ -109,10 +110,11 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
     void testApproveRequest() {
         setupMock();
 
+        String uri = "/api/expense/approve/00541000000osYgAAI";
         webClient.post()
-                .uri("/api/expense/approve/00541000000osYgAAI")
+                .uri(uri)
                 .contentType(APPLICATION_JSON)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_AUTH_HEADER, "Bearer abc")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .body(BodyInserters.fromFormData("reason", "Approved"))
@@ -124,10 +126,11 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
     void testRejectRequest() {
         setupMock();
 
+        String uri = "/api/expense/reject/00541000000osYgAAI";
         webClient.post()
-                .uri("/api/expense/reject/00541000000osYgAAI")
+                .uri(uri)
                 .contentType(APPLICATION_JSON)
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_AUTH_HEADER, "Bearer abc")
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .body(BodyInserters.fromFormData("reason", "discount approval rejected"))
@@ -196,15 +199,15 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
     }
 
     private WebTestClient.RequestHeadersSpec<?> requestCards(String authToken, String filePath) throws Exception {
+        String uri = "/cards/requests";
         return webClient.post()
-                .uri("/cards/requests")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header(X_AUTH_HEADER, "Bearer " + authToken)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/salesforce/")
-                .headers(ControllerTestsBase::headers)
+                .headers(headers -> headers(headers, uri))
                 .syncBody(fromFile(filePath));
     }
 

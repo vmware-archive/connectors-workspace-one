@@ -22,7 +22,7 @@
     },
     "catalog": {
       "fields": {
-        "type": {
+        "text": {
           "env": "ITEM_TYPE"
         },
         "catalog": {
@@ -31,7 +31,7 @@
         "category": {
           "env": "CATEGORY_NAME"
         },
-        "context_id": {
+        "contextId": {
           "env": "CONTEXT_ID",
           "required": false
         }
@@ -40,7 +40,7 @@
         "href": "${CONNECTOR_HOST}/api/v1/catalog-items"
       },
       "metadata": {
-        "workflow_id": "ViewItem"
+        "workflowId": "ViewItem"
       }
     },
     "task": {
@@ -53,7 +53,7 @@
           "env": "TASK_NUMBER",
           "required": false
         },
-        "context_id": {
+        "contextId": {
           "env": "CONTEXT_ID",
           "required": false
         }
@@ -62,12 +62,12 @@
         "href": "${CONNECTOR_HOST}/api/v1/tasks"
       },
       "metadata": {
-        "workflow_id": "ViewTask"
+        "workflowId": "ViewTask"
       }
     },
     "cart": {
       "fields": {
-        "context_id": {
+        "contextId": {
           "env": "CONTEXT_ID",
           "required": false
         }
@@ -76,29 +76,21 @@
         "href": "${CONNECTOR_HOST}/api/v1/cart"
       },
       "metadata": {
-        "workflow_id": "ViewCart"
+        "workflowId": "ViewCart"
       }
-    }
-  },
-  "actions": {
-    "create_task": {
-      "url": {
-        "href": "${CONNECTOR_HOST}/api/v1/task/create"
-      },
-      "user_input": [],
-      "request": {
-        "type": {
-          "env": "TASK_TYPE"
-        },
-        "short_description": {
-          "env": "TASK_SHORT_DESCRIPTION"
+    },
+    "createTask": {
+      "fields": {
+        "contextId": {
+          "env": "CONTEXT_ID",
+          "required": false
         }
       },
-      "label": "Create Task",
-      "type": "POST",
-      "action_key": "USER_INPUT",
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/api/v1/task/create-object"
+      },
       "metadata": {
-        "workflow_id": "CreateTask"
+        "workflowId": "CreateTask"
       }
     }
   }

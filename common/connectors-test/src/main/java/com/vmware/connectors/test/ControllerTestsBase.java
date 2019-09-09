@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientCodecCustomizer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
@@ -34,6 +35,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,15 +73,15 @@ public class ControllerTestsBase {
     @Autowired
     protected WebTestClient webClient;
 
-    private String auth;
+    @LocalServerPort
+    private int connectorPort;
 
     protected MockWebServerWrapper mockBackend;
 
 
     @BeforeEach
     void setup() throws Exception {
-        auth = jwt.createConnectorToken();
-        mockBackend = new MockWebServerWrapper(new MockWebServer());
+         mockBackend = new MockWebServerWrapper(new MockWebServer());
     }
 
     @AfterEach
@@ -88,8 +90,13 @@ public class ControllerTestsBase {
         mockBackend.shutdown();
     }
 
-    protected String accessToken() {
-        return auth;
+    protected String accessToken(String uri) {
+        try {
+            String audience = "http://localhost:" + connectorPort + uri;
+            return jwt.createConnectorToken(audience);
+        } catch (IOException | GeneralSecurityException e) {
+            throw new AssertionError(e);
+        }
     }
 
     protected void testProtectedResource(HttpMethod method, String uri) throws Exception {
@@ -100,12 +107,30 @@ public class ControllerTestsBase {
                 .expectStatus().isUnauthorized();
 
         // Try with expired token
+        String audience = "http://localhost:" + connectorPort + uri;
         webClient.method(method)
                 .uri(uri)
-                .header(AUTHORIZATION, "Bearer " + jwt.createConnectorToken(Instant.now()))
+                .header(AUTHORIZATION, bearer(jwt.createConnectorToken(Instant.now(), audience)))
                 .exchange()
                 .expectStatus().isUnauthorized();
 
+        // Try with wrong audience
+        webClient.method(method)
+                .uri(uri)
+                .header(AUTHORIZATION, bearer(jwt.createConnectorToken("wrong audience")))
+                .exchange()
+                .expectStatus().isForbidden();
+
+        // Try with missing audience
+        webClient.method(method)
+                .uri(uri)
+                .header(AUTHORIZATION, bearer(jwt.createConnectorToken(null)))
+                .exchange()
+                .expectStatus().isForbidden();
+    }
+
+    private static String bearer(String token) {
+        return "Bearer " + token;
     }
 
     public static String fromFile(String fileName) throws IOException {
@@ -141,6 +166,16 @@ public class ControllerTestsBase {
                 .jsonPath("$.object_types.card").exists();
     }
 
+    protected void headers(HttpHeaders headers, String uri) {
+        try {
+            String token = jwt.createConnectorToken("https://my-connector" + uri);
+            headers.add(AUTHORIZATION, bearer(token));
+            headers(headers);
+        } catch (IOException | GeneralSecurityException e) {
+            throw new AssertionError(e);
+        }
+    }
+
     protected static void headers(HttpHeaders headers) {
         headers.add("x-forwarded-host", "my-connector");
         headers.add("x-forwarded-proto", "https");
@@ -160,7 +195,7 @@ public class ControllerTestsBase {
     private byte[] getConnectorMetaData() {
         return webClient.get()
                 .uri("/")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .header(AUTHORIZATION, bearer(accessToken("/")))
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()

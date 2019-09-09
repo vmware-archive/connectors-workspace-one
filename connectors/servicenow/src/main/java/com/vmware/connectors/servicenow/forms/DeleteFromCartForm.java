@@ -7,7 +7,6 @@ package com.vmware.connectors.servicenow.forms;
 
 import javax.validation.constraints.NotBlank;
 
-@SuppressWarnings("PMD.MethodNamingConventions")
 public class DeleteFromCartForm {
 
     @NotBlank
@@ -17,7 +16,7 @@ public class DeleteFromCartForm {
         return entryId;
     }
 
-    public void setEntry_id(String entryId) {
+    public void setEntryId(String entryId) {
         this.entryId = entryId;
     }
 }

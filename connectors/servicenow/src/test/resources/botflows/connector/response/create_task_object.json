@@ -1,0 +1,34 @@
+{
+  "objects": [
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Create a ticket",
+        "description": "File your issues for IT.",
+        "contextId": "create-task-object-context-id-1",
+        "actions": [
+          {
+            "title": "Create a ticket",
+            "description": "Create a new ticket",
+            "type": "POST",
+            "url": {
+              "href": "https://mf/connectors/abc123/createTask/api/v1/task/create"
+            },
+            "payload": {
+              "type": "task"
+            },
+            "userInput": [
+              {
+                "id": "shortDescription",
+                "label": "Please give a short description to create your ticket.",
+                "format": "textarea",
+                "minLength": 1
+              }
+            ]
+          }
+        ],
+        "workflowId": "CreateTask"
+      }
+    }
+  ]
+}

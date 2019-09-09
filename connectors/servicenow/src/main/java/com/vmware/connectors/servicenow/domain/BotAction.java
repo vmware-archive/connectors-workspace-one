@@ -14,6 +14,8 @@ import org.springframework.http.HttpMethod;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -28,7 +30,9 @@ public class BotAction {
     @JsonProperty("description")
     private String description;
 
-    @JsonProperty("workflow_id")
+    // ToDo: Remove Workflow id from actions ?
+    // Recent schema update doesn't allow it; but it seems to be needed in the catalog flow.
+    @JsonProperty("workflowId")
     private String workflowId;
 
     @JsonProperty("type")
@@ -40,12 +44,12 @@ public class BotAction {
     @JsonProperty("payload")
     private final Map<String, String> payload;
 
-    @JsonProperty("user_inputs")
-    private final Map<String, String> userInputs;
+    @JsonProperty("userInput")
+    private final List<BotActionUserInput> userInput;
 
     private BotAction() {
         this.payload = new HashMap<>();
-        this.userInputs = new HashMap<>();
+        this.userInput = new ArrayList<>();
     }
 
     public String getTitle() {
@@ -72,8 +76,8 @@ public class BotAction {
         return Collections.unmodifiableMap(payload);
     }
 
-    public Map<String, String> getUserInputs() {
-        return Collections.unmodifiableMap(userInputs);
+    public List<BotActionUserInput> getUserInput() {
+        return Collections.unmodifiableList(userInput);
     }
 
     public static class Builder {
@@ -118,8 +122,8 @@ public class BotAction {
             return this;
         }
 
-        public Builder addUserInputParam(String key, String msgLabel) {
-            botAction.userInputs.put(key, msgLabel);
+        public Builder addUserInput(BotActionUserInput userInput) {
+            botAction.userInput.add(userInput);
             return this;
         }
 

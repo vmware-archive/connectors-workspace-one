@@ -1,23 +1,24 @@
 {
   "objects": [
     {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "title": "ServiceNow ticket: TKT0010006",
-      "short_description": "My mouse is not working.",
-      "workflow_id": "ViewTask",
-      "actions": [
-        {
-          "title": "Delete ticket",
-          "description": "Delete this ticket from ServiceNow.",
-          "workflow_id": "DeleteTask",
-          "type": "DELETE",
-          "url": {
-            "href": "https://mf/connectors/abc123/task/api/v1/tasks/00909613db113300ea92eb41ca961949"
-          },
-          "payload": {},
-          "user_inputs": {}
-        }
-      ]
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "ServiceNow ticket: TKT0010006",
+        "description": "My mouse is not working.",
+        "workflowId": "ViewTask",
+        "actions": [
+          {
+            "title": "Delete ticket",
+            "description": "Delete this ticket from ServiceNow.",
+            "type": "DELETE",
+            "url": {
+              "href": "https://mf/connectors/abc123/task/api/v1/tasks/00909613db113300ea92eb41ca961949"
+            },
+            "payload": {},
+            "userInput": []
+          }
+        ]
+      }
     }
   ]
 }

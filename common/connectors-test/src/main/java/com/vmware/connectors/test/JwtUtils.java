@@ -34,15 +34,16 @@ public final class JwtUtils {
     @Value("classpath:jwt-signer.der")
     private Resource signer;
 
-    public String createConnectorToken() throws IOException, GeneralSecurityException {
-        return createConnectorToken(Instant.now().plus(5, HOURS));
+    public String createConnectorToken(String audience) throws IOException, GeneralSecurityException {
+        return createConnectorToken(Instant.now().plus(5, HOURS), audience);
     }
 
-    public String createConnectorToken(Instant expiry) throws IOException, GeneralSecurityException {
+    public String createConnectorToken(Instant expiry, String audience) throws IOException, GeneralSecurityException {
 
         return Jwts.builder().setHeaderParam(TYPE, JWT_TYPE)
                 .claim("prn", "fred@acme")
                 .claim("eml", "admin@acme.com")
+                .claim("aud", audience)
                 .setExpiration(Date.from(expiry))
                 .setIssuedAt(new Date())
                 .signWith(RS256, getSigner())
