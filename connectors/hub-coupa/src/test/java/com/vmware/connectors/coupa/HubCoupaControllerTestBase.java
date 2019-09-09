@@ -100,15 +100,16 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
         Arrays.equals(result, expected);
     }
 
-    void fetchAttachmentForInvalidDetails(String authHeader) throws IOException {
+    void fetchAttachmentForInvalidDetails(String authHeader) {
         getAttachment(authHeader)
                 .expectStatus().isNotFound();
     }
 
     private WebTestClient.ResponseSpec getAttachment(String authHeader) {
+        String uri = "/api/user/182964/attachment/2700474";
         return webClient.get()
-                .uri("/api/user/182964/attachment/2700474")
-                .header(AUTHORIZATION, "Bearer " + accessToken())
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header(X_AUTH_HEADER, authHeader)
                 .exchange();

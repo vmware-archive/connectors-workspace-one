@@ -56,7 +56,7 @@ public class HubCoupaController {
 
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
 
-    private static final String ATTACHMENT_URL = "%s/api/user/%s/attachment/%s";
+    private static final String ATTACHMENT_URL = "%sapi/user/%s/attachment/%s";
 
     private static final String UNAUTHORIZED_ATTACHMENT_ACCESS = "User with approvable ID: %s is trying to fetch an attachment with ID: %s which does not belong to them.";
 
@@ -134,8 +134,8 @@ public class HubCoupaController {
         logger.debug("Getting user id of {}", userEmail);
 
         return getUserDetails(userEmail, baseUrl, connectorAuth)
-                .flatMap(u -> getApprovalDetails(baseUrl, u.getId(), userEmail, connectorAuth))
-                .map(req -> makeCards(routingPrefix, locale, req))
+                .flatMap(user -> getApprovalDetails(baseUrl, user.getId(), userEmail, connectorAuth)
+                        .map(req -> makeCards(routingPrefix, locale, req, user.getId())))
                 .reduce(new Cards(), this::addCard);
     }
 
@@ -185,7 +185,8 @@ public class HubCoupaController {
     private Card makeCards(
             String routingPrefix,
             Locale locale,
-            RequisitionDetails requestDetails
+            RequisitionDetails requestDetails,
+            String userId
     ) {
         String requestId = requestDetails.getId();
         String reportName = requestDetails.getRequisitionLinesList().get(0).getDescription();
@@ -196,7 +197,7 @@ public class HubCoupaController {
         Card.Builder builder = new Card.Builder()
                 .setName("Coupa")
                 .setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale, reportName))
-                .setBody(buildCardBody(locale, requestDetails))
+                .setBody(buildCardBody(routingPrefix, requestDetails, userId, locale))
                 .setBackendId(requestId)
                 .addAction(makeApprovalAction(routingPrefix, requestId, locale,
                         true, "api/approve/", "hub.coupa.approve", "hub.coupa.approve.comment.label"))
@@ -207,7 +208,12 @@ public class HubCoupaController {
         return builder.build();
     }
 
-    private CardBody buildCardBody(Locale locale, RequisitionDetails requestDetails) {
+    private CardBody buildCardBody(
+            String routingPrefix,
+            RequisitionDetails requestDetails,
+            String userId,
+            Locale locale
+    ) {
         final CardBody.Builder cardBodyBuilder = new CardBody.Builder()
                 .addField(makeGeneralField(locale, "hub.coupa.requestDescription", requestDetails.getRequisitionDescription()))
                 .addField(makeGeneralField(locale, "hub.coupa.requester", getRequestorName(requestDetails)))
@@ -217,7 +223,7 @@ public class HubCoupaController {
         if (!CollectionUtils.isEmpty(requestDetails.getRequisitionLinesList())) {
             buildRequisitionDetails(requestDetails, locale).forEach(cardBodyBuilder::addField);
 
-            buildAttachments(requestDetails, cardBodyBuilder, locale);
+            buildAttachments(requestDetails, cardBodyBuilder, routingPrefix, userId, locale);
         }
 
         return cardBodyBuilder.build();
@@ -257,6 +263,8 @@ public class HubCoupaController {
 
     private void buildAttachments(final RequisitionDetails requisitionDetails,
                                   final CardBody.Builder builder,
+                                  final String routingPrefix,
+                                  final String userId,
                                   final Locale locale) {
         if (CollectionUtils.isEmpty(requisitionDetails.getAttachments())) {
             logger.debug("No attachments found for coupa report with request ID: {}", requisitionDetails.getId());
@@ -264,18 +272,26 @@ public class HubCoupaController {
         }
 
         CardBodyField.Builder attachmentField = new CardBodyField.Builder()
-                .setTitle(this.cardTextAccessor.getMessage("hub.concur.attachment", locale))
+                .setTitle(this.cardTextAccessor.getMessage("hub.coupa.attachments", locale))
                 .setType(CardBodyFieldType.SECTION);
 
+        for (Attachment attachment: requisitionDetails.getAttachments()) {
+            CardBodyFieldItem fieldItem = buildAttachmentItem(attachment, requisitionDetails.getId(), routingPrefix, userId, locale);
+            attachmentField.addItem(fieldItem);
+        }
+//        requisitionDetails.getAttachments()
+//                .stream()
+//                .map(attachment -> buildAttachmentItem(attachment, requisitionDetails.getId(), routingPrefix, locale))
+//                .map(attachmentField::addItem);
 
         builder.addField(attachmentField.build());
     }
 
-    @SuppressWarnings("PMD.UnusedPrivateMethod")
     private CardBodyFieldItem buildAttachmentItem(final Attachment attachment,
                                                   final String reportId,
-                                                  final Locale locale,
-                                                  final String routingPrefix) {
+                                                  final String routingPrefix,
+                                                  final String userId,
+                                                  final Locale locale) {
         final String fileName = StringUtils.substringAfterLast(attachment.getFile(), "/");
         final String contentType = getContentType(fileName, reportId, attachment.getId());
 
@@ -283,7 +299,7 @@ public class HubCoupaController {
                 .setAttachmentName(fileName)
                 .setTitle(cardTextAccessor.getMessage("hub.coupa.report.title", locale))
                 .setActionType(HttpMethod.GET)
-                .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, attachment.getId()))
+                .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, userId, attachment.getId()))
                 .setType(CardBodyFieldType.ATTACHMENT_URL)
                 .setContentType(contentType)
                 .build();
