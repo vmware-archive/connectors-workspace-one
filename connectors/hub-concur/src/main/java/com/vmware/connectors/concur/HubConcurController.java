@@ -6,12 +6,14 @@
 package com.vmware.connectors.concur;
 
 import com.nimbusds.jose.util.StandardCharset;
+import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.web.UserException;
 import com.vmware.connectors.concur.domain.*;
 import com.vmware.connectors.concur.exception.AttachmentURLNotFoundException;
+import com.vmware.connectors.concur.exception.InvalidServiceAccountCredentialException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -25,10 +27,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.HtmlUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -43,12 +50,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.vmware.connectors.common.utils.CommonUtils.BACKEND_STATUS;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.*;
 
 @RestController
+@SuppressWarnings("PMD.CouplingBetweenObjects")
 public class HubConcurController {
 
     private static final Logger logger = LoggerFactory.getLogger(HubConcurController.class);
@@ -65,24 +72,34 @@ public class HubConcurController {
 
     private static final String ATTACHMENT_URL = "%sapi/expense/report/%s/attachment";
 
+    private static final String CLIENT_ID = "client_id";
+    private static final String CLIENT_SECRET = "client_secret";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String GRANT_TYPE = "grant_type";
+    private static final String BEARER = "Bearer ";
     private static final String CONTENT_DISPOSITION_FORMAT = "Content-Disposition: inline; filename=\"%s.pdf\"";
+    private static final int AUTH_VALUES_COUNT = 4;
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
     private final Resource concurRequestTemplate;
     private final String serviceAccountAuthHeader;
+    private final String oauthTokenUrl;
 
     @Autowired
     public HubConcurController(
             WebClient rest,
             CardTextAccessor cardTextAccessor,
             @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate,
-            @Value("${concur.service-account-auth-header:}") String serviceAccountAuthHeader
+            @Value("${concur.service-account-auth-header:}") String serviceAccountAuthHeader,
+            @Value("${concur.oauth-instance-url}") String oauthTokenUrl
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.concurRequestTemplate = concurRequestTemplate;
         this.serviceAccountAuthHeader = serviceAccountAuthHeader;
+        this.oauthTokenUrl = oauthTokenUrl;
     }
 
     @PostMapping(
@@ -104,8 +121,64 @@ public class HubConcurController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        return fetchCards(baseUrl, locale, routingPrefix, userEmail, getAuthHeader(connectorAuth))
-                .map(ResponseEntity::ok);
+        return getAuthHeader(connectorAuth)
+                .flatMap(authHeader -> fetchCards(baseUrl, locale, routingPrefix, userEmail, authHeader)
+                        .map(ResponseEntity::ok));
+    }
+
+    private Mono<String> getAuthHeader(final String auth) {
+        final String connectorAuth = getServiceAccountCredential(auth);
+        final String[] authValues = connectorAuth.split(":");
+
+        // Service account credential format - username:password:client-id:client-secret
+        if (authValues.length != AUTH_VALUES_COUNT) {
+            throw new InvalidServiceAccountCredentialException("Service account credential is invalid.");
+        }
+
+        final String username = authValues[0];
+        final String password = authValues[1];
+        final String clientId = authValues[2];
+        final String clientSecret = authValues[3];
+
+        final MultiValueMap<String, String> body = getBody(username, password, clientId, clientSecret);
+
+        return rest.post()
+                .uri(UriComponentsBuilder.fromUriString(oauthTokenUrl).path("/oauth2/v0/token").toUriString())
+                .header(ACCEPT, APPLICATION_JSON_VALUE)
+                .body(BodyInserters.fromFormData(body))
+                .retrieve()
+                .bodyToMono(JsonDocument.class)
+                .map(jsonDocument -> BEARER + jsonDocument.read("$.access_token"))
+                .onErrorMap(WebClientResponseException.class, e -> handleForbiddenException(e));
+    }
+
+    public Throwable handleForbiddenException(WebClientResponseException e) {
+        // We have to convert the exception to return UNAUTHORIZED(401), since concur returns FORBIDDEN(403) for invalid credentials.
+        if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
+            return new WebClientResponseException(
+                    e.getMessage(),
+                    HttpStatus.UNAUTHORIZED.value(),
+                    e.getStatusText(),
+                    e.getHeaders(),
+                    e.getResponseBodyAsByteArray(),
+                    StandardCharset.UTF_8);
+        }
+        return e;
+    }
+
+    private MultiValueMap<String, String> getBody(final String username,
+                                                  final String password,
+                                                  final String clientId,
+                                                  final String clientSecret) {
+        final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+
+        body.put(CLIENT_ID, List.of(clientId));
+        body.put(CLIENT_SECRET, List.of(clientSecret));
+        body.put(USERNAME, List.of(username));
+        body.put(PASSWORD, List.of(password));
+        body.put(GRANT_TYPE, List.of(PASSWORD));
+
+        return body;
     }
 
     private boolean isServiceAccountCredentialEmpty(final String connectorAuth) {
@@ -117,8 +190,7 @@ public class HubConcurController {
         }
     }
 
-    private String getAuthHeader(final String connectorAuth) {
-        // TODO: APF-2324 - Modify this logic to extract the password grant credentials from service account creds.
+    private String getServiceAccountCredential(final String connectorAuth) {
         if (StringUtils.isBlank(this.serviceAccountAuthHeader)) {
             return connectorAuth;
         } else {
@@ -377,7 +449,7 @@ public class HubConcurController {
             @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
             @PathVariable("id") String id,
             @Valid CommentForm form
-            ) {
+    ) {
         logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, form.getComment());
 
         if (isServiceAccountCredentialEmpty(connectorAuth)) {
@@ -385,8 +457,9 @@ public class HubConcurController {
         }
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return makeConcurRequest(form.getComment(), baseUrl, APPROVE, id, userEmail, getAuthHeader(connectorAuth))
-                .map(ResponseEntity::ok);
+        return getAuthHeader(connectorAuth)
+                .flatMap(authHeader -> makeConcurRequest(form.getComment(), baseUrl, APPROVE, id, userEmail, authHeader)
+                        .map(ResponseEntity::ok));
     }
 
     private Mono<String> makeConcurRequest(
@@ -462,8 +535,9 @@ public class HubConcurController {
         }
 
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return makeConcurRequest(form.getReason(), baseUrl, REJECT, id, userEmail, getAuthHeader(connectorAuth))
-                .map(ResponseEntity::ok);
+        return getAuthHeader(connectorAuth)
+                .flatMap(authHeader -> makeConcurRequest(form.getReason(), baseUrl, REJECT, id, userEmail, authHeader)
+                        .map(ResponseEntity::ok));
     }
 
     @GetMapping(
@@ -477,13 +551,13 @@ public class HubConcurController {
     ) {
         final String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, reportId={}", baseUrl, userEmail, reportId);
-        final String authHeader = getAuthHeader(connectorAuth);
 
-        return fetchLoginIdFromUserEmail(userEmail, baseUrl, authHeader)
-                .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, authHeader))
-                .then(fetchRequestData(baseUrl, reportId, authHeader))
-                .flatMap(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth))
-                .map(clientResponse -> handleClientResponse(clientResponse, reportId));
+        return getAuthHeader(connectorAuth)
+                .flatMap(authHeader -> fetchLoginIdFromUserEmail(userEmail, baseUrl, authHeader)
+                        .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, authHeader))
+                        .then(fetchRequestData(baseUrl, reportId, authHeader))
+                        .flatMap(expenseReportResponse -> getAttachment(expenseReportResponse, authHeader))
+                        .map(clientResponse -> handleClientResponse(clientResponse, reportId)));
     }
 
     private Mono<ClientResponse> getAttachment(ExpenseReportResponse report, String connectorAuth) {
@@ -534,5 +608,13 @@ public class HubConcurController {
     @ResponseBody
     public Map<String, String> handleAttachmentURLNotFoundException(AttachmentURLNotFoundException e) {
         return Map.of("message", e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidServiceAccountCredentialException.class)
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> handleInvalidServiceAccountCredentialException(InvalidServiceAccountCredentialException e) {
+        return ResponseEntity.status(BAD_REQUEST)
+                .header(BACKEND_STATUS, Integer.toString(UNAUTHORIZED.value()))
+                .body(Map.of("message", e.getMessage()));
     }
 }
