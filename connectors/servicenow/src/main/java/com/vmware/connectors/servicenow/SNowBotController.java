@@ -503,32 +503,31 @@ public class SNowBotController {
                 .build();
     }
 
-    // It is the object which wraps the action - createTask.
-    // Though it best suites as a CLA, for bot specific needs its converted as an object-action.
+    // An object, 'botDiscovery', advertises all the capabilities of this connector, for bot use cases.
+    // ToDo: After 1 flow works en-end, advertise remaining capabilities as well.
     @PostMapping(
-            path = "/api/v1/task/create-object",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
+            path = "/bot-discovery",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Map<String, List<Map<String, BotItem>>>> createTaskObject(
+    public ResponseEntity<Map<String, List<Map<String, BotItem>>>> getBotDiscovery(
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
-            Locale locale,
-            @RequestBody CardRequest cardRequest) {
+            Locale locale
+    ) {
+        logger.trace("getBotDiscovery object. baseUrl: {}, routingPrefix: {}", baseUrl, routingPrefix);
 
-        String contextId = cardRequest.getTokenSingleValue(CONTEXT_ID);
         String taskType = "task"; // ToDo: Allow admins to define their "general" type of ticket. (APF-2473)
 
         return ResponseEntity.ok(
-                getCreateTaskObject(taskType, routingPrefix, contextId, locale)
+                buildBotDiscovery(taskType, routingPrefix, locale)
         );
-
     }
 
-    private Map<String, List<Map<String, BotItem>>> getCreateTaskObject(String taskType, String routingPrefix, String contextId, Locale locale) {
+    private Map<String, List<Map<String, BotItem>>> buildBotDiscovery(String taskType, String routingPrefix, Locale locale) {
         BotItem.Builder botItemBuilder = new BotItem.Builder()
                 .setTitle(botTextAccessor.getMessage("createTaskObject.title", locale))
                 .setDescription(botTextAccessor.getMessage("createTaskObject.description", locale))
-                .setContextId(contextId)
                 .setWorkflowId(WF_ID_CREATE_TASK)
                 .addAction(getCreateTaskAction(taskType, routingPrefix, locale));
 
