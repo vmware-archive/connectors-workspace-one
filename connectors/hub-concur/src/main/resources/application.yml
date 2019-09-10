@@ -10,3 +10,7 @@ connector:
 management:
   endpoints:
     web.base-path: /
+
+# If the tenant belongs to EU region, then we have to change the oauth instance url.
+concur:
+  oauth-instance-url: https://us-impl.api.concursolutions.com

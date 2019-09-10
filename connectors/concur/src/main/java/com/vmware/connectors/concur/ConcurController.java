@@ -5,7 +5,6 @@
 
 package com.vmware.connectors.concur;
 
-import com.google.common.collect.ImmutableList;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
@@ -39,6 +38,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -92,8 +92,8 @@ public class ConcurController {
 
     @GetMapping("/test-auth")
     public Mono<ResponseEntity<Void>> verifyAuth(@RequestHeader(name = AUTHORIZATION_HEADER) final String authHeader) {
-        return fetchOAuthToken(authHeader, clientId, clientSecret)
-                .map(ignoredToken -> ResponseEntity.noContent().build());
+        return getAuthHeader(authHeader, clientId, clientSecret)
+                .thenReturn(ResponseEntity.noContent().build());
     }
 
     @PostMapping(path = "/cards/requests",
@@ -119,7 +119,7 @@ public class ConcurController {
             return Mono.just(new Cards());
         }
 
-        return fetchOAuthToken(authHeader, clientId, clientSecret)
+        return getAuthHeader(authHeader, clientId, clientSecret)
                 .flatMap(oauthHeader -> fetchCards(baseUrl, routingPrefix, locale,
                         request, expenseReportIds, oauthHeader));
     }
@@ -139,10 +139,10 @@ public class ConcurController {
                 .defaultIfEmpty(new Cards());
     }
 
-    private Mono<String> fetchOAuthToken(final String authHeader,
-                                         final String clientId,
-                                         final String clientSecret) {
-        logger.debug("fetchOAuthToken called: clientId={}", clientId);
+    private Mono<String> getAuthHeader(final String authHeader,
+                                       final String clientId,
+                                       final String clientSecret) {
+        logger.debug("getAuthHeader called: clientId={}", clientId);
 
         final String authValue = authHeader.substring("Basic".length()).trim();
         final byte[] decodedAuthValue = Base64.getDecoder().decode(authValue);
@@ -179,12 +179,12 @@ public class ConcurController {
 
     private MultiValueMap<String, String> getBody(String clientId, String clientSecret, String userName, String password) {
         final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.put(CLIENT_ID, ImmutableList.of(clientId));
-        body.put(CLIENT_SECRET, ImmutableList.of(clientSecret));
-        body.put(USERNAME, ImmutableList.of(userName));
-        body.put(PASSWORD, ImmutableList.of(password));
-        body.put(GRANT_TYPE, ImmutableList.of(PASSWORD));
-        body.put(CRED_TYPE, ImmutableList.of(PASSWORD));
+        body.put(CLIENT_ID, List.of(clientId));
+        body.put(CLIENT_SECRET, List.of(clientSecret));
+        body.put(USERNAME, List.of(userName));
+        body.put(PASSWORD, List.of(password));
+        body.put(GRANT_TYPE, List.of(PASSWORD));
+        body.put(CRED_TYPE, List.of(PASSWORD));
         return body;
     }
 
@@ -222,7 +222,7 @@ public class ConcurController {
         // Replace the placeholder in concur request template with appropriate action and comment.
         final String concurRequestTemplate = getConcurRequestTemplate(reason, concurAction);
 
-        return fetchOAuthToken(authHeader, clientId, clientSecret)
+        return getAuthHeader(authHeader, clientId, clientSecret)
                 .flatMap(oauthHeader -> getWorkFlowActionUrl(oauthHeader, reportID, baseUrl)
                         .flatMap(url -> rest.post()
                                 .uri(url)

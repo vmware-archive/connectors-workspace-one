@@ -24,7 +24,8 @@ class HubConcurCustomerHostedTest extends HubConcurControllerTestBase {
             "xx, success_xx.json,"
     })
     void testCardsRequests(String lang, String expected, String authHeader) throws Exception {
-        mockConcurRequests(CONFIG_SERVICE_CREDS);
+        mockOAuthToken(CONFIG_SERVICE_CREDS);
+        mockConcurRequests(EXPECTED_AUTH_HEADER);
         cardsRequest(lang, expected, authHeader);
     }
 
@@ -34,7 +35,8 @@ class HubConcurCustomerHostedTest extends HubConcurControllerTestBase {
             "should-be-ignored"
     })
     void testApproveRequests(String authHeader) throws Exception {
-        mockActionRequests(CONFIG_SERVICE_CREDS);
+        mockOAuthToken(CONFIG_SERVICE_CREDS);
+        mockActionRequests(EXPECTED_AUTH_HEADER);
 
         approveRequest(authHeader)
                 .expectStatus().isOk();
@@ -43,7 +45,8 @@ class HubConcurCustomerHostedTest extends HubConcurControllerTestBase {
     @Test
     void testUnauthorizedApproveRequest() throws Exception {
         // User tries to approve an expense report that isn't theirs
-        mockEmptyReportsDigest(CONFIG_SERVICE_CREDS);
+        mockOAuthToken(CONFIG_SERVICE_CREDS);
+        mockEmptyReportsDigest(EXPECTED_AUTH_HEADER);
 
         approveRequest("")
                 .expectStatus().isNotFound();
@@ -55,7 +58,8 @@ class HubConcurCustomerHostedTest extends HubConcurControllerTestBase {
             "should-be-ignored"
     })
     void testRejectRequests(String authHeader) throws Exception {
-        mockActionRequests(CONFIG_SERVICE_CREDS);
+        mockOAuthToken(CONFIG_SERVICE_CREDS);
+        mockActionRequests(EXPECTED_AUTH_HEADER);
 
         rejectRequest(authHeader)
                 .expectStatus().isOk();
@@ -64,10 +68,10 @@ class HubConcurCustomerHostedTest extends HubConcurControllerTestBase {
     @Test
     void testUnauthorizedRejectRequest() throws Exception {
         // User tries to reject an expense report that isn't theirs
-        mockEmptyReportsDigest(CONFIG_SERVICE_CREDS);
+        mockOAuthToken(CONFIG_SERVICE_CREDS);
+        mockEmptyReportsDigest(EXPECTED_AUTH_HEADER);
 
         rejectRequest("")
                 .expectStatus().isNotFound();
     }
-
 }

@@ -22,7 +22,8 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
             "xx, success_xx.json"
     })
     void testCardsRequests(String lang, String expected) throws Exception {
-        mockConcurRequests(CALLER_SERVICE_CREDS);
+        mockOAuthToken(CALLER_SERVICE_CREDS);
+        mockConcurRequests(EXPECTED_AUTH_HEADER);
         cardsRequest(lang, expected, CALLER_SERVICE_CREDS);
     }
 
@@ -34,7 +35,8 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
 
     @Test
     void testApproveRequest() throws Exception {
-        mockActionRequests(CALLER_SERVICE_CREDS);
+        mockOAuthToken(CALLER_SERVICE_CREDS);
+        mockActionRequests(EXPECTED_AUTH_HEADER);
 
         approveRequest(CALLER_SERVICE_CREDS)
                 .expectStatus().isOk();
@@ -49,7 +51,8 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
     @Test
     void testUnauthorizedApproveRequest() throws Exception {
         // User tries to approve an expense report that isn't theirs
-        mockEmptyReportsDigest(CALLER_SERVICE_CREDS);
+        mockOAuthToken(CALLER_SERVICE_CREDS);
+        mockEmptyReportsDigest(EXPECTED_AUTH_HEADER);
 
         approveRequest(CALLER_SERVICE_CREDS)
                 .expectStatus().isNotFound();
@@ -57,7 +60,8 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
 
     @Test
     void testRejectRequest() throws Exception {
-        mockActionRequests(CALLER_SERVICE_CREDS);
+        mockOAuthToken(CALLER_SERVICE_CREDS);
+        mockActionRequests(EXPECTED_AUTH_HEADER);
 
         rejectRequest(CALLER_SERVICE_CREDS)
                 .expectStatus().isOk();
@@ -72,7 +76,8 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
     @Test
     void testUnauthorizedRejectRequest() throws Exception {
         // User tries to reject an expense report that isn't theirs
-        mockEmptyReportsDigest(CALLER_SERVICE_CREDS);
+        mockOAuthToken(CALLER_SERVICE_CREDS);
+        mockEmptyReportsDigest(EXPECTED_AUTH_HEADER);
 
         rejectRequest(CALLER_SERVICE_CREDS)
                 .expectStatus().isNotFound();
@@ -80,54 +85,76 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
 
     @Test
     void fetchAttachmentForValidUser() throws Exception {
-        mockReport1(SERVICE_CREDS);
-        mockFetchAttachment(SERVICE_CREDS);
-        mockUserReportsDigest(SERVICE_CREDS);
+        mockOAuthToken(CALLER_SERVICE_CREDS);
+        mockReport1(EXPECTED_AUTH_HEADER);
+        mockFetchAttachment(EXPECTED_AUTH_HEADER);
+        mockUserReportsDigest(EXPECTED_AUTH_HEADER);
 
-        fetchAttachment(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+        fetchAttachment(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F");
     }
 
     @Test
     void fetchAttachmentForInvalidUserLoginID() throws Exception {
         // Invalid user tries to fetch an expense report attachment.
-        mockUserDetailReport(SERVICE_CREDS, "/fake/invalid-user-details.json");
-        mockReportsDigest(SERVICE_CREDS, "invalid%40acme.com");
+        mockOAuthToken(CALLER_SERVICE_CREDS);
+        mockUserDetailReport(EXPECTED_AUTH_HEADER, "/fake/invalid-user-details.json");
+        mockReportsDigest(EXPECTED_AUTH_HEADER, "invalid%40acme.com");
 
-        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+        fetchAttachmentForInvalidDetails(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F");
     }
 
     @Test
     void fetchAttachmentForInvalidAttachmentID() throws Exception {
         // Valid user tries to fetch an expense report attachment which does not belong to them.
-        mockUserDetailReport(SERVICE_CREDS, "/fake/user-details.json");
-        mockReportsDigest(SERVICE_CREDS, "admin%40acme.com");
+        mockOAuthToken(CALLER_SERVICE_CREDS);
+        mockUserDetailReport(EXPECTED_AUTH_HEADER, "/fake/user-details.json");
+        mockReportsDigest(EXPECTED_AUTH_HEADER, "admin%40acme.com");
 
-        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "invalid-attachment-id");
+        fetchAttachmentForInvalidDetails(CALLER_SERVICE_CREDS, "invalid-attachment-id");
     }
 
     @Test
     void testAttachmentUrlNotFound() throws Exception {
-        mockUserReportsDigest(SERVICE_CREDS);
-        mockReportWithEmptyAttachmentURL(SERVICE_CREDS);
+        mockOAuthToken(CALLER_SERVICE_CREDS);
+        mockUserReportsDigest(EXPECTED_AUTH_HEADER);
+        mockReportWithEmptyAttachmentURL(EXPECTED_AUTH_HEADER);
 
-        fetchAttachmentForInvalidDetails(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+        fetchAttachmentForInvalidDetails(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F");
     }
 
     @Test
     void testUnauthorizedError() throws Exception {
-        mockReport1(SERVICE_CREDS);
-        mockUserReportsDigest(SERVICE_CREDS);
-        mockFetchAttachmentWithUnauthorized(SERVICE_CREDS);
+        mockOAuthToken(CALLER_SERVICE_CREDS);
+        mockReport1(EXPECTED_AUTH_HEADER);
+        mockUserReportsDigest(EXPECTED_AUTH_HEADER);
+        mockFetchAttachmentWithUnauthorized(EXPECTED_AUTH_HEADER);
 
-        fetchAttachmentForUnauthorizedCredential(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+        fetchAttachmentForUnauthorizedCredential(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F");
     }
 
     @Test
     void testBadStatusCode() throws Exception {
-        mockReport1(SERVICE_CREDS);
-        mockUserReportsDigest(SERVICE_CREDS);
-        mockFetchAttachmentWithInternalServerError(SERVICE_CREDS);
+        mockOAuthToken(CALLER_SERVICE_CREDS);
+        mockReport1(EXPECTED_AUTH_HEADER);
+        mockUserReportsDigest(EXPECTED_AUTH_HEADER);
+        mockFetchAttachmentWithInternalServerError(EXPECTED_AUTH_HEADER);
 
-        fetchAttachmentWithBadStatusCode(SERVICE_CREDS, "1D3BD2E14D144508B05F");
+        fetchAttachmentWithBadStatusCode(CALLER_SERVICE_CREDS, "1D3BD2E14D144508B05F");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            // Service account credential length < 4
+            "username:client-id:client-secret",
+            // Service account credential length > 4
+            "username:password:client-id:client-secret:junk"
+    })
+    void testInvalidServiceAccountCredential(String serviceCredential) {
+        testServiceAccountCredential(serviceCredential);
+    }
+
+    @Test
+    void testUnauthorizedServiceAccountCredential() {
+        unauthorizedServiceAccountCredential();
     }
 }
