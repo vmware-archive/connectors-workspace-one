@@ -93,7 +93,7 @@ public class SNowBotController {
 
     // Workflow ids for objects.
     private static final String WF_ID_CATALOG = "ViewItem";
-    private static final String WF_ID_CREATE_TASK = "CreateTask";
+    private static final String WF_ID_CREATE_TASK = "vmw_FILE_GENERAL_TICKET";
     private static final String WF_ID_TASK = "ViewTask";
     private static final String WF_ID_CART = "ViewCart";
 

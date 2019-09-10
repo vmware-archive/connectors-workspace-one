@@ -178,6 +178,7 @@ class BotFlowTest extends ControllerTestsBase {
     @Test
     void testBotDiscoveryObject() throws Exception {
 
+        // APF-2473 - Adds support for multi-tenant params. CardRequest will contain "config" at that time.
         String body = requestObjects("/bot-discovery", SNOW_AUTH_TOKEN,
                 "/botflows/connector/request/bot_discovery_object.json",
                 OBJ_TYPE_CREATE_TASK, null)
