@@ -20,77 +20,9 @@
         "href": "${CONNECTOR_HOST}/cards/requests"
       }
     },
-    "catalog": {
-      "fields": {
-        "text": {
-          "env": "ITEM_TYPE"
-        },
-        "catalog": {
-          "env": "CATALOG_NAME"
-        },
-        "category": {
-          "env": "CATEGORY_NAME"
-        },
-        "contextId": {
-          "env": "CONTEXT_ID",
-          "required": false
-        }
-      },
+    "botDiscovery": {
       "endpoint": {
-        "href": "${CONNECTOR_HOST}/api/v1/catalog-items"
-      },
-      "metadata": {
-        "workflowId": "ViewItem"
-      }
-    },
-    "task": {
-      "fields": {
-        "type": {
-          "env": "TASK_TYPE",
-          "required": false
-        },
-        "number": {
-          "env": "TASK_NUMBER",
-          "required": false
-        },
-        "contextId": {
-          "env": "CONTEXT_ID",
-          "required": false
-        }
-      },
-      "endpoint": {
-        "href": "${CONNECTOR_HOST}/api/v1/tasks"
-      },
-      "metadata": {
-        "workflowId": "ViewTask"
-      }
-    },
-    "cart": {
-      "fields": {
-        "contextId": {
-          "env": "CONTEXT_ID",
-          "required": false
-        }
-      },
-      "endpoint": {
-        "href": "${CONNECTOR_HOST}/api/v1/cart"
-      },
-      "metadata": {
-        "workflowId": "ViewCart"
-      }
-    },
-    "createTask": {
-      "fields": {
-        "contextId": {
-          "env": "CONTEXT_ID",
-          "required": false
-        }
-      },
-      "endpoint": {
-        "href": "${CONNECTOR_HOST}/api/v1/task/create-object"
-      },
-      "metadata": {
-        "workflowId": "CreateTask"
+        "href": "${CONNECTOR_HOST}/bot-discovery"
       }
     }
   }

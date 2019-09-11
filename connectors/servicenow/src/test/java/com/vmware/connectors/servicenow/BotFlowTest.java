@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import static com.vmware.connectors.utils.IgnoredFieldsReplacer.*;
 import static com.vmware.connectors.utils.IgnoredFieldsReplacer.DUMMY_UUID;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
@@ -175,10 +176,11 @@ class BotFlowTest extends ControllerTestsBase {
     }
 
     @Test
-    void testCreateTaskObject() throws Exception {
+    void testBotDiscoveryObject() throws Exception {
 
-        String body = requestObjects("/api/v1/task/create-object", SNOW_AUTH_TOKEN,
-                "/botflows/connector/request/create_task_object.json",
+        // APF-2473 - Adds support for multi-tenant params. CardRequest will contain "config" at that time.
+        String body = requestObjects("/bot-discovery", SNOW_AUTH_TOKEN,
+                "/botflows/connector/request/bot_discovery_object.json",
                 OBJ_TYPE_CREATE_TASK, null)
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
@@ -187,7 +189,12 @@ class BotFlowTest extends ControllerTestsBase {
                 .map(BotFlowTest::normalizeBotObjects)
                 .block();
 
-        assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/create_task_object.json")).allowingAnyArrayOrdering());
+        assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/bot_discovery_object.json")).allowingAnyArrayOrdering());
+
+        Object botDiscoveryObj = JsonPath.parse(body).read("$.objects[0]");
+        String botDiscoveryJsonString = JsonPath.parse(botDiscoveryObj).jsonString();
+
+        assertThat(botDiscoveryJsonString, 	matchesJsonSchema(fromFile("/bot-schema.json")));
 
     }
 
@@ -382,7 +389,7 @@ class BotFlowTest extends ControllerTestsBase {
         return spec.exchange();
     }
 
-    public static String normalizeBotObjects(String body) {
+    private static String normalizeBotObjects(String body) {
         Configuration configuration = Configuration.builder()
                 .jsonProvider(new JacksonJsonNodeJsonProvider())
                 .build();
