@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.connectors.common.utils.HashUtil;
 import org.springframework.http.HttpMethod;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
@@ -35,9 +34,6 @@ public class CardBodyFieldItem {
 
     @JsonProperty("attachment_url")
     private String attachmentURL;
-
-    @JsonProperty("attachment_body")
-    private byte[] attachmentBody;
 
     @JsonProperty("content_type")
     private String contentType;
@@ -89,7 +85,7 @@ public class CardBodyFieldItem {
     }
 
     /**
-     * Get the card body field item attachment name for an expense report.
+     * Get the card body field item attachment name.
      *
      * @return Attachment URL
      */
@@ -98,24 +94,12 @@ public class CardBodyFieldItem {
     }
 
     /**
-     * Get the card body field item attachment url for an expense report.
+     * Get the card body field item's deep link for the attachment in the vendor's system.
      *
-     * @return The card body field item attachment url.
+     * @return The card body field item vendor attachment url.
      */
     public String getAttachmentURL() {
         return attachmentURL;
-    }
-
-    /**
-     * Get the card body field item attachment body of an expense report.
-     *
-     * @return Attachment content body
-     */
-    public byte[] getAttachmentBody() {
-        if (this.attachmentBody == null) {
-            return null;
-        }
-        return Arrays.copyOf(attachmentBody, attachmentBody.length);
     }
 
     /**
@@ -137,7 +121,7 @@ public class CardBodyFieldItem {
     }
 
     /**
-     * Get the card body field item action url. Action URL is used to fetch the attachment when required by the hub client.
+     * Get the card body field item's attachment url to stream the attachment through Mobile Flows.
      *
      * @return Action URL.
      */
@@ -227,29 +211,13 @@ public class CardBodyFieldItem {
         }
 
         /**
-         * Set the card body field item attachment url.
+         * Set the card body field item's deep link for the attachment in the vendor's system.
          *
          * @param attachmentURL the CardBodyFieldItem's attachment url
          * @return this Builder instance, for method chaining
          */
         public Builder setAttachmentURL(String attachmentURL) {
             item.attachmentURL = attachmentURL;
-            return this;
-        }
-
-        /**
-         * Set the card body field item attachment body.
-         *
-         * @param attachmentBody the CardBodyFieldItem's attachment body
-         * @return this Builder instance, for method chaining
-         */
-        @SuppressWarnings("PMD.NullAssignment")
-        public Builder setAttachmentBody(byte[] attachmentBody) {
-            if (attachmentBody == null) {
-                item.attachmentBody = null;
-            } else {
-                item.attachmentBody = Arrays.copyOf(attachmentBody, attachmentBody.length);
-            }
             return this;
         }
 
@@ -276,7 +244,7 @@ public class CardBodyFieldItem {
         }
 
         /**
-         * Set the card body field item action url.
+         * Set the card body field item's attachment url to stream the attachment through Mobile Flows.
          *
          * @param actionURL the CardBodyFieldItem's action url.
          * @return this Builder instance, for method chaining
