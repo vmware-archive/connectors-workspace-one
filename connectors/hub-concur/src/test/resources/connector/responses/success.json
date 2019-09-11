@@ -105,9 +105,9 @@
                 "type": "ATTACHMENT_URL",
                 "attachment_name": "1D3BD2E14D144508B05F",
                 "title": "Click here to download the attachment",
-                "content_type": "application/pdf",
-                "action_url": "https://hero/connectors/concur/api/expense/report/1D3BD2E14D144508B05F/attachment",
-                "action_type": "GET"
+                "attachment_content_type": "application/pdf",
+                "attachment_url": "https://hero/connectors/concur/api/expense/report/1D3BD2E14D144508B05F/attachment",
+                "attachment_method": "GET"
               }
             ]
           }
@@ -302,9 +302,9 @@
                 "type": "ATTACHMENT_URL",
                 "attachment_name": "683105624FD74A1B9C13",
                 "title": "Click here to download the attachment",
-                "content_type": "application/pdf",
-                "action_url": "https://hero/connectors/concur/api/expense/report/683105624FD74A1B9C13/attachment",
-                "action_type": "GET"
+                "attachment_content_type": "application/pdf",
+                "attachment_url": "https://hero/connectors/concur/api/expense/report/683105624FD74A1B9C13/attachment",
+                "attachment_method": "GET"
               }
             ]
           }
@@ -499,9 +499,9 @@
                 "type": "ATTACHMENT_URL",
                 "attachment_name": "A77D016732974B5F8E23",
                 "title": "Click here to download the attachment",
-                "content_type": "application/pdf",
-                "action_url": "https://hero/connectors/concur/api/expense/report/A77D016732974B5F8E23/attachment",
-                "action_type": "GET"
+                "attachment_content_type": "application/pdf",
+                "attachment_url": "https://hero/connectors/concur/api/expense/report/A77D016732974B5F8E23/attachment",
+                "attachment_method": "GET"
               }
             ]
           }
