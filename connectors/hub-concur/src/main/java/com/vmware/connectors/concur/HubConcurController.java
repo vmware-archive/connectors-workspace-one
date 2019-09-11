@@ -421,10 +421,10 @@ public class HubConcurController {
                 .addItem(new CardBodyFieldItem.Builder()
                         .setAttachmentName(reportID)
                         .setTitle(cardTextAccessor.getMessage("hub.concur.report.image.url", locale))
-                        .setActionType(HttpMethod.GET)
-                        .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, reportID))
+                        .setAttachmentMethod(HttpMethod.GET)
+                        .setAttachmentUrl(String.format(ATTACHMENT_URL, routingPrefix, reportID))
                         .setType(CardBodyFieldType.ATTACHMENT_URL)
-                        .setContentType(APPLICATION_PDF_VALUE) // Concur always returns a PDF file. It consolidates all the attachments into a single PDF file.
+                        .setAttachmentContentType(APPLICATION_PDF_VALUE) // Concur always returns a PDF file. It consolidates all the attachments into a single PDF file.
                         .build());
 
         return builder.build();

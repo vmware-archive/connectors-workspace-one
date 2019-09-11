@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.connectors.common.utils.HashUtil;
 import org.springframework.http.HttpMethod;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
@@ -33,23 +32,20 @@ public class CardBodyFieldItem {
     @JsonProperty("attachment_name")
     private String attachmentName;
 
+    @JsonProperty("vendor_attachment_url")
+    private String vendorAttachmentUrl;
+
+    @JsonProperty("attachment_content_type")
+    private String attachmentContentType;
+
+    @JsonProperty("attachment_content_length")
+    private Long attachmentContentLength;
+
     @JsonProperty("attachment_url")
-    private String attachmentURL;
+    private String attachmentUrl;
 
-    @JsonProperty("attachment_body")
-    private byte[] attachmentBody;
-
-    @JsonProperty("content_type")
-    private String contentType;
-
-    @JsonProperty("content_length")
-    private Long contentLength;
-
-    @JsonProperty("action_url")
-    private String actionURL;
-
-    @JsonProperty("action_type")
-    private HttpMethod actionType;
+    @JsonProperty("attachment_method")
+    private HttpMethod attachmentMethod;
 
     @JsonProperty("created_at")
     private Date createdAt;
@@ -89,33 +85,21 @@ public class CardBodyFieldItem {
     }
 
     /**
-     * Get the card body field item attachment name for an expense report.
+     * Get the card body field item attachment name.
      *
-     * @return Attachment URL
+     * @return Attachment name
      */
     public String getAttachmentName() {
         return attachmentName;
     }
 
     /**
-     * Get the card body field item attachment url for an expense report.
+     * Get the card body field item's deep link for the attachment in the vendor's system.
      *
-     * @return The card body field item attachment url.
+     * @return The card body field item vendor attachment url.
      */
-    public String getAttachmentURL() {
-        return attachmentURL;
-    }
-
-    /**
-     * Get the card body field item attachment body of an expense report.
-     *
-     * @return Attachment content body
-     */
-    public byte[] getAttachmentBody() {
-        if (this.attachmentBody == null) {
-            return null;
-        }
-        return Arrays.copyOf(attachmentBody, attachmentBody.length);
+    public String getVendorAttachmentUrl() {
+        return vendorAttachmentUrl;
     }
 
     /**
@@ -123,8 +107,8 @@ public class CardBodyFieldItem {
      *
      * @return Attachment content type
      */
-    public String getContentType() {
-        return contentType;
+    public String getAttachmentContentType() {
+        return attachmentContentType;
     }
 
     /**
@@ -132,26 +116,26 @@ public class CardBodyFieldItem {
      *
      * @return Attachment content length
      */
-    public Long getContentLength() {
-        return contentLength;
+    public Long getAttachmentContentLength() {
+        return attachmentContentLength;
     }
 
     /**
-     * Get the card body field item action url. Action URL is used to fetch the attachment when required by the hub client.
+     * Get the card body field item's attachment url to stream the attachment through Mobile Flows.
      *
-     * @return Action URL.
+     * @return Attachment url
      */
-    public String getActionURL() {
-        return actionURL;
+    public String getAttachmentUrl() {
+        return attachmentUrl;
     }
 
     /**
-     * Get the card body field item action type. Action type indicates HTTP method used to access the action url.
+     * Get the card body field item's attachment method to indicate which HTTP method to use to stream the attachment through Mobile Flows.
      *
-     * @return Action type.
+     * @return attachment method
      */
-    public HttpMethod getActionType() {
-        return actionType;
+    public HttpMethod getAttachmentMethod() {
+        return attachmentMethod;
     }
 
     /**
@@ -227,62 +211,57 @@ public class CardBodyFieldItem {
         }
 
         /**
-         * Set the card body field item attachment url.
+         * Set the card body field item's deep link for the attachment in the vendor's system.
          *
-         * @param attachmentURL the CardBodyFieldItem's attachment url
+         * @param vendorAttachmentUrl the CardBodyFieldItem's vendor attachment url
          * @return this Builder instance, for method chaining
          */
-        public Builder setAttachmentURL(String attachmentURL) {
-            item.attachmentURL = attachmentURL;
+        public Builder setVendorAttachmentUrl(String vendorAttachmentUrl) {
+            item.vendorAttachmentUrl = vendorAttachmentUrl;
             return this;
         }
 
         /**
-         * Set the card body field item attachment body.
+         * Set the card body field item attachment content type.
          *
-         * @param attachmentBody the CardBodyFieldItem's attachment body
+         * @param attachmentContentType the CardBodyFieldItem's attachment content type
          * @return this Builder instance, for method chaining
          */
-        @SuppressWarnings("PMD.NullAssignment")
-        public Builder setAttachmentBody(byte[] attachmentBody) {
-            if (attachmentBody == null) {
-                item.attachmentBody = null;
-            } else {
-                item.attachmentBody = Arrays.copyOf(attachmentBody, attachmentBody.length);
-            }
+        public Builder setAttachmentContentType(String attachmentContentType) {
+            item.attachmentContentType = attachmentContentType;
             return this;
         }
 
         /**
-         * Set the card body field item content type.
+         * Set the card body field item attachment content length.
          *
-         * @param contentType the CardBodyFieldItem's content type
+         * @param attachmentContentLength the CardBodyFieldItem's attachment content length
          * @return this Builder instance, for method chaining
          */
-        public Builder setContentType(String contentType) {
-            item.contentType = contentType;
+        public Builder setAttachmentContentLength(Long attachmentContentLength) {
+            item.attachmentContentLength = attachmentContentLength;
             return this;
         }
 
         /**
-         * Set the card body field item content length.
+         * Set the card body field item's attachment url to stream the attachment through Mobile Flows.
          *
-         * @param contentLength the CardBodyFieldItem's content length
+         * @param attachmentUrl the CardBodyFieldItem's attachment url.
          * @return this Builder instance, for method chaining
          */
-        public Builder setContentLength(Long contentLength) {
-            item.contentLength = contentLength;
+        public Builder setAttachmentUrl(String attachmentUrl) {
+            item.attachmentUrl = attachmentUrl;
             return this;
         }
 
         /**
-         * Set the card body field item action url.
+         * Set the card body field item attachment method.
          *
-         * @param actionURL the CardBodyFieldItem's action url.
+         * @param attachmentMethod the CardBodyFieldItem's attachment method.
          * @return this Builder instance, for method chaining
          */
-        public Builder setActionURL(String actionURL) {
-            item.actionURL = actionURL;
+        public Builder setAttachmentMethod(HttpMethod attachmentMethod) {
+            item.attachmentMethod = attachmentMethod;
             return this;
         }
 
@@ -315,17 +294,6 @@ public class CardBodyFieldItem {
         }
 
         /**
-         * Set the card body field item action type.
-         *
-         * @param actionType the CardBodyFieldItem's action type.
-         * @return this Builder instance, for method chaining
-         */
-        public Builder setActionType(HttpMethod actionType) {
-            item.actionType = actionType;
-            return this;
-        }
-
-        /**
          * Return the CardBodyFieldItem under construction and reset the Builder to its initial state.
          *
          * @return The completed CardBodyFieldItem
@@ -346,20 +314,20 @@ public class CardBodyFieldItem {
 
     /**
      * Note: Hash calculation does not include the below fields
-     * 1. attachment_url - since it will keep changing for some service providers like Concur for the same attachment.
+     * 1. vendor_attachment_url - since it will keep changing for some service providers like Concur for the same attachment.
      * 2. created_at - since timestamp fields are not reliable for hash calculation.
      * 3. updated_at - since timestamp fields are not reliable for hash calculation.
      */
     public String hash() {
         return HashUtil.hash(
-                "type: ", this.type.name(),
-                "title: ", this.title,
-                "description: ", this.description,
-                "attachmentName: ", this.attachmentName,
-                "contentType: ", this.contentType,
-                "contentLength: ", this.contentLength,
-                "action_url: ", this.actionURL,
-                "action_type: ", this.actionType == null ? null : this.actionType.name()
+                "type:", this.type.name(),
+                "title:", this.title,
+                "description:", this.description,
+                "attachmentName:", this.attachmentName,
+                "contentType:", this.attachmentContentType,
+                "contentLength:", this.attachmentContentLength,
+                "action_url:", this.attachmentUrl,
+                "action_type:", this.attachmentMethod == null ? null : this.attachmentMethod.name()
         );
     }
 }
