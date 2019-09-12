@@ -299,10 +299,10 @@ public class HubCoupaController {
         return new CardBodyFieldItem.Builder()
                 .setAttachmentName(fileName)
                 .setTitle(cardTextAccessor.getMessage("hub.coupa.report.title", locale))
-                .setActionType(HttpMethod.GET)
-                .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, userId, fileName, attachment.getId()))
+                .setAttachmentMethod(HttpMethod.GET)
+                .setAttachmentUrl(String.format(ATTACHMENT_URL, routingPrefix, userId, fileName, attachment.getId()))
                 .setType(CardBodyFieldType.ATTACHMENT_URL)
-                .setContentType(contentType)
+                .setAttachmentContentType(contentType)
                 .build();
     }
 
