@@ -90,7 +90,7 @@
                                 "title": "CLICK HERE TO DOWNLOAD THE ATTACHMENT",
                                 "attachment_name": "response.png",
                                 "content_type": "image/png",
-                                "action_url": "https://hero/connectors/coupa/api/user/15882/attachment/2701685",
+                                "action_url": "https://hero/connectors/coupa/api/user/15882/attachment/response.png/2701685",
                                 "action_type": "GET"
                             },
                             {
@@ -98,7 +98,7 @@
                                 "title": "CLICK HERE TO DOWNLOAD THE ATTACHMENT",
                                 "attachment_name": "timestamp.pdf",
                                 "content_type": "application/pdf",
-                                "action_url": "https://hero/connectors/coupa/api/user/15882/attachment/2701686",
+                                "action_url": "https://hero/connectors/coupa/api/user/15882/attachment/timestamp.pdf/2701686",
                                 "action_type": "GET"
                             },
                             {
@@ -106,7 +106,7 @@
                                 "title": "CLICK HERE TO DOWNLOAD THE ATTACHMENT",
                                 "attachment_name": "comments.jpg",
                                 "content_type": "image/jpeg",
-                                "action_url": "https://hero/connectors/coupa/api/user/15882/attachment/2701687",
+                                "action_url": "https://hero/connectors/coupa/api/user/15882/attachment/comments.jpg/2701687",
                                 "action_type": "GET"
                             }
                         ]

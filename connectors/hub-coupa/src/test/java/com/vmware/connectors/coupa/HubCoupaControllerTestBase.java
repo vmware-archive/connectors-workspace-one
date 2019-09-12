@@ -12,6 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 class HubCoupaControllerTestBase extends ControllerTestsBase {
@@ -105,8 +106,20 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
                 .expectStatus().isNotFound();
     }
 
+    void unauthorizedAttachmentRequest(String authHeader) throws IOException {
+        getAttachment(authHeader)
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("X-Backend-Status", "401")
+                .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
+    }
+
+    void fetchAttachmentWithServerError(String authHeader) {
+        getAttachment(authHeader)
+                .expectStatus().is5xxServerError();
+    }
+
     private WebTestClient.ResponseSpec getAttachment(String authHeader) {
-        String uri = "/api/user/182964/attachment/2700474";
+        String uri = "/api/user/182964/attachment/invoice.pdf/2700474";
         return webClient.get()
                 .uri(uri)
                 .header(AUTHORIZATION, "Bearer " + accessToken(uri))
@@ -211,12 +224,26 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
                 ));
     }
 
+    void mockUnauthorizedAttachmentReq(String serviceCredential) {
+        mockAttachment(serviceCredential)
+                .andRespond(withUnauthorizedRequest());
+    }
+
+    void mockAttachmentServerError(String serviceCredential) {
+        mockAttachment(serviceCredential)
+                .andRespond(withServerError());
+    }
+
     void mockFetchAttachment(String serviceCredential) {
-        mockBackend.expect(requestTo("/api/users/182964/attachments/2700474"))
+        mockAttachment(serviceCredential)
+                .andRespond(withSuccess(attachment, IMAGE_PNG));
+    }
+
+    ResponseActions mockAttachment(String serviceCredential) {
+        return mockBackend.expect(requestTo("/api/users/182964/attachments/2700474"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
-                .andExpect(header(AUTHORIZATION_HEADER_NAME, serviceCredential))
-                .andRespond(withSuccess(attachment, IMAGE_PNG));
+                .andExpect(header(AUTHORIZATION_HEADER_NAME, serviceCredential));
     }
 
 }

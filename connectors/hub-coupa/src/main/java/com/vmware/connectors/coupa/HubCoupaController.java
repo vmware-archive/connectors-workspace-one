@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.coupa;
 
+import com.nimbusds.jose.util.StandardCharset;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
@@ -16,11 +17,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -41,8 +44,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpHeaders.ACCEPT;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static com.vmware.connectors.common.utils.CommonUtils.BACKEND_STATUS;
+import static org.springframework.http.HttpHeaders.*;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.*;
 
 @RestController
@@ -56,7 +60,8 @@ public class HubCoupaController {
 
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
 
-    private static final String ATTACHMENT_URL = "%sapi/user/%s/attachment/%s";
+    private static final String ATTACHMENT_URL = "%sapi/user/%s/attachment/%s/%s";
+    private static final String CONTENT_DISPOSITION_FORMAT = "Content-Disposition: inline; filename=\"%s\"";
 
     private static final String UNAUTHORIZED_ATTACHMENT_ACCESS = "User with approvable ID: %s is trying to fetch an attachment with ID: %s which does not belong to them.";
 
@@ -279,10 +284,6 @@ public class HubCoupaController {
             CardBodyFieldItem fieldItem = buildAttachmentItem(attachment, requisitionDetails.getId(), routingPrefix, userId, locale);
             attachmentField.addItem(fieldItem);
         }
-//        requisitionDetails.getAttachments()
-//                .stream()
-//                .map(attachment -> buildAttachmentItem(attachment, requisitionDetails.getId(), routingPrefix, locale))
-//                .map(attachmentField::addItem);
 
         builder.addField(attachmentField.build());
     }
@@ -299,7 +300,7 @@ public class HubCoupaController {
                 .setAttachmentName(fileName)
                 .setTitle(cardTextAccessor.getMessage("hub.coupa.report.title", locale))
                 .setActionType(HttpMethod.GET)
-                .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, userId, attachment.getId()))
+                .setActionURL(String.format(ATTACHMENT_URL, routingPrefix, userId, fileName, attachment.getId()))
                 .setType(CardBodyFieldType.ATTACHMENT_URL)
                 .setContentType(contentType)
                 .build();
@@ -514,13 +515,14 @@ public class HubCoupaController {
     }
 
     @GetMapping(
-            path = "/api/user/{user_id}/attachment/{attachment_id}",
+            path = "/api/user/{user_id}/attachment/{file_name}/{attachment_id}",
             produces = APPLICATION_OCTET_STREAM_VALUE
     )
-    public Flux<DataBuffer> fetchAttachment(@RequestHeader(AUTHORIZATION) final String authorization,
+    public Mono<ResponseEntity<Flux<DataBuffer>>> fetchAttachment(@RequestHeader(AUTHORIZATION) final String authorization,
                                             @RequestHeader(CONNECTOR_AUTH) final String connectorAuth,
                                             @RequestHeader(X_BASE_URL_HEADER) final String baseUrl,
                                             @PathVariable("user_id") final String userId,
+                                            @PathVariable("file_name") final String fileName,
                                             @PathVariable("attachment_id") final String attachmentId) {
         final String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, userId={}, attachmentId={}", baseUrl, userEmail, userEmail, attachmentId);
@@ -529,16 +531,46 @@ public class HubCoupaController {
 
         return getRequisitionDetails(baseUrl, userId, userEmail, connectorAuth)
                 .switchIfEmpty(Mono.error(new UserException(String.format(UNAUTHORIZED_ATTACHMENT_ACCESS, userId, attachmentId))))
-                .flatMap(ignore -> getAttachment(connectorAuth, getAttachmentURI(baseUrl, userId, attachmentId)));
+                .then(getAttachment(connectorAuth, getAttachmentURI(baseUrl, userId, attachmentId)))
+                .map(clientResponse -> handleClientResponse(clientResponse, fileName));
     }
 
-    private Flux<DataBuffer> getAttachment(String connectorAuth, URI attachmentUri) {
+    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(ClientResponse response, String fileName) {
+        if (response.statusCode().is2xxSuccessful()) {
+            return ResponseEntity.ok()
+                    .contentType(response.headers().contentType().orElse(APPLICATION_PDF))
+                    .header(CONTENT_DISPOSITION, String.format(CONTENT_DISPOSITION_FORMAT, fileName))
+                    .body(response.bodyToFlux(DataBuffer.class));
+        }
+        return handleErrorStatus(response);
+    }
+
+    private ResponseEntity<Flux<DataBuffer>> handleErrorStatus(final ClientResponse response) {
+        final HttpStatus status = response.statusCode();
+        final String backendStatus = Integer.toString(response.rawStatusCode());
+
+        logger.error("Coupa backend returned the status code [{}] and reason phrase [{}] ", status, status.getReasonPhrase());
+
+        if (status == UNAUTHORIZED) {
+            String body = "{\"error\" : \"invalid_connector_token\"}";
+            final DataBuffer dataBuffer = new DefaultDataBufferFactory().wrap(body.getBytes(StandardCharset.UTF_8));
+            return ResponseEntity.status(BAD_REQUEST)
+                    .header(BACKEND_STATUS, backendStatus)
+                    .contentType(APPLICATION_JSON)
+                    .body(Flux.just(dataBuffer));
+        } else {
+            final ResponseEntity.BodyBuilder builder = ResponseEntity.status(INTERNAL_SERVER_ERROR).header(BACKEND_STATUS, backendStatus);
+            response.headers().contentType().ifPresent(builder::contentType);
+            return builder.body(response.bodyToFlux(DataBuffer.class));
+        }
+    }
+
+    private Mono<ClientResponse> getAttachment(String connectorAuth, URI attachmentUri) {
         return this.rest.get()
                 .uri(attachmentUri)
                 .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
                 .header(ACCEPT, APPLICATION_JSON_VALUE)
-                .retrieve()
-                .bodyToFlux(DataBuffer.class);
+                .exchange();
     }
 
     private URI getAttachmentURI(final String baseUrl,
