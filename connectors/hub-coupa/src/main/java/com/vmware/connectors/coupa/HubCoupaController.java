@@ -60,7 +60,7 @@ public class HubCoupaController {
 
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
 
-    private static final String ATTACHMENT_URL = "%sapi/user/%s/attachment/%s/%s";
+    private static final String ATTACHMENT_URL = "%sapi/user/%s/%s/attachment/%s/%s";
     private static final String CONTENT_DISPOSITION_FORMAT = "Content-Disposition: inline; filename=\"%s\"";
 
     private static final String UNAUTHORIZED_ATTACHMENT_ACCESS = "User with approvable ID: %s is trying to fetch an attachment with ID: %s which does not belong to them.";
@@ -140,7 +140,8 @@ public class HubCoupaController {
 
         return getUserDetails(userEmail, baseUrl, connectorAuth)
                 .flatMap(user -> getApprovalDetails(baseUrl, user.getId(), userEmail, connectorAuth)
-                        .map(req -> makeCards(routingPrefix, locale, req, user.getId())))
+                        .map(req -> makeCards(routingPrefix, locale, req, user.getId()))
+                )
                 .reduce(new Cards(), this::addCard);
     }
 
@@ -276,12 +277,13 @@ public class HubCoupaController {
             return;
         }
 
-        CardBodyField.Builder attachmentField = new CardBodyField.Builder()
+        final CardBodyField.Builder attachmentField = new CardBodyField.Builder()
                 .setTitle(this.cardTextAccessor.getMessage("hub.coupa.attachments", locale))
                 .setType(CardBodyFieldType.SECTION);
 
+        final String approvableId = requisitionDetails.getApprovals().iterator().next().getApprovableId();
         for (Attachment attachment: requisitionDetails.getAttachments()) {
-            CardBodyFieldItem fieldItem = buildAttachmentItem(attachment, requisitionDetails.getId(), routingPrefix, userId, locale);
+            CardBodyFieldItem fieldItem = buildAttachmentItem(attachment, requisitionDetails.getId(), routingPrefix, userId, approvableId, locale);
             attachmentField.addItem(fieldItem);
         }
 
@@ -292,6 +294,7 @@ public class HubCoupaController {
                                                   final String reportId,
                                                   final String routingPrefix,
                                                   final String userId,
+                                                  final String approvableId,
                                                   final Locale locale) {
         final String fileName = StringUtils.substringAfterLast(attachment.getFile(), "/");
         final String contentType = getContentType(fileName, reportId, attachment.getId());
@@ -300,7 +303,7 @@ public class HubCoupaController {
                 .setAttachmentName(fileName)
                 .setTitle(cardTextAccessor.getMessage("hub.coupa.report.title", locale))
                 .setAttachmentMethod(HttpMethod.GET)
-                .setAttachmentUrl(String.format(ATTACHMENT_URL, routingPrefix, userId, fileName, attachment.getId()))
+                .setAttachmentUrl(String.format(ATTACHMENT_URL, routingPrefix, userId, approvableId, fileName, attachment.getId()))
                 .setType(CardBodyFieldType.ATTACHMENT_URL)
                 .setAttachmentContentType(contentType)
                 .build();
@@ -515,13 +518,14 @@ public class HubCoupaController {
     }
 
     @GetMapping(
-            path = "/api/user/{user_id}/attachment/{file_name}/{attachment_id}",
+            path = "/api/user/{user_id}/{approvable_id}/attachment/{file_name}/{attachment_id}",
             produces = APPLICATION_OCTET_STREAM_VALUE
     )
     public Mono<ResponseEntity<Flux<DataBuffer>>> fetchAttachment(@RequestHeader(AUTHORIZATION) final String authorization,
                                             @RequestHeader(CONNECTOR_AUTH) final String connectorAuth,
                                             @RequestHeader(X_BASE_URL_HEADER) final String baseUrl,
                                             @PathVariable("user_id") final String userId,
+                                            @PathVariable("approvable_id") final String approvableId,
                                             @PathVariable("file_name") final String fileName,
                                             @PathVariable("attachment_id") final String attachmentId) {
         final String userEmail = AuthUtil.extractUserEmail(authorization);
@@ -529,7 +533,7 @@ public class HubCoupaController {
 
         validateEmailAddress(userEmail);
 
-        return getRequisitionDetails(baseUrl, userId, userEmail, connectorAuth)
+        return getRequisitionDetails(baseUrl, approvableId, userEmail, connectorAuth)
                 .switchIfEmpty(Mono.error(new UserException(String.format(UNAUTHORIZED_ATTACHMENT_ACCESS, userId, attachmentId))))
                 .then(getAttachment(connectorAuth, getAttachmentURI(baseUrl, userId, attachmentId)))
                 .map(clientResponse -> handleClientResponse(clientResponse, fileName));
