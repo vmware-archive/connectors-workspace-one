@@ -140,8 +140,7 @@ public class HubCoupaController {
 
         return getUserDetails(userEmail, baseUrl, connectorAuth)
                 .flatMap(user -> getApprovalDetails(baseUrl, user.getId(), userEmail, connectorAuth)
-                        .map(req -> makeCards(routingPrefix, locale, req, user.getId()))
-                )
+                        .map(req -> makeCards(routingPrefix, locale, req, user.getId())))
                 .reduce(new Cards(), this::addCard);
     }
 
@@ -517,10 +516,7 @@ public class HubCoupaController {
                 .map(ResponseEntity::ok);
     }
 
-    @GetMapping(
-            path = "/api/user/{user_id}/{approvable_id}/attachment/{file_name}/{attachment_id}",
-            produces = APPLICATION_OCTET_STREAM_VALUE
-    )
+    @GetMapping("/api/user/{user_id}/{approvable_id}/attachment/{file_name}/{attachment_id}")
     public Mono<ResponseEntity<Flux<DataBuffer>>> fetchAttachment(@RequestHeader(AUTHORIZATION) final String authorization,
                                             @RequestHeader(CONNECTOR_AUTH) final String connectorAuth,
                                             @RequestHeader(X_BASE_URL_HEADER) final String baseUrl,
