@@ -13,7 +13,7 @@
           "REQ0010001"
         ],
         "links": {
-          "title": "${SNOW_BASE_URL}sc_request.do?sys_id=test-ticket-id-1",
+          "title": "${SNOW_BASE_URL}sysapproval_approver.do?sys_id=test-sc-request-id-1",
           "subtitle": [
             "${SNOW_BASE_URL}sysapproval_approver.do?sys_id=test-sc-request-id-1"
           ]
@@ -103,7 +103,7 @@
           "REQ0010002"
         ],
         "links": {
-          "title": "${SNOW_BASE_URL}sc_request.do?sys_id=test-ticket-id-2",
+          "title": "${SNOW_BASE_URL}sysapproval_approver.do?sys_id=test-sc-request-id-2",
           "subtitle": [
             "${SNOW_BASE_URL}sysapproval_approver.do?sys_id=test-sc-request-id-2"
           ]
@@ -193,7 +193,7 @@
           "REQ0010003"
         ],
         "links": {
-          "title": "${SNOW_BASE_URL}sc_request.do?sys_id=test-ticket-id-3",
+          "title": "${SNOW_BASE_URL}sysapproval_approver.do?sys_id=test-sc-request-id-3",
           "subtitle": [
             "${SNOW_BASE_URL}sysapproval_approver.do?sys_id=test-sc-request-id-3"
           ]

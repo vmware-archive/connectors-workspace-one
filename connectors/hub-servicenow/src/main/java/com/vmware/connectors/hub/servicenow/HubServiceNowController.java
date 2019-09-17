@@ -328,12 +328,6 @@ public class HubServiceNowController {
             ApprovalRequestWithItems info,
             Locale locale
     ) {
-        String requestUri = UriComponentsBuilder
-                .fromUriString(baseUrl)
-                .path("/sc_request.do")
-                .queryParam("sys_id", info.getRequestSysId())
-                .toUriString();
-
         String approvalUri = UriComponentsBuilder
                 .fromUriString(baseUrl)
                 .path("/sysapproval_approver.do")
@@ -348,7 +342,7 @@ public class HubServiceNowController {
                                 cardTextAccessor.getHeader(locale),
                                 List.of(cardTextAccessor.getMessage("subtitle", locale, info.getInfo().getNumber())),
                                 new CardHeaderLinks(
-                                        requestUri,
+                                        approvalUri,
                                         List.of(approvalUri)
                                 )
                         )
