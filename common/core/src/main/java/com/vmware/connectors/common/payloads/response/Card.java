@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017 VMware, Inc. All Rights Reserved.
+ * Copyright © 2019 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
@@ -324,7 +324,7 @@ public class Card {
          * @return this Builder instance, for method chaining
          */
         public Builder setHeader(String title, String... subtitle) {
-            return setHeader(new CardHeader(title, subtitle == null ? null : Arrays.asList(subtitle)));
+            return setHeader(new CardHeader(title, subtitle == null ? null : Arrays.asList(subtitle), null));
         }
 
         /**

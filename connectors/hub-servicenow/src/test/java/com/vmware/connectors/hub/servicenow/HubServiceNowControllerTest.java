@@ -174,7 +174,7 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
                 .map(JsonNormalizer::forCards)
                 .block();
 
-        assertThat(body, sameJSONAs(fromFile(responseFile)).allowingAnyArrayOrdering());
+        assertThat(body, sameJSONAs(fromFile(responseFile).replace("${SNOW_BASE_URL}", mockBackend.url(""))).allowingAnyArrayOrdering());
     }
 
     private void trainServiceNowForCards() throws Exception {
