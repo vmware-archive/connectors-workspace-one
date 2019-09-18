@@ -560,13 +560,12 @@ public class HubCoupaController {
                 .flatMap(userDetails -> getApprovalDetails(baseUrl, userDetails.getId(), connectorAuth))
                 .filter(approvalDetails -> approvableId.equals(approvalDetails.getApprovableId()))
                 .flatMap(approvalDetails -> getRequisitionDetails(baseUrl, approvalDetails.getApprovableId(), userEmail, connectorAuth))
-                .map(requisitionDetails -> findAttachment(requisitionDetails.getAttachments(), attachmentId));
+                .flatMap(requisitionDetails -> validateAttachment(requisitionDetails.getAttachments(), attachmentId));
     }
 
-    private Attachment findAttachment(List<Attachment> attachments, String attachmentId) {
-        return attachments.stream()
-                .filter(attachment -> attachment.getId().equals(attachmentId))
-                .findFirst().orElseThrow(() -> new UserException("Unable to find attachment with id " + attachmentId));
+    private Flux<Attachment> validateAttachment(List<Attachment> attachments, String attachmentId) {
+        return Flux.fromIterable(attachments)
+                .filter(attachment -> attachment.getId().equals(attachmentId));
     }
 
     private ResponseEntity<Flux<DataBuffer>> handleClientResponse(final ClientResponse response,
