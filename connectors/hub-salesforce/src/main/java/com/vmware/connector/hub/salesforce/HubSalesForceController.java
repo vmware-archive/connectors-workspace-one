@@ -209,7 +209,7 @@ public class HubSalesForceController {
         }
 
         return retrieveOpportunities(baseUrl, opportunityIds, connectorAuth, configParams)
-                .flatMapMany(opportunityResponse -> buildCards(workItemResponse, opportunityResponse, locale, routingPrefix, configParams));
+                .flatMapMany(opportunityResponse -> buildCards(baseUrl, workItemResponse, opportunityResponse, locale, routingPrefix, configParams));
     }
 
     private Mono<JsonDocument> retrieveOpportunities(final String baseUrl,
@@ -228,7 +228,8 @@ public class HubSalesForceController {
                 .bodyToMono(JsonDocument.class);
     }
 
-    private Flux<Card> buildCards(final JsonDocument workItemResponse,
+    private Flux<Card> buildCards(final String baseUrl,
+                                  final JsonDocument workItemResponse,
                                   final JsonDocument opportunityResponse,
                                   final Locale locale,
                                   final String routingPrefix,
@@ -249,7 +250,18 @@ public class HubSalesForceController {
             final Card.Builder card = new Card.Builder()
                     .setName("Salesforce for WS1 Hub")
                     .setTemplate(routingPrefix + "templates/generic.hbs")
-                    .setHeader(this.cardTextAccessor.getMessage("ws1.sf.card.header", locale))
+                    .setHeader(
+                            new CardHeader(
+                                    this.cardTextAccessor.getMessage("ws1.sf.card.header", locale),
+                                    null,
+                                    new CardHeaderLinks(
+                                            fromUriString(baseUrl)
+                                                    .path(opportunityId)
+                                                    .toUriString(),
+                                            null
+                                    )
+                            )
+                    )
                     .setBody(buildCardBody(opportunityResponse, i, locale, configParams))
                     .setBackendId(opportunityId)
                     .addAction(buildApproveAction(routingPrefix, locale, userId))
