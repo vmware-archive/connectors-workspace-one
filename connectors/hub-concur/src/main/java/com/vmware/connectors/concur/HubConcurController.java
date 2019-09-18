@@ -210,7 +210,7 @@ public class HubConcurController {
         return fetchLoginIdFromUserEmail(userEmail, baseUrl, connectorAuth)
                 .flatMapMany(loginId -> fetchAllApprovals(baseUrl, loginId, connectorAuth))
                 .flatMap(expense -> fetchRequestData(baseUrl, expense.getId(), connectorAuth))
-                .map(report -> makeCards(routingPrefix, locale, report))
+                .map(report -> makeCards(baseUrl, routingPrefix, locale, report))
                 .reduce(new Cards(), this::addCard);
     }
 
@@ -263,6 +263,7 @@ public class HubConcurController {
     }
 
     private Card makeCards(
+            String baseUrl,
             String routingPrefix,
             Locale locale,
             ExpenseReportResponse report
@@ -274,7 +275,19 @@ public class HubConcurController {
 
         Card.Builder builder = new Card.Builder()
                 .setName("Concur")
-                .setHeader(cardTextAccessor.getMessage("hub.concur.header", locale, reportName))
+                .setHeader(
+                        new CardHeader(
+                                cardTextAccessor.getMessage("hub.concur.header", locale, reportName),
+                                null,
+                                new CardHeaderLinks(
+                                        UriComponentsBuilder
+                                                .fromUriString(baseUrl)
+                                                .path("/approvalsportal.asp")
+                                                .toUriString(),
+                                        null
+                                )
+                        )
+                )
                 .setBody(buildCard(locale, report, routingPrefix))
                 .setBackendId(report.getReportID())
                 .addAction(makeAction(routingPrefix, locale, reportId,
