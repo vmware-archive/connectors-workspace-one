@@ -70,8 +70,6 @@ public class HubConcurController {
 
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
 
-    private static final String ATTACHMENT_URL = "%sapi/expense/report/%s/attachment";
-
     private static final String CLIENT_ID = "client_id";
     private static final String CLIENT_SECRET = "client_secret";
     private static final String USERNAME = "username";
@@ -422,12 +420,22 @@ public class HubConcurController {
                         .setAttachmentName(reportID)
                         .setTitle(cardTextAccessor.getMessage("hub.concur.report.image.url", locale))
                         .setAttachmentMethod(HttpMethod.GET)
-                        .setAttachmentUrl(String.format(ATTACHMENT_URL, routingPrefix, reportID))
+
+                        .setAttachmentUrl(getAttachmentUrl(routingPrefix, reportID))
                         .setType(CardBodyFieldType.ATTACHMENT_URL)
                         .setAttachmentContentType(APPLICATION_PDF_VALUE) // Concur always returns a PDF file. It consolidates all the attachments into a single PDF file.
                         .build());
 
         return builder.build();
+    }
+
+    private String getAttachmentUrl(String routingPrefix, String reportID) {
+        return UriComponentsBuilder.fromUriString(routingPrefix).path("/api/expense/report/{report_id}/attachment")
+                .buildAndExpand(
+                        Map.of(
+                                "report_id", reportID
+                        )
+                ).toUriString();
     }
 
     private Cards addCard(

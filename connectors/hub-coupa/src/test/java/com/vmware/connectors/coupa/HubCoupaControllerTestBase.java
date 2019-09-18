@@ -119,7 +119,7 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
     }
 
     private WebTestClient.ResponseSpec getAttachment(String authHeader) {
-        String uri = "/api/user/332804/182964/attachment/invoice.pdf/2700474";
+        String uri = "/api/user/15882/182964/attachment/response.png/2701685";
         return webClient.get()
                 .uri(uri)
                 .header(AUTHORIZATION, "Bearer " + accessToken(uri))
@@ -240,7 +240,7 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
     }
 
     ResponseActions mockAttachment(String serviceCredential) {
-        return mockBackend.expect(requestTo("/api/users/332804/attachments/2700474"))
+        return mockBackend.expect(requestTo("/api/users/15882/attachments/2701685"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andExpect(header(AUTHORIZATION_HEADER_NAME, serviceCredential));

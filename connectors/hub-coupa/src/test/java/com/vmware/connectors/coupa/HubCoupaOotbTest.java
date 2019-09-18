@@ -80,14 +80,16 @@ class HubCoupaOotbTest extends HubCoupaControllerTestBase {
 
     @Test
     void testFetchAttachmentForValidDetails() throws Exception {
+        mockCoupaRequest(CALLER_SERVICE_CREDS);
         mockFetchAttachment(CALLER_SERVICE_CREDS);
-        mockRequisitionDetails(CALLER_SERVICE_CREDS);
 
         fetchAttachment(CALLER_SERVICE_CREDS);
     }
 
     @Test
     void testFetchAttachmentForInvalidDetails() throws Exception {
+        mockUserDetails(CALLER_SERVICE_CREDS);
+        mockApproval(CALLER_SERVICE_CREDS);
         mockOtherRequisitionDetails(CALLER_SERVICE_CREDS);
 
         fetchAttachmentForInvalidDetails(CALLER_SERVICE_CREDS);
@@ -95,6 +97,8 @@ class HubCoupaOotbTest extends HubCoupaControllerTestBase {
 
     @Test
     void testUnauthorizedAttachmentRequest() throws Exception {
+        mockUserDetails(CALLER_SERVICE_CREDS);
+        mockApproval(CALLER_SERVICE_CREDS);
         mockRequisitionDetails(CALLER_SERVICE_CREDS);
         mockUnauthorizedAttachmentReq(CALLER_SERVICE_CREDS);
 
@@ -103,6 +107,8 @@ class HubCoupaOotbTest extends HubCoupaControllerTestBase {
 
     @Test
     void testAttachmentWithServerError() throws Exception {
+        mockUserDetails(CALLER_SERVICE_CREDS);
+        mockApproval(CALLER_SERVICE_CREDS);
         mockRequisitionDetails(CALLER_SERVICE_CREDS);
         mockAttachmentServerError(CALLER_SERVICE_CREDS);
 

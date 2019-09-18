@@ -59,8 +59,6 @@ public class HubCoupaController {
     private static final String X_BASE_URL_HEADER = "X-Connector-Base-Url";
 
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
-
-    private static final String ATTACHMENT_URL = "%sapi/user/%s/%s/attachment/%s/%s";
     private static final String CONTENT_DISPOSITION_FORMAT = "Content-Disposition: inline; filename=\"%s\"";
 
     private static final String UNAUTHORIZED_ATTACHMENT_ACCESS = "User with approvable ID: %s is trying to fetch an attachment with ID: %s which does not belong to them.";
@@ -139,7 +137,8 @@ public class HubCoupaController {
         logger.debug("Getting user id of {}", userEmail);
 
         return getUserDetails(userEmail, baseUrl, connectorAuth)
-                .flatMap(user -> getApprovalDetails(baseUrl, user.getId(), userEmail, connectorAuth)
+                .flatMap(user -> getApprovalDetails(baseUrl, user.getId(), connectorAuth)
+                        .flatMap(ad -> getRequisitionDetails(baseUrl, ad.getApprovableId(), userEmail, connectorAuth))
                         .map(req -> makeCards(routingPrefix, locale, req, user.getId())))
                 .reduce(new Cards(), this::addCard);
     }
@@ -153,10 +152,9 @@ public class HubCoupaController {
                 .bodyToFlux(UserDetails.class);
     }
 
-    private Flux<RequisitionDetails> getApprovalDetails(
+    private Flux<ApprovalDetails> getApprovalDetails(
             String baseUrl,
             String userId,
-            String userEmail,
             String connectorAuth
     ) {
         logger.debug("Getting approval details for the user id :: {}", userId);
@@ -166,8 +164,7 @@ public class HubCoupaController {
                 .accept(APPLICATION_JSON)
                 .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
                 .retrieve()
-                .bodyToFlux(ApprovalDetails.class)
-                .flatMap(ad -> getRequisitionDetails(baseUrl, ad.getApprovableId(), userEmail, connectorAuth));
+                .bodyToFlux(ApprovalDetails.class);
     }
 
     private Flux<RequisitionDetails> getRequisitionDetails(
@@ -302,10 +299,27 @@ public class HubCoupaController {
                 .setAttachmentName(fileName)
                 .setTitle(cardTextAccessor.getMessage("hub.coupa.report.title", locale))
                 .setAttachmentMethod(HttpMethod.GET)
-                .setAttachmentUrl(String.format(ATTACHMENT_URL, routingPrefix, userId, approvableId, fileName, attachment.getId()))
+                .setAttachmentUrl(getAttachmentUrl(routingPrefix, userId, approvableId, fileName, attachment.getId()))
                 .setType(CardBodyFieldType.ATTACHMENT_URL)
                 .setAttachmentContentType(contentType)
                 .build();
+    }
+
+    private String getAttachmentUrl(String routingPrefix,
+                                    String userId,
+                                    String approvableId,
+                                    String fileName,
+                                    String attachmentId) {
+        return UriComponentsBuilder.fromUriString(routingPrefix)
+                .path("/api/user/{user_id}/{approvable_id}/attachment/{file_name}/{attachment_id}")
+                .buildAndExpand(
+                        Map.of(
+                                "user_id", userId,
+                                "approvable_id", approvableId,
+                                "file_name", fileName,
+                                "attachment_id", attachmentId
+                        )
+                ).toUriString();
     }
 
     private String getContentType(final String fileName,
@@ -529,16 +543,39 @@ public class HubCoupaController {
 
         validateEmailAddress(userEmail);
 
-        return getRequisitionDetails(baseUrl, approvableId, userEmail, connectorAuth)
+        return validateUserAttachmentInfo(baseUrl, connectorAuth, userEmail, userId, approvableId, attachmentId)
                 .switchIfEmpty(Mono.error(new UserException(String.format(UNAUTHORIZED_ATTACHMENT_ACCESS, userId, attachmentId))))
                 .then(getAttachment(connectorAuth, getAttachmentURI(baseUrl, userId, attachmentId)))
-                .map(clientResponse -> handleClientResponse(clientResponse, fileName));
+                .map(clientResponse -> handleClientResponse(clientResponse, fileName, attachmentId, approvableId));
     }
 
-    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(ClientResponse response, String fileName) {
+    private Flux<Attachment> validateUserAttachmentInfo(final String baseUrl,
+                                                        final String connectorAuth,
+                                                        final String userEmail,
+                                                        final String userId,
+                                                        final String approvableId,
+                                                        final String attachmentId) {
+        return getUserDetails(userEmail, baseUrl, connectorAuth)
+                .filter(userDetails -> userDetails.getId().equals(userId))
+                .flatMap(userDetails -> getApprovalDetails(baseUrl, userDetails.getId(), connectorAuth))
+                .filter(approvalDetails -> approvableId.equals(approvalDetails.getApprovableId()))
+                .flatMap(approvalDetails -> getRequisitionDetails(baseUrl, approvalDetails.getApprovableId(), userEmail, connectorAuth))
+                .map(requisitionDetails -> findAttachment(requisitionDetails.getAttachments(), attachmentId));
+    }
+
+    private Attachment findAttachment(List<Attachment> attachments, String attachmentId) {
+        return attachments.stream()
+                .filter(attachment -> attachment.getId().equals(attachmentId))
+                .findFirst().orElse(null);
+    }
+
+    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(final ClientResponse response,
+                                                                  final String fileName,
+                                                                  final String attachmentId,
+                                                                  final String approvableId) {
         if (response.statusCode().is2xxSuccessful()) {
             return ResponseEntity.ok()
-                    .contentType(response.headers().contentType().orElse(APPLICATION_PDF))
+                    .contentType(parseMediaType(getContentType(fileName, approvableId, attachmentId)))
                     .header(CONTENT_DISPOSITION, String.format(CONTENT_DISPOSITION_FORMAT, fileName))
                     .body(response.bodyToFlux(DataBuffer.class));
         }
