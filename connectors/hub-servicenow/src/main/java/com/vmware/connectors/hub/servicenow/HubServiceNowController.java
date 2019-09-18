@@ -107,7 +107,7 @@ public class HubServiceNowController {
                 .doOnEach(Reactive.wrapForItem(info -> logger.trace("Got items: {}", info)))
                 .reduce(
                         new Cards(),
-                        (cards, info) -> appendCard(cards, info, routingPrefix, locale)
+                        (cards, info) -> appendCard(cards, info, baseUrl, routingPrefix, locale)
                 )
                 .doOnEach(Reactive.wrapForItem(cards -> logger.trace("Returning cards: {}", cards)));
     }
@@ -312,26 +312,40 @@ public class HubServiceNowController {
 
     private Cards appendCard(Cards cards,
                              ApprovalRequestWithItems info,
+                             String baseUrl,
                              String routingPrefix,
                              Locale locale) {
          cards.getCards().add(
-                makeCard(routingPrefix, info, locale)
+                makeCard(baseUrl, routingPrefix, info, locale)
         );
 
         return cards;
     }
 
     private Card makeCard(
+            String baseUrl,
             String routingPrefix,
             ApprovalRequestWithItems info,
             Locale locale
     ) {
+        String approvalUri = UriComponentsBuilder
+                .fromUriString(baseUrl)
+                .path("/sysapproval_approver.do")
+                .queryParam("sys_id", info.getApprovalSysId())
+                .toUriString();
+
         final Card.Builder card = new Card.Builder()
                 .setName("ServiceNow") // TODO - remove this in APF-536
                 .setTemplate(routingPrefix + "templates/generic.hbs")
                 .setHeader(
-                        cardTextAccessor.getHeader(locale),
-                        cardTextAccessor.getMessage("subtitle", locale, info.getInfo().getNumber())
+                        new CardHeader(
+                                cardTextAccessor.getHeader(locale),
+                                List.of(cardTextAccessor.getMessage("subtitle", locale, info.getInfo().getNumber())),
+                                new CardHeaderLinks(
+                                        approvalUri,
+                                        List.of(approvalUri)
+                                )
+                        )
                 )
                 .setHash(toCardHash(info))
                 .setBackendId(info.getInfo().getNumber())
