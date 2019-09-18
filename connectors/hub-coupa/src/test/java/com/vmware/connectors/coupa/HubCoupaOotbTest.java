@@ -114,4 +114,13 @@ class HubCoupaOotbTest extends HubCoupaControllerTestBase {
 
         fetchAttachmentWithServerError(CALLER_SERVICE_CREDS);
     }
+
+    @Test
+    void testInvalidAttachmentId() throws Exception {
+        mockUserDetails(CALLER_SERVICE_CREDS);
+        mockApproval(CALLER_SERVICE_CREDS);
+        mockRequisitionDetails(CALLER_SERVICE_CREDS);
+
+        fetchInvalidAttachmentId(CALLER_SERVICE_CREDS);
+    }
 }

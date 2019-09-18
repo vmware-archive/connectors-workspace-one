@@ -566,7 +566,7 @@ public class HubCoupaController {
     private Attachment findAttachment(List<Attachment> attachments, String attachmentId) {
         return attachments.stream()
                 .filter(attachment -> attachment.getId().equals(attachmentId))
-                .findFirst().orElse(null);
+                .findFirst().orElseThrow(() -> new UserException("Unable to find attachment with id " + attachmentId));
     }
 
     private ResponseEntity<Flux<DataBuffer>> handleClientResponse(final ClientResponse response,
