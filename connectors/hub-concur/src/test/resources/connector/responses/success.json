@@ -117,7 +117,10 @@
       "backend_id": "1D3BD2E14D144508B05F",
       "hash": "test-hash",
       "header": {
-        "title": "Meals & Entertainment"
+        "title": "Meals & Entertainment",
+        "links": {
+          "title": "${CONCUR_BASE_URL}approvalsportal.asp"
+        }
       },
       "id": "00000000-0000-0000-0000-000000000000",
       "image": {
@@ -314,7 +317,10 @@
       "backend_id": "683105624FD74A1B9C13",
       "hash": "test-hash",
       "header": {
-        "title": "Campus Hiring Event 2018"
+        "title": "Campus Hiring Event 2018",
+        "links": {
+          "title": "${CONCUR_BASE_URL}approvalsportal.asp"
+        }
       },
       "id": "00000000-0000-0000-0000-000000000000",
       "image": {
@@ -511,7 +517,10 @@
       "backend_id": "A77D016732974B5F8E23",
       "hash": "test-hash",
       "header": {
-        "title": "Sales Kickoff Event"
+        "title": "Sales Kickoff Event",
+        "links": {
+          "title": "${CONCUR_BASE_URL}approvalsportal.asp"
+        }
       },
       "id": "00000000-0000-0000-0000-000000000000",
       "image": {

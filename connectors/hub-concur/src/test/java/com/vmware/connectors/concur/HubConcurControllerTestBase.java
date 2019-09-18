@@ -163,7 +163,7 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
 
         assertThat(
                 body,
-                sameJSONAs(fromFile("connector/responses/" + expected))
+                sameJSONAs(fromFile("connector/responses/" + expected).replace("${CONCUR_BASE_URL}", mockBackend.url("")))
                         .allowingAnyArrayOrdering()
                         .allowingExtraUnexpectedFields()
         );
