@@ -5,6 +5,7 @@
 
 package com.vmware.connectors.coupa;
 
+import com.nimbusds.jose.util.StandardCharset;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
@@ -15,29 +16,38 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static com.vmware.connectors.common.utils.CommonUtils.BACKEND_STATUS;
+import static org.springframework.http.HttpHeaders.*;
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.MediaType.*;
 
 @RestController
 public class HubCoupaController {
@@ -49,6 +59,9 @@ public class HubCoupaController {
     private static final String X_BASE_URL_HEADER = "X-Connector-Base-Url";
 
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
+    private static final String CONTENT_DISPOSITION_FORMAT = "Content-Disposition: inline; filename=\"%s\"";
+
+    private static final String UNAUTHORIZED_ATTACHMENT_ACCESS = "User with approvable ID: %s is trying to fetch an attachment with ID: %s which does not belong to them.";
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
@@ -123,32 +136,35 @@ public class HubCoupaController {
     ) {
         logger.debug("Getting user id of {}", userEmail);
 
-        return rest.get()
-                .uri(baseUrl + "/api/users?email={userEmail}", userEmail)
-                .accept(MediaType.APPLICATION_JSON)
-                .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
-                .retrieve()
-                .bodyToFlux(UserDetails.class)
-                .flatMap(u -> getApprovalDetails(baseUrl, u.getId(), userEmail, connectorAuth))
-                .map(req -> makeCards(routingPrefix, locale, req))
+        return getUserDetails(userEmail, baseUrl, connectorAuth)
+                .flatMap(user -> getApprovalDetails(baseUrl, user.getId(), connectorAuth)
+                        .flatMap(ad -> getRequisitionDetails(baseUrl, ad.getApprovableId(), userEmail, connectorAuth))
+                        .map(req -> makeCards(routingPrefix, locale, req, user.getId())))
                 .reduce(new Cards(), this::addCard);
     }
 
-    private Flux<RequisitionDetails> getApprovalDetails(
+    private Flux<UserDetails> getUserDetails(String userEmail, String baseUrl, String connectorAuth) {
+        return rest.get()
+                .uri(baseUrl + "/api/users?email={userEmail}", userEmail)
+                .accept(APPLICATION_JSON)
+                .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
+                .retrieve()
+                .bodyToFlux(UserDetails.class);
+    }
+
+    private Flux<ApprovalDetails> getApprovalDetails(
             String baseUrl,
             String userId,
-            String userEmail,
             String connectorAuth
     ) {
         logger.debug("Getting approval details for the user id :: {}", userId);
 
         return rest.get()
                 .uri(baseUrl + "/api/approvals?approver_id={userId}&status=pending_approval", userId)
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
                 .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
                 .retrieve()
-                .bodyToFlux(ApprovalDetails.class)
-                .flatMap(ad -> getRequisitionDetails(baseUrl, ad.getApprovableId(), userEmail, connectorAuth));
+                .bodyToFlux(ApprovalDetails.class);
     }
 
     private Flux<RequisitionDetails> getRequisitionDetails(
@@ -161,7 +177,7 @@ public class HubCoupaController {
 
         return rest.get()
                 .uri(baseUrl + "/api/requisitions?id={approvableId}&status=pending_approval", approvableId)
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
                 .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
                 .retrieve()
                 .bodyToFlux(RequisitionDetails.class)
@@ -171,7 +187,8 @@ public class HubCoupaController {
     private Card makeCards(
             String routingPrefix,
             Locale locale,
-            RequisitionDetails requestDetails
+            RequisitionDetails requestDetails,
+            String userId
     ) {
         String requestId = requestDetails.getId();
         String reportName = requestDetails.getRequisitionLinesList().get(0).getDescription();
@@ -182,7 +199,7 @@ public class HubCoupaController {
         Card.Builder builder = new Card.Builder()
                 .setName("Coupa")
                 .setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale, reportName))
-                .setBody(buildCardBody(locale, requestDetails))
+                .setBody(buildCardBody(routingPrefix, requestDetails, userId, locale))
                 .setBackendId(requestId)
                 .addAction(makeApprovalAction(routingPrefix, requestId, locale,
                         true, "api/approve/", "hub.coupa.approve", "hub.coupa.approve.comment.label"))
@@ -193,7 +210,12 @@ public class HubCoupaController {
         return builder.build();
     }
 
-    private CardBody buildCardBody(Locale locale, RequisitionDetails requestDetails) {
+    private CardBody buildCardBody(
+            String routingPrefix,
+            RequisitionDetails requestDetails,
+            String userId,
+            Locale locale
+    ) {
         final CardBody.Builder cardBodyBuilder = new CardBody.Builder()
                 .addField(makeGeneralField(locale, "hub.coupa.requestDescription", requestDetails.getRequisitionDescription()))
                 .addField(makeGeneralField(locale, "hub.coupa.requester", getRequestorName(requestDetails)))
@@ -202,6 +224,8 @@ public class HubCoupaController {
 
         if (!CollectionUtils.isEmpty(requestDetails.getRequisitionLinesList())) {
             buildRequisitionDetails(requestDetails, locale).forEach(cardBodyBuilder::addField);
+
+            buildAttachments(requestDetails, cardBodyBuilder, routingPrefix, userId, locale);
         }
 
         return cardBodyBuilder.build();
@@ -237,6 +261,77 @@ public class HubCoupaController {
         addItem("hub.coupa.billing.account", requisitionDetails.getShipToAddress().getLocationCode(), locale, items);
 
         return items;
+    }
+
+    private void buildAttachments(final RequisitionDetails requisitionDetails,
+                                  final CardBody.Builder builder,
+                                  final String routingPrefix,
+                                  final String userId,
+                                  final Locale locale) {
+        if (CollectionUtils.isEmpty(requisitionDetails.getAttachments())) {
+            logger.debug("No attachments found for coupa report with request ID: {}", requisitionDetails.getId());
+            return;
+        }
+
+        final CardBodyField.Builder attachmentField = new CardBodyField.Builder()
+                .setTitle(this.cardTextAccessor.getMessage("hub.coupa.attachments", locale))
+                .setType(CardBodyFieldType.SECTION);
+
+        final String approvableId = requisitionDetails.getApprovals().iterator().next().getApprovableId();
+        for (Attachment attachment: requisitionDetails.getAttachments()) {
+            CardBodyFieldItem fieldItem = buildAttachmentItem(attachment, requisitionDetails.getId(), routingPrefix, userId, approvableId, locale);
+            attachmentField.addItem(fieldItem);
+        }
+
+        builder.addField(attachmentField.build());
+    }
+
+    private CardBodyFieldItem buildAttachmentItem(final Attachment attachment,
+                                                  final String reportId,
+                                                  final String routingPrefix,
+                                                  final String userId,
+                                                  final String approvableId,
+                                                  final Locale locale) {
+        final String fileName = StringUtils.substringAfterLast(attachment.getFile(), "/");
+        final String contentType = getContentType(fileName, reportId, attachment.getId());
+
+        return new CardBodyFieldItem.Builder()
+                .setAttachmentName(fileName)
+                .setTitle(cardTextAccessor.getMessage("hub.coupa.report.title", locale))
+                .setAttachmentMethod(HttpMethod.GET)
+                .setAttachmentUrl(getAttachmentUrl(routingPrefix, userId, approvableId, fileName, attachment.getId()))
+                .setType(CardBodyFieldType.ATTACHMENT_URL)
+                .setAttachmentContentType(contentType)
+                .build();
+    }
+
+    private String getAttachmentUrl(String routingPrefix,
+                                    String userId,
+                                    String approvableId,
+                                    String fileName,
+                                    String attachmentId) {
+        return UriComponentsBuilder.fromUriString(routingPrefix)
+                .path("/api/user/{user_id}/{approvable_id}/attachment/{file_name}/{attachment_id}")
+                .buildAndExpand(
+                        Map.of(
+                                "user_id", userId,
+                                "approvable_id", approvableId,
+                                "file_name", fileName,
+                                "attachment_id", attachmentId
+                        )
+                ).toUriString();
+    }
+
+    private String getContentType(final String fileName,
+                                  final String reportId,
+                                  final String attachmentId) {
+        try {
+            final Path path = new File(fileName).toPath();
+            return Files.probeContentType(path);
+        } catch (IOException e) {
+            logger.error("Failed to retrieve the file content type for the report with ID: {} and attachment with ID: {}", reportId, attachmentId, e);
+            return null;
+        }
     }
 
     private void addItem(final String title,
@@ -394,7 +489,7 @@ public class HubCoupaController {
         return rest.put()
                 .uri(baseUrl + "/api/approvals/{id}/{action}?reason={reason}", id, action, reason)
                 .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
                 .onErrorMap(WebClientResponseException.class, this::handleClientError);
@@ -435,4 +530,96 @@ public class HubCoupaController {
                 .map(ResponseEntity::ok);
     }
 
+    @GetMapping("/api/user/{user_id}/{approvable_id}/attachment/{file_name}/{attachment_id}")
+    public Mono<ResponseEntity<Flux<DataBuffer>>> fetchAttachment(@RequestHeader(AUTHORIZATION) final String authorization,
+                                            @RequestHeader(CONNECTOR_AUTH) final String connectorAuth,
+                                            @RequestHeader(X_BASE_URL_HEADER) final String baseUrl,
+                                            @PathVariable("user_id") final String userId,
+                                            @PathVariable("approvable_id") final String approvableId,
+                                            @PathVariable("file_name") final String fileName,
+                                            @PathVariable("attachment_id") final String attachmentId) {
+        final String userEmail = AuthUtil.extractUserEmail(authorization);
+        logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, userId={}, attachmentId={}", baseUrl, userEmail, userEmail, attachmentId);
+
+        validateEmailAddress(userEmail);
+
+        return validateUserAttachmentInfo(baseUrl, connectorAuth, userEmail, userId, approvableId, attachmentId)
+                .switchIfEmpty(Mono.error(new UserException(String.format(UNAUTHORIZED_ATTACHMENT_ACCESS, userId, attachmentId))))
+                .then(getAttachment(connectorAuth, getAttachmentURI(baseUrl, userId, attachmentId)))
+                .map(clientResponse -> handleClientResponse(clientResponse, fileName, attachmentId, approvableId));
+    }
+
+    private Flux<Attachment> validateUserAttachmentInfo(final String baseUrl,
+                                                        final String connectorAuth,
+                                                        final String userEmail,
+                                                        final String userId,
+                                                        final String approvableId,
+                                                        final String attachmentId) {
+        return getUserDetails(userEmail, baseUrl, connectorAuth)
+                .filter(userDetails -> userDetails.getId().equals(userId))
+                .flatMap(userDetails -> getApprovalDetails(baseUrl, userDetails.getId(), connectorAuth))
+                .filter(approvalDetails -> approvableId.equals(approvalDetails.getApprovableId()))
+                .flatMap(approvalDetails -> getRequisitionDetails(baseUrl, approvalDetails.getApprovableId(), userEmail, connectorAuth))
+                .flatMap(requisitionDetails -> validateAttachment(requisitionDetails.getAttachments(), attachmentId));
+    }
+
+    private Flux<Attachment> validateAttachment(List<Attachment> attachments, String attachmentId) {
+        return Flux.fromIterable(attachments)
+                .filter(attachment -> attachment.getId().equals(attachmentId));
+    }
+
+    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(final ClientResponse response,
+                                                                  final String fileName,
+                                                                  final String attachmentId,
+                                                                  final String approvableId) {
+        if (response.statusCode().is2xxSuccessful()) {
+            return ResponseEntity.ok()
+                    .contentType(parseMediaType(getContentType(fileName, approvableId, attachmentId)))
+                    .header(CONTENT_DISPOSITION, String.format(CONTENT_DISPOSITION_FORMAT, fileName))
+                    .body(response.bodyToFlux(DataBuffer.class));
+        }
+        return handleErrorStatus(response);
+    }
+
+    private ResponseEntity<Flux<DataBuffer>> handleErrorStatus(final ClientResponse response) {
+        final HttpStatus status = response.statusCode();
+        final String backendStatus = Integer.toString(response.rawStatusCode());
+
+        logger.error("Coupa backend returned the status code [{}] and reason phrase [{}] ", status, status.getReasonPhrase());
+
+        if (status == UNAUTHORIZED) {
+            String body = "{\"error\" : \"invalid_connector_token\"}";
+            final DataBuffer dataBuffer = new DefaultDataBufferFactory().wrap(body.getBytes(StandardCharset.UTF_8));
+            return ResponseEntity.status(BAD_REQUEST)
+                    .header(BACKEND_STATUS, backendStatus)
+                    .contentType(APPLICATION_JSON)
+                    .body(Flux.just(dataBuffer));
+        } else {
+            final ResponseEntity.BodyBuilder builder = ResponseEntity.status(INTERNAL_SERVER_ERROR).header(BACKEND_STATUS, backendStatus);
+            response.headers().contentType().ifPresent(builder::contentType);
+            return builder.body(response.bodyToFlux(DataBuffer.class));
+        }
+    }
+
+    private Mono<ClientResponse> getAttachment(String connectorAuth, URI attachmentUri) {
+        return this.rest.get()
+                .uri(attachmentUri)
+                .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
+                .header(ACCEPT, APPLICATION_JSON_VALUE)
+                .exchange();
+    }
+
+    private URI getAttachmentURI(final String baseUrl,
+                                 final String userId,
+                                 final String attachmentId) {
+        return UriComponentsBuilder.fromUriString(baseUrl)
+                .path("/api/users/{user_id}/attachments/{attachment_id}")
+                .buildAndExpand(
+                        Map.of(
+                                "user_id", userId,
+                                "attachment_id", attachmentId
+                        )
+                )
+                .toUri();
+    }
 }

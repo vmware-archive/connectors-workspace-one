@@ -80,6 +80,36 @@
                                 "description": "B-SG-IN"
                             }
                         ]
+                    },
+                    {
+                        "type": "SECTION",
+                        "title": "ATTACHMENTS",
+                        "items": [
+                            {
+                                "type": "ATTACHMENT_URL",
+                                "title": "CLICK HERE TO DOWNLOAD THE ATTACHMENT",
+                                "attachment_name": "response.png",
+                                "attachment_content_type": "image/png",
+                                "attachment_url": "https://hero/connectors/coupa/api/user/15882/182964/attachment/response.png/2701685",
+                                "attachment_method": "GET"
+                            },
+                            {
+                                "type": "ATTACHMENT_URL",
+                                "title": "CLICK HERE TO DOWNLOAD THE ATTACHMENT",
+                                "attachment_name": "timestamp.pdf",
+                                "attachment_content_type": "application/pdf",
+                                "attachment_url": "https://hero/connectors/coupa/api/user/15882/182964/attachment/timestamp.pdf/2701686",
+                                "attachment_method": "GET"
+                            },
+                            {
+                                "type": "ATTACHMENT_URL",
+                                "title": "CLICK HERE TO DOWNLOAD THE ATTACHMENT",
+                                "attachment_name": "comments.jpg",
+                                "attachment_content_type": "image/jpeg",
+                                "attachment_url": "https://hero/connectors/coupa/api/user/15882/182964/attachment/comments.jpg/2701687",
+                                "attachment_method": "GET"
+                            }
+                        ]
                     }
                 ]
             },

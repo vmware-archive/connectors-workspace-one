@@ -45,6 +45,9 @@ public class RequisitionDetails {
     @JsonProperty("approvals")
     private List<Approval> approvals;
 
+    @JsonProperty("attachments")
+    private List<Attachment> attachments;
+
     @JsonProperty("created-by")
     private UserDetails createdBy;
 
@@ -117,6 +120,14 @@ public class RequisitionDetails {
 
     public void setApprovals(List<Approval> approvals) {
         this.approvals = approvals;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 
     public UserDetails getCreatedBy() {

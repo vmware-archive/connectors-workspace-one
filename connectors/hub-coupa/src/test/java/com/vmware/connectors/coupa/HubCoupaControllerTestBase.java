@@ -10,24 +10,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.springframework.http.HttpHeaders.ACCEPT;
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.http.HttpHeaders.*;
+import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
 class HubCoupaControllerTestBase extends ControllerTestsBase {
@@ -36,6 +33,9 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
     static final String CONFIG_SERVICE_CREDS = "service-creds-from-config";
 
     private static final String AUTHORIZATION_HEADER_NAME = "X-COUPA-API-KEY";
+
+    @Value("classpath:fake/attachment/attachment.jpg")
+    private Resource attachment;
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -89,6 +89,55 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
         }
 
         return spec.exchange();
+    }
+
+    void fetchAttachment(String authHeader) throws IOException {
+        byte[] result = getAttachment(authHeader)
+                .expectStatus().isOk()
+                .expectBody(byte[].class)
+                .returnResult().getResponseBody();
+
+        byte[] expected = this.attachment.getInputStream().readAllBytes();
+        Arrays.equals(result, expected);
+    }
+
+    void fetchAttachmentForInvalidDetails(String authHeader) {
+        getAttachment(authHeader)
+                .expectStatus().isNotFound();
+    }
+
+    void unauthorizedAttachmentRequest(String authHeader) throws IOException {
+        getAttachment(authHeader)
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("X-Backend-Status", "401")
+                .expectBody().json(fromFile("/connector/responses/invalid_connector_token.json"));
+    }
+
+    void fetchAttachmentWithServerError(String authHeader) {
+        getAttachment(authHeader)
+                .expectStatus().is5xxServerError();
+    }
+
+    void fetchInvalidAttachmentId(String authHeader) {
+        String uri = "/api/user/15882/182964/attachment/response.png/invalid-attachment-id";
+        webClient.get()
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(X_AUTH_HEADER, authHeader)
+                .exchange()
+                .expectStatus().isNotFound();
+
+    }
+
+    private WebTestClient.ResponseSpec getAttachment(String authHeader) {
+        String uri = "/api/user/15882/182964/attachment/response.png/2701685";
+        return webClient.get()
+                .uri(uri)
+                .header(AUTHORIZATION, "Bearer " + accessToken(uri))
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(X_AUTH_HEADER, authHeader)
+                .exchange();
     }
 
     void cardsRequest(String lang, String expected, String authHeader) throws Exception {
@@ -185,6 +234,28 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
                         fromFile("/fake/not-for-admin-at-acme-requisition-details.json").replace("${coupa_host}", mockBackend.url("")),
                         APPLICATION_JSON
                 ));
+    }
+
+    void mockUnauthorizedAttachmentReq(String serviceCredential) {
+        mockAttachment(serviceCredential)
+                .andRespond(withUnauthorizedRequest());
+    }
+
+    void mockAttachmentServerError(String serviceCredential) {
+        mockAttachment(serviceCredential)
+                .andRespond(withServerError());
+    }
+
+    void mockFetchAttachment(String serviceCredential) {
+        mockAttachment(serviceCredential)
+                .andRespond(withSuccess(attachment, IMAGE_PNG));
+    }
+
+    ResponseActions mockAttachment(String serviceCredential) {
+        return mockBackend.expect(requestTo("/api/users/15882/attachments/2701685"))
+                .andExpect(method(GET))
+                .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION_HEADER_NAME, serviceCredential));
     }
 
 }

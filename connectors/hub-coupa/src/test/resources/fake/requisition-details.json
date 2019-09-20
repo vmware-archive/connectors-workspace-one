@@ -130,7 +130,32 @@
 				"ship-to-address-name": ""
 			}
 		},
-		"attachments": [],
+		"attachments": [
+			{
+				"id": 2701685,
+				"created-at": "2019-08-13T23:08:29-07:00",
+				"updated-at": "2019-08-13T23:08:29-07:00",
+				"type": "AttachmentFile",
+				"intent": "Internal",
+				"file": "vmware-dev.coupahost.com/attachment_files/files/2701685/original/response.png"
+			},
+			{
+				"id": 2701686,
+				"created-at": "2019-08-13T23:09:02-07:00",
+				"updated-at": "2019-08-13T23:09:02-07:00",
+				"type": "AttachmentFile",
+				"intent": "Internal",
+				"file": "vmware-dev.coupahost.com/attachment_files/files/2701686/original/timestamp.pdf"
+			},
+			{
+				"id": 2701687,
+				"created-at": "2019-08-13T23:09:17-07:00",
+				"updated-at": "2019-08-13T23:09:17-07:00",
+				"type": "AttachmentFile",
+				"intent": "Internal",
+				"file": "vmware-dev.coupahost.com/attachment_files/files/2701687/original/comments.jpg"
+			}
+		],
 		"requisition-lines": [
 			{
 				"id": 277942,
