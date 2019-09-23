@@ -154,7 +154,7 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
 
         assertThat(
                 body,
-                sameJSONAs(fromFile("connector/responses/" + expected))
+                sameJSONAs(fromFile("connector/responses/" + expected).replace("${COUPA_URL}", mockBackend.url("")))
                         .allowingAnyArrayOrdering()
                         .allowingExtraUnexpectedFields()
         );
