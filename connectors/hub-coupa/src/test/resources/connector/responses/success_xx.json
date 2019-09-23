@@ -6,7 +6,9 @@
             "creation_date": "1970-01-01T00:00:00Z",
             "header": {
                 "title": "[Coupa] AppBuilder Q1 PO",
-                "subtitle": []
+                "links": {
+                    "title": "${COUPA_URL}requisition_headers/182964"
+                }
             },
             "body": {
                 "fields": [

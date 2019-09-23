@@ -139,7 +139,7 @@ public class HubCoupaController {
         return getUserDetails(userEmail, baseUrl, connectorAuth)
                 .flatMap(user -> getApprovalDetails(baseUrl, user.getId(), connectorAuth)
                         .flatMap(ad -> getRequisitionDetails(baseUrl, ad.getApprovableId(), userEmail, connectorAuth))
-                        .map(req -> makeCards(routingPrefix, locale, req, user.getId())))
+                        .map(req -> makeCards(baseUrl, routingPrefix, locale, req, user.getId())))
                 .reduce(new Cards(), this::addCard);
     }
 
@@ -185,6 +185,7 @@ public class HubCoupaController {
     }
 
     private Card makeCards(
+            String baseUrl,
             String routingPrefix,
             Locale locale,
             RequisitionDetails requestDetails,
@@ -198,7 +199,19 @@ public class HubCoupaController {
 
         Card.Builder builder = new Card.Builder()
                 .setName("Coupa")
-                .setHeader(cardTextAccessor.getMessage("hub.coupa.header", locale, reportName))
+                .setHeader(
+                        new CardHeader(
+                                cardTextAccessor.getMessage("hub.coupa.header", locale, reportName),
+                                null,
+                                new CardHeaderLinks(
+                                        UriComponentsBuilder.fromUriString(baseUrl)
+                                                .path("/requisition_headers/")
+                                                .path(requestId)
+                                                .toUriString(),
+                                        null
+                                )
+                        )
+                )
                 .setBody(buildCardBody(routingPrefix, requestDetails, userId, locale))
                 .setBackendId(requestId)
                 .addAction(makeApprovalAction(routingPrefix, requestId, locale,
