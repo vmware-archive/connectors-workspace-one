@@ -195,7 +195,11 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
                 .map(JsonNormalizer::forCards)
                 .block();
         body = body.replaceAll("[a-z0-9]{40,}", "test-hash");
-        assertThat(body, sameJSONAs(fromFile("connector/responses/" + responseFile)).allowingAnyArrayOrdering());
+        assertThat(
+                body,
+                sameJSONAs(fromFile("connector/responses/" + responseFile).replace("${SF_BASE_URL}", mockBackend.url("")))
+                        .allowingAnyArrayOrdering()
+        );
     }
 
     private WebTestClient.RequestHeadersSpec<?> requestCards(String authToken, String filePath) throws Exception {

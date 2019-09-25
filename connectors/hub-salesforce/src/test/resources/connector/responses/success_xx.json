@@ -9,7 +9,9 @@
       },
       "header": {
         "title": "SALESFORCE DISCOUNT APPROVAL REQUEST",
-        "subtitle": []
+        "links": {
+          "title": "${SF_BASE_URL}0064100000b9S8EAAU"
+        }
       },
       "body": {
         "fields": [
@@ -100,7 +102,9 @@
       },
       "header": {
         "title": "SALESFORCE DISCOUNT APPROVAL REQUEST",
-        "subtitle": []
+        "links": {
+          "title": "${SF_BASE_URL}0064100000b9dQsAAI"
+        }
       },
       "body": {
         "fields": [
