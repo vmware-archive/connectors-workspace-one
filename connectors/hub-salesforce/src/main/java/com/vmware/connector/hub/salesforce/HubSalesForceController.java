@@ -11,6 +11,7 @@ import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.common.utils.Reactive;
+import com.vmware.connectors.common.web.InvalidConfigParamException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -384,10 +385,4 @@ public class HubSalesForceController {
         return value.replace("\\", "\\\\").replace("\'", "\\\'");
     }
 
-    @ExceptionHandler(InvalidConfigParamException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public Map<String, String> handleInvalidConnectorConfigError(InvalidConfigParamException e) {
-        return Map.of("message", e.getMessage());
-    }
 }

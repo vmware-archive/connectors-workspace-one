@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package com.vmware.connector.hub.salesforce;
+package com.vmware.connectors.common.web;
 
 public class InvalidConfigParamException extends RuntimeException {
     public InvalidConfigParamException(String message) {
