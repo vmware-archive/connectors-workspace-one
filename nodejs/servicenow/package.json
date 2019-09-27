@@ -2,20 +2,20 @@
   "name": "servicenow-connector",
   "version": "1.0.0",
   "description": "A HeroCard Connector for ServiceNow written in NodeJS",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ryan Bard <jbard@vmware.com>",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "jsonwebtoken": "8.1.x",
-    "command-line-args": "4.0.x",
-    "express": "4.16.x",
-    "halberd": "0.2.x",
-    "request": "2.83.x",
-    "request-promise": "4.2.x",
-    "uuid": "3.0.x"
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "normalize-url": "^4.4.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "sha1": "^1.1.1",
+    "uuid": "^3.3.3"
   }
 }

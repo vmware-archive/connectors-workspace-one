@@ -8,6 +8,6 @@ RUN npm install
 
 COPY . .
 
-# EXPOSE 4000
+EXPOSE 3801
 
-CMD ["npm", "start", "--", "--vIdmPubKeyUrl=https://herocard.vmwareidentity.com/SAAS/API/1.0/REST/auth/token?attribute=publicKey&format=pem"]
+CMD ["npm", "start"]

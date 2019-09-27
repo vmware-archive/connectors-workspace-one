@@ -4,32 +4,32 @@
 
 TODO
 
-## Building
-
-You can use npm to install the dependencies:
-
-``` shell
-npm install
-```
-
-Or you can build a docker container.  A convenience script is provided for you:
-
-``` shell
-./build_docker.sh
-```
-
 ## Running
 
-You can use npm to start the connector:
+### Docker
 
-``` shell
-npm start
+First, add the MF_PUB_URL param to a .env file.
+
+ex.
+
+```
+# .env
+MF_PUB_KEY_URL=https://dev.hero.vmwservices.com/security/public-key
 ```
 
-Or you can run the docker container that was built.  A convenience script is provided for you:
+Then you can use docker-compose to start the connector:
 
 ``` shell
-./run_docker.sh
+docker-compose up --build
+```
+
+### NPM
+
+You can just run as a nodejs process instead of docker with npm:
+
+```
+export MF_PUB_KEY_URL=https://dev.hero.vmwservices.com/security/public-key
+npm start
 ```
 
 ## Further reading

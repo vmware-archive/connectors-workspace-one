@@ -1,0 +1,14 @@
+version: '2.3'
+services:
+  connector:
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '100k'
+        max-file: '100'
+    build: .
+    ports:
+     - "127.0.0.1:3801:3801"
+    env_file:
+      - .env
+    restart: always

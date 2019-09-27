@@ -1,18 +1,19 @@
 /*
- * Copyright © 2018 VMware, Inc. All Rights Reserved.
+ * Copyright © 2019 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
 'use strict';
 
+const mfPubKeyUrl = process.env.MF_PUB_KEY_URL;
 const jwt = require('jsonwebtoken');
 const rp = require('request-promise');
 
 let pubKeyCache;
 
-function verifyAuth(authorization, options) {
+function verifyAuth(authorization) {
 
-    return getPublicKey(options).then(function (pubKeyContents) {
+    return getPublicKey().then(function (pubKeyContents) {
 
         return new Promise(function (resolve, reject) {
 
@@ -69,19 +70,19 @@ function verifyAuth(authorization, options) {
 
 }
 
-function getPublicKey(options) {
+function getPublicKey() {
 
     if (pubKeyCache && pubKeyCache.expiresAtTime > Date.now()) {
         return Promise.resolve(pubKeyCache.contents);
     }
 
-    return rp(options.vIdmPubKeyUrl).then(function (data) {
+    return rp(mfPubKeyUrl).then(function (data) {
 
         const expiresAtTime = Date.now() + 3600000;
 
         console.log(
             'Updating pub key cache for url: %s, set to expire around: %s',
-            options.vIdmPubKeyUrl,
+            mfPubKeyUrl,
             new Date(expiresAtTime)
         );
 
