@@ -79,7 +79,7 @@ public class ExceptionHandlers {
 	@ResponseStatus(BAD_REQUEST)
 	@ResponseBody
 	public Map<String, String> handleInvalidConnectorConfigError(InvalidConfigParamException e) {
-		return Map.of("message", e.getMessage());
+		return Map.of("error", e.getMessage());
 	}
 
 }

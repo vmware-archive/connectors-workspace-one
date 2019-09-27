@@ -1,3 +1,3 @@
 {
-  "message": "Discount Percentage custom field API name should not be empty."
+  "error": "Discount Percentage custom field API name should not be empty."
 }
