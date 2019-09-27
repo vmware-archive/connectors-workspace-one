@@ -7,31 +7,49 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vmware.connectors.common.utils.HashUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+
 /**
  * This class represents a field in the body of a "hero card".
  * Instances of this class are immutable.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@SuppressWarnings("PMD.LinguisticNaming")
 public class CardBodyField {
     @JsonProperty("type")
     private String type;
+
     @JsonProperty("title")
     private String title;
+
+    @JsonProperty("subtitle")
+    private String subtitle;
+
     @JsonProperty("description")
     private String description;
+
     @JsonProperty("content")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<Map<String, String>> content;
 
+    @JsonProperty("items")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private final List<CardBodyFieldItem> items;
+
     // Don't instantiate directly, use the Builder class below
     private CardBodyField() {
         content = new ArrayList<>();
+        items = new ArrayList<>();
     }
 
     /**
@@ -53,6 +71,15 @@ public class CardBodyField {
     }
 
     /**
+     * Get the field's subtitle, which will be used by the hub client.
+     *
+     * @return The field's subtitle
+     */
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    /**
      * Get the field's description.
      *
      * @return The field's description
@@ -69,6 +96,15 @@ public class CardBodyField {
      */
     public List<Map<String, String>> getContent() {
         return Collections.unmodifiableList(content);
+    }
+
+    /**
+     * Get the card body fields item.
+     *
+     * @return An unmodifiable copy of the fields's item.
+     */
+    public List<CardBodyFieldItem> getItems() {
+        return Collections.unmodifiableList(items);
     }
 
     /**
@@ -129,6 +165,17 @@ public class CardBodyField {
         }
 
         /**
+         * Set the subtitle of the CardBodyField under construction.
+         *
+         * @param subtitle the CardBodyField's subtitle
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setSubtitle(String subtitle) {
+            field.subtitle = subtitle;
+            return this;
+        }
+
+        /**
          * Set the description of the CardBodyField under construction.
          *
          * @param desc the CardBodyField's description
@@ -151,6 +198,28 @@ public class CardBodyField {
         }
 
         /**
+         * Add a new object to field's items.
+         *
+         * @param item the object to be added to the field's items
+         * @return this Builder instance, for method chaining
+         */
+        public Builder addItem(CardBodyFieldItem item) {
+            field.items.add(item);
+            return this;
+        }
+
+        /**
+         * Add list of objects to field's items.
+         *
+         * @param items the list of object to be added to the field's items
+         * @return this Builder instance, for method chaining
+         */
+        public Builder addItems(List<CardBodyFieldItem> items) {
+            field.items.addAll(items);
+            return this;
+        }
+
+        /**
          * Return the CardBodyField under construction and reset the Builder to its initial state.
          *
          * @return The completed CardBodyField
@@ -161,5 +230,35 @@ public class CardBodyField {
             reset();
             return completedField;
         }
+    }
+
+    public String hash() {
+        final List<String> contentList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(content)) {
+            for (Map<String, String> item : content) {
+                contentList.add(HashUtil.hashMap(item));
+            }
+        }
+
+        final List<String> itemList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(items)) {
+            items.forEach(item -> {
+                itemList.add(item == null ? StringUtils.SPACE : item.hash());
+            });
+        }
+
+        return HashUtil.hash(
+                "type: ", this.type,
+                "title: ", this.title,
+                "subtitle: ", this.subtitle,
+                "description: ", this.description,
+                "content: ", HashUtil.hashList(contentList),
+                "items: ", HashUtil.hashList(itemList)
+        );
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }

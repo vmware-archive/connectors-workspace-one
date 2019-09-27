@@ -6,18 +6,21 @@
 
     <groupId>com.vmware.card-connectors</groupId>
     <artifactId>connectors-parent</artifactId>
-    <version>2.1-SNAPSHOT</version>
+    <version>2.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.0.RELEASE</version>
+        <version>2.1.7.RELEASE</version>
     </parent>
 
     <properties>
         <connector.name>overrideme</connector.name>
+        <nexus.staging.skip>false</nexus.staging.skip>
+        <okhttp.version>3.14.2</okhttp.version>
+        <pmd.version>6.13.0</pmd.version>
     </properties>
 
     <name>Workspace One Connectors Parent</name>
@@ -39,21 +42,58 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.springframework.security.oauth.boot</groupId>
-                <artifactId>spring-security-oauth2-autoconfigure</artifactId>
-                <version>2.0.0.RELEASE</version>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.12</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback.contrib</groupId>
+                <artifactId>logback-jackson</artifactId>
+                <version>0.1.5</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback.contrib</groupId>
+                <artifactId>logback-json-classic</artifactId>
+                <version>0.1.5</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.activation</groupId>
+                <artifactId>javax.activation</artifactId>
+                <version>${javax-activation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${javax-jaxb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${javax-jaxb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-core</artifactId>
+                <version>2.3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-jwt</artifactId>
+                <version>1.0.10.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
                 <scope>compile</scope>
-                <version>5.1.0</version>
+                <version>${junit-jupiter.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-params</artifactId>
                 <scope>test</scope>
-                <version>5.1.0</version>
+                <version>${junit-jupiter.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.vmware.card-connectors</groupId>
@@ -80,12 +120,12 @@
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt</artifactId>
-                <version>0.9.0</version>
+                <version>0.9.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.7</version>
+                <version>${commons-lang3.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -93,19 +133,14 @@
                 <version>2.6</version>
             </dependency>
             <dependency>
-                <groupId>org.pojomatic</groupId>
-                <artifactId>pojomatic</artifactId>
-                <version>2.0.1</version>
-            </dependency>
-            <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>2.9.4</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>23.6-jre</version>
+                <version>27.0.1-jre</version>
             </dependency>
             <dependency>
                 <groupId>com.github.fge</groupId>
@@ -117,8 +152,51 @@
                 <artifactId>json-schema-validator</artifactId>
                 <version>2.2.6</version>
             </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>mockwebserver</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>uk.co.datumedge</groupId>
+                <artifactId>hamcrest-json</artifactId>
+                <version>0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jayway.restassured</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>2.9.0</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.projectreactor</groupId>
+                <artifactId>reactor-test</artifactId>
+                <version>3.2.9.RELEASE</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit-jupiter.version}</version>
+            </dependency>
         </dependencies>
-
     </dependencyManagement>
 
     <modules>
@@ -129,6 +207,11 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>0.28.0</version>
+                </plugin>
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
@@ -141,19 +224,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.19.1</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.junit.platform</groupId>
-                            <artifactId>junit-platform-surefire-provider</artifactId>
-                            <version>1.1.0</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.junit.jupiter</groupId>
-                            <artifactId>junit-jupiter-engine</artifactId>
-                            <version>5.1.0</version>
-                        </dependency>
-                    </dependencies>
+                    <version>2.22.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-enforcer-plugin</artifactId>
@@ -175,15 +246,15 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.5.1</version>
+                    <version>3.8.0</version>
                     <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>12</source>
+                        <target>12</target>
                     </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-pmd-plugin</artifactId>
-                    <version>3.8</version>
+                    <version>3.11.0</version>
                     <configuration>
                         <rulesets>
                             <ruleset>${project.parent.parent.basedir}/pmdrules.xml</ruleset>
@@ -198,18 +269,18 @@
                           -->
                         <analysisCache>false</analysisCache>
                         <skipPmdError>false</skipPmdError>
-                        <targetJdk>1.8</targetJdk>
+                        <targetJdk>12</targetJdk>
                     </configuration>
                     <dependencies>
                         <dependency>
                             <groupId>net.sourceforge.pmd</groupId>
                             <artifactId>pmd-java</artifactId>
-                            <version>6.0.0</version>
+                            <version>${pmd.version}</version>
                         </dependency>
                         <dependency>
                             <groupId>net.sourceforge.pmd</groupId>
                             <artifactId>pmd-core</artifactId>
-                            <version>6.0.0</version>
+                            <version>${pmd.version}</version>
                         </dependency>
                     </dependencies>
                     <executions>
@@ -224,7 +295,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.7.7.201606060606</version>
+                    <version>0.8.3</version>
                     <executions>
                         <execution>
                             <id>jacoco-initialize</id>
@@ -257,7 +328,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>rpm-maven-plugin</artifactId>
-                    <version>2.1.5</version>
+                    <version>2.2.0</version>
                     <executions>
                         <execution>
                             <id>attached-rpm</id>
@@ -273,7 +344,6 @@
                             <provide>${connector.name}-connector</provide>
                         </provides>
                         <requires>
-                            <require>jre >= 1.8</require>
                             <require>systemd >= 219</require>
                             <require>systemd-units >= 219</require>
                         </requires>
@@ -403,7 +473,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jxr-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -425,7 +495,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.sonatype.plugins</groupId>
@@ -436,71 +506,8 @@
                         <serverId>ossrhvmw</serverId>
                         <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                         <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        <skipRemoteStaging>${nexus.staging.skip}</skipRemoteStaging>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.23.0</version>
-                    <configuration>
-                        <images>
-                            <image>
-                                <name>connector</name>
-                                <build>
-                                    <from>centos/systemd:latest</from>
-                                    <assembly>
-                                        <inline>
-                                            <id>rpm</id>
-                                            <fileSets>
-                                                <fileSet>
-                                                    <includes>
-                                                        <include>target/**/*.rpm</include>
-                                                    </includes>
-                                                </fileSet>
-                                            </fileSets>
-                                        </inline>
-                                    </assembly>
-                                    <runCmds>
-                                        <run>yum -y install /maven/target/rpm/${connector.name}-connector/RPMS/noarch/*.rpm</run>
-                                        <run>
-                                            <![CDATA[
-                                                echo "security.oauth2.resource.jwt.key-value=foo" \
-                                                > /etc/opt/vmware/connectors/${connector.name}/application.properties
-                                                ]]>
-                                        </run>
-                                    </runCmds>
-                                    <cmd>
-                                        <shell>/usr/sbin/init</shell>
-                                    </cmd>
-                                </build>
-                                <run>
-                                    <privileged>true</privileged>
-                                    <ports>connector.port:8080</ports>
-                                    <wait>
-                                        <!-- Build will fail if not healthy within 60 seconds -->
-                                        <time>60000</time>
-                                        <http>
-                                            <url>http://localhost:${connector.port}/health</url>
-                                            <method>GET</method>
-                                            <status>200</status>
-                                        </http>
-                                    </wait>
-                                </run>
-                            </image>
-                        </images>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>build</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>build</goal>
-                                <goal>start</goal>
-                                <goal>stop</goal>
-                                <goal>remove</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
 
             </plugins>
@@ -536,6 +543,89 @@
     </distributionManagement>
 
     <profiles>
+        <profile>
+            <id>check-rpm</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>io.fabric8</groupId>
+                            <artifactId>docker-maven-plugin</artifactId>
+                            <configuration>
+                                <images>
+                                    <image>
+                                        <name>${connector.name}</name>
+                                        <build>
+                                            <from>centos/systemd:latest</from>
+                                            <assembly>
+                                                <inline>
+                                                    <id>rpm</id>
+                                                    <fileSets>
+                                                        <fileSet>
+                                                            <includes>
+                                                                <include>target/**/*.rpm</include>
+                                                            </includes>
+                                                        </fileSet>
+                                                    </fileSets>
+                                                </inline>
+                                            </assembly>
+                                            <runCmds>
+                                                <run>yum -y install wget</run>
+                                                <run>wget https://download.java.net/java/GA/jdk12.0.1/69cfe15208a647278a19ef0990eea691/12/GPL/openjdk-12.0.1_linux-x64_bin.tar.gz</run>
+                                                <run>tar xvf openjdk-12*_bin.tar.gz</run>
+                                                <run>ln -s /jdk-12.0.1/bin/java /usr/bin/java</run>
+                                                <run>yum -y install /maven/target/rpm/${connector.name}-connector/RPMS/noarch/*.rpm</run>
+                                                <run>
+                                                    <![CDATA[
+                                                echo "security.oauth2.resource.jwt.key-value=-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnd4cwaam8TJpU3Jn+BC7/7W1WUJ6QOsFYNkwQ14nTyJlXylQH2lSwwL3V2plQ4KlFPviG2SpUnnZjokLXHxTjuPE8awl4Z+tmZVNrto0k120Ej3CRpxI6Hgoh+y4XVrhpNWRVL0+shoPHfq5M0tgervb76hYwK9txWzZfZ53Dlt6zaT4p4Y9IVoeJv0YkPQag1Te398cHlndzJT1T5MNcy17TpJMOvjTe2wEK/0Wgp9f0RzGbcL1I8lTZLir8ghjEQYJDJ6v10H43GL+As6ZXGCIoo8p7HycVwfoILoOT3kwHbpusVE1DGlxXWmT6DfKZVNol1IYc7Xm8WCCktEINQIDAQAB\n-----END PUBLIC KEY-----" \
+                                                > /etc/opt/vmware/connectors/${connector.name}/application.properties
+                                                ]]>
+                                                </run>
+                                                <run>
+                                                    <![CDATA[
+                                                    echo "spring.profiles.active=test" >> /etc/opt/vmware/connectors/${connector.name}/application.properties
+                                                    ]]>
+                                                </run>
+                                             </runCmds>
+                                            <cmd>
+                                                <shell>/usr/sbin/init</shell>
+                                            </cmd>
+                                        </build>
+                                        <run>
+                                            <privileged>true</privileged>
+                                            <ports>
+                                                <port>connector.port:8080</port>
+                                            </ports>
+                                            <wait>
+                                                <!-- Build will fail if not healthy within 60 seconds -->
+                                                <time>60000</time>
+                                                <http>
+                                                    <url>http://localhost:${connector.port}/health</url>
+                                                    <method>GET</method>
+                                                    <status>200</status>
+                                                </http>
+                                            </wait>
+                                        </run>
+                                    </image>
+                                </images>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>build</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>build</goal>
+                                        <goal>start</goal>
+                                        <goal>stop</goal>
+                                        <goal>remove</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
         <profile>
             <id>release</id>
             <build>
@@ -574,11 +664,12 @@
                             <doctitle>Workspace ONE Connectors API</doctitle>
                             <excludePackageNames>
                                 com.vmware.connectors.airwatch*,
-                                com.vmware.connectors.bitbucket*,
-                                com.vmware.connectors.gitlab*,
                                 com.vmware.connectors.aws*,
+                                com.vmware.connectors.bitbucket*,
                                 com.vmware.connectors.concur*,
                                 com.vmware.connectors.github*,
+                                com.vmware.connectors.gitlab*,
+                                com.vmware.connectors.hub*,
                                 com.vmware.connectors.jira*,
                                 com.vmware.connectors.salesforce*,
                                 com.vmware.connectors.servicenow*,

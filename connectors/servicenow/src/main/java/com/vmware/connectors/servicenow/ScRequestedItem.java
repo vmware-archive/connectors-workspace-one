@@ -3,6 +3,7 @@ package com.vmware.connectors.servicenow;
 /**
  * A class to hold API information (fields, states, etc.) for ServiceNow's sc_req_item table.
  */
+@SuppressWarnings("PMD.ClassNamingConventions")
 final class ScRequestedItem {
 
     enum Fields {

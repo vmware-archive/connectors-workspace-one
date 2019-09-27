@@ -1,0 +1,13 @@
+server:
+  compression:
+     enabled: true
+     mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  server-header: hub-salesforce-connector
+
+sf:
+  soqlQueryPath: services/data/v44.0/query
+  workflowPath: services/data/v44.0/process/approvals/
+
+management:
+  endpoints:
+    web.base-path: /

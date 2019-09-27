@@ -20,13 +20,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.hateoas.MediaTypes.HAL_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 public class JsonDocumentDecoder implements HttpMessageDecoder<JsonDocument> {
@@ -51,13 +51,7 @@ public class JsonDocumentDecoder implements HttpMessageDecoder<JsonDocument> {
     @Override
     public Mono<JsonDocument> decodeToMono(Publisher<DataBuffer> inputStream, ResolvableType elementType, MimeType mimeType, Map<String, Object> hints) {
         return Flux.from(inputStream)
-                .flatMap(buffer -> {
-                    try {
-                        return Flux.just(IOUtils.toString(buffer.asInputStream(), UTF_8));
-                    } catch (IOException e) {
-                        return Flux.error(e);
-                    }
-                })
+                .flatMap(buffer -> toString(buffer, mimeType.getCharset()))
                 .collect(StringBuilder::new, StringBuilder::append)
                 .map(StringBuilder::toString)
                 .map(message -> new JsonDocument(jsonProvider.parse(message)));
@@ -65,6 +59,14 @@ public class JsonDocumentDecoder implements HttpMessageDecoder<JsonDocument> {
 
     @Override
     public List<MimeType> getDecodableMimeTypes() {
-        return Arrays.asList(APPLICATION_JSON, HAL_JSON);
+        return Arrays.asList(APPLICATION_JSON, MediaType.valueOf("application/hal+json"));
+    }
+
+    private static Flux<String> toString(DataBuffer buffer, Charset charset) {
+        try (InputStream is = buffer.asInputStream(true)) {
+            return Flux.just(IOUtils.toString(is, charset));
+        } catch (IOException e) {
+            return Flux.error(e);
+        }
     }
 }

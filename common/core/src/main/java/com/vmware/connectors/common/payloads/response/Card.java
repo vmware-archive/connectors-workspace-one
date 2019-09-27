@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017 VMware, Inc. All Rights Reserved.
+ * Copyright © 2019 VMware, Inc. All Rights Reserved.
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
@@ -7,13 +7,12 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vmware.connectors.common.utils.HashUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
@@ -26,6 +25,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
  * to create and populate a Card instance.
  */
 @JsonInclude(NON_NULL)
+@SuppressWarnings("PMD.LinguisticNaming")
 public class Card {
     @JsonProperty("id")
     private UUID id;
@@ -37,7 +37,6 @@ public class Card {
     private OffsetDateTime creationDate;
 
     @JsonProperty("expiration_date")
-    @JsonInclude(NON_NULL)
     private OffsetDateTime expirationDate;
 
     @JsonProperty("importance")
@@ -58,11 +57,21 @@ public class Card {
     @JsonProperty("image")
     private Link image;
 
+    @JsonProperty("tags")
+    private final Set<String> tags;
+
+    @JsonProperty("backend_id")
+    private String backendId;
+
+    @JsonProperty("hash")
+    private String hash;
+
     // Don't instantiate directly -- use a Card.Builder
     private Card() {
         this.actions = new ArrayList<>();
         this.id = UUID.randomUUID();
         this.creationDate = OffsetDateTime.now();
+        this.tags = new HashSet<>();
     }
 
     /**
@@ -158,6 +167,36 @@ public class Card {
         return Collections.unmodifiableList(actions);
     }
 
+    /**
+     * Return a Set containing the tags applied to this card.
+     * The meaning of tags can vary and is known to the connector and consuming clients.
+     * This Set is <i>unmodifiable</i> - its contents cannot be changed once the Card is created.
+     *
+     * @return An unmodifiable Set of the tags on this Card
+     */
+    @JsonInclude(NON_EMPTY)
+    public Set<String> getTags() {
+        return Collections.unmodifiableSet(tags);
+    }
+
+    /**
+     * Return backend id of the card.
+     *
+     * @return hash value
+     */
+    @JsonProperty("backend_id")
+    public String getBackendId() {
+        return this.backendId;
+    }
+
+    /**
+     * Return SHA-1 of the concatenated result of card name, header, body, and action.
+     *
+     * @return hash value
+     */
+    public String getHash() {
+        return this.hash;
+    }
 
     /**
      * This class allows the construction of Card objects. To use, create a Builder instance, call its methods
@@ -285,7 +324,7 @@ public class Card {
          * @return this Builder instance, for method chaining
          */
         public Builder setHeader(String title, String... subtitle) {
-            return setHeader(new CardHeader(title, subtitle == null ? null : Arrays.asList(subtitle)));
+            return setHeader(new CardHeader(title, subtitle == null ? null : Arrays.asList(subtitle), null));
         }
 
         /**
@@ -330,15 +369,81 @@ public class Card {
         }
 
         /**
+         * Add a tag to the Card under construction.
+         *
+         * @param tag the new tag to be added to the Card
+         * @return this Builder instance, for method chaining
+         */
+        public Builder addTag(String tag) {
+            card.tags.add(tag);
+            return this;
+        }
+
+        /**
+         * Set the backend id of a card.
+         *
+         * @param backendId backend id of a card.
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setBackendId(String backendId) {
+            card.backendId = backendId;
+            return this;
+        }
+
+        /**
+         * Set SHA-1 of card fields.
+         *
+         * @param hash SHA-1 of card header, body, and action fields.
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setHash(String hash) {
+            card.hash = hash;
+            return this;
+        }
+
+        /**
          * Return the Card under construction and reset the Builder to its initial state.
          *
          * @return The completed Card
          */
         @SuppressWarnings("PMD.UnnecessaryLocalBeforeReturn")
         public Card build() {
+            // If the connector author has already set the hash, then do not override.
+            if (StringUtils.isBlank(card.hash)) {
+                card.hash = computeHash();
+            }
+
             Card completedCard = this.card;
             reset();
             return completedCard;
+        }
+
+        public String computeHash() {
+            final String templateUrl = card.template == null ? null : card.template.getHref();
+            final String imageUrl = card.image == null ? null : card.image.getHref();
+
+            final List<String> actionHashList = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(card.actions)) {
+                card.actions.forEach(cardAction ->
+                        actionHashList.add(cardAction == null ? StringUtils.SPACE : cardAction.hash())
+                );
+            }
+
+            final List<String> tagList = CollectionUtils.isEmpty(card.tags) ? Collections.EMPTY_LIST : new ArrayList<>(card.tags);
+            final String headerHash = card.header == null ? null : card.header.hash();
+            final String bodyHash = card.body == null ? null : card.body.hash();
+
+            return HashUtil.hash(
+                    "name: ", card.name,
+                    "backend_id: ", card.backendId,
+                    "template: ", templateUrl,
+                    "header: ", headerHash,
+                    "body: ", bodyHash,
+                    "actions: ", HashUtil.hashList(actionHashList),
+                    "image: ", imageUrl,
+                    "importance: ", card.importance,
+                    "tags: ", HashUtil.hashList(tagList)
+            );
         }
     }
 }

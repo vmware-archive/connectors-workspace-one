@@ -1,15 +1,27 @@
 {
-  "backend_base_url_header": "x-airwatch-base-url",
-  "fields": {
-    "udid": {
-      "env": "ENROLLMENT_DEVICE_UDID"
-    },
-    "platform": {
-      "env": "DEVICE_SYSTEM_NAME"
-    },
-    "app_keywords": {
-      "capture_group": 1,
-      "regex": "((?i)\\bboxer\\b|\\bemail app\\b|\\bconcur\\b|\\bpoison\\b)"
+  "image": {
+    "href": "https://my-connector/images/connector.png"
+  },
+  "object_types": {
+    "card": {
+      "doc": {
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "fields": {
+        "udid": {
+          "env": "ENROLLMENT_DEVICE_UDID"
+        },
+        "platform": {
+          "env": "DEVICE_SYSTEM_NAME"
+        },
+        "app_keywords": {
+          "capture_group": 1,
+          "regex": "((?i)\\bboxer\\b|\\bemail app\\b|\\bconcur\\b|\\bpoison\\b|\\bbrowser\\b|\\bunassignedMdmApp\\b|\\bcustomer support\\b)"
+        }
+      },
+      "endpoint": {
+        "href": "https://my-connector/cards/requests"
+      }
     }
   }
 }

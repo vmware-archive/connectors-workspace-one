@@ -5,18 +5,26 @@
 
 package com.vmware.connectors.gitlab.pr;
 
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * All Merge Requests and Notes have this information as part of their identity.
  */
-@AutoProperty
 public class MergeRequestId {
 
-    private String namespace;
-    private String projectName;
-    private String number;
+    private final String namespace;
+    private final String projectName;
+    private final String number;
+
+    public MergeRequestId(String namespace, String projectName, String number) {
+        this.namespace = namespace;
+        this.projectName = projectName;
+        this.number = number;
+    }
 
     public String getProjectId() {
         return namespace + "%2F" + projectName;
@@ -26,39 +34,27 @@ public class MergeRequestId {
         return namespace;
     }
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
-
     public String getProjectName() {
         return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
     }
 
     public String getNumber() {
         return number;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
     @Override
     public boolean equals(Object obj) {
-        return Pojomatic.equals(this, obj);
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 
     @Override
     public int hashCode() {
-        return Pojomatic.hashCode(this);
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 
 }

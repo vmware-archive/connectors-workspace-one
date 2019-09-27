@@ -4,7 +4,7 @@
 
   "type": "object",
   "properties": {
-    "cards": {"type": "array", "items": {"$ref": "#/definitions/CARD"}},
+    "objects": {"type": "array", "items": {"$ref": "#/definitions/CARD"}},
     "connector_statuses": {"type": "array"}
   },
   "additionalProperties": false,
@@ -18,12 +18,13 @@
         "name":         {"type": "string"},
         "creation_date": {"type": "string", "format": "date-time"},
         "expiration_date" :{"type": "string", "format": "date-time"},
-        "importance": { "type": "integer" },
+        "importance":   { "type": "integer" },
         "template":     {"$ref": "#/definitions/LINK"},
         "image":        {"$ref": "#/definitions/LINK"},
         "header":       {"$ref": "#/definitions/CARD_HEADER"},
         "body":         {"$ref": "#/definitions/CARD_BODY"},
-        "actions":      {"type": "array", "items": {"$ref": "#/definitions/CARD_ACTION"}}
+        "actions":      {"type": "array", "items": {"$ref": "#/definitions/CARD_ACTION"}},
+        "hash":         {"type": "string"}
       },
       "additionalProperties": false
     },
@@ -60,10 +61,30 @@
       "properties": {
         "type":        {"type": "string"},
         "title":       {"type": "string"},
+        "subtitle":    {"type": "string"},
         "description": {"type": "string"},
-        "content":     {"type": "array", "items": {"type": "object"}}
+        "content":     {"type": "array", "items": {"type": "object"}},
+        "items":       {"type": "array", "items": {"$ref": "#/definitions/CARD_BODY_FIELD_ITEM"}}
       },
       "additionalProperties": false
+    },
+
+    "CARD_BODY_FIELD_ITEM": {
+      "type": "object",
+      "properties": {
+        "type":             {"type": "string"},
+        "title":            {"type": "string"},
+        "description":      {"type": "string"},
+        "attachment_name":  {"type": "string"},
+        "attachment_url":   {"type": "string"},
+        "attachment_body":  {"type": "array", "items": {"type": "object"}},
+        "content_type":     {"type": "string"},
+        "content_length":   {"type": "integer"},
+        "action_url":       {"type": "string"},
+        "action_type":      {"type": "string"},
+        "created_at":       {"type": "string", "format": "date-time"},
+        "updated_at":       {"type": "string", "format": "date-time"}
+      }
     },
 
     "CARD_ACTION": {
@@ -79,7 +100,8 @@
         "request":    {"type": "object"},
         "allow_repeated" : {"type": "boolean"},
         "remove_card_on_completion": {"type": "boolean"},
-        "primary": {"type": "boolean"}
+        "primary": {"type": "boolean"},
+        "mutually_exclusive_set_id": {"type": "string"}
       },
       "required": ["id", "completed_label", "url", "action_key", "label", "type"],
       "additionalProperties": false

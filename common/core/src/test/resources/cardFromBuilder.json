@@ -41,5 +41,7 @@
       "type": "DELETE",
       "action_key": "TAKE_ARMS"
     }
-  ]
+  ],
+  "tags": ["cats", "fails"],
+  "hash": "test-hash"
 }

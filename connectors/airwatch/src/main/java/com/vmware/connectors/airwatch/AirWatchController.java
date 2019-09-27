@@ -41,7 +41,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -56,8 +56,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AirWatchController {
     private static final Logger logger = LoggerFactory.getLogger(AirWatchController.class);
 
-    private static final String AIRWATCH_AUTH_HEADER = "Authorization";
-    private static final String AIRWATCH_BASE_URL_HEADER = "x-airwatch-base-url";
+    private static final String AIRWATCH_AUTH_HEADER = "X-Connector-Authorization";
+    private static final String AIRWATCH_BASE_URL_HEADER = "X-Connector-Base-Url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
 
     private static final int AW_USER_NOT_ASSOCIATED_WITH_UDID = 1001;
@@ -73,25 +73,16 @@ public class AirWatchController {
 
     private final AppConfigService appConfig;
 
-    // Metadata includes connector regex derived from app keywords.
-    private final String connectorMetadata;
-
     private final URI gbBaseUri;
 
     @Autowired
     public AirWatchController(WebClient rest, CardTextAccessor cardTextAccessor,
-                              AppConfigService appConfig, String connectorMetadata,
+                              AppConfigService appConfig,
                               URI gbBaseUri) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.appConfig = appConfig;
-        this.connectorMetadata = connectorMetadata;
         this.gbBaseUri = gbBaseUri;
-    }
-
-    @GetMapping(path = "/discovery/metadata.json")
-    public ResponseEntity<String> getmetadata() {
-        return ResponseEntity.ok(connectorMetadata);
     }
 
     @PostMapping(path = "/cards/requests",
@@ -118,27 +109,27 @@ public class AirWatchController {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        Set<ManagedApp> managedApps = appKeywords.stream()
+        Stream<ManagedApp> managedApps = appKeywords.stream()
                 .map(keyword -> appConfig.findManagedApp(keyword, clientPlatform))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toSet());
+                .distinct();
 
-        return Flux.fromIterable(managedApps)
+        return Flux.fromStream(managedApps)
                 .flatMap(app -> getCardForApp(awAuth, baseUrl, udid,
                         app, routingPrefix, clientPlatform, locale))
                 .collect(Cards::new, (cards, card) -> cards.getCards().add(card))
-                .map(ResponseEntity::ok)
-                .subscriberContext(Reactive.setupContext());
+                .map(ResponseEntity::ok);
     }
 
     @PostMapping(value = "/mdm/app/install", consumes = APPLICATION_FORM_URLENCODED_VALUE)
     public Mono<ResponseEntity<Void>> installApp(
             @RequestHeader(name = AIRWATCH_AUTH_HEADER) String awAuth,
-            @RequestParam(APP_NAME_KEY) String appName,
-            @RequestParam(UDID_KEY) String udid,
-            @RequestParam(PLATFORM_KEY) String platform) {
+            @Valid InstallForm form) {
 
+        String appName = form.getAppName();
+        String udid = form.getUdid();
+        String platform = form.getPlatform();
         ManagedApp app = appConfig.findManagedApp(appName, platform)
                 .orElseThrow(() -> new ManagedAppNotFound("Can't install " + appName + ". It is not a managed app."));
 
@@ -148,8 +139,7 @@ public class AirWatchController {
         return getEucToken(gbBaseUri, udid, platform, hznToken)
                 .flatMap(eucToken -> getGbConnection(gbBaseUri, eucToken))
                 .flatMap(greenBoxConnection -> installGbAppByName(appName, greenBoxConnection))
-                .map(status -> ResponseEntity.status(OK).<Void>build())
-                .subscriberContext(Reactive.setupContext());
+                .then(Mono.just(ResponseEntity.status(OK).<Void>build()));
     }
 
     @ExceptionHandler({UdidException.class, ManagedAppNotFound.class,
@@ -177,6 +167,9 @@ public class AirWatchController {
     }
 
     private static Mono<Throwable> handleClientError(ClientResponse response, String udid) {
+        Charset charset = response.headers().contentType()
+                .map(MimeType::getCharset)
+                .orElse(StandardCharsets.ISO_8859_1);
         return response.bodyToMono(String.class)
                 .map(body -> {
                     if (!body.isEmpty()) {
@@ -187,15 +180,17 @@ public class AirWatchController {
                             return new UdidException("Unable to resolve the UDID : " + udid);
                         }
                     }
-                    Charset charset = response.headers().contentType()
-                            .map(MimeType::getCharset)
-                            .orElse(StandardCharsets.ISO_8859_1);
                     return new WebClientResponseException("Status error",
                             response.statusCode().value(),
                             response.statusCode().getReasonPhrase(),
                             response.headers().asHttpHeaders(), body.getBytes(), charset);
 
-                });
+                })
+                .defaultIfEmpty(new WebClientResponseException("Status error",
+                        response.statusCode().value(),
+                        response.statusCode().getReasonPhrase(),
+                        response.headers().asHttpHeaders(), null, charset))
+                .cast(Throwable.class);
     }
 
     private Mono<Card> getCard(JsonDocument installStatus, String routingPrefix,
@@ -272,7 +267,7 @@ public class AirWatchController {
          * Make sure response has only one entry.
          * If by chance it finds more than one app which one should be selected to install ?
          */
-
+        logger.trace("Trying to find a unique GreenBox catalog app with name {}", appName);
         return rest.get()
                 .uri(gbSession.getBaseUrl() + "/catalog-portal/services/api/entitlements?q={appName}", appName)
                 .cookie("USER_CATALOG_CONTEXT", gbSession.getEucToken())
@@ -283,13 +278,19 @@ public class AirWatchController {
     }
 
     private GreenBoxApp toGreenBoxApp(JsonDocument document, String appName) {
-        int RIGHT_APP_COUNT = 1;
 
         JSONArray jsonArray = document.read("$._embedded.entitlements");
-        if (jsonArray.size() != RIGHT_APP_COUNT) {
+
+        if (jsonArray == null) {
+            throw new GbAppMapException(
+                    "vIDM catalog doesn't contain " + appName);
+        }
+
+        if (jsonArray.size() != 1) { //NOPMD
             throw new GbAppMapException(
                     "Unable to map " + appName + " to a single GreenBox app");
         }
+
         return new GreenBoxApp(
                 document.read("$._embedded.entitlements[0].name"),
                 document.read("$._embedded.entitlements[0]._links.install.href"));
@@ -299,6 +300,7 @@ public class AirWatchController {
         /*
          * It triggers the native mdm app install.
          */
+        logger.trace("Trigger app install for the GreenBox app : {}", gbApp.getName());
         return rest.post()
                 .uri(gbApp.getInstallLink())
                 .cookie("USER_CATALOG_CONTEXT", gbSession.getEucToken())
@@ -314,11 +316,12 @@ public class AirWatchController {
 
     private Mono<String> getCsrfToken(URI baseUri, String eucToken) {
         /*
-         * Authenticated request to {GreenBox-Base-Url}/catalog-portal/ provides CSRF token.
+         * First authenticated request to {GreenBox-Base-Url}/catalog-portal/services provides CSRF token.
+         * https://confluence.eng.vmware.com/display/WOR/CSRF+Protection+for+Greenbox
          */
         logger.trace("getCsrfToken called: baseUri={}", baseUri.toString());
-        return rest.options()
-                .uri(baseUri + "/catalog-portal/")
+        return rest.get()
+                .uri(baseUri + "/catalog-portal/services")
                 .cookie("USER_CATALOG_CONTEXT", eucToken)
                 .exchange()
                 .flatMap(Reactive::checkStatus)

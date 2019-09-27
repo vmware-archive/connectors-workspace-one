@@ -1,0 +1,89 @@
+{
+  "allProfilesLoaded": false,
+  "deviceInfo": {
+    "deviceStatus": "MDM_DEVICE_FULLY_ENROLLED"
+  },
+  "_embedded": {
+    "entitlements": [
+      {
+        "appId": "MDM-149-Native-Public",
+        "subType": "PUBLIC",
+        "version": "",
+        "thinapp": false,
+        "visible": true,
+        "perDeviceActivationRequired": false,
+        "thinappPackage": false,
+        "approvalRequired": false,
+        "favorite": false,
+        "optionalAppInfo": {
+          "usePerAppPassword": false
+        },
+        "price": null,
+        "launchUrl": "",
+        "mdmManagedAutoDeployed": false,
+        "installStatus": "NOT_ACTIVATED",
+        "installMessage": "You will receive a push notification to continue with installation.",
+        "packageFamilyName": "989804926",
+        "mgmtRequired": false,
+        "useAirwatchBrowser": false,
+        "name": "Firefox Web Browser",
+        "type": "NATIVE",
+        "size": 0,
+        "_links": {
+          "icon": {
+            "href": "https://HeroCardAdmin1.ssdevrd.com/Catalog/publicblob/515e3992-08e1-47d9-b8a6-288600c49ba5/BlobHandler.pblob"
+          },
+          "install": {
+            "href": "https://herocard.vmwareidentity.com:443/catalog-portal/services/api/activate/MDM-149-Native-Public"
+          },
+          "appDetails": {
+            "href": "https://herocard.vmwareidentity.com:443/catalog-portal/services/api/apps/MDM-149-Native-Public"
+          }
+        }
+      },
+      {
+        "appId": "MDM-150-Native-Public",
+        "subType": "PUBLIC",
+        "version": "",
+        "thinapp": false,
+        "visible": true,
+        "perDeviceActivationRequired": false,
+        "thinappPackage": false,
+        "approvalRequired": false,
+        "favorite": false,
+        "optionalAppInfo": {
+          "usePerAppPassword": false
+        },
+        "price": null,
+        "launchUrl": "",
+        "mdmManagedAutoDeployed": false,
+        "installStatus": "NOT_ACTIVATED",
+        "installMessage": "You will receive a push notification to continue with installation.",
+        "packageFamilyName": "525891468",
+        "mgmtRequired": false,
+        "useAirwatchBrowser": false,
+        "name": "VMware Browser",
+        "type": "NATIVE",
+        "size": 0,
+        "_links": {
+          "icon": {
+            "href": "https://HeroCardAdmin1.ssdevrd.com/Catalog/publicblob/c5c7b4f5-8220-47a2-90ec-490a2d8e11b6/BlobHandler.pblob"
+          },
+          "install": {
+            "href": "https://herocard.vmwareidentity.com:443/catalog-portal/services/api/activate/MDM-150-Native-Public"
+          },
+          "appDetails": {
+            "href": "https://herocard.vmwareidentity.com:443/catalog-portal/services/api/apps/MDM-150-Native-Public"
+          }
+        }
+      }
+    ]
+  },
+  "userIdMismatch": false,
+  "allEntitlementsLoaded": true,
+  "_links": {
+    "self": {
+      "href": "https://herocard.vmwareidentity.com:443/catalog-portal/services/api/entitlements?q=Browser&category=&appType="
+    }
+  }
+}

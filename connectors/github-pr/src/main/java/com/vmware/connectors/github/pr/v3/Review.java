@@ -7,13 +7,13 @@ package com.vmware.connectors.github.pr.v3;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * https://developer.github.com/v3/pulls/reviews/
  */
-@AutoProperty
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Review {
 
@@ -71,7 +71,7 @@ public class Review {
 
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 
 }

@@ -7,10 +7,14 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
+import com.vmware.connectors.common.utils.HashUtil;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * This class represents a user-supplied parameter that will be sent with the request fired by the client when the
@@ -19,6 +23,7 @@ import java.util.Map;
  * Instances of this class are unmodifiable once created. The CardActionInputField class cannot be directly constructed;
  * use the CardActionInputField.Builder class to create and populate a CardActionInputField instance.
  */
+@SuppressWarnings("PMD.LinguisticNaming")
 public class CardActionInputField {
 
     @JsonProperty("id")
@@ -43,9 +48,9 @@ public class CardActionInputField {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private int maxLength;
 
-    // do not instantiate directly
+    // Do not instantiate directly.
     private CardActionInputField() {
-        options = new HashMap<>();
+        this.options = new LinkedHashMap<>();
     }
 
     /**
@@ -112,7 +117,7 @@ public class CardActionInputField {
      * @return The field's options
      */
     public Map<String, String> getOptions() {
-        return Collections.unmodifiableMap(options);
+        return ImmutableMap.copyOf(options);
     }
 
     /**
@@ -174,14 +179,14 @@ public class CardActionInputField {
         }
 
         /**
-         * Add a new option related to the field.
+         * Add a new select option related to the field.
          *
-         * @param key   id or key of the option
          * @param value value of the option
+         * @param label label of the option
          * @return This Builder instance, for method chaining
          */
-        public Builder addOption(String key, String value) {
-            inputField.options.put(key, value);
+        public Builder addOption(String value, String label) {
+            inputField.options.put(value, label);
             return this;
         }
 
@@ -238,5 +243,21 @@ public class CardActionInputField {
 
             return true;
         }
+    }
+
+    public String hash() {
+        return HashUtil.hash(
+                "id: ", this.id,
+                "label: ", this.label,
+                "format: ", this.format,
+                "options: ", HashUtil.hashMap(this.options),
+                "minLength: ", this.minLength,
+                "maxLength: ", this.maxLength
+        );
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }

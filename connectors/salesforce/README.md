@@ -77,14 +77,13 @@ curl https://login.salesforce.com/services/oauth2/token \
 ## Exercise the Salesforce API
 
 **Note:**
-* The value of the header 'X-Salesforce-Authorization' is the authorization token for accessing salesforce rest API. Please refer to the section above on how to generate the auth token.
-* The value of the header 'Authorization' is the vidm oauth token for accessing Mobile Flows Api Gateway.
+* The value of the header 'Authorization' is the Salesforce OAuth access token described above.
 
 ### Create an Account
 
 ```shell
 curl https://sf.sandbox.host/services/data/v20.0/sobjects/Account/ \
-     -H "Authorization: Bearer <token generated from Step 3>" \
+     -H "Authorization: Bearer <Salesforce OAuth access token>" \
      -H "Content-Type: application/json" \
      -d '{"Name":"<your account name>"}'
 ```

@@ -1,0 +1,106 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "title": "ServiceNow Shopping Cart",
+      "contextId": "cart-context-1",
+      "description": "Things in your shopping cart.",
+      "workflowId": "ViewCart",
+      "actions": [
+        {
+          "title": "Empty this cart",
+          "description": "Empty everything in the cart.",
+          "workflowId": "EmptyCart",
+          "type": "DELETE",
+          "url": {
+            "href": "https://mf/connectors/abc123/cart/api/v1/cart"
+          },
+          "payload": {},
+          "userInput": []
+        },
+        {
+          "title": "Checkout",
+          "description": "Checkout your cart.",
+          "workflowId": "Checkout",
+          "type": "POST",
+          "url": {
+            "href": "https://mf/connectors/abc123/cart/api/v1/checkout"
+          },
+          "payload": {},
+          "userInput": []
+        }
+      ],
+      "children": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "title": "Development Laptop (PC)",
+          "contextId": "cart-context-1",
+          "workflowId": "ViewCart",
+          "description": "Dell XPS 13",
+          "image": {
+            "href": "https://mock-snow.com/407e31844f889200086eeed18110c7ef.iix"
+          },
+          "actions": [
+            {
+              "title": "Remove from cart",
+              "description": "Remove this item from the cart.",
+              "workflowId": "RemoveItem",
+              "type": "DELETE",
+              "url": {
+                "href": "https://mf/connectors/abc123/cart/api/v1/cart/cd5fad02db113300ea92eb41ca961965"
+              },
+              "payload": {},
+              "userInput": []
+            }
+          ]
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "title": "Apple MacBook Pro 15\"",
+          "contextId": "cart-context-1",
+          "workflowId": "ViewCart",
+          "description": "Apple MacBook Pro",
+          "image": {
+            "href": "https://mock-snow.com/c82c480ccb821200f2de77a4634c9c64.iix"
+          },
+          "actions": [
+            {
+              "title": "Remove from cart",
+              "description": "Remove this item from the cart.",
+              "workflowId": "RemoveItem",
+              "type": "DELETE",
+              "url": {
+                "href": "https://mf/connectors/abc123/cart/api/v1/cart/3c7f6d42db113300ea92eb41ca9619f1"
+              },
+              "payload": {},
+              "userInput": []
+            }
+          ]
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "title": "Apple MacBook Pro 15\"",
+          "contextId": "cart-context-1",
+          "workflowId": "ViewCart",
+          "description": "Apple MacBook Pro",
+          "image": {
+            "href": "https://mock-snow.com/c82c480ccb821200f2de77a4634c9c64.iix"
+          },
+          "actions": [
+            {
+              "title": "Remove from cart",
+              "description": "Remove this item from the cart.",
+              "workflowId": "RemoveItem",
+              "type": "DELETE",
+              "url": {
+                "href": "https://mf/connectors/abc123/cart/api/v1/cart/26a54e4adb513300ea92eb41ca9619cd"
+              },
+              "payload": {},
+              "userInput": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

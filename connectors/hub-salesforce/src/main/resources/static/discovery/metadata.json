@@ -1,0 +1,71 @@
+{
+  "image": {
+    "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-salesforce.png"
+  },
+  "config": {
+    "discount_percentage_field_name": {
+      "label": {
+        "en-US": "Discount Percentage"
+      },
+      "type": "STRING",
+      "description": {
+        "en-US": "Discount percentage custom field API name in Salesforce opportunity. This field is required to display Discount percentage field in the notification."
+      },
+      "validators": [
+        {
+          "type": "required",
+          "description": {
+            "en-US": "Discount percentage field API name is required"
+          }
+        },
+        {
+          "type": "regex",
+          "value": "^[a-zA-Z0-9_]+$",
+          "description": {
+            "en-US": "Discount percentage API field name should contain only alphabets (a-z, A-Z), numbers (0-9) and special character _"
+          }
+        }
+      ]
+    },
+    "reason_for_discount_field_name": {
+      "label": {
+        "en-US": "Reason for Discount"
+      },
+      "type": "STRING",
+      "description": {
+        "en-US": "Reason for discount custom field API name in Salesforce opportunity. This field is required to display Reason for Discount field in the notification. "
+      },
+      "validators": [
+        {
+          "type": "required",
+          "description": {
+            "en-US": "Reason for discount percentage API field name is required"
+          }
+        },
+        {
+          "type": "regex",
+          "value": "^[a-zA-Z0-9_]+$",
+          "description": {
+            "en-US": "Reason for discount percentage API field name should contain only alphabets (a-z, A-Z), numbers (0-9) and special character _"
+          }
+        }
+      ]
+    }
+  },
+  "object_types": {
+    "card": {
+      "doc": {
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "fields": {
+        "_temporary": {
+          "regex": "__test_hub_connectors__"
+        }
+      },
+      "pollable": true,
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/cards/requests"
+      }
+    }
+  }
+}

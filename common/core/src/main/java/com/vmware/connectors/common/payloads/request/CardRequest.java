@@ -7,28 +7,29 @@ package com.vmware.connectors.common.payloads.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.Map;
 import java.util.Set;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * Payload for card requests
  *
  * @author Rob Worsnop
  */
-@AutoProperty
 public class CardRequest {
-    @NotNull(message = "tokens required")
-    @Size(min = 1, message = "tokens should have at least one entry")
+
     private final Map<String, Set<String>> tokens;
 
+    private final Map<String, String> config;
+
     @JsonCreator
-    public CardRequest(@JsonProperty("tokens") Map<String, Set<String>> tokens) {
-        this.tokens = tokens;
+    public CardRequest(@JsonProperty("tokens") Map<String, Set<String>> tokens,
+                       @JsonProperty("config") Map<String, String> config) {
+        this.tokens = tokens == null ? Map.of() : Map.copyOf(tokens);
+        this.config = config == null ? Map.of() : Map.copyOf(config);
     }
 
     /**
@@ -86,9 +87,24 @@ public class CardRequest {
         return getTokenSingleValue(key, null);
     }
 
+    /**
+     * Returns the tenant connector parameters configuration map.
+     * <p>
+     * For example:
+     * {
+     *     "Discount Percentage": "Discount_Percentage__c",
+     *     "Reason for Discount": "Reason_for_Discount__c"
+     * }
+     *
+     * @return the connector parameters configuration
+     */
+    public Map<String, String> getConfig() {
+        return this.config;
+    }
+
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 
 }

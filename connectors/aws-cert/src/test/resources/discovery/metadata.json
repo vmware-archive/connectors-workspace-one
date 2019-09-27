@@ -1,0 +1,21 @@
+{
+  "image": {
+    "href": "https://my-connector/images/connector.png"
+  },
+  "object_types": {
+    "card": {
+      "doc": {
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "fields": {
+        "approval_urls": {
+          "capture_group": 1,
+          "regex": "Certificate Approvals \\( ([^)]+) \\)"
+        }
+      },
+      "endpoint": {
+        "href": "https://my-connector/cards/requests"
+      }
+    }
+  }
+}

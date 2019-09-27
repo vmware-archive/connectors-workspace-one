@@ -1,0 +1,54 @@
+{
+  "totalSize": 2,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v44.0/sobjects/Opportunity/0064100000b9S8EAAU"
+      },
+      "Id": "0064100000b9S8EAAU",
+      "Name": "Google Opportunity",
+      "ExpectedRevenue": "$600,000.00",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v44.0/sobjects/Account/0014100001zqbP8AAI"
+        },
+        "Owner": {
+          "attributes": {
+            "type": "User",
+            "url": "/services/data/v44.0/sobjects/User/00541000008FSW2AAO"
+          },
+          "Name": "opportunity user"
+        }
+      },
+      "Discount_Percentage__c": 45.0,
+      "Reason_for_Discount__c": "We might get more business from this client in future."
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v44.0/sobjects/Opportunity/0064100000b9dQsAAI"
+      },
+      "Id": "0064100000b9dQsAAI",
+      "Name": "Palo Alto Networks",
+      "ExpectedRevenue": "$89,898,898.90",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v44.0/sobjects/Account/0014100000F4WlhAAF"
+        },
+        "Owner": {
+          "attributes": {
+            "type": "User",
+            "url": "/services/data/v44.0/sobjects/User/00541000000osYgAAI"
+          },
+          "Name": "Jeff Jones"
+        }
+      },
+      "Discount_Percentage__c": 20.0,
+      "Reason_for_Discount__c": "License cost per user is high. So we have to offer some discount."
+    }
+  ]
+}

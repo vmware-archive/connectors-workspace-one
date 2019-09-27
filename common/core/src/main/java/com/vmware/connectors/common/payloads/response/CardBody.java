@@ -7,10 +7,16 @@ package com.vmware.connectors.common.payloads.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vmware.connectors.common.utils.HashUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * This class represents the body of a hero card, which can contain a text description, a human-readable
@@ -19,6 +25,7 @@ import java.util.List;
  * Instances of this class are unmodifiable once created. The CardBody class cannot be directly constructed;
  * use the CardBody.Builder class to create and populate a CardBody instance.
  */
+@SuppressWarnings("PMD.LinguisticNaming")
 public class CardBody {
     @JsonProperty("description")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -115,5 +122,22 @@ public class CardBody {
             reset();
             return completedBody;
         }
+    }
+
+    public String hash() {
+        final List<String> fieldsHashList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(fields)) {
+            fields.forEach(cardBodyField -> fieldsHashList.add(cardBodyField == null ? StringUtils.SPACE : cardBodyField.hash()));
+        }
+
+        return HashUtil.hash(
+                "description: ", this.description,
+                "fields: ", HashUtil.hashList(fieldsHashList)
+        );
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }

@@ -1,10 +1,27 @@
 {
-  "authorization_header": "x-concur-authorization",
-  "backend_base_url_header": "x-concur-base-url",
-  "fields": {
-    "expense_report_id": {
-      "capture_group": 1,
-      "regex": "Report\\s*Id\\s*:\\s*([A-Za-z0-9]{20,})"
+  "image": {
+    "href": "${CONNECTOR_HOST}/images/connector.png"
+  },
+  "test_auth": {
+    "href": "${CONNECTOR_HOST}/test-auth"
+  },
+  "object_types": {
+    "card": {
+      "doc": {
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "fields": {
+        "concur_automated_email_subject": {
+          "regex": "Expense Report Pending Your Approval"
+        },
+        "expense_report_id": {
+          "capture_group": 1,
+          "regex": "\\b([A-F0-9]{20,})\\b"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/cards/requests"
+      }
     }
   }
 }

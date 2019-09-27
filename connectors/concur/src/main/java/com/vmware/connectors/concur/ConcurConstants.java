@@ -8,6 +8,7 @@ package com.vmware.connectors.concur;
 /**
  * Constants for Concur connector;
  */
+@SuppressWarnings("PMD.ClassNamingConventions")
 public final class ConcurConstants {
 
     private ConcurConstants() {
@@ -16,6 +17,9 @@ public final class ConcurConstants {
     public final static class Fields {
         // Unique ticket request identifier for retrieving travel information.
         public static final String EXPENSE_REPORT_ID = "expense_report_id";
+
+        // Concur auto generated email subject.
+        public static final String CONCUR_AUTOMATED_EMAIL_SUBJECT = "concur_automated_email_subject";
 
         private Fields() {
         }
@@ -45,8 +49,8 @@ public final class ConcurConstants {
     }
 
     public static final class Header {
-        public final static String AUTHORIZATION_HEADER = "x-concur-authorization";
-        public final static String BACKEND_BASE_URL_HEADER = "x-concur-base-url";
+        public final static String AUTHORIZATION_HEADER = "X-Connector-Authorization";
+        public final static String BACKEND_BASE_URL_HEADER = "X-Connector-Base-Url";
         public final static String ROUTING_PREFIX = "x-routing-prefix";
 
         private Header() {

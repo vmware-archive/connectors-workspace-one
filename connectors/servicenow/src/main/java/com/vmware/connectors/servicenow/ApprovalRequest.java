@@ -5,10 +5,10 @@
 
 package com.vmware.connectors.servicenow;
 
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
-@AutoProperty
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+
 class ApprovalRequest {
 
     private final String requestSysId;
@@ -83,7 +83,7 @@ class ApprovalRequest {
 
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 
 }

@@ -15,7 +15,7 @@ import java.util.List;
  */
 @SuppressWarnings("PMD.AvoidFieldNameMatchingTypeName")
 public class Cards {
-    @JsonProperty("cards")
+    @JsonProperty("objects")
     private final List<Card> cards = new ArrayList<>();
 
     /**

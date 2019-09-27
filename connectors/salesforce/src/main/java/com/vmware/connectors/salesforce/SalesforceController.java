@@ -5,14 +5,10 @@
 
 package com.vmware.connectors.salesforce;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.vmware.connectors.common.json.JsonDocument;
-import com.vmware.connectors.common.model.Message;
-import com.vmware.connectors.common.model.MessageThread;
-import com.vmware.connectors.common.model.UserRecord;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.CardTextAccessor;
@@ -25,38 +21,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Base64Utils;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.*;
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
+import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 @RestController
 public class SalesforceController {
 
     private static final Logger logger = LoggerFactory.getLogger(SalesforceController.class);
 
-    private static final String SALESFORCE_AUTH_HEADER = "x-salesforce-authorization";
-    private static final String SALESFORCE_BASE_URL_HEADER = "x-salesforce-base-url";
+    private static final String SALESFORCE_AUTH_HEADER = "X-Connector-Authorization";
+    private static final String SALESFORCE_BASE_URL_HEADER = "X-Connector-Base-Url";
     private static final String ROUTING_PREFIX = "x-routing-prefix";
-    private static final String ADD_CONVERSATIONS_PATH = "/conversations";
-    private static final String CONVERSATION_TYPE = "email";
 
-    // TODO: concatenating strings into a SOQL query like this may provide an avenue for a SOQL-injection attack
+    private static final int COMMENTS_SIZE = 2;
 
     // Get all Accounts owned by the user that have an existing Contact with the same domain as the sender's email
     //     but *not* those where the sender is already a Contact
@@ -68,33 +59,36 @@ public class SalesforceController {
 
     // Query format to get contact details of email sender, from contact list owned by the user.
     private static final String QUERY_FMT_CONTACT =
-            "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
+            "SELECT name, account.name, MobilePhone FROM contact WHERE email = '%s'";
 
-    // Query format to get list of all opportunity details that are related to the email sender.
-    private static final String QUERY_FMT_CONTACT_OPPORTUNITY =
-            "SELECT Opportunity.name, role, FORMAT(Opportunity.amount), Opportunity.probability from " +
-                    "OpportunityContactRole WHERE contact.email='%s' AND opportunity.owner.email='%s'";
+    // Find all Opportunity Ids related to sender email, based on condition.
+    private static final String QUERY_FMT_CONTACT_OPPORTUNITY = "SELECT Opportunity.Id FROM OpportunityContactRole " +
+            "WHERE contact.email = '%s' AND Opportunity.StageName NOT IN ('Closed Lost', 'Closed Won')";
+
+    // Query everything needed for making Opportunity cards.
+    private static final String QUERY_FMT_OPPORTUNITY_INFO = "SELECT id, name, CloseDate, NextStep, StageName, " +
+            "Account.name, Account.Owner.Name, FORMAT(Opportunity.amount), FORMAT(Opportunity.ExpectedRevenue), (SELECT User.Email from OpportunityTeamMembers), " +
+            "(SELECT InsertedBy.Name, Body from Feeds) FROM opportunity WHERE opportunity.id IN ('%s')";
 
     // Query format to get list of all opportunities that are related to an account.
     private static final String QUERY_FMT_ACCOUNT_OPPORTUNITY =
             "SELECT id, name FROM opportunity WHERE account.id = '%s'";
 
-    private static final String QUERY_FMT_CONTACT_ID =
-            "SELECT id FROM contact WHERE email = '%s' AND contact.owner.email = '%s'";
-
-
     private static final String ADD_CONTACT_PATH = "accounts/{accountId}/contacts";
 
+    private static final String UPDATE_CLOSE_DATE = "/opportunity/{opportunityId}/closedate";
 
-    private final String sfSearchAccountPath;
+    private static final String UPDATE_NEXT_STEP = "/opportunity/{opportunityId}/nextstep";
+
+    private static final String OPPORTUNITY_ID = "opportunityId";
+
+    private final String sfSoqlQueryPath;
 
     private final String sfAddContactPath;
 
     private final String sfOpportunityContactLinkPath;
 
-    private final String sfOpportunityTaskLinkPath;
-
-    private final String sfAttachmentTasklinkPath;
+    private final String sfOpportunityFieldsUpdatePath;
 
     private final WebClient rest;
 
@@ -104,24 +98,37 @@ public class SalesforceController {
     public SalesforceController(
             WebClient rest,
             CardTextAccessor cardTextAccessor,
-            @Value("${sf.searchAccountsPath}") String sfSearchAccountPath,
+            @Value("${sf.soqlQueryPath}") String sfSoqlQueryPath,
             @Value("${sf.addContactPath}") String sfAddContactPath,
             @Value("${sf.opportunityContactLinkPath}") String sfOpportunityContactLinkPath,
-            @Value("${sf.opportunityTaskLinkPath}") String sfOpportunityTaskLinkPath,
-            @Value("${sf.attachmentTasklinkPath}") String sfAttachmentTasklinkPath
+            @Value("${sf.opportunityFieldsUpdatePath}") final String sfOpportunityFieldsUpdatePath
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
-        this.sfSearchAccountPath = sfSearchAccountPath;
+        this.sfSoqlQueryPath = sfSoqlQueryPath;
         this.sfAddContactPath = sfAddContactPath;
         this.sfOpportunityContactLinkPath = sfOpportunityContactLinkPath;
-        this.sfOpportunityTaskLinkPath = sfOpportunityTaskLinkPath;
-        this.sfAttachmentTasklinkPath = sfAttachmentTasklinkPath;
+        this.sfOpportunityFieldsUpdatePath = sfOpportunityFieldsUpdatePath;
     }
+
 
     ///////////////////////////////////////////////////////////////////
     // Methods common to both the cards request and the actions
     ///////////////////////////////////////////////////////////////////
+
+    /**
+     * Escape special characters to prevent user input from SOQL injection:
+     *
+     * https://developer.salesforce.com/page/Secure_Coding_SQL_Injection
+     * https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_quotedstringescapes.htm
+     * https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_reservedcharacters.htm
+     *
+     * @param value the user input to escape
+     * @return the escaped string value that should be safe to string concat into a SOQL query
+     */
+    private String soqlEscape(String value) {
+        return value.replace("\\", "\\\\").replace("\'", "\\\'");
+    }
 
     /**
      * Retrieve contact data from Salesforce.
@@ -134,18 +141,18 @@ public class SalesforceController {
             String contactSoql
     ) {
         return rest.get()
-                .uri(makeSearchAccountUri(baseUrl, contactSoql))
+                .uri(makeSoqlQueryUri(baseUrl, contactSoql))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class);
     }
 
-    private URI makeSearchAccountUri(
+    private URI makeSoqlQueryUri(
             String baseUrl,
             String soql
     ) {
-        return fromHttpUrl(baseUrl)
-                .path(sfSearchAccountPath)
+        return fromUriString(baseUrl)
+                .path(sfSoqlQueryPath)
                 .queryParam("q", soql)
                 .build()
                 .toUri();
@@ -155,8 +162,18 @@ public class SalesforceController {
             String baseUrl,
             String path
     ) {
-        return fromHttpUrl(baseUrl)
+        return fromUriString(baseUrl)
                 .path(path)
+                .build()
+                .toUri();
+    }
+
+    private URI buildUri(final String baseUrl,
+                         final String path,
+                         final String opportunityId) {
+        return fromUriString(baseUrl)
+                .path(path)
+                .path(opportunityId)
                 .build()
                 .toUri();
     }
@@ -170,13 +187,13 @@ public class SalesforceController {
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Mono<ResponseEntity<Cards>> getCards(
+    public Mono<Cards> getCards(
             @RequestHeader(SALESFORCE_AUTH_HEADER) String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             Locale locale,
             @Valid @RequestBody CardRequest cardRequest,
-            final HttpServletRequest request
+            ServerHttpRequest request
     ) {
         // Sender email and user email are required, and sender email has to at least have a non-final @ in it
         String sender = cardRequest.getTokenSingleValue("sender_email");
@@ -187,31 +204,29 @@ public class SalesforceController {
         // TODO: implement a better system of validating domain names than "yup, it's not empty"
         if (StringUtils.isBlank(senderDomain) || StringUtils.isBlank(user)) {
             logger.warn("Either sender email or user email is blank for url: {}", baseUrl);
-            return Mono.just(new ResponseEntity<>(BAD_REQUEST));
+            return Mono.error(new MissingEmailException("Must specify both the sender and user emails"));
         }
 
-        return retrieveContactInfos(auth, baseUrl, user, sender)
-                .flatMap(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
+        return retrieveContactInfos(auth, baseUrl, sender)
+                .flatMapMany(contacts -> getCards(contacts, sender, baseUrl, routingPrefix, auth,
                         user, senderDomain, locale, request))
-                .map(this::toCards)
-                .map(ResponseEntity::ok)
-                .subscriberContext(Reactive.setupContext());
+                .collectList()
+                .map(this::toCards);
     }
 
     // Retrieve contact name, account name, and phone
     private Mono<JsonDocument> retrieveContactInfos(
             String auth,
             String baseUrl,
-            String userEmail,
             String senderEmail
     ) {
-        String contactSoql = String.format(QUERY_FMT_CONTACT, senderEmail, userEmail);
+        String contactSoql = String.format(QUERY_FMT_CONTACT, soqlEscape(senderEmail));
 
         return retrieveContacts(auth, baseUrl, contactSoql);
     }
 
 
-    private Mono<List<Card>> getCards(
+    private Flux<Card> getCards(
             JsonDocument contactDetails,
             String senderEmail,
             String baseUrl,
@@ -220,15 +235,15 @@ public class SalesforceController {
             String userEmail,
             String senderDomain,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         int contactsSize = contactDetails.read("$.totalSize");
         if (contactsSize > 0) {
-            // Contact already exists in the salesforce account. Return a card to show the sender information.
-            logger.debug("Returning contact info for email: {} ", senderEmail);
-            return makeCardFromContactDetails(auth, baseUrl, routingPrefix, userEmail,
-                    senderEmail, contactDetails, locale, request)
-                    .map(ImmutableList::of);
+            // Contact already exists in the salesforce account. Cards to show are sender info and Opportunities.
+            logger.debug("Salesforce account already has a contact for the email: {} ", senderEmail);
+            return retrieveOppIds(senderEmail, baseUrl, auth)
+                    .flatMapMany(oppIds -> getCardsForSender(contactDetails, oppIds, baseUrl, auth, routingPrefix, locale, request, userEmail));
+
         } else {
             // Contact doesn't exist in salesforce. Return a card to show accounts that are related to sender domain.
             logger.debug("Returning accounts info for domain: {} ", senderDomain);
@@ -236,41 +251,195 @@ public class SalesforceController {
         }
     }
 
-    private Mono<Card> makeCardFromContactDetails(
-            String auth,
-            String baseUrl,
-            String routingPrefix,
-            String userEmail,
-            String senderEmail,
-            JsonDocument contactDetails,
-            Locale locale,
-            HttpServletRequest request
-    ) {
-        return retrieveOpportunities(auth, baseUrl, userEmail, senderEmail)
-                .map(body -> createUserDetailsCard(contactDetails, body, routingPrefix, locale, request));
+    // Contact details card and Opportunity cards.
+    private Flux<Card> getCardsForSender(JsonDocument contactDetails,
+                                         JsonDocument oppIds,
+                                         String baseUrl,
+                                         String auth,
+                                         String routingPrefix,
+                                         Locale locale,
+                                         ServerHttpRequest request,
+                                         String userEmail) {
+
+        Flux<Card> userDetailCard = Flux.just(createUserDetailsCard(contactDetails, routingPrefix, locale, request));
+
+        int count = oppIds.read("$.totalSize");
+        if (count > 0) {
+
+            List<String> ids = oppIds.read("$.records[*].Opportunity.Id");
+
+            Flux<Card> opportunityCards = retrieveOpportunities(ids, baseUrl, auth)
+                    .flatMapMany(document -> createOpportunityCards(document, routingPrefix, locale, request, userEmail));
+
+            return Flux.concat(userDetailCard, opportunityCards);
+        }
+
+        return userDetailCard;
     }
 
-    private Mono<JsonDocument> retrieveOpportunities(
-            String auth,
-            String baseUrl,
-            String userEmail,
-            String senderEmail
-    ) {
-        String soql = String.format(QUERY_FMT_CONTACT_OPPORTUNITY, senderEmail, userEmail);
+    private Mono<JsonDocument> retrieveOppIds(String senderEmail,
+                                              String baseUrl,
+                                              String auth) {
+        String soql = String.format(QUERY_FMT_CONTACT_OPPORTUNITY, soqlEscape(senderEmail));
         return rest.get()
-                .uri(makeSearchAccountUri(baseUrl, soql))
+                .uri(makeSoqlQueryUri(baseUrl, soql))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class);
     }
 
+    private Mono<JsonDocument> retrieveOpportunities(List<String> oppIds, String baseUrl, String auth) {
+        String idsFormat = oppIds.stream()
+                .map(this::soqlEscape)
+                .collect(Collectors.joining("', '"));
+
+        String soql = String.format(QUERY_FMT_OPPORTUNITY_INFO, idsFormat);
+        return rest.get()
+                .uri(makeSoqlQueryUri(baseUrl, soql))
+                .header(AUTHORIZATION, auth)
+                .retrieve()
+                .bodyToMono(JsonDocument.class);
+    }
+
+    private Flux<Card> createOpportunityCards(JsonDocument opportunities,
+                                              String routingPrefix,
+                                              Locale locale,
+                                              ServerHttpRequest request,
+                                              String userEmail) {
+
+        final int oppCount = opportunities.read("$.totalSize");
+
+        List<Card> oppCards = new ArrayList<>();
+        for (int oppIndex = 0; oppIndex < oppCount; oppIndex++) {
+
+            final String prefix = String.format("$.records[%d]", oppIndex);
+
+            final String name = opportunities.read(prefix + ".Name");
+
+            final List<Object> feedComments = opportunities.read(prefix + ".Feeds.records[*]");
+
+            final CardBody.Builder cardBodyBuilder = new CardBody.Builder()
+                    .setDescription(cardTextAccessor.getMessage("opportunity.description", locale))
+                    .addField(buildGeneralBodyField("opportunity.account",
+                            opportunities.read(prefix + ".Account.Name"), locale))
+                    .addField(buildGeneralBodyField("opportunity.account.owner",
+                            opportunities.read(prefix + ".Account.Owner.Name"), locale))
+                    .addField(buildGeneralBodyField("opportunity.closedate",
+                            opportunities.read(prefix + ".CloseDate"), locale))
+                    .addField(buildGeneralBodyField("opportunity.stage",
+                            opportunities.read(prefix + ".StageName"), locale))
+                    .addField(buildGeneralBodyField("opportunity.amount",
+                            opportunities.read(prefix + ".Amount"), locale))
+                    .addField(buildGeneralBodyField("opportunity.expected.revenue",
+                            opportunities.read(prefix + ".ExpectedRevenue"), locale));
+
+            addCommentsField(cardBodyBuilder, feedComments, locale);
+
+            final Card.Builder card = new Card.Builder()
+                    .setName("Salesforce")
+                    .setTemplate(routingPrefix + "templates/generic.hbs")
+                    .setHeader(cardTextAccessor.getMessage("opportunity.header", locale, name))
+                    .setBody(cardBodyBuilder.build());
+
+            // Add card action for updating next steps and close date if user email is a part of opportunity team.
+            buildCardActions(opportunities, userEmail, prefix, routingPrefix, locale, card);
+
+            // Set image url.
+            CommonUtils.buildConnectorImageUrl(card, request);
+            oppCards.add(card.build());
+        }
+
+        return Flux.fromIterable(oppCards);
+    }
+
+    private void buildCardActions(final JsonDocument opportunities,
+                                  final String userEmail,
+                                  final String prefix,
+                                  final String routingPrefix,
+                                  final Locale locale,
+                                  final Card.Builder card) {
+        final String opportunityId = opportunities.read(prefix + ".Id");
+        if (StringUtils.isBlank(opportunityId)) {
+            logger.debug("Opportunity id is empty for the user with email: {}.", userEmail);
+            return;
+        }
+
+        // Retrieve all the opportunity team members email id.
+        final List<String> opportunityTeamEmailIds = opportunities.read(prefix + ".OpportunityTeamMembers.records[*].User.Email");
+        if (CollectionUtils.isEmpty(opportunityTeamEmailIds)) {
+            logger.debug("Opportunity team member email ids are empty for the opportunity with ID: {}", opportunityId);
+            return;
+        }
+
+        // Check if the user email is part of the opportunity team.
+        if (!opportunityTeamEmailIds.contains(userEmail)) {
+            logger.debug("User email : {} is not part of opportunity team members email id: {}", userEmail, opportunityTeamEmailIds);
+            return;
+        }
+
+        // Add card actions for updating the next step and close date fields.
+        addCardActions(routingPrefix, locale, card, opportunityId);
+    }
+
+    private void addCardActions(String routingPrefix, Locale locale, Card.Builder card, String opportunityId) {
+        final String updateNextDateUrl = String.format("opportunity/%s/nextstep", opportunityId);
+        final CardAction.Builder nextStepAction = new CardAction.Builder()
+                .setLabel(this.cardTextAccessor.getActionLabel("opportunity.update.nextstep", locale))
+                .setActionKey(CardActionKey.USER_INPUT)
+                .setType(HttpMethod.POST)
+                .setUrl(routingPrefix + updateNextDateUrl)
+                .setAllowRepeated(true)
+                .addUserInputField(
+                        new CardActionInputField.Builder()
+                                .setId("nextstep")
+                                .setLabel(this.cardTextAccessor.getMessage("opportunity.update.nextstep", locale))
+                                .setMinLength(1)
+                                .build()
+                );
+
+        final String closeDateUrl = String.format("opportunity/%s/closedate", opportunityId);
+        final CardAction.Builder closeDateAction = new CardAction.Builder()
+                .setLabel(this.cardTextAccessor.getActionLabel("opportunity.update.closedate", locale))
+                .setActionKey(CardActionKey.USER_INPUT)
+                .setType(HttpMethod.POST)
+                .setUrl(routingPrefix + closeDateUrl)
+                .setAllowRepeated(true)
+                .addUserInputField(
+                        new CardActionInputField.Builder()
+                                .setId("closedate")
+                                .setLabel(this.cardTextAccessor.getMessage("opportunity.update.closedate", locale))
+                                .setMinLength(10)
+                                .build()
+                );
+
+        card.addAction(nextStepAction.build());
+        card.addAction(closeDateAction.build());
+    }
+
+    private void addCommentsField(CardBody.Builder cardBodyBuilder, List<Object> feedComments, Locale locale) {
+
+        CardBodyField.Builder cardFieldBuilder = new CardBodyField.Builder();
+        if (!feedComments.isEmpty()) {
+            cardFieldBuilder.setTitle(cardTextAccessor.getMessage("opportunity.comments", locale))
+                    .setType(CardBodyFieldType.COMMENT);
+
+            feedComments.stream()
+                    .map(JsonDocument::new)
+                    .filter(feed -> Objects.nonNull(feed.read("$.Body")))  // Some feed items don't have a body.
+                    .limit(COMMENTS_SIZE)
+                    .map(feed -> feed.read("$.InsertedBy.Name") + " - " + feed.read("$.Body"))
+                    .forEach(comment -> cardFieldBuilder.addContent(ImmutableMap.of("text", comment)));
+
+            cardBodyBuilder.addField(cardFieldBuilder.build());
+        }
+    }
+
     // Create card for showing information about the email sender, related opportunities.
     private Card createUserDetailsCard(
             JsonDocument contactDetails,
-            JsonDocument opportunityDetails,
             String routingPrefix,
             Locale locale,
-            HttpServletRequest request
+            ServerHttpRequest request
     ) {
         String contactName = contactDetails.read("$.records[0].Name");
         String contactPhNo = contactDetails.read("$.records[0].MobilePhone");
@@ -281,8 +450,6 @@ public class SalesforceController {
                 .addField(buildGeneralBodyField("senderinfo.name", contactName, locale))
                 .addField(buildGeneralBodyField("senderinfo.account", contactAccountName, locale))
                 .addField(buildGeneralBodyField("senderinfo.phone", contactPhNo, locale));
-
-        addOpportunities(cardBodyBuilder, opportunityDetails, locale);
 
         final Card.Builder card = new Card.Builder()
                 .setName("Salesforce") // TODO - remove this in APF-536
@@ -311,34 +478,7 @@ public class SalesforceController {
                 .build();
     }
 
-    private void addOpportunities(
-            CardBody.Builder cardBodyBuilder,
-            JsonDocument opportunityDetails,
-            Locale locale
-    ) {
-        // Fill in the opportunity details.
-        int totalOpportunities = opportunityDetails.read("$.totalSize");
-
-        for (int oppIndex = 0; oppIndex < totalOpportunities; oppIndex++) {
-
-            String oppJsonPathPrefix = String.format("$.records[%d].", oppIndex);
-
-            String oppName = opportunityDetails.read(oppJsonPathPrefix + "Opportunity.Name");
-            String oppRole = opportunityDetails.read(oppJsonPathPrefix + "Role");
-            String oppProbability = Double.toString(
-                    opportunityDetails.read(oppJsonPathPrefix + "Opportunity.Probability")
-            ) + "%";
-            String oppAmount = opportunityDetails.read(oppJsonPathPrefix + "Opportunity.Amount");
-
-            cardBodyBuilder
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.title", oppName, locale))
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.role", oppRole, locale))
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.probability", oppProbability, locale))
-                    .addField(buildGeneralBodyField("senderinfo.opportunity.amount", oppAmount, locale));
-        }
-    }
-
-    private Mono<List<Card>> makeCardsFromSenderDomain(
+    private Flux<Card> makeCardsFromSenderDomain(
             String auth,
             String baseUrl,
             String routingPrefix,
@@ -351,7 +491,7 @@ public class SalesforceController {
                 .map(body -> body.<List<Map<String, Object>>>read("$.records"))
                 .map(contactRecords -> getUniqueAccounts(contactRecords, senderEmail))
                 .flatMap(accounts -> addRelatedOpportunities(accounts, baseUrl, auth))
-                .map(list -> createRelatedAccountsCards(list, senderEmail, routingPrefix, locale));
+                .flatMapMany(list -> createRelatedAccountsCards(list, senderEmail, routingPrefix, locale));
     }
 
     private Mono<JsonDocument> retrieveAccountDetails(
@@ -360,9 +500,9 @@ public class SalesforceController {
             String userEmail,
             String senderDomain
     ) {
-        String soql = String.format(QUERY_FMT_ACCOUNT, senderDomain, userEmail);
+        String soql = String.format(QUERY_FMT_ACCOUNT, soqlEscape(senderDomain), soqlEscape(userEmail));
         return rest.get()
-                .uri(makeSearchAccountUri(baseUrl, soql))
+                .uri(makeSoqlQueryUri(baseUrl, soql))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class);
@@ -425,24 +565,24 @@ public class SalesforceController {
             String auth
     ) {
         return retrieveAccountOpportunities(auth, baseUrl, account.getId())
-                .map(body -> setAccOpportunities(body, account));
+                .map(body -> toAccount(body, account));
     }
 
-    private  Mono<JsonDocument> retrieveAccountOpportunities(
+    private Mono<JsonDocument> retrieveAccountOpportunities(
             String auth,
             String baseUrl,
             String accountId
     ) {
-        String soql = String.format(QUERY_FMT_ACCOUNT_OPPORTUNITY, accountId);
+        String soql = String.format(QUERY_FMT_ACCOUNT_OPPORTUNITY, soqlEscape(accountId));
         return rest.get()
-                .uri(makeSearchAccountUri(baseUrl, soql))
+                .uri(makeSoqlQueryUri(baseUrl, soql))
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class);
 
     }
 
-    private SFAccount setAccOpportunities(
+    private SFAccount toAccount(
             JsonDocument accOpportunityResponse,
             SFAccount account
     ) {
@@ -458,13 +598,13 @@ public class SalesforceController {
 
 
     // Create a Card for each unique account, account related opportunities
-    private List<Card> createRelatedAccountsCards(
+    private Flux<Card> createRelatedAccountsCards(
             List<SFAccount> accounts,
             String contactEmail,
             String routingPrefix,
             Locale locale
     ) {
-        return accounts
+        return Flux.fromStream(accounts
                 .stream()
                 .map(acct ->
                         new Card.Builder()
@@ -474,8 +614,7 @@ public class SalesforceController {
                                 .setBody(cardTextAccessor.getMessage("addcontact.body", locale, contactEmail, acct.getName()))
                                 .addAction(createAddContactAction(routingPrefix, contactEmail, acct, locale))
                                 .build()
-                )
-                .collect(Collectors.toList());
+                ));
     }
 
     private CardAction createAddContactAction(
@@ -549,10 +688,7 @@ public class SalesforceController {
             @RequestHeader(SALESFORCE_AUTH_HEADER) String auth,
             @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
             @PathVariable("accountId") String accountId,
-            @RequestParam("contact_email") String contactEmail,
-            @RequestParam(name = "first_name", required = false) String firstName,
-            @RequestParam("last_name") String lastName,
-            @RequestParam(name = "opportunity_ids", required = false) Set<String> opportunityIds
+            @Valid AddContactForm form
     ) {
         /*
          * Once we start using salesforce API version 34, following things can be done in a single network call.
@@ -560,8 +696,8 @@ public class SalesforceController {
          *  - Link Opportunities to the contact (from 1-n).
          * More : https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_composite_sobject_tree_flat.htm
          */
-        return addContact(auth, baseUrl, accountId, contactEmail, lastName, firstName)
-                .flatMap(entity -> linkOpportunitiesToContact(entity, opportunityIds, baseUrl, auth))
+        return addContact(auth, baseUrl, accountId, form.getContactEmail(), form.getLastName(), form.getFirstName())
+                .flatMap(entity -> linkOpportunitiesToContact(entity, form.getOpportunityIds(), baseUrl, auth))
                 .map(entity -> ResponseEntity.status(entity.getStatusCode()).build());
     }
 
@@ -634,173 +770,61 @@ public class SalesforceController {
                 .bodyToMono(String.class);
     }
 
-    ///////////////////////////////////////////////////////////////////
-    // Add Conversation Action methods
-    ///////////////////////////////////////////////////////////////////
-
     @PostMapping(
-            path = ADD_CONVERSATIONS_PATH,
+            path = UPDATE_CLOSE_DATE,
             consumes = APPLICATION_FORM_URLENCODED_VALUE
     )
-    public Mono<Void> addEmailConversation(
-            @RequestHeader(SALESFORCE_AUTH_HEADER) String auth,
-            @RequestHeader(SALESFORCE_BASE_URL_HEADER) String baseUrl,
-            @RequestParam("user_email") String userEmail,
-            @RequestParam("contact_email") String contactEmail,
-            @RequestParam("email_conversations") String conversations,
-            @RequestParam("attachment_name") String attachmentName,
-            @RequestParam("opportunity_ids") Set<String> opportunityIds
-    ) throws IOException {
+    public Mono<Void> updateCloseDate(
+            @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
+            @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
+            @PathVariable(OPPORTUNITY_ID) final String opportunityId,
+            @Valid UpdateCloseDateForm form) {
 
-        byte[] formattedConversations = formatConversations(conversations).getBytes(StandardCharsets.UTF_8);
+        // CloseDate should in the format "YYYY-MM-DD".
+        final Map<String, String> body = ImmutableMap.of("CloseDate", form.getCloseDate());
 
-        return retrieveContactIds(auth, baseUrl, userEmail, contactEmail)
-                .flux()
-                .flatMap(body -> Flux.fromIterable(body.<List<String>>read("$..Id")))
-                .next()
-                .flatMap(
-                        contactId ->
-                                linkContactIdToOpportunity(
-                                        contactId,
-                                        opportunityIds,
-                                        formattedConversations,
-                                        attachmentName,
-                                        baseUrl,
-                                        auth
-                                )
-                );
+        return updateOpportunityField(baseUrl, auth, opportunityId, body);
     }
 
-    private String formatConversations(String conversations) throws IOException {
-        return MessageThread
-                .parse(conversations)
-                .getMessages()
-                .stream()
-                .map(this::formatSingleMessage)
-                .collect(Collectors.joining("\n"));
-    }
-
-    private String formatSingleMessage(Message message) {
-        return String.format(
-                "Sender Name: %s %s\n"
-                        + "Subject:%s\n"
-                        + "%s\n" // recipients
-                        + "Date:%s\n"
-                        + "Message:%s\n",
-                message.getSender().getFirstName(),
-                message.getSender().getLastName(),
-                message.getSubject(),
-                formatRecipients(message),
-                message.getSentDate(),
-                message.getText()
-        );
-    }
-
-    private String formatRecipients(Message message) {
-        return message.getRecipients()
-                .stream()
-                .map(this::formatRecipient)
-                .collect(Collectors.joining("\n"));
-    }
-
-    private String formatRecipient(UserRecord userRecord) {
-        return String.format(
-                "Recipient Name: %s %s\nRecipientEmail: %s",
-                userRecord.getFirstName(),
-                userRecord.getLastName(),
-                userRecord.getEmailAddress()
-        );
-    }
-
-    // Only retrieve the contact ID
-    private Mono<JsonDocument> retrieveContactIds(
-            String auth,
-            String baseUrl,
-            String userEmail,
-            String contactEmail
-    ) {
-        String contactIdSoql = String.format(QUERY_FMT_CONTACT_ID, contactEmail, userEmail);
-
-        return retrieveContacts(auth, baseUrl, contactIdSoql);
-    }
-
-    private Mono<Void> linkContactIdToOpportunity(
-            String contactId,
-            Set<String> opportunityIds,
-            byte[] conversations,
-            String attachmentName,
-            String baseUrl,
-            String auth
-    ) {
-        return Flux.fromIterable(opportunityIds)
-                .flatMap(opportunityId ->
-                                addEmailConversationToOpportunity(
-                                        contactId,
-                                        opportunityId,
-                                        conversations,
-                                        attachmentName,
-                                        auth,
-                                        baseUrl
-                                )
-                ).then(Mono.empty());
-    }
-
-    private Mono<String> addEmailConversationToOpportunity(
-            String contactId,
-            String opportunityId,
-            byte[] conversation,
-            String attachmentName,
-            String auth,
-            String baseUrl
-    ) {
-        return retrieveOpportunityTaskLink(auth, baseUrl, opportunityId, contactId)
-                .map(ResponseEntity::getBody)
-                .map(body -> body.<String>read("$.id"))
-                .flatMap(parentId -> linkAttachmentToTask(parentId, conversation, attachmentName, baseUrl, auth));
-    }
-
-    private Mono<ResponseEntity<JsonDocument>> retrieveOpportunityTaskLink(
-            String auth,
-            String baseUrl,
-            String opportunityId,
-            String contactId
-    ) {
-        Map<String, String> body = ImmutableMap.of(
-                "WhatId", opportunityId,
-                "Subject", CONVERSATION_TYPE,
-                "WhoId", contactId
-        );
-        return rest.post()
-                .uri(makeUri(baseUrl, sfOpportunityTaskLinkPath))
-                .header(AUTHORIZATION, auth)
-                .contentType(APPLICATION_JSON)
-                .syncBody(body)
-                .exchange()
-                .flatMap(Reactive::checkStatus)
-                .flatMap(response -> response.toEntity(JsonDocument.class));
-    }
-
-    private Mono<String> linkAttachmentToTask(
-            String parentId,
-            byte[] conversations,
-            String attachmentName,
-            String baseUrl,
-            String auth
+    @PostMapping(
+            path = UPDATE_NEXT_STEP,
+            consumes = APPLICATION_FORM_URLENCODED_VALUE
+    )
+    public Mono<Void> updateNextStep(
+            @RequestHeader(SALESFORCE_AUTH_HEADER) final String auth,
+            @RequestHeader(SALESFORCE_BASE_URL_HEADER) final String baseUrl,
+            @PathVariable(OPPORTUNITY_ID) final String opportunityId,
+            @Valid UpdateNextStepForm form
     ) {
 
-        Map<String, String> body = ImmutableMap.of(
-                "Body", Base64Utils.encodeToString(conversations),
-                "Name", attachmentName,
-                "ParentId", parentId,
-                "ContentType", TEXT_PLAIN_VALUE
-        );
-        return rest.post()
-                .uri(makeUri(baseUrl, sfAttachmentTasklinkPath))
+        final Map<String, String> body = ImmutableMap.of("NextStep", form.getNextStep());
+
+        return updateOpportunityField(baseUrl, auth, opportunityId, body);
+    }
+
+    private Mono<Void> updateOpportunityField(final String baseUrl,
+                                              final String auth,
+                                              final String opportunityId,
+                                              final Object body) {
+        return rest.patch()
+                .uri(buildUri(baseUrl, sfOpportunityFieldsUpdatePath, opportunityId))
                 .header(AUTHORIZATION, auth)
                 .contentType(APPLICATION_JSON)
                 .syncBody(body)
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(Void.class);
+    }
+
+    private static class MissingEmailException extends RuntimeException {
+        private MissingEmailException(String message) {
+            super(message);
+        }
+    }
+
+    @ExceptionHandler(MissingEmailException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public Map<String, String> handleMissingEmailException(MissingEmailException e) {
+        return Map.of("error", e.getMessage());
     }
 
 }

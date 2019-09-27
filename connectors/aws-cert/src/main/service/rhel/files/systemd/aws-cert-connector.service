@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=roswell
-ExecStart=/usr/bin/java -jar /opt/vmware/connectors/aws-cert/aws-cert-connector.jar --spring.config.additional-location=file:/opt/vmware/connectors/aws-cert/application.properties,file:/etc/opt/vmware/connectors/aws-cert/application.properties
+ExecStart=/bin/bash /opt/vmware/connectors/aws-cert/start.sh
 Restart=on-abort
 
 [Install]

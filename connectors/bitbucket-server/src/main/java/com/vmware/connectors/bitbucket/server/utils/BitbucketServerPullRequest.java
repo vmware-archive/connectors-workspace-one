@@ -5,62 +5,60 @@
 
 package com.vmware.connectors.bitbucket.server.utils;
 
-import org.pojomatic.Pojomatic;
-import org.pojomatic.annotations.AutoProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * Fields related to stash/bitbucket server pull request.
  */
-@AutoProperty
 public class BitbucketServerPullRequest {
 
-    // Name of the stash project.
-    private String projectKey;
+    // Name of the bitbucket project.
+    private final String projectKey;
+
+    // Name of the bitbucket user.
+    private final String userKey;
 
     // Name of the stash repository.
-    private String repositorySlug;
+    private final String repositorySlug;
 
     // Stash pull request identifier.
-    private String pullRequestId;
+    private final String pullRequestId;
 
-    public BitbucketServerPullRequest() {
-        // Empty constructor.
-    }
-
-    public BitbucketServerPullRequest(final String projectKey,
-                                      final String repositorySlug,
-                                      final String pullRequestId) {
+    public BitbucketServerPullRequest(String userKey, String projectKey, String repositorySlug, String pullRequestId) {
+        this.userKey = userKey;
         this.projectKey = projectKey;
         this.repositorySlug = repositorySlug;
         this.pullRequestId = pullRequestId;
+    }
+
+    public boolean isProject() {
+        return projectKey != null;
+    }
+
+    public boolean isUser() {
+        return userKey != null;
+    }
+
+    public String getUserKey() {
+        return userKey;
     }
 
     public String getProjectKey() {
         return projectKey;
     }
 
-    public void setProjectKey(final String projectKey) {
-        this.projectKey = projectKey;
-    }
-
     public String getRepositorySlug() {
         return repositorySlug;
-    }
-
-    public void setRepositorySlug(final String repositorySlug) {
-        this.repositorySlug = repositorySlug;
     }
 
     public String getPullRequestId() {
         return pullRequestId;
     }
 
-    public void setPullRequestId(final String pullRequestId) {
-        this.pullRequestId = pullRequestId;
-    }
-
     @Override
     public String toString() {
-        return Pojomatic.toString(this);
+        return ToStringBuilder.reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 }

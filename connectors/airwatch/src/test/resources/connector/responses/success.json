@@ -1,5 +1,5 @@
 {
-  "cards": [
+  "objects": [
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "name": "AirWatch",
@@ -8,7 +8,8 @@
         "href": "https://hero/connectors/airwatch/templates/generic.hbs"
       },
       "header": {
-        "title": "[AirWatch] vmware boxer"
+        "title": "[AirWatch] vmware boxer",
+        "subtitle": []
       },
       "body": {
         "description": "Please install this application for better interaction with the resource."
@@ -24,13 +25,15 @@
           "action_key": "DIRECT",
           "request": {
             "app_name": "vmware boxer",
-            "udid": "ABCD",
-            "platform": "android"
+            "platform": "android",
+            "udid": "ABCD"
           },
           "user_input": [],
-          "completed_label":"Installed"
+          "completed_label": "Installed",
+          "allow_repeated": false
         }
-      ]
+      ],
+      "hash": "test-hash"
     }
   ]
 }

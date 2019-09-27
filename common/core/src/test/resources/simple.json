@@ -40,6 +40,7 @@
       }
     ],
     "allow_repeated":true,
-    "completed_label": "Completed"
+    "completed_label": "Completed",
+    "mutually_exclusive_set_id": "approval_actions"
   }]
 }

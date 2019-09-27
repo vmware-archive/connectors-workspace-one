@@ -1,0 +1,168 @@
+{
+    "objects": [
+        {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "name": "Coupa",
+            "creation_date": "1970-01-01T00:00:00Z",
+            "header": {
+                "title": "[Coupa] AppBuilder Q1 PO",
+                "links": {
+                    "title": "${COUPA_URL}requisition_headers/182964"
+                }
+            },
+            "body": {
+                "fields": [
+                    {
+                        "type": "GENERAL",
+                        "title": "REQUESTER",
+                        "description": "Gaurav Totla"
+                    },
+                    {
+                        "type": "GENERAL",
+                        "title": "TOTAL PRICE",
+                        "description": "43,840.00"
+                    },
+                    {
+                        "type": "SECTION",
+                        "title": "ITEM NAME",
+                        "items": [
+                            {
+                                "type": "GENERAL",
+                                "title": "ITEM NAME",
+                                "description": "AppBuilder Q1 PO"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "QUANTITY",
+                                "description": "1.0"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "UNIT PRICE",
+                                "description": "43840.00"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "TOTAL PRICE",
+                                "description": "43840.00"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "COMMODITY",
+                                "description": "Comp Storage Access"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "SUPPLIER PART NUMBER",
+                                "description": "IN10"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "PAYMENT TERMS",
+                                "description": "ZR45"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "SHIPPING",
+                                "description": "FOB"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "SAP GROUP MATERIAL ID",
+                                "description": "G25"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "BILLING ADDRESS",
+                                "description": "No. 165/2, Kalyani Magnum  Block 1, III Floor, Doraisanipalya IIM Post, Bannerghatta Road, Bengaluru 560076 KA"
+                            },
+                            {
+                                "type": "GENERAL",
+                                "title": "BILLING ACCOUNT",
+                                "description": "B-SG-IN"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "SECTION",
+                        "title": "ATTACHMENTS",
+                        "items": [
+                            {
+                                "type": "ATTACHMENT_URL",
+                                "title": "CLICK HERE TO DOWNLOAD THE ATTACHMENT",
+                                "attachment_name": "response.png",
+                                "attachment_content_type": "image/png",
+                                "attachment_url": "https://hero/connectors/coupa/api/user/15882/182964/attachment/response.png/2701685",
+                                "attachment_method": "GET"
+                            },
+                            {
+                                "type": "ATTACHMENT_URL",
+                                "title": "CLICK HERE TO DOWNLOAD THE ATTACHMENT",
+                                "attachment_name": "timestamp.pdf",
+                                "attachment_content_type": "application/pdf",
+                                "attachment_url": "https://hero/connectors/coupa/api/user/15882/182964/attachment/timestamp.pdf/2701686",
+                                "attachment_method": "GET"
+                            },
+                            {
+                                "type": "ATTACHMENT_URL",
+                                "title": "CLICK HERE TO DOWNLOAD THE ATTACHMENT",
+                                "attachment_name": "comments.jpg",
+                                "attachment_content_type": "image/jpeg",
+                                "attachment_url": "https://hero/connectors/coupa/api/user/15882/182964/attachment/comments.jpg/2701687",
+                                "attachment_method": "GET"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "actions": [
+                {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "primary": true,
+                    "label": "APPROVE",
+                    "url": {
+                        "href": "https://hero/connectors/coupa/api/approve/182964"
+                    },
+                    "type": "POST",
+                    "action_key": "USER_INPUT",
+                    "request": {},
+                    "user_input": [
+                        {
+                            "id": "comment",
+                            "label": "COMMENT",
+                            "format": "textarea"
+                        }
+                    ],
+                    "completed_label": "APPROVED",
+                    "allow_repeated": false,
+                    "mutually_exclusive_set_id": "approval-actions"
+                },
+                {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "label": "DECLINE",
+                    "url": {
+                        "href": "https://hero/connectors/coupa/api/decline/182964"
+                    },
+                    "type": "POST",
+                    "action_key": "USER_INPUT",
+                    "request": {},
+                    "user_input": [
+                        {
+                            "id": "comment",
+                            "label": "REASON",
+                            "format": "textarea"
+                        }
+                    ],
+                    "completed_label": "DECLINED",
+                    "allow_repeated": false,
+                    "mutually_exclusive_set_id": "approval-actions"
+                }
+            ],
+            "image": {
+                "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-coupa.png"
+            },
+            "backend_id": "182964",
+            "hash": "test-hash"
+        }
+    ]
+}

@@ -1,0 +1,6 @@
+{
+  "config": {
+    "discount_percentage_field_name": "Discount_Percentage__c",
+    "reason_for_discount_field_name": "Reason_for_Discount--c"
+  }
+}

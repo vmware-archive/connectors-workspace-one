@@ -1,0 +1,187 @@
+{
+  "id": 1,
+  "version": 3,
+  "title": "test PR title",
+  "description": "test PR description",
+  "state": "DECLINED",
+  "open": false,
+  "closed": true,
+  "createdDate": 1517595048673,
+  "updatedDate": 1523016792437,
+  "closedDate": 1523016792437,
+  "fromRef": {
+    "id": "refs/heads/prDef",
+    "displayId": "prDef",
+    "latestCommit": "c01a932be8ed5ce4ca36f8632d01a7740122151b",
+    "repository": {
+      "slug": "test-repo",
+      "id": 2805,
+      "name": "test-repo",
+      "scmId": "git",
+      "state": "AVAILABLE",
+      "statusMessage": "Available",
+      "forkable": true,
+      "project": {
+        "key": "~JBARD",
+        "id": 2282,
+        "name": "John Bard",
+        "type": "PERSONAL",
+        "owner": {
+          "name": "jbard",
+          "emailAddress": "jbard@vmware.com",
+          "id": 58466,
+          "displayName": "John Bard",
+          "active": true,
+          "slug": "jbard",
+          "type": "NORMAL",
+          "links": {
+            "self": [
+              {
+                "href": "https://stash.air-watch.com/users/jbard"
+              }
+            ]
+          }
+        },
+        "links": {
+          "self": [
+            {
+              "href": "https://stash.air-watch.com/users/jbard"
+            }
+          ]
+        }
+      },
+      "public": false,
+      "links": {
+        "clone": [
+          {
+            "href": "ssh://git@stash.air-watch.com:7999/~jbard/test-repo.git",
+            "name": "ssh"
+          },
+          {
+            "href": "https://jbard@stash.air-watch.com/scm/~jbard/test-repo.git",
+            "name": "http"
+          }
+        ],
+        "self": [
+          {
+            "href": "https://stash.air-watch.com/users/jbard/repos/test-repo/browse"
+          }
+        ]
+      }
+    }
+  },
+  "toRef": {
+    "id": "refs/heads/master",
+    "displayId": "master",
+    "latestCommit": "2d14cd3eb4e666080d55cfc5192a5a6b67d327c9",
+    "repository": {
+      "slug": "test-repo",
+      "id": 2805,
+      "name": "test-repo",
+      "scmId": "git",
+      "state": "AVAILABLE",
+      "statusMessage": "Available",
+      "forkable": true,
+      "project": {
+        "key": "~JBARD",
+        "id": 2282,
+        "name": "John Bard",
+        "type": "PERSONAL",
+        "owner": {
+          "name": "jbard",
+          "emailAddress": "jbard@vmware.com",
+          "id": 58466,
+          "displayName": "John Bard",
+          "active": true,
+          "slug": "jbard",
+          "type": "NORMAL",
+          "links": {
+            "self": [
+              {
+                "href": "https://stash.air-watch.com/users/jbard"
+              }
+            ]
+          }
+        },
+        "links": {
+          "self": [
+            {
+              "href": "https://stash.air-watch.com/users/jbard"
+            }
+          ]
+        }
+      },
+      "public": false,
+      "links": {
+        "clone": [
+          {
+            "href": "ssh://git@stash.air-watch.com:7999/~jbard/test-repo.git",
+            "name": "ssh"
+          },
+          {
+            "href": "https://jbard@stash.air-watch.com/scm/~jbard/test-repo.git",
+            "name": "http"
+          }
+        ],
+        "self": [
+          {
+            "href": "https://stash.air-watch.com/users/jbard/repos/test-repo/browse"
+          }
+        ]
+      }
+    }
+  },
+  "locked": false,
+  "author": {
+    "user": {
+      "name": "jbard",
+      "emailAddress": "jbard@vmware.com",
+      "id": 58466,
+      "displayName": "John Bard",
+      "active": true,
+      "slug": "jbard",
+      "type": "NORMAL",
+      "links": {
+        "self": [
+          {
+            "href": "https://stash.air-watch.com/users/jbard"
+          }
+        ]
+      }
+    },
+    "role": "AUTHOR",
+    "approved": false,
+    "status": "UNAPPROVED"
+  },
+  "reviewers": [],
+  "participants": [
+    {
+      "user": {
+        "name": "rworsnop",
+        "emailAddress": "rworsnop@vmware.com",
+        "id": 2496,
+        "displayName": "Rob Worsnop",
+        "active": true,
+        "slug": "rworsnop",
+        "type": "NORMAL",
+        "links": {
+          "self": [
+            {
+              "href": "https://stash.air-watch.com/users/rworsnop"
+            }
+          ]
+        }
+      },
+      "role": "PARTICIPANT",
+      "approved": false,
+      "status": "UNAPPROVED"
+    }
+  ],
+  "links": {
+    "self": [
+      {
+        "href": "https://stash.air-watch.com/users/jbard/repos/test-repo/pull-requests/1"
+      }
+    ]
+  }
+}

@@ -1,13 +1,24 @@
 {
-  "authorization_header": "x-salesforce-authorization",
-  "backend_base_url_header": "x-salesforce-base-url",
-  "fields": {
-    "user_email": {
-      "env": "USER_EMAIL"
-    },
-    "sender_email": {
-      "capture_group": 1,
-      "regex": "([A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6})"
+  "image": {
+    "href": "${CONNECTOR_HOST}/images/connector.png"
+  },
+  "object_types": {
+    "card": {
+      "doc": {
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "fields": {
+        "user_email": {
+          "env": "USER_EMAIL"
+        },
+        "sender_email": {
+          "capture_group": 1,
+          "regex": "([A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6})"
+        }
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/cards/requests"
+      }
     }
   }
 }

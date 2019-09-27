@@ -1,0 +1,156 @@
+{
+  "totalSize": 2,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v21.0/sobjects/Opportunity/0064100000BU5dOAAT"
+      },
+      "Id": "0064100000BU5dOAAT",
+      "Name": "MEM selling opp",
+      "CloseDate": "2017-05-05",
+      "NextStep": null,
+      "StageName": "Id. Decision Makers",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v21.0/sobjects/Account/0014100000Vc2iPAAR"
+        },
+        "Name": "Uber IT Account",
+        "Owner": {
+          "attributes": {
+            "type": "User",
+            "url": "/services/data/v21.0/sobjects/User/00541000000osYgAAI"
+          },
+          "Name": "Jeff Jones"
+        }
+      },
+      "Amount": "$55.00",
+      "ExpectedRevenue": "$100.00",
+      "OpportunityTeamMembers": null,
+      "Feeds": null
+    },
+    {
+      "attributes": {
+        "type": "Opportunity",
+        "url": "/services/data/v21.0/sobjects/Opportunity/0064100000O93EVAAZ"
+      },
+      "Id": "0064100000O93EVAAZ",
+      "Name": "Shree Test Opportunity1",
+      "CloseDate": "2018-08-14",
+      "NextStep": "3/5 Had a meeting with customer",
+      "StageName": "Value Proposition",
+      "Account": {
+        "attributes": {
+          "type": "Account",
+          "url": "/services/data/v21.0/sobjects/Account/0014100000Vc2iPAAR"
+        },
+        "Name": "Uber IT Account",
+        "Owner": {
+          "attributes": {
+            "type": "User",
+            "url": "/services/data/v21.0/sobjects/User/00541000000osYgAAI"
+          },
+          "Name": "Jeff Jones"
+        }
+      },
+      "Amount": "$100.00",
+      "ExpectedRevenue": "$200.00",
+      "OpportunityTeamMembers": {
+        "totalSize": 2,
+        "done": true,
+        "records": [
+          {
+            "attributes": {
+              "type": "OpportunityTeamMember",
+              "url": "/services/data/v21.0/sobjects/OpportunityTeamMember/00q41000002ykDoAAI"
+            },
+            "User": {
+              "attributes": {
+                "type": "User",
+                "url": "/services/data/v21.0/sobjects/User/00541000000osYgAAI"
+              },
+              "Email": "jjeff@vmware.com"
+            }
+          },
+          {
+            "attributes": {
+              "type": "OpportunityTeamMember",
+              "url": "/services/data/v21.0/sobjects/OpportunityTeamMember/00q41000002ykDpAAI"
+            },
+            "User": {
+              "attributes": {
+                "type": "User",
+                "url": "/services/data/v21.0/sobjects/User/00541000004hS12AAE"
+              },
+              "Email": "mem1@mem16.ssdevrd.com"
+            }
+          }
+        ]
+      },
+      "Feeds": {
+        "totalSize": 4,
+        "done": true,
+        "records": [
+          {
+            "attributes": {
+              "type": "OpportunityFeed",
+              "url": "/services/data/v21.0/sobjects/OpportunityFeed/0D54100002zdQoPCAU"
+            },
+            "InsertedBy": {
+              "attributes": {
+                "type": "Name",
+                "url": "/services/data/v21.0/sobjects/Name/00541000000osYgAAI"
+              },
+              "Name": "Jeff Jones"
+            },
+            "Body": null
+          },
+          {
+            "attributes": {
+              "type": "OpportunityFeed",
+              "url": "/services/data/v21.0/sobjects/OpportunityFeed/0D54100002w7pc6CAA"
+            },
+            "InsertedBy": {
+              "attributes": {
+                "type": "Name",
+                "url": "/services/data/v21.0/sobjects/Name/00541000000osYgAAI"
+              },
+              "Name": "Jeff Jones"
+            },
+            "Body": null
+          },
+          {
+            "attributes": {
+              "type": "OpportunityFeed",
+              "url": "/services/data/v21.0/sobjects/OpportunityFeed/0D54100002wmPDICA2"
+            },
+            "InsertedBy": {
+              "attributes": {
+                "type": "Name",
+                "url": "/services/data/v21.0/sobjects/Name/00541000000osYgAAI"
+              },
+              "Name": "Jeff Jones"
+            },
+            "Body": "Adding a test feed comment\n"
+          },
+          {
+            "attributes": {
+              "type": "OpportunityFeed",
+              "url": "/services/data/v21.0/sobjects/OpportunityFeed/0D54100002z7jJ0CAI"
+            },
+            "InsertedBy": {
+              "attributes": {
+                "type": "Name",
+                "url": "/services/data/v21.0/sobjects/Name/00541000000osYgAAI"
+              },
+              "Name": "Jeff Jones"
+            },
+            "Body": "Adding second test comment\n"
+          }
+        ]
+      }
+    }
+  ]
+}

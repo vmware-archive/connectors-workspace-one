@@ -34,10 +34,10 @@
             "href": "https://HeroCardAdmin1.ssdevrd.com/Catalog/publicblob/f74ef1ee-5f03-4833-9c9e-3e45219c6026/BlobHandler.pblob"
           },
           "install": {
-            "href": "https://herocard.vmwareidentity.com/catalog-portal/services/api/activate/MDM-134-Native-Public"
+            "href": "${greenbox.url}/catalog-portal/services/api/activate/MDM-134-Native-Public"
           },
           "appDetails": {
-            "href": "https://herocard.vmwareidentity.com/catalog-portal/services/api/apps/MDM-134-Native-Public"
+            "href": "${greenbox.url}/catalog-portal/services/api/apps/MDM-134-Native-Public"
           }
         }
       }

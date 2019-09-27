@@ -1,5 +1,5 @@
 {
-  "cards": [
+  "objects": [
     {
       "id": "00000000-0000-0000-0000-000000000000",
       "name": "Concur",
@@ -8,10 +8,52 @@
         "href": "https://hero/connectors/concur/templates/generic.hbs"
       },
       "header": {
-        "title": "[Concur] Expense Report Pending Your Approval"
+        "title": "[Concur] Expense Report Pending Your Approval",
+        "subtitle": []
       },
       "body": {
-        "description":"Test Concur connector-1",
+        "description": "Test Concur connector-2",
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Approval status",
+            "description": "Approved"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Report From",
+            "description": "Ajmera, Rahul"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Report Purpose",
+            "description": "Concur"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Report Amount",
+            "description": "10000.00 INR"
+          }
+        ]
+      },
+      "image": {
+        "href": "https://my-connector/images/connector.png"
+      },
+      "hash": "test-hash"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Concur",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "template": {
+        "href": "https://hero/connectors/concur/templates/generic.hbs"
+      },
+      "header": {
+        "title": "[Concur] Expense Report Pending Your Approval",
+        "subtitle": []
+      },
+      "body": {
+        "description": "Test Concur connector-1",
         "fields": [
           {
             "type": "GENERAL",
@@ -50,10 +92,13 @@
             {
               "id": "reason",
               "label": "Reason for approval",
+              "format": "textarea",
               "min_length": 1
             }
           ],
-          "completed_label": "Approved"
+          "completed_label": "Approved",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
@@ -68,79 +113,19 @@
             {
               "id": "reason",
               "label": "Reason for rejection",
+              "format": "textarea",
               "min_length": 1
             }
           ],
-          "completed_label": "Rejected"
-        },
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Open",
-          "url": {
-            "href": "https://implementation.concursolutions.com"
-          },
-          "type": "GET",
-          "action_key": "OPEN_IN",
-          "request": {},
-          "user_input": [],
-          "completed_label":"Open",
-          "allow_repeated":true
-        }
-      ]
-    },
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "name": "Concur",
-      "creation_date": "1970-01-01T00:00:00Z",
-      "template": {
-        "href": "https://hero/connectors/concur/templates/generic.hbs"
-      },
-      "header": {
-        "title": "[Concur] Expense Report Pending Your Approval"
-      },
-      "body": {
-        "description":"Test Concur connector-2",
-        "fields": [
-          {
-            "type": "GENERAL",
-            "title": "Approval status",
-            "description": "Approved"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Report From",
-            "description": "Ajmera, Rahul"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Report Purpose",
-            "description": "Concur"
-          },
-          {
-            "type": "GENERAL",
-            "title": "Report Amount",
-            "description": "10000.00 INR"
-          }
-        ]
-      },
-      "actions": [
-        {
-          "id": "00000000-0000-0000-0000-000000000000",
-          "label": "Open",
-          "url": {
-            "href": "https://implementation.concursolutions.com"
-          },
-          "type": "GET",
-          "action_key": "OPEN_IN",
-          "request": {},
-          "user_input": [],
-          "completed_label":"Open",
-          "allow_repeated":true
+          "completed_label": "Rejected",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
         }
       ],
       "image": {
         "href": "https://my-connector/images/connector.png"
-      }
+      },
+      "hash": "test-hash"
     }
   ]
 }

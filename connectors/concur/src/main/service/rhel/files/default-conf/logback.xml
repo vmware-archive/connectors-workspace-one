@@ -1,10 +1,10 @@
 <configuration>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/log/vmware/connectors/concur/concur-connector.log</file>
+        <file>/var/log/vmware/connectors/concur/connector.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>/var/log/vmware/connectors/concur/concur-connector-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>/var/log/vmware/connectors/concur/connector-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
             <maxHistory>10</maxHistory>
             <totalSizeCap>10GB</totalSizeCap>
