@@ -49,7 +49,8 @@ class BotFlowTest extends ControllerTestsBase {
     private static final String OBJ_TYPE_CATALOG_ITEM = "catalog";
     private static final String OBJ_TYPE_TASK = "task";
     private static final String OBJ_TYPE_CART = "cart";
-    private static final String OBJ_TYPE_CREATE_TASK = "createTask";
+
+    private static final String OBJ_TYPE_BOT_DISCOVERY = "botDiscovery";
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -178,10 +179,9 @@ class BotFlowTest extends ControllerTestsBase {
     @Test
     void testBotDiscoveryObject() throws Exception {
 
-        // APF-2473 - Adds support for multi-tenant params. CardRequest will contain "config" at that time.
         String body = requestObjects("/bot-discovery", SNOW_AUTH_TOKEN,
                 "/botflows/connector/request/bot_discovery_object.json",
-                OBJ_TYPE_CREATE_TASK, null)
+                OBJ_TYPE_BOT_DISCOVERY, null)
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -196,6 +196,16 @@ class BotFlowTest extends ControllerTestsBase {
 
         assertThat(botDiscoveryJsonString, 	matchesJsonSchema(fromFile("/bot-schema.json")));
 
+    }
+
+    @Test
+    void testInvalidAdminConfig() throws Exception {
+
+        requestObjects("/bot-discovery", SNOW_AUTH_TOKEN,
+                "/botflows/connector/request/with_invalid_config.json",
+                OBJ_TYPE_BOT_DISCOVERY, null)
+                .expectStatus().isBadRequest()
+                .expectBody().json(fromFile("/botflows/connector/response/with_invalid_config.json"));
     }
 
     @Test

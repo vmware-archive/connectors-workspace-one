@@ -12,6 +12,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.Link;
 import com.vmware.connectors.common.utils.AuthUtil;
+import com.vmware.connectors.common.web.InvalidConfigParamException;
 import com.vmware.connectors.servicenow.domain.BotAction;
 import com.vmware.connectors.servicenow.domain.BotActionUserInput;
 import com.vmware.connectors.servicenow.domain.BotItem;
@@ -102,6 +103,8 @@ public class SNowBotController {
     private static final String WF_ID_EMPTY_CART = "EmptyCart";
     private static final String WF_ID_CHECKOUT = "Checkout";
     private static final String WF_ID_REMOVE_FROM_CART = "RemoveItem";
+
+    private static final String CONFIG_FILE_TICKET_TABLE_NAME = "file_ticket_table_name";
 
     private final WebClient rest;
     private final BotTextAccessor botTextAccessor;
@@ -513,11 +516,17 @@ public class SNowBotController {
     public ResponseEntity<Map<String, List<Map<String, BotItem>>>> getBotDiscovery(
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
+            @Valid @RequestBody final CardRequest cardRequest,
             Locale locale
     ) {
-        logger.trace("getBotDiscovery object. baseUrl: {}, routingPrefix: {}", baseUrl, routingPrefix);
+        Map<String, String> connConfig = cardRequest.getConfig();
+        String taskType = connConfig.get(CONFIG_FILE_TICKET_TABLE_NAME);
+        logger.trace("getBotDiscovery object. baseUrl: {}, routingPrefix: {}, fileTaskType: {}", baseUrl, routingPrefix, taskType);
 
-        String taskType = "task"; // ToDo: Allow admins to define their "general" type of ticket. (APF-2473)
+        if (StringUtils.isBlank(taskType)) {
+            logger.debug("Table name should be specified for filing a ticket.");
+            throw new InvalidConfigParamException("Configured table name is invalid for the ticket filing flow.");
+        }
 
         return ResponseEntity.ok(
                 buildBotDiscovery(taskType, routingPrefix, locale)
