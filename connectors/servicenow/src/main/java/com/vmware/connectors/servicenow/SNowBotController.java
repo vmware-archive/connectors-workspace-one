@@ -12,7 +12,6 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.Link;
 import com.vmware.connectors.common.utils.AuthUtil;
-import com.vmware.connectors.common.web.InvalidConfigParamException;
 import com.vmware.connectors.servicenow.domain.BotAction;
 import com.vmware.connectors.servicenow.domain.BotActionUserInput;
 import com.vmware.connectors.servicenow.domain.BotItem;
@@ -524,8 +523,8 @@ public class SNowBotController {
         logger.trace("getBotDiscovery object. baseUrl: {}, routingPrefix: {}, fileTaskType: {}", baseUrl, routingPrefix, taskType);
 
         if (StringUtils.isBlank(taskType)) {
-            logger.debug("Table name should be specified for filing a ticket.");
-            throw new InvalidConfigParamException("Configured table name is invalid for the ticket filing flow.");
+            logger.debug("Table name isn't specified for ticket filing flow. Taking `task` as default type.");
+            taskType = "task"; // ToDo: Not required after APF-2570.
         }
 
         return ResponseEntity.ok(

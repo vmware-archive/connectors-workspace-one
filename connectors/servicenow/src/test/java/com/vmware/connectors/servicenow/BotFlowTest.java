@@ -11,6 +11,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.vmware.connectors.test.ControllerTestsBase;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -199,6 +200,7 @@ class BotFlowTest extends ControllerTestsBase {
     }
 
     @Test
+    @Disabled  // ToDo - APF-2570. Enable the test.
     void testInvalidAdminConfig() throws Exception {
 
         requestObjects("/bot-discovery", SNOW_AUTH_TOKEN,
