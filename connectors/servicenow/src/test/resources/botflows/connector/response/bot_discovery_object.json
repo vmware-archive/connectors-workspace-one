@@ -16,6 +16,9 @@
             "payload": {
               "type": "task"
             },
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
             "userInput": [
               {
                 "id": "shortDescription",

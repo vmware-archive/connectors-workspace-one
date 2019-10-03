@@ -21,6 +21,9 @@
           "payload": {
             "itemId": "e212a942c0a80165008313c59764eea1"
           },
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
           "userInput": [
             {
               "format": "textarea",
@@ -52,6 +55,9 @@
           },
           "payload": {
             "itemId": "3cecd2350a0a0a6a013a3a35a5e41c07"
+          },
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
           },
           "userInput": [
             {
@@ -85,6 +91,9 @@
           "payload": {
             "itemId": "774906834fbb4200086eeed18110c737"
           },
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
           "userInput": [
             {
               "format": "textarea",
@@ -116,6 +125,9 @@
           },
           "payload": {
             "itemId": "10f110aec611227601fbe1841e7e417c"
+          },
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
           },
           "userInput": [
             {
@@ -149,6 +161,9 @@
           "payload": {
             "itemId": "04b7e94b4f7b4200086eeed18110c7fd"
           },
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
           "userInput": [
             {
               "format": "textarea",
@@ -177,6 +192,9 @@
           },
           "payload": {
             "itemId": "d130ad75d7620200a9ad1e173e24d43c"
+          },
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
           },
           "userInput": [
             {
@@ -210,6 +228,9 @@
           "payload": {
             "itemId": "ae44f5804f889200086eeed18110c73f"
           },
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
           "userInput": [
             {
               "id": "itemCount",
@@ -241,6 +262,9 @@
           },
           "payload": {
             "itemId": "2ab7077237153000158bbfc8bcbe5da9"
+          },
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
           },
           "userInput": [
             {

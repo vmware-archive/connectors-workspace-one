@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -430,6 +431,7 @@ public class SNowBotController {
                 .setDescription(botTextAccessor.getActionDescription("removeFromCart", locale))
                 .setWorkflowId(WF_ID_REMOVE_FROM_CART)
                 .setType(HttpMethod.DELETE)
+                .addReqHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .setUrl(new Link(routingPrefix + "api/v1/cart/" + entryId))
                 .build();
     }
@@ -440,6 +442,7 @@ public class SNowBotController {
                 .setDescription(botTextAccessor.getActionDescription("checkout", locale))
                 .setWorkflowId(WF_ID_CHECKOUT)
                 .setType(HttpMethod.POST)
+                .addReqHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .setUrl(new Link(routingPrefix + "api/v1/checkout"))
                 .build();
     }
@@ -450,6 +453,7 @@ public class SNowBotController {
                 .setDescription(botTextAccessor.getActionDescription("emptyCart", locale))
                 .setWorkflowId(WF_ID_EMPTY_CART)
                 .setType(HttpMethod.DELETE)
+                .addReqHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .setUrl(new Link(routingPrefix + "api/v1/cart"))
                 .build();
     }
@@ -461,6 +465,7 @@ public class SNowBotController {
                 .setWorkflowId(WF_ID_ADD_TO_CART)
                 .setType(HttpMethod.PUT)
                 .addReqParam("itemId", itemId)
+                .addReqHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .addUserInput(getCartItemCountUserInput(locale))
                 .setUrl(new Link(routingPrefix + "api/v1/cart"))
                 .build();
@@ -481,6 +486,7 @@ public class SNowBotController {
                 .setDescription(botTextAccessor.getActionDescription("deleteTicket", locale))
                  // Workflow ids not required in actions ?
                 .setType(HttpMethod.DELETE)
+                .addReqHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .setUrl(new Link(routingPrefix + "api/v1/tasks/" + taskSysId))
                 .build();
     }
@@ -492,6 +498,7 @@ public class SNowBotController {
                 .setType(HttpMethod.POST)
                 .setUrl(new Link(routingPrefix + "api/v1/task/create"))
                 .addReqParam("type", taskType)
+                .addReqHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .addUserInput(getTicketDescriptionUserInput(locale))
                 .build();
     }
