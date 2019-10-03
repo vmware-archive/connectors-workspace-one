@@ -16,6 +16,9 @@
               "href": "https://mf/connectors/abc123/task/api/v1/tasks/f8cfe469db153300ea92eb41ca96198b"
             },
             "payload": {},
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
             "userInput": []
           }
         ]
@@ -37,6 +40,9 @@
               "href": "https://mf/connectors/abc123/task/api/v1/tasks/f9817ca9db153300ea92eb41ca9619d7"
             },
             "payload": {},
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
             "userInput": []
           }
         ]

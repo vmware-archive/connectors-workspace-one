@@ -11,10 +11,13 @@
             "description": "Create a new ticket",
             "type": "POST",
             "url": {
-              "href": "https://mf/connectors/abc123/createTask/api/v1/task/create"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/task/create"
             },
             "payload": {
               "type": "task"
+            },
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
             },
             "userInput": [
               {

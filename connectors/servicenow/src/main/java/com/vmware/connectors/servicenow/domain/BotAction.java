@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.connectors.common.payloads.response.Link;
 import org.springframework.http.HttpMethod;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -44,11 +43,15 @@ public class BotAction {
     @JsonProperty("payload")
     private final Map<String, String> payload;
 
+    @JsonProperty("headers")
+    private final Map<String, String> headers;
+
     @JsonProperty("userInput")
     private final List<BotActionUserInput> userInput;
 
     private BotAction() {
         this.payload = new HashMap<>();
+        this.headers = new HashMap<>();
         this.userInput = new ArrayList<>();
     }
 
@@ -73,11 +76,15 @@ public class BotAction {
     }
 
     public Map<String, String> getPayload() {
-        return Collections.unmodifiableMap(payload);
+        return Map.copyOf(payload);
+    }
+
+    public Map<String, String> getHeaders() {
+        return Map.copyOf(headers);
     }
 
     public List<BotActionUserInput> getUserInput() {
-        return Collections.unmodifiableList(userInput);
+        return List.copyOf(userInput);
     }
 
     public static class Builder {
@@ -119,6 +126,11 @@ public class BotAction {
 
         public Builder addReqParam(String key, String value) {
             botAction.payload.put(key, value);
+            return this;
+        }
+
+        public Builder addReqHeader(String key, String value) {
+            botAction.headers.put(key, value);
             return this;
         }
 
