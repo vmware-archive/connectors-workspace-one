@@ -25,6 +25,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
+import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -339,6 +340,13 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .andExpect(method(POST))
                 .andExpect(content().contentType(APPLICATION_XML))
                 .andRespond(withSuccess());
+    }
+
+    void mockInvalidUserDetails(String userDetails) throws IOException {
+        mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin%40acme.com"))
+                .andExpect(method(GET))
+                .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(fromFile(userDetails), APPLICATION_JSON));
     }
 
     public static class CustomInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
