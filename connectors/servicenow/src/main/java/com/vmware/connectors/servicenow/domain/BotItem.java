@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.connectors.common.payloads.response.Link;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +39,9 @@ public class BotItem {
 
     @JsonProperty("image")
     private Link image;
+
+    @JsonProperty("url")
+    private Link url;
 
     @JsonInclude(NON_EMPTY)
     @JsonProperty("actions")
@@ -76,12 +78,16 @@ public class BotItem {
         return image;
     }
 
+    public Link getUrl() {
+        return url;
+    }
+
     public List<BotAction> getActions() {
-        return Collections.unmodifiableList(actions);
+        return List.copyOf(actions);
     }
 
     public List<BotItem> getChildren() {
-        return Collections.unmodifiableList(children);
+        return List.copyOf(children);
     }
 
     public String getWorkflowId() {
@@ -128,6 +134,12 @@ public class BotItem {
 
         public Builder setImage(Link imageLink) {
             botItem.image = imageLink;
+            return this;
+        }
+
+        // Its a link to the resource at the backend. Ex - ServiceNow ticket link.
+        public Builder setUrl(Link resourceUrl) {
+            botItem.url = resourceUrl;
             return this;
         }
 
