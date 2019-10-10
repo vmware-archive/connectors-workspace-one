@@ -10,7 +10,6 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.web.UserException;
 import com.vmware.connectors.concur.domain.*;
 import com.vmware.connectors.concur.exception.AttachmentURLNotFoundException;
 import com.vmware.connectors.concur.exception.InvalidServiceAccountCredentialException;
@@ -207,7 +206,7 @@ public class HubConcurController {
         logger.debug("fetchCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
 
         return fetchLoginIdFromUserEmail(userEmail, baseUrl, connectorAuth)
-                .switchIfEmpty(Mono.error(new UserNotFoundException("User with email id " + userEmail + "is not found.")))
+                .switchIfEmpty(Mono.error(new UserNotFoundException("User with email id " + userEmail + " is not found.")))
                 .flatMapMany(loginId -> fetchAllApprovals(baseUrl, loginId, connectorAuth))
                 .flatMap(expense -> fetchRequestData(baseUrl, expense.getId(), connectorAuth))
                 .map(report -> makeCards(baseUrl, routingPrefix, locale, report))
@@ -496,7 +495,7 @@ public class HubConcurController {
         String concurRequestTemplate = getConcurRequestTemplate(reason, action);
 
         return fetchLoginIdFromUserEmail(userEmail, baseUrl, connectorAuth)
-                .switchIfEmpty(Mono.error(new UserNotFoundException("User with email id " + userEmail + "is not found.")))
+                .switchIfEmpty(Mono.error(new UserNotFoundException("User with email id " + userEmail + " is not found.")))
                 .flatMapMany(loginId -> validateUser(baseUrl, reportId, loginId, connectorAuth))
                 .flatMap(ignored -> fetchRequestData(baseUrl, reportId, connectorAuth))
                 .map(ExpenseReportResponse::getWorkflowActionURL)
@@ -537,7 +536,7 @@ public class HubConcurController {
                 .filter(expense -> expense.getId().equals(reportId))
                 .filter(expense -> expense.getApproverLoginID().equals(loginID))
                 .next()
-                .switchIfEmpty(Mono.error(new UserException("Not Found"))); // CustomException
+                .switchIfEmpty(Mono.error(new UserNotFoundException("User with login id " + loginID + " is not found."))); // CustomException
     }
 
     @PostMapping(

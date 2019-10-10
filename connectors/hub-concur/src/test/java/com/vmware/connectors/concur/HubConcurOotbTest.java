@@ -168,7 +168,8 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
         mockInvalidUserDetails("fake/empty-user-details.json");
 
         cardsRequest("", CALLER_SERVICE_CREDS)
-                .expectStatus().isNotFound();
+                .expectStatus().isNotFound()
+                .expectBody().json(fromFile("connector/responses/user_email_not_found.json"));
     }
 
     @Test
@@ -188,7 +189,8 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
         mockInvalidUserDetails("fake/empty-user-details.json");
 
         approveRequest(CALLER_SERVICE_CREDS)
-                .expectStatus().isNotFound();
+                .expectStatus().isNotFound()
+                .expectBody().json(fromFile("connector/responses/user_email_not_found.json"));
     }
 
     @Test
@@ -207,7 +209,8 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
         mockInvalidUserDetails("fake/empty-user-details.json");
 
         rejectRequest(CALLER_SERVICE_CREDS)
-                .expectStatus().isNotFound();
+                .expectStatus().isNotFound()
+                .expectBody().json(fromFile("connector/responses/user_email_not_found.json"));
     }
 
     @Test
@@ -217,6 +220,7 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
         mockReportsDigest(EXPECTED_AUTH_HEADER, "invalid%40acme.com");
 
         rejectRequest(CALLER_SERVICE_CREDS)
-                .expectStatus().isNotFound();
+                .expectStatus().isNotFound()
+                .expectBody().json(fromFile("connector/responses/user_login_not_found.json"));
     }
 }
