@@ -53,16 +53,6 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
     }
 
     @Test
-    void testUnauthorizedApproveRequest() throws Exception {
-        // User tries to approve an expense report that isn't theirs
-        mockOAuthToken(CALLER_SERVICE_CREDS);
-        mockEmptyReportsDigest(EXPECTED_AUTH_HEADER);
-
-        approveRequest(CALLER_SERVICE_CREDS)
-                .expectStatus().isNotFound();
-    }
-
-    @Test
     void testRejectRequest() throws Exception {
         mockOAuthToken(CALLER_SERVICE_CREDS);
         mockActionRequests(EXPECTED_AUTH_HEADER);
