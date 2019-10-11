@@ -9,7 +9,9 @@ import com.nimbusds.jose.util.StandardCharset;
 import com.vmware.connectors.common.payloads.response.*;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.connectors.common.utils.CardTextAccessor;
+import com.vmware.connectors.common.web.InvalidUserActionException;
 import com.vmware.connectors.common.web.UserException;
+import com.vmware.connectors.common.web.UserNotFoundException;
 import com.vmware.connectors.coupa.domain.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -50,6 +52,7 @@ import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.*;
 
 @RestController
+@SuppressWarnings("PMD.CouplingBetweenObjects")
 public class HubCoupaController {
 
     private static final Logger logger = LoggerFactory.getLogger(HubCoupaController.class);
@@ -62,6 +65,8 @@ public class HubCoupaController {
     private static final String CONTENT_DISPOSITION_FORMAT = "Content-Disposition: inline; filename=\"%s\"";
 
     private static final String UNAUTHORIZED_ATTACHMENT_ACCESS = "User with approvable ID: %s is trying to fetch an attachment with ID: %s which does not belong to them.";
+    private static final String USER_NOT_FOUND = "User with email id [%s] is not found.";
+    private static final String INVALID_USER_ACTION = "User with email id [%s] is not authorized the approve/reject the expense report with approvable id [%s].";
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
@@ -137,8 +142,9 @@ public class HubCoupaController {
         logger.debug("Getting user id of {}", userEmail);
 
         return getUserDetails(userEmail, baseUrl, connectorAuth)
+                .switchIfEmpty(Mono.error(new UserNotFoundException(String.format(USER_NOT_FOUND, userEmail))))
                 .flatMap(user -> getApprovalDetails(baseUrl, user.getId(), connectorAuth)
-                        .flatMap(ad -> getRequisitionDetails(baseUrl, ad.getApprovableId(), userEmail, connectorAuth))
+                        .flatMap(ad -> fetchAndFilterRequisitionDetails(baseUrl, ad.getApprovableId(), userEmail, connectorAuth))
                         .map(req -> makeCards(baseUrl, routingPrefix, locale, req, user.getId())))
                 .reduce(new Cards(), this::addCard);
     }
@@ -167,7 +173,7 @@ public class HubCoupaController {
                 .bodyToFlux(ApprovalDetails.class);
     }
 
-    private Flux<RequisitionDetails> getRequisitionDetails(
+    private Flux<RequisitionDetails> fetchAndFilterRequisitionDetails(
             String baseUrl,
             String approvableId,
             String userEmail,
@@ -175,13 +181,19 @@ public class HubCoupaController {
     ) {
         logger.trace("Fetching Requisition details for {} and user {} ", approvableId, userEmail);
 
+        return getRequisitionDetails(baseUrl, approvableId, connectorAuth)
+                .filter(requisition -> userEmail.equals(requisition.getCurrentApproval().getApprover().getEmail()));
+    }
+
+    private Flux<RequisitionDetails> getRequisitionDetails(final String baseUrl,
+                                                           final String approvableId,
+                                                           final String connectorAuth) {
         return rest.get()
                 .uri(baseUrl + "/api/requisitions?id={approvableId}&status=pending_approval", approvableId)
                 .accept(APPLICATION_JSON)
                 .header(AUTHORIZATION_HEADER_NAME, connectorAuth)
                 .retrieve()
-                .bodyToFlux(RequisitionDetails.class)
-                .filter(requisition -> userEmail.equals(requisition.getCurrentApproval().getApprover().getEmail()));
+                .bodyToFlux(RequisitionDetails.class);
     }
 
     private Card makeCards(
@@ -486,8 +498,10 @@ public class HubCoupaController {
         logger.debug("makeCoupaRequest called for user: userEmail={}, approvableId={}, action={}",
                 userEmail, approvableId, action);
 
-        return getRequisitionDetails(baseUrl, approvableId, userEmail, connectorAuth)
-                .switchIfEmpty(Mono.error(new UserException("User Not Found")))
+        return getUserDetails(userEmail, baseUrl, connectorAuth)
+                .switchIfEmpty(Mono.error(new UserNotFoundException(String.format(USER_NOT_FOUND, userEmail))))
+                .flatMap(userDetails -> fetchAndFilterRequisitionDetails(baseUrl, approvableId, userDetails.getEmail(), connectorAuth))
+                .switchIfEmpty(Mono.error(new InvalidUserActionException(String.format(INVALID_USER_ACTION, userEmail, approvableId))))
                 .flatMap(requisitionDetails -> makeActionRequest(requisitionDetails.getCurrentApproval().getId(), baseUrl, action, reason, connectorAuth))
                 .next();
     }
@@ -572,7 +586,7 @@ public class HubCoupaController {
                 .filter(userDetails -> userDetails.getId().equals(userId))
                 .flatMap(userDetails -> getApprovalDetails(baseUrl, userDetails.getId(), connectorAuth))
                 .filter(approvalDetails -> approvableId.equals(approvalDetails.getApprovableId()))
-                .flatMap(approvalDetails -> getRequisitionDetails(baseUrl, approvalDetails.getApprovableId(), userEmail, connectorAuth))
+                .flatMap(approvalDetails -> fetchAndFilterRequisitionDetails(baseUrl, approvalDetails.getApprovableId(), userEmail, connectorAuth))
                 .flatMap(requisitionDetails -> validateAttachment(requisitionDetails.getAttachments(), attachmentId));
     }
 
@@ -634,5 +648,19 @@ public class HubCoupaController {
                         )
                 )
                 .toUri();
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
+    @ResponseBody
+    public Map<String, String> handleUserNotFoundException(UserNotFoundException e) {
+        return Map.of("error", e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidUserActionException.class)
+    @ResponseStatus(UNAUTHORIZED)
+    @ResponseBody
+    public Map<String, String> handleInvalidUserActionException(InvalidUserActionException e) {
+        return Map.of("error", e.getMessage());
     }
 }

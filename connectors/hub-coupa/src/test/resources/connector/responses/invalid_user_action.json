@@ -1,0 +1,3 @@
+{
+  "error": "User with email id [admin@acme.com] is not authorized the approve/reject the expense report with approvable id [182964]."
+}
