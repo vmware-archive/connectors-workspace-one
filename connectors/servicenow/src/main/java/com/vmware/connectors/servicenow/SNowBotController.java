@@ -20,6 +20,7 @@ import com.vmware.connectors.servicenow.domain.snow.*;
 import com.vmware.connectors.servicenow.exception.CatalogReadException;
 import com.vmware.connectors.servicenow.forms.AddToCartForm;
 import com.vmware.connectors.servicenow.forms.CreateTaskForm;
+import com.vmware.connectors.servicenow.forms.ViewTaskForm;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +85,11 @@ public class SNowBotController {
 
     private static final String INSERT_OBJECT_TYPE = "INSERT_OBJECT_TYPE";
 
+    private static final String ITEM_DETAILS = "itemDetails";
+
     private static final String ACTION_RESULT_KEY = "result";
+
+    private static final String OBJECT_TYPE_BOT_DISCOVERY = "botDiscovery";
 
     private static final String OBJECT_TYPE_TASK = "task";
 
@@ -92,13 +97,14 @@ public class SNowBotController {
 
     private static final String CONTEXT_ID = "contextId";
 
-    // Workflow ids for objects.
-    private static final String WF_ID_CATALOG = "ViewItem";
+    // Workflow Ids for task flow.
     private static final String WF_ID_CREATE_TASK = "vmw_FILE_GENERAL_TICKET";
-    private static final String WF_ID_TASK = "ViewTask";
-    private static final String WF_ID_CART = "ViewCart";
+    private static final String WF_ID_VIEW_TASK = "vmw_GET_TICKET_STATUS";
+    private static final String WF_ID_VIEW_TASK_BY_NUMBER = "vmw_VIEW_SPECIFIC_TICKET";
 
-    // Workflow ids for object-actions.
+    // Workflow Ids for catalog-cart flow.
+    private static final String WF_ID_CATALOG = "ViewItem";
+    private static final String WF_ID_CART = "ViewCart";
     private static final String WF_ID_ADD_TO_CART = "AddItem";
     private static final String WF_ID_EMPTY_CART = "EmptyCart";
     private static final String WF_ID_CHECKOUT = "Checkout";
@@ -274,41 +280,40 @@ public class SNowBotController {
     @PostMapping(
             path = "/api/v1/tasks",
             produces = MediaType.APPLICATION_JSON_VALUE,
-            consumes = MediaType.APPLICATION_JSON_VALUE
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
     public Mono<Map<String, List<Map<String, BotItem>>>> getTasks(
             @RequestHeader(AUTHORIZATION) String mfToken,
             @RequestHeader(AUTH_HEADER) String auth,
-            @RequestHeader(ROUTING_PREFIX) String routingPrefix,
+            @RequestHeader(ROUTING_PREFIX_TEMPLATE) String routingPrefixTemplate,
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
-            Locale locale,
-            @RequestBody CardRequest cardRequest,
-            @RequestParam(name = "limit", required = false, defaultValue = "10") Integer limit,
-            @RequestParam(name = "offset", required = false, defaultValue = "0") Integer offset) {
-        // Both task type and number are optional.
-        // If a specific type is not specified, default to task.
-        // If ticket number is not specified, deliver user created tasks/specific-types.
+            ViewTaskForm form,
+            Locale locale) {
+        // User asks something like "What are my open tickets ?"
 
-        // ToDo: Either validate w.r.t hardcoded types of tasks or handle error from SNow.
-        String taskType;
-        if (StringUtils.isBlank(cardRequest.getTokenSingleValue("type"))) {
-            taskType = "task";
-        } else {
-            taskType = cardRequest.getTokenSingleValue("type");
-        }
-        String taskNumber = cardRequest.getTokenSingleValue(NUMBER);
-        String contextId = cardRequest.getTokenSingleValue(CONTEXT_ID);
+        // ToDo: If a customer doesn't call their parent ticket as "task", this flow would break.
+        // A potential solution is to let admin configure the parent task name.
+
+        String taskType = "task";
+        String taskNumber = form.getNumber();
+
+        // ToDo: Technically there can be too many open tickets. How many of them will be displayed in the bot UI ?
+        int ticketsLimit = 5;
 
         var userEmail = AuthUtil.extractUserEmail(mfToken);
 
-        logger.trace("getTasks for type={}, number={}, baseUrl={}, userEmail={}", taskType, taskNumber, baseUrl, userEmail);
-        URI taskUri = buildTasksUriByReqParam(taskType, taskNumber, userEmail, baseUrl, limit, offset);
+        logger.trace("getTasks for type={}, baseUrl={}, userEmail={}, ticketsLimit={}, routingTemplate={}",
+                taskType, baseUrl, userEmail, ticketsLimit, routingPrefixTemplate);
+
+        URI taskUri = buildTasksUriByReqParam(taskType, taskNumber, userEmail, baseUrl, ticketsLimit);
+
+        String routingPrefix = routingPrefixTemplate.replace(INSERT_OBJECT_TYPE, OBJECT_TYPE_BOT_DISCOVERY);
 
         return retrieveTasks(taskUri, auth)
-                .map(taskList -> toTaskBotObj(taskList, routingPrefix, contextId, locale));
+                .map(taskList -> toTaskBotObj(taskList, routingPrefix, baseUrl, locale));
     }
 
-    private URI buildTasksUriByReqParam(String taskType, String taskNumber, String userEmail, String baseUrl, Integer limit, Integer offset) {
+    private URI buildTasksUriByReqParam(String taskType, String taskNumber, String userEmail, String baseUrl, int limit) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                 .fromUriString(baseUrl)
                 .replacePath("/api/now/table/")
@@ -317,10 +322,14 @@ public class SNowBotController {
         if (StringUtils.isBlank(taskNumber)) {
             uriComponentsBuilder
                     .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
-                    .queryParam(SNOW_SYS_PARAM_OFFSET, offset)
-                    .queryParam("opened_by.email", userEmail);
+                    .queryParam(SNOW_SYS_PARAM_OFFSET, 0)
+                    .queryParam("opened_by.email", userEmail)
+                    .queryParam("active", true)   // Ignore already closed tickets.
+                    .queryParam("sysparm_query", "ORDERBYDESCsys_created_on"); // Order by latest created tickets.
+
         } else {
             // If task number is provided, may be it doesn't matter to apply the filter about who created the ticket.
+            // We will show it even if its closed.
             uriComponentsBuilder
                     .queryParam(NUMBER, taskNumber);
         }
@@ -338,17 +347,24 @@ public class SNowBotController {
                 .map(TaskResults::getResult);
     }
 
-    private Map<String, List<Map<String, BotItem>>> toTaskBotObj(List<Task> tasks, String routingPrefix, String contextId, Locale locale) {
+    private Map<String, List<Map<String, BotItem>>> toTaskBotObj(List<Task> tasks, String routingPrefix, String baseUrl, Locale locale) {
         List<Map<String, BotItem>> taskObjects = new ArrayList<>();
 
         tasks.forEach(task ->
-                taskObjects.add(Map.of("itemDetails",
+                taskObjects.add(Map.of(ITEM_DETAILS,
                         new BotItem.Builder()
                                 .setTitle(botTextAccessor.getObjectTitle(OBJECT_TYPE_TASK, locale, task.getNumber()))
                                 .setDescription(task.getShortDescription())
+                                .setUrl(new Link(
+                                                UriComponentsBuilder.fromUriString(baseUrl)
+                                                        .replacePath("task.do")
+                                                        .queryParam("sys_id", task.getSysId())
+                                                        .build()
+                                                        .toUriString()
+                                        )
+                                )
                                 .addAction(getDeleteTaskAction(task.getSysId(), routingPrefix, locale))
-                                .setContextId(contextId)
-                                .setWorkflowId(WF_ID_TASK)
+                                .setWorkflowId(WF_ID_VIEW_TASK)
                                 .build()))
         );
 
@@ -503,12 +519,48 @@ public class SNowBotController {
                 .build();
     }
 
+    private BotAction getViewMyTaskAction(String routingPrefix) {
+        return new BotAction.Builder()
+                .setTitle("View my tickets")
+                .setDescription("View the status of my open tickets")
+                .setType(HttpMethod.POST)
+                .setUrl(new Link(routingPrefix + "api/v1/tasks"))
+                .addReqHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .build();
+    }
+
+    private BotAction getViewTaskByNumberAction(String routingPrefix) {
+        return new BotAction.Builder()
+                .setTitle("View a ticket")
+                .setDescription("View a ticket by its numer")
+                .setType(HttpMethod.POST)
+                .setUrl(new Link(routingPrefix + "api/v1/tasks"))
+                .addReqHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .addUserInput(getTicketNumberUserInput())
+                .build();
+    }
+
     private BotActionUserInput getTicketDescriptionUserInput(Locale locale) {
         return new BotActionUserInput.Builder()
                 .setId("shortDescription")
                 .setFormat("textarea")
                 .setLabel(botTextAccessor.getMessage("createTaskAction.shortDescription.label", locale))
+                // MinLength is unnecessary from ServiceNow point of view.
+                // API allows to create without any description.
                 .setMinLength(1)
+                // I see it as 160 characters in the ServiceNow dev instance.
+                // If you try with more than limit, ServiceNow would just ignore whatever is beyond 160.
+                .setMaxLength(160)
+                .build();
+    }
+
+    private BotActionUserInput getTicketNumberUserInput() {
+        return new BotActionUserInput.Builder()
+                .setId("number")
+                .setFormat("textarea")
+                .setLabel("Please enter the ticket number you would like to view.")
+                .setMinLength(1)
+                // For now ignoring a max limit on this.
                 .build();
     }
 
@@ -519,7 +571,7 @@ public class SNowBotController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Map<String, List<Map<String, BotItem>>>> getBotDiscovery(
+    public ResponseEntity<Map<String, Object>> getBotDiscovery(
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ROUTING_PREFIX) String routingPrefix,
             @Valid @RequestBody final CardRequest cardRequest,
@@ -539,18 +591,51 @@ public class SNowBotController {
         );
     }
 
-    private Map<String, List<Map<String, BotItem>>> buildBotDiscovery(String taskType, String routingPrefix, Locale locale) {
+    private Map<String, Object> buildBotDiscovery(String taskType, String routingPrefix, Locale locale) {
         BotItem.Builder botItemBuilder = new BotItem.Builder()
-                .setTitle(botTextAccessor.getMessage("createTaskObject.title", locale))
-                .setDescription(botTextAccessor.getMessage("createTaskObject.description", locale))
+                .setTitle("ServiceNow capabilities")
+                .setDescription("ServiceNow can be used to file issue tickets.")
                 .setWorkflowId(WF_ID_CREATE_TASK)
                 .addAction(getCreateTaskAction(taskType, routingPrefix, locale));
 
-        return Map.of("objects",
-                List.of(
-                        Map.of("itemDetails", botItemBuilder.build())
+        return Map.of("objects", List.of(
+                Map.of(
+                        ITEM_DETAILS, botItemBuilder.build(),
+                        "children", List.of(
+                                Map.of(ITEM_DETAILS, describeFileATicketFlow(taskType, routingPrefix, locale)),
+                                Map.of(ITEM_DETAILS, describeReadMyTicketsFlow(routingPrefix)),
+                                Map.of(ITEM_DETAILS, describeReadTicketByNumberFlow(routingPrefix))
+                        )
+                )
                 )
         );
+    }
+
+    private BotItem describeFileATicketFlow(String taskType, String routingPrefix, Locale locale) {
+        return new BotItem.Builder()
+                .setTitle(botTextAccessor.getMessage("createTaskObject.title", locale))
+                .setDescription(botTextAccessor.getMessage("createTaskObject.description", locale))
+                .setWorkflowId(WF_ID_CREATE_TASK)
+                .addAction(getCreateTaskAction(taskType, routingPrefix, locale))
+                .build();
+    }
+
+    private BotItem describeReadMyTicketsFlow(String routingPrefix) {
+        return new BotItem.Builder()
+                .setTitle("View my tickets")
+                .setDescription("View the tickets that I currently have open")
+                .setWorkflowId(WF_ID_VIEW_TASK)
+                .addAction(getViewMyTaskAction(routingPrefix))
+                .build();
+    }
+
+    private BotItem describeReadTicketByNumberFlow(String routingPrefix) {
+        return new BotItem.Builder()
+                .setTitle("View a ticket.")
+                .setDescription("View a ticket by its number.")
+                .setWorkflowId(WF_ID_VIEW_TASK_BY_NUMBER)
+                .addAction(getViewTaskByNumberAction(routingPrefix))
+                .build();
     }
 
 
@@ -581,8 +666,8 @@ public class SNowBotController {
 
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return this.createTask(taskType, shortDescription, userEmail, baseUri, auth)
-                .map(taskNumber -> new CardRequest(Map.of("number", Set.of((String) taskNumber)), null))
-                .flatMap(taskObjReq -> getTasks(mfToken, auth, routingPrefix, baseUrl, locale, taskObjReq, 1, 0));
+                .map(ViewTaskForm::new)
+                .flatMap(viewTaskForm -> getTasks(mfToken, auth, routingPrefix, baseUrl, viewTaskForm, locale));
     }
 
     private Mono<String> createTask(String taskType, String shortDescription, String callerEmailId,
@@ -744,10 +829,10 @@ public class SNowBotController {
                 .header(AUTHORIZATION, auth)
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
-                .map(doc -> doc.read("$.result.request_number"))
+                .map(doc -> doc.<String>read("$.result.request_number"))
                 .doOnSuccess(no -> logger.debug("Ticket created {}", no))
-                .map(reqNumber -> new CardRequest(Map.of("number", Set.of((String) reqNumber)), null))
-                .flatMap(taskObjReq -> getTasks(mfToken, auth, routingPrefix, baseUrl, locale, taskObjReq, 1, 0));
+                .map(ViewTaskForm::new)
+                .flatMap(viewTaskForm -> getTasks(mfToken, auth, routingPrefix, baseUrl, viewTaskForm, locale));
 
     }
 
