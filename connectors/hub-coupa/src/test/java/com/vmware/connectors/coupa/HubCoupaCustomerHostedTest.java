@@ -70,4 +70,11 @@ class HubCoupaCustomerHostedTest extends HubCoupaControllerTestBase {
                 .expectStatus().isNotFound();
     }
 
+    @Test
+    void testFetchAttachmentForValidDetails() throws Exception {
+        mockCoupaRequest(CONFIG_SERVICE_CREDS);
+        mockFetchAttachment(CONFIG_SERVICE_CREDS);
+
+        fetchAttachment("");
+    }
 }

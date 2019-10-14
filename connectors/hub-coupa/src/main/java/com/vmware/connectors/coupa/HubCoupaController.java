@@ -556,9 +556,10 @@ public class HubCoupaController {
 
         validateEmailAddress(userEmail);
 
-        return validateUserAttachmentInfo(baseUrl, connectorAuth, userEmail, userId, approvableId, attachmentId)
+        final String authHeader = getAuthHeader(connectorAuth);
+        return validateUserAttachmentInfo(baseUrl, authHeader, userEmail, userId, approvableId, attachmentId)
                 .switchIfEmpty(Mono.error(new UserException(String.format(UNAUTHORIZED_ATTACHMENT_ACCESS, userId, attachmentId))))
-                .then(getAttachment(connectorAuth, getAttachmentURI(baseUrl, userId, attachmentId)))
+                .then(getAttachment(authHeader, getAttachmentURI(baseUrl, userId, attachmentId)))
                 .map(clientResponse -> handleClientResponse(clientResponse, fileName, attachmentId, approvableId));
     }
 
