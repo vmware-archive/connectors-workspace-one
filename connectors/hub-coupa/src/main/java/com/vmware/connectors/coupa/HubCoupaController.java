@@ -559,7 +559,7 @@ public class HubCoupaController {
         return validateUserAttachmentInfo(baseUrl, connectorAuth, userEmail, userId, approvableId, attachmentId)
                 .switchIfEmpty(Mono.error(new UserException(String.format(UNAUTHORIZED_ATTACHMENT_ACCESS, userId, attachmentId))))
                 .then(getAttachment(connectorAuth, getAttachmentURI(baseUrl, userId, attachmentId)))
-                .map(clientResponse -> handleClientResponse(clientResponse, fileName, attachmentId, approvableId));
+                .map(clientResponse -> handleClientResponse(clientResponse, fileName));
     }
 
     private Flux<Attachment> validateUserAttachmentInfo(final String baseUrl,
@@ -581,13 +581,9 @@ public class HubCoupaController {
                 .filter(attachment -> attachment.getId().equals(attachmentId));
     }
 
-    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(final ClientResponse response,
-                                                                  final String fileName,
-                                                                  final String attachmentId,
-                                                                  final String approvableId) {
+    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(final ClientResponse response, final String fileName) {
         if (response.statusCode().is2xxSuccessful()) {
             return ResponseEntity.ok()
-                    .contentType(parseMediaType(getContentType(fileName, approvableId, attachmentId)))
                     .header(CONTENT_DISPOSITION, String.format(CONTENT_DISPOSITION_FORMAT, fileName))
                     .body(response.bodyToFlux(DataBuffer.class));
         }
