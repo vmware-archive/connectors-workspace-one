@@ -101,9 +101,10 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
         Arrays.equals(result, expected);
     }
 
-    void fetchAttachmentForInvalidDetails(String authHeader) {
+    void fetchAttachmentForInvalidDetails(String authHeader) throws IOException {
         getAttachment(authHeader)
-                .expectStatus().isNotFound();
+                .expectStatus().isUnauthorized()
+                .expectBody().json(fromFile("fake/invalid_attachment_access.json"));
     }
 
     void unauthorizedAttachmentRequest(String authHeader) throws IOException {
@@ -127,7 +128,6 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
                 .header(X_AUTH_HEADER, authHeader)
                 .exchange()
                 .expectStatus().isNotFound();
-
     }
 
     WebTestClient.ResponseSpec getAttachment(String authHeader) {

@@ -587,6 +587,7 @@ public class HubCoupaController {
                 .flatMap(userDetails -> getApprovalDetails(baseUrl, userDetails.getId(), connectorAuth))
                 .filter(approvalDetails -> approvableId.equals(approvalDetails.getApprovableId()))
                 .flatMap(approvalDetails -> fetchAndFilterRequisitionDetails(baseUrl, approvalDetails.getApprovableId(), userEmail, connectorAuth))
+                .switchIfEmpty(Mono.error(new InvalidUserActionException(String.format(UNAUTHORIZED_ATTACHMENT_ACCESS, userId, attachmentId))))
                 .flatMap(requisitionDetails -> validateAttachment(requisitionDetails.getAttachments(), attachmentId));
     }
 
