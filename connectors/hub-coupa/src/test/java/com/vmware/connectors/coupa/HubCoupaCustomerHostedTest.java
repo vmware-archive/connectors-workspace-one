@@ -34,6 +34,7 @@ class HubCoupaCustomerHostedTest extends HubCoupaControllerTestBase {
             "should-be-ignored"
     })
     void testApproveRequests(String authHeader) throws Exception {
+        mockUserDetails(CONFIG_SERVICE_CREDS);
         mockApproveActions(CONFIG_SERVICE_CREDS);
 
         approveRequest(authHeader)
@@ -43,10 +44,12 @@ class HubCoupaCustomerHostedTest extends HubCoupaControllerTestBase {
     @Test
     void testUnauthorizedApproveRequest() throws Exception {
         // User tries to approve a report that isn't theirs
+        mockUserDetails(CONFIG_SERVICE_CREDS);
         mockOtherRequisitionDetails(CONFIG_SERVICE_CREDS);
 
         approveRequest("")
-                .expectStatus().isNotFound();
+                .expectStatus().isUnauthorized()
+                .expectBody().json(fromFile("connector/responses/invalid_user_action.json"));
     }
 
     @ParameterizedTest
@@ -55,6 +58,7 @@ class HubCoupaCustomerHostedTest extends HubCoupaControllerTestBase {
             "should-be-ignored"
     })
     void testRejectRequests(String authHeader) throws Exception {
+        mockUserDetails(CONFIG_SERVICE_CREDS);
         mockRejectActions(CONFIG_SERVICE_CREDS);
 
         rejectRequest(authHeader)
@@ -64,10 +68,11 @@ class HubCoupaCustomerHostedTest extends HubCoupaControllerTestBase {
     @Test
     void testUnauthorizedRejectRequest() throws Exception {
         // User tries to reject a report that isn't theirs
+        mockUserDetails(CONFIG_SERVICE_CREDS);
         mockOtherRequisitionDetails(CONFIG_SERVICE_CREDS);
 
         rejectRequest("")
-                .expectStatus().isNotFound();
+                .expectStatus().isUnauthorized()
+                .expectBody().json(fromFile("connector/responses/invalid_user_action.json"));
     }
-
 }

@@ -101,9 +101,10 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
         Arrays.equals(result, expected);
     }
 
-    void fetchAttachmentForInvalidDetails(String authHeader) {
+    void fetchAttachmentForInvalidDetails(String authHeader) throws IOException {
         getAttachment(authHeader)
-                .expectStatus().isNotFound();
+                .expectStatus().isUnauthorized()
+                .expectBody().json(fromFile("fake/invalid_attachment_access.json"));
     }
 
     void unauthorizedAttachmentRequest(String authHeader) throws IOException {
@@ -127,10 +128,9 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
                 .header(X_AUTH_HEADER, authHeader)
                 .exchange()
                 .expectStatus().isNotFound();
-
     }
 
-    private WebTestClient.ResponseSpec getAttachment(String authHeader) {
+    WebTestClient.ResponseSpec getAttachment(String authHeader) {
         String uri = "/api/user/15882/182964/attachment/response.png/2701685";
         return webClient.get()
                 .uri(uri)
@@ -177,25 +177,46 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
     }
 
     void mockApproval(String serviceCredential) throws Exception {
-        mockBackend.expect(requestTo("/api/approvals?approver_id=15882&status=pending_approval"))
-                .andExpect(method(GET))
-                .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
-                .andExpect(header(AUTHORIZATION_HEADER_NAME, serviceCredential))
+        approval(serviceCredential)
                 .andRespond(withSuccess(
                         fromFile("/fake/approvals.json").replace("${coupa_host}", mockBackend.url("")),
                         APPLICATION_JSON
                 ));
     }
 
-    void mockUserDetails(String serviceCredential) throws Exception {
-        mockBackend.expect(requestTo("/api/users?email=admin%40acme.com"))
+    void mockEmptyApproval(String serviceCredential) throws IOException {
+        approval(serviceCredential)
+                .andRespond(withSuccess(fromFile("fake/empty-approval.json"), APPLICATION_JSON));
+    }
+
+    private ResponseActions approval(String serviceCredential) {
+        return mockBackend.expect(requestTo("/api/approvals?approver_id=15882&status=pending_approval"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
-                .andExpect(header(AUTHORIZATION_HEADER_NAME, serviceCredential))
+                .andExpect(header(AUTHORIZATION_HEADER_NAME, serviceCredential));
+    }
+
+    void mockUserDetails(String serviceCredential) throws Exception {
+        userDetails(serviceCredential)
                 .andRespond(withSuccess(
                         fromFile("/fake/user-details.json").replace("${coupa_host}", mockBackend.url("")),
                         APPLICATION_JSON
                 ));
+    }
+
+    void mockEmptyUserDetails(String serviceCredential) throws IOException {
+        userDetails(serviceCredential)
+                .andRespond(withSuccess(
+                        fromFile("fake/empty-user-details.json").replace("${coupa_host}", mockBackend.url("")),
+                        APPLICATION_JSON
+                ));
+    }
+
+    private ResponseActions userDetails(String serviceCredential) {
+        return mockBackend.expect(requestTo("/api/users?email=admin%40acme.com"))
+                .andExpect(method(GET))
+                .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION_HEADER_NAME, serviceCredential));
     }
 
     void mockApproveAction(String serviceCredential) {
@@ -215,14 +236,23 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
     }
 
     void mockRequisitionDetails(String serviceCredential) throws Exception {
-        mockBackend.expect(requestTo("/api/requisitions?id=182964&status=pending_approval"))
-                .andExpect(method(GET))
-                .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
-                .andExpect(header(AUTHORIZATION_HEADER_NAME, serviceCredential))
+        requisitionDetails(serviceCredential)
                 .andRespond(withSuccess(
                         fromFile("/fake/requisition-details.json").replace("${coupa_host}", mockBackend.url("")),
                         APPLICATION_JSON
                 ));
+    }
+
+    void mockEmptyRequisitionDetails(String serviceCredential) throws IOException {
+        requisitionDetails(serviceCredential)
+                .andRespond(withSuccess(fromFile("fake/empty-requisition-details.json"), APPLICATION_JSON));
+    }
+
+    private ResponseActions requisitionDetails(String serviceCredential) {
+        return mockBackend.expect(requestTo("/api/requisitions?id=182964&status=pending_approval"))
+                .andExpect(method(GET))
+                .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andExpect(header(AUTHORIZATION_HEADER_NAME, serviceCredential));
     }
 
     void mockOtherRequisitionDetails(String serviceCredential) throws Exception {
