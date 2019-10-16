@@ -66,7 +66,7 @@ public class HubCoupaController {
 
     private static final String UNAUTHORIZED_ATTACHMENT_ACCESS = "User with approvable ID: %s is trying to fetch an attachment with ID: %s which does not belong to them.";
     private static final String USER_NOT_FOUND = "User with email id [%s] is not found.";
-    private static final String INVALID_USER_ACTION = "User with email id [%s] is not authorized the approve/reject the expense report with approvable id [%s].";
+    private static final String INVALID_USER_ACTION = "User with email id [%s] is not authorized to approve/reject the expense report with approvable id [%s].";
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
