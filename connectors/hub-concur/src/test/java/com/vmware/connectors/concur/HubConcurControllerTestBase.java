@@ -341,6 +341,13 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
                 .andRespond(withSuccess());
     }
 
+    void mockInvalidUserDetails(String userDetails) throws IOException {
+        mockBackend.expect(requestTo("/api/v3.0/common/users?primaryEmail=admin%40acme.com"))
+                .andExpect(method(GET))
+                .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(fromFile(userDetails), APPLICATION_JSON));
+    }
+
     public static class CustomInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
         @Override

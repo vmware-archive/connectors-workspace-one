@@ -10,6 +10,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.test.context.TestPropertySource;
 
+import java.io.IOException;
+
 /**
  * Test cases with empty service api key from configuration.
  */
@@ -34,6 +36,7 @@ class HubCoupaOotbTest extends HubCoupaControllerTestBase {
 
     @Test
     void testApproveRequest() throws Exception {
+        mockUserDetails(CALLER_SERVICE_CREDS);
         mockApproveActions(CALLER_SERVICE_CREDS);
 
         approveRequest(CALLER_SERVICE_CREDS)
@@ -49,14 +52,17 @@ class HubCoupaOotbTest extends HubCoupaControllerTestBase {
     @Test
     void testUnauthorizedApproveRequest() throws Exception {
         // User tries to approve a report that isn't theirs
+        mockUserDetails(CALLER_SERVICE_CREDS);
         mockOtherRequisitionDetails(CALLER_SERVICE_CREDS);
 
         approveRequest(CALLER_SERVICE_CREDS)
-                .expectStatus().isNotFound();
+                .expectStatus().isUnauthorized()
+                .expectBody().json(fromFile("connector/responses/invalid_user_action.json"));
     }
 
     @Test
     void testRejectRequest() throws Exception {
+        mockUserDetails(CALLER_SERVICE_CREDS);
         mockRejectActions(CALLER_SERVICE_CREDS);
 
         rejectRequest(CALLER_SERVICE_CREDS)
@@ -72,10 +78,12 @@ class HubCoupaOotbTest extends HubCoupaControllerTestBase {
     @Test
     void testUnauthorizedRejectRequest() throws Exception {
         // User tries to reject a report that isn't theirs
+        mockUserDetails(CALLER_SERVICE_CREDS);
         mockOtherRequisitionDetails(CALLER_SERVICE_CREDS);
 
         rejectRequest(CALLER_SERVICE_CREDS)
-                .expectStatus().isNotFound();
+                .expectStatus().isUnauthorized()
+                .expectBody().json(fromFile("connector/responses/invalid_user_action.json"));
     }
 
     @Test
@@ -122,5 +130,53 @@ class HubCoupaOotbTest extends HubCoupaControllerTestBase {
         mockRequisitionDetails(CALLER_SERVICE_CREDS);
 
         fetchInvalidAttachmentId(CALLER_SERVICE_CREDS);
+    }
+
+    @Test
+    void testCardReqWhenUserNotFound() throws IOException {
+        mockEmptyUserDetails(CALLER_SERVICE_CREDS);
+
+        cardsRequest("", CALLER_SERVICE_CREDS)
+                .expectStatus().isNotFound()
+                .expectBody().json(fromFile("connector/responses/user_not_found_error.json"));
+    }
+
+    @Test
+    void testCardReqWithEmptyRequisitionDetails() throws Exception {
+        mockUserDetails(CALLER_SERVICE_CREDS);
+        mockApproval(CALLER_SERVICE_CREDS);
+        mockEmptyRequisitionDetails(CALLER_SERVICE_CREDS);
+
+        cardsRequest("", CALLER_SERVICE_CREDS)
+                .expectStatus().isOk()
+                .expectBody().json(fromFile("connector/responses/empty_card_response.json"));
+    }
+
+    @Test
+    void testCardReqWithEmptyApprovals() throws Exception {
+        mockUserDetails(CALLER_SERVICE_CREDS);
+        mockEmptyApproval(CALLER_SERVICE_CREDS);
+
+        cardsRequest("", CALLER_SERVICE_CREDS)
+                .expectStatus().isOk()
+                .expectBody().json(fromFile("connector/responses/empty_card_response.json"));
+    }
+
+    @Test
+    void testApproveWhenUserNotFound() throws IOException {
+        mockEmptyUserDetails(CALLER_SERVICE_CREDS);
+
+        approveRequest(CALLER_SERVICE_CREDS)
+                .expectStatus().isNotFound()
+                .expectBody().json(fromFile("connector/responses/user_not_found_error.json"));
+    }
+
+    @Test
+    void testRejectWhenUserNotFound() throws Exception {
+        mockEmptyUserDetails(CALLER_SERVICE_CREDS);
+
+        rejectRequest(CALLER_SERVICE_CREDS)
+                .expectStatus().isNotFound()
+                .expectBody().json(fromFile("connector/responses/user_not_found_error.json"));
     }
 }

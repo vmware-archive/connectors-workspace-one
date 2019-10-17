@@ -5,6 +5,8 @@
 
 package com.vmware.connectors.servicenow.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 @SuppressWarnings("PMD.LinguisticNaming")
 public class BotActionUserInput {
 
@@ -14,7 +16,11 @@ public class BotActionUserInput {
 
     private String format;
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private int minLength;
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private int maxLength;
 
     private BotActionUserInput() {
 
@@ -34,6 +40,10 @@ public class BotActionUserInput {
 
     public int getMinLength() {
         return minLength;
+    }
+
+    public int getMaxLength() {
+        return maxLength;
     }
 
     public static class Builder {
@@ -71,6 +81,11 @@ public class BotActionUserInput {
 
         public Builder setMinLength(int minLength) {
             actionUserInput.minLength = minLength;
+            return this;
+        }
+
+        public Builder setMaxLength(int maxLength) {
+            actionUserInput.maxLength = maxLength;
             return this;
         }
 

@@ -4,16 +4,18 @@
       "itemDetails": {
         "id": "00000000-0000-0000-0000-000000000000",
         "title": "ServiceNow ticket: TKT0010001",
-        "contextId": "task-context-1",
         "description": "Via connector action",
-        "workflowId": "ViewTask",
+        "workflowId": "vmw_GET_TICKET_STATUS",
+        "url": {
+          "href":"https://dev15329.service-now.com/task.do?sys_id=f8cfe469db153300ea92eb41ca96198b"
+        },
         "actions": [
           {
             "title": "Delete ticket",
             "description": "Delete this ticket from ServiceNow.",
             "type": "DELETE",
             "url": {
-              "href": "https://mf/connectors/abc123/task/api/v1/tasks/f8cfe469db153300ea92eb41ca96198b"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/tasks/f8cfe469db153300ea92eb41ca96198b"
             },
             "payload": {},
             "headers": {
@@ -28,16 +30,18 @@
       "itemDetails": {
         "id": "00000000-0000-0000-0000-000000000000",
         "title": "ServiceNow ticket: TKT0010002",
-        "contextId": "task-context-1",
         "description": "Via connector action 2",
-        "workflowId": "ViewTask",
+        "workflowId": "vmw_GET_TICKET_STATUS",
+        "url": {
+          "href":"https://dev15329.service-now.com/task.do?sys_id=f9817ca9db153300ea92eb41ca9619d7"
+        },
         "actions": [
           {
             "title": "Delete ticket",
             "description": "Delete this ticket from ServiceNow.",
             "type": "DELETE",
             "url": {
-              "href": "https://mf/connectors/abc123/task/api/v1/tasks/f9817ca9db153300ea92eb41ca9619d7"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/tasks/f9817ca9db153300ea92eb41ca9619d7"
             },
             "payload": {},
             "headers": {
