@@ -12,6 +12,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.io.IOException;
 
+import static com.vmware.connectors.common.utils.CommonUtils.BACKEND_STATUS;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 /**
@@ -212,5 +213,14 @@ class HubConcurOotbTest extends HubConcurControllerTestBase {
         rejectRequest(CALLER_SERVICE_CREDS)
                 .expectStatus().isNotFound()
                 .expectBody().json(fromFile("connector/responses/user_login_not_found.json"));
+    }
+
+    @Test
+    void testForbiddenException() throws Exception {
+        mockOAuthForbiddenException(CALLER_SERVICE_CREDS);
+
+        cardsRequest("", CALLER_SERVICE_CREDS)
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals(BACKEND_STATUS, "401");
     }
 }

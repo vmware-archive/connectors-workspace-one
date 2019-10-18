@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,13 +38,11 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static com.vmware.connectors.common.utils.CommonUtils.APPROVAL_ACTIONS;
+import static com.vmware.connectors.common.utils.CommonUtils.BACKEND_STATUS;
 import static com.vmware.connectors.concur.ConcurConstants.ConcurRequestActions.*;
 import static com.vmware.connectors.concur.ConcurConstants.ConcurResponseActions.SUBMITTED_AND_PENDING_APPROVAL;
 import static com.vmware.connectors.concur.ConcurConstants.Fields.CONCUR_AUTOMATED_EMAIL_SUBJECT;
@@ -51,6 +50,7 @@ import static com.vmware.connectors.concur.ConcurConstants.Fields.EXPENSE_REPORT
 import static com.vmware.connectors.concur.ConcurConstants.Header.*;
 import static com.vmware.connectors.concur.ConcurConstants.RequestParam.REASON;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.*;
 
 @RestController
@@ -163,18 +163,27 @@ public class ConcurController {
     }
 
     private Throwable handleForbiddenError(WebClientResponseException e) {
-        // Concur gives a 403 instead of a 401 when the password is bad, so we must convert it
+        // Concur returns 403 when the auth params are invalid. We have to convert the exception to return BAD REQUEST(400) with X-Backend-Status as 401.
         if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
+            final HttpHeaders headers = copyHeaders(e.getHeaders().toSingleValueMap());
+            headers.set(BACKEND_STATUS, String.valueOf(UNAUTHORIZED.value()));
+
             return new WebClientResponseException(
                     e.getMessage(),
-                    HttpStatus.UNAUTHORIZED.value(),
+                    UNAUTHORIZED.value(),
                     e.getStatusText(),
-                    e.getHeaders(),
+                    headers,
                     e.getResponseBodyAsByteArray(),
                     StandardCharsets.UTF_8
             );
         }
         return e;
+    }
+
+    private HttpHeaders copyHeaders(final Map<String, String> headerMap) {
+        final HttpHeaders headers = new HttpHeaders();
+        headerMap.forEach(headers::add);
+        return headers;
     }
 
     private MultiValueMap<String, String> getBody(String clientId, String clientSecret, String userName, String password) {

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -151,17 +152,26 @@ public class HubConcurController {
     }
 
     public Throwable handleForbiddenException(WebClientResponseException e) {
-        // We have to convert the exception to return UNAUTHORIZED(401), since concur returns FORBIDDEN(403) for invalid credentials.
+        // Concur returns 403 when the auth params are invalid. We have to convert the exception to return BAD REQUEST(400) with X-Backend-Status as 401.
         if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
+            final HttpHeaders headers = copyHeaders(e.getHeaders().toSingleValueMap());
+            headers.set(BACKEND_STATUS, String.valueOf(UNAUTHORIZED.value()));
+
             return new WebClientResponseException(
                     e.getMessage(),
-                    HttpStatus.UNAUTHORIZED.value(),
+                    UNAUTHORIZED.value(),
                     e.getStatusText(),
-                    e.getHeaders(),
+                    headers,
                     e.getResponseBodyAsByteArray(),
                     StandardCharset.UTF_8);
         }
         return e;
+    }
+
+    private HttpHeaders copyHeaders(final Map<String, String> headerMap) {
+        final HttpHeaders headers = new HttpHeaders();
+        headerMap.forEach(headers::add);
+        return headers;
     }
 
     private MultiValueMap<String, String> getBody(final String username,
