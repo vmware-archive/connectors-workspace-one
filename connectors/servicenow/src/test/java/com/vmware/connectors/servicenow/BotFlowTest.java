@@ -223,7 +223,7 @@ class BotFlowTest extends ControllerTestsBase {
         // For creating task object.
         String taskNumber = "TKT0010006";
 
-        expectTaskReqByNumber(taskNumber, "/botflows/servicenow/response/ticket_mouse_not_working.json");
+        expectTaskReqByNumber(taskType, taskNumber, "/botflows/servicenow/response/ticket_mouse_not_working.json");
 
         MultiValueMap<String, String> actionFormData = new LinkedMultiValueMap<>();
         actionFormData.set("type", taskType);
@@ -323,7 +323,7 @@ class BotFlowTest extends ControllerTestsBase {
 
         String reqNumber = "REQ0010033"; // Checkout request ticket number.
         // To deliver task object.
-        expectTaskReqByNumber(reqNumber, "/botflows/servicenow/response/ticket_checkout_request.json");
+        expectTaskReqByNumber("task", reqNumber, "/botflows/servicenow/response/ticket_checkout_request.json");
 
         String body = performAction(POST, "/api/v1/checkout", SNOW_AUTH_TOKEN, null)
                 .expectStatus().is2xxSuccessful()
@@ -336,8 +336,8 @@ class BotFlowTest extends ControllerTestsBase {
         assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/checkout.json")).allowingAnyArrayOrdering());
     }
 
-    private void expectTaskReqByNumber(String taskNumber, String sNowResponseFile) throws IOException {
-        mockBackend.expect(requestToUriTemplate("/api/now/table/task?number={taskNumber}", taskNumber))
+    private void expectTaskReqByNumber(String taskType, String taskNumber, String sNowResponseFile) throws IOException {
+        mockBackend.expect(requestToUriTemplate("/api/now/table/{taskType}?number={taskNumber}", taskType, taskNumber))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile(sNowResponseFile), APPLICATION_JSON));

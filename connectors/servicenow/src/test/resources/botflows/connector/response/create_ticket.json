@@ -9,13 +9,14 @@
         "url": {
           "href":"https://dev15329.service-now.com/task.do?sys_id=00909613db113300ea92eb41ca961949"
         },
+        "type": "confirmation",
         "actions": [
           {
             "title": "Delete ticket",
             "description": "Delete this ticket from ServiceNow.",
             "type": "DELETE",
             "url": {
-              "href": "https://mf/connectors/abc123/task/api/v1/tasks/00909613db113300ea92eb41ca961949"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/tasks/00909613db113300ea92eb41ca961949"
             },
             "payload": {},
             "headers": {

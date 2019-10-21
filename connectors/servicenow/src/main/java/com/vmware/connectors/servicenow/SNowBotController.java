@@ -305,37 +305,42 @@ public class SNowBotController {
         logger.trace("getTasks for type={}, baseUrl={}, userEmail={}, ticketsLimit={}, routingTemplate={}",
                 taskType, baseUrl, userEmail, ticketsLimit, routingPrefixTemplate);
 
-        URI taskUri = buildTasksUriByReqParam(taskType, taskNumber, userEmail, baseUrl, ticketsLimit);
+        URI taskUri;
+        if (StringUtils.isBlank(taskNumber)) {
+            taskUri = buildTaskUriReadUserTickets(taskType, userEmail, baseUrl, ticketsLimit);
+        } else {
+            taskUri = buildTaskUriReadByNumber(taskType, taskNumber, baseUrl);
+        }
 
         String routingPrefix = routingPrefixTemplate.replace(INSERT_OBJECT_TYPE, OBJECT_TYPE_BOT_DISCOVERY);
 
         return retrieveTasks(taskUri, auth)
-                .map(taskList -> toTaskBotObj(taskList, routingPrefix, baseUrl, locale));
+                .map(taskList -> toTaskBotObj(taskList, routingPrefix, baseUrl, "status", locale));
     }
 
-    private URI buildTasksUriByReqParam(String taskType, String taskNumber, String userEmail, String baseUrl, int limit) {
-        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
+    private URI buildTaskUriReadByNumber(String taskType, String taskNumber, String baseUrl) {
+        // If task number is provided, maybe it doesn't matter to apply the filter about who created the ticket.
+        // Also, we will show the ticket even if its closed.
+        return UriComponentsBuilder
                 .fromUriString(baseUrl)
                 .replacePath("/api/now/table/")
-                .path(taskType);
-
-        if (StringUtils.isBlank(taskNumber)) {
-            uriComponentsBuilder
-                    .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
-                    .queryParam(SNOW_SYS_PARAM_OFFSET, 0)
-                    .queryParam("opened_by.email", userEmail)
-                    .queryParam("active", true)   // Ignore already closed tickets.
-                    .queryParam("sysparm_query", "ORDERBYDESCsys_created_on"); // Order by latest created tickets.
-
-        } else {
-            // If task number is provided, may be it doesn't matter to apply the filter about who created the ticket.
-            // We will show it even if its closed.
-            uriComponentsBuilder
-                    .queryParam(NUMBER, taskNumber);
-        }
-
-        return uriComponentsBuilder
+                .path(taskType)
+                .queryParam(NUMBER, taskNumber)
                 .encode().build().toUri();
+    }
+
+    private URI buildTaskUriReadUserTickets(String taskType, String userEmail, String baseUrl, int limit) {
+        return UriComponentsBuilder
+                .fromUriString(baseUrl)
+                .replacePath("/api/now/table/")
+                .path(taskType)
+                .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
+                .queryParam(SNOW_SYS_PARAM_OFFSET, 0)
+                .queryParam("opened_by.email", userEmail)
+                .queryParam("active", true)   // Ignore already closed tickets.
+                .queryParam("sysparm_query", "ORDERBYDESCsys_created_on") // Order by latest created tickets.
+                .encode().build().toUri();
+
     }
 
     private Mono<List<Task>> retrieveTasks(URI taskUri, String auth) {
@@ -347,7 +352,8 @@ public class SNowBotController {
                 .map(TaskResults::getResult);
     }
 
-    private Map<String, List<Map<String, BotItem>>> toTaskBotObj(List<Task> tasks, String routingPrefix, String baseUrl, Locale locale) {
+    private Map<String, List<Map<String, BotItem>>> toTaskBotObj(List<Task> tasks, String routingPrefix, String baseUrl,
+                                                                 String uiType, Locale locale) {
         List<Map<String, BotItem>> taskObjects = new ArrayList<>();
 
         tasks.forEach(task ->
@@ -363,6 +369,7 @@ public class SNowBotController {
                                                         .toUriString()
                                         )
                                 )
+                                .setType(uiType)
                                 .addAction(getDeleteTaskAction(task.getSysId(), routingPrefix, locale))
                                 .setWorkflowId(WF_ID_VIEW_TASK)
                                 .build()))
@@ -662,12 +669,13 @@ public class SNowBotController {
 
         logger.trace("createTicket for baseUrl={}, taskType={}, userEmail={}, routingTemplate={}", baseUrl, taskType, userEmail, routingPrefixTemplate);
 
-        String routingPrefix = routingPrefixTemplate.replace(INSERT_OBJECT_TYPE, OBJECT_TYPE_TASK);
+        String routingPrefix = routingPrefixTemplate.replace(INSERT_OBJECT_TYPE, OBJECT_TYPE_BOT_DISCOVERY);
 
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
         return this.createTask(taskType, shortDescription, userEmail, baseUri, auth)
-                .map(ViewTaskForm::new)
-                .flatMap(viewTaskForm -> getTasks(mfToken, auth, routingPrefix, baseUrl, viewTaskForm, locale));
+                .map(taskNumber -> buildTaskUriReadByNumber(taskType, taskNumber, baseUrl))
+                .flatMap(readTaskUri -> retrieveTasks(readTaskUri, auth))
+                .map(retrieved -> toTaskBotObj(retrieved, routingPrefix, baseUrl, "confirmation", locale));
     }
 
     private Mono<String> createTask(String taskType, String shortDescription, String callerEmailId,

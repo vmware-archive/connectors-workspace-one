@@ -43,6 +43,9 @@ public class BotItem {
     @JsonProperty("url")
     private Link url;
 
+    @JsonProperty("type")
+    private String type;
+
     @JsonInclude(NON_EMPTY)
     @JsonProperty("actions")
     private final List<BotAction> actions;
@@ -80,6 +83,10 @@ public class BotItem {
 
     public Link getUrl() {
         return url;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public List<BotAction> getActions() {
@@ -140,6 +147,12 @@ public class BotItem {
         // Its a link to the resource at the backend. Ex - ServiceNow ticket link.
         public Builder setUrl(Link resourceUrl) {
             botItem.url = resourceUrl;
+            return this;
+        }
+
+        // It is a hint for the UI layer, to determine about how to layout the data.
+        public Builder setType(String uiType) {
+            botItem.type = uiType;
             return this;
         }
 
