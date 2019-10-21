@@ -9,6 +9,7 @@
         "url": {
           "href":"https://dev15329.service-now.com/task.do?sys_id=f8cfe469db153300ea92eb41ca96198b"
         },
+        "type": "status",
         "actions": [
           {
             "title": "Delete ticket",
@@ -35,6 +36,7 @@
         "url": {
           "href":"https://dev15329.service-now.com/task.do?sys_id=f9817ca9db153300ea92eb41ca9619d7"
         },
+        "type": "status",
         "actions": [
           {
             "title": "Delete ticket",
