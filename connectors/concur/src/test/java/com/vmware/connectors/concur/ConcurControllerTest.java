@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.vmware.connectors.common.utils.CommonUtils.BACKEND_STATUS;
 import static com.vmware.connectors.concur.ConcurConstants.RequestParam.REASON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -202,7 +203,7 @@ class ConcurControllerTest extends ControllerTestsBase {
     private void mockExpenseReport(final String uri,
                                    final String expenseReportId,
                                    final Resource expectedResponse,
-                                   final String workflowActionUrl) throws Exception {
+                                   final String workflowActionUrl) {
         mockBackend.expect(requestTo(workflowActionUrl))
                 .andExpect(method(POST))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, "Bearer abc"))
@@ -330,6 +331,19 @@ class ConcurControllerTest extends ControllerTestsBase {
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectHeader().valueEquals("x-backend-status", "401");
+    }
+
+    @Test
+    void testForbiddenException() throws Exception {
+        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(MockRestRequestMatchers.content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andRespond(withStatus(HttpStatus.FORBIDDEN));
+
+        requestCards("request.json")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals(BACKEND_STATUS, "401");
     }
 
     private void testRequestCards(final String requestFile,

@@ -25,6 +25,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
+import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -318,20 +319,34 @@ class HubConcurControllerTestBase extends ControllerTestsBase {
     }
 
     void mockOAuthToken(String serviceCredential) {
+        oauthToken(serviceCredential)
+                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
+    }
+
+    void mockOAuthForbiddenException(String serviceCredential) {
+        oauthToken(serviceCredential)
+                .andRespond(withStatus(HttpStatus.FORBIDDEN));
+    }
+
+    private ResponseActions oauthToken(String serviceCredential) {
+        final MultiValueMap<String, String> body = getFormData(serviceCredential);
+
+        return mockConcurServer.expect(requestTo("/oauth2/v0/token"))
+                .andExpect(method(POST))
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
+                .andExpect(content().formData(body));
+    }
+
+    private MultiValueMap<String, String> getFormData(String serviceCredential) {
         final String[] authValues = serviceCredential.split(":");
 
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.put(USERNAME, List.of(authValues[0]));
         body.put(PASSWORD, List.of(authValues[1]));
         body.put(CLIENT_ID, List.of(authValues[2]));
         body.put(CLIENT_SECRET, List.of(authValues[3]));
         body.put(GRANT_TYPE, List.of(PASSWORD));
-
-        mockConcurServer.expect(requestTo("/oauth2/v0/token"))
-                .andExpect(method(POST))
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_FORM_URLENCODED))
-                .andExpect(content().formData(body))
-                .andRespond(withSuccess(oauthToken, APPLICATION_JSON));
+        return body;
     }
 
     void mockReport1Action() {
