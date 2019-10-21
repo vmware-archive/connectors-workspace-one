@@ -75,4 +75,12 @@ class HubCoupaCustomerHostedTest extends HubCoupaControllerTestBase {
                 .expectStatus().isUnauthorized()
                 .expectBody().json(fromFile("connector/responses/invalid_user_action.json"));
     }
+
+    @Test
+    void testFetchAttachmentForValidDetails() throws Exception {
+        mockCoupaRequest(CONFIG_SERVICE_CREDS);
+        mockFetchAttachment(CONFIG_SERVICE_CREDS);
+
+        fetchAttachment("");
+    }
 }
