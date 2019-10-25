@@ -31,6 +31,9 @@ public class BotItem {
     @JsonProperty("title")
     private String title;
 
+    @JsonProperty("subtitle")
+    private String subtitle;
+
     @JsonProperty("shortDescription")
     private String shortDescription;
 
@@ -67,6 +70,10 @@ public class BotItem {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
     }
 
     public String getShortDescription() {
@@ -126,6 +133,11 @@ public class BotItem {
 
         public Builder setTitle(String title) {
             botItem.title = title;
+            return this;
+        }
+
+        public Builder setSubtitle(String subtitle) {
+            botItem.subtitle = subtitle;
             return this;
         }
 

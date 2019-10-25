@@ -4,6 +4,7 @@
       "itemDetails": {
         "id": "00000000-0000-0000-0000-000000000000",
         "title": "ServiceNow ticket: TKT0010006",
+        "subtitle": "Open",
         "description": "My mouse is not working.",
         "workflowId": "vmw_GET_TICKET_STATUS",
         "url": {

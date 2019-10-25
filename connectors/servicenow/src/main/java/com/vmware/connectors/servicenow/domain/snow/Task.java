@@ -19,6 +19,8 @@ public class Task {
 
     private String sysId;
 
+    private String state;
+
     public String getNumber() {
         return number;
     }
@@ -53,5 +55,14 @@ public class Task {
     @JsonProperty("sys_id")
     public void setSysId(String sysId) {
         this.sysId = sysId;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    @JsonProperty("state")
+    public void setState(String state) {
+        this.state = state;
     }
 }
