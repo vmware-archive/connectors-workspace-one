@@ -18,7 +18,7 @@
       "link": "https://dev71231.service-now.com/api/now/table/sys_user_group/global",
       "value": "global"
     },
-    "state": "1",
+    "state": "Open",
     "sys_created_by": "shree",
     "knowledge": "false",
     "order": "",

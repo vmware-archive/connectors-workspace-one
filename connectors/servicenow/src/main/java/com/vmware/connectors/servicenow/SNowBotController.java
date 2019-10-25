@@ -325,6 +325,7 @@ public class SNowBotController {
                 .fromUriString(baseUrl)
                 .replacePath("/api/now/table/")
                 .path(taskType)
+                .queryParam("sysparm_display_value", true)
                 .queryParam(NUMBER, taskNumber)
                 .encode().build().toUri();
     }
@@ -334,6 +335,7 @@ public class SNowBotController {
                 .fromUriString(baseUrl)
                 .replacePath("/api/now/table/")
                 .path(taskType)
+                .queryParam("sysparm_display_value", true) // We want to show label, not code.
                 .queryParam(SNOW_SYS_PARAM_LIMIT, limit)
                 .queryParam(SNOW_SYS_PARAM_OFFSET, 0)
                 .queryParam("opened_by.email", userEmail)
@@ -360,6 +362,7 @@ public class SNowBotController {
                 taskObjects.add(Map.of(ITEM_DETAILS,
                         new BotItem.Builder()
                                 .setTitle(botTextAccessor.getObjectTitle(OBJECT_TYPE_TASK, locale, task.getNumber()))
+                                .setSubtitle(task.getState())
                                 .setDescription(task.getShortDescription())
                                 .setUrl(new Link(
                                                 UriComponentsBuilder.fromUriString(baseUrl)

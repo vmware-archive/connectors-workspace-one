@@ -4,6 +4,7 @@
       "itemDetails": {
         "id": "00000000-0000-0000-0000-000000000000",
         "title": "ServiceNow ticket: TKT0010001",
+        "subtitle": "Open",
         "description": "Via connector action",
         "workflowId": "vmw_GET_TICKET_STATUS",
         "url": {
@@ -31,6 +32,7 @@
       "itemDetails": {
         "id": "00000000-0000-0000-0000-000000000000",
         "title": "ServiceNow ticket: TKT0010002",
+        "subtitle": "Open",
         "description": "Via connector action 2",
         "workflowId": "vmw_GET_TICKET_STATUS",
         "url": {

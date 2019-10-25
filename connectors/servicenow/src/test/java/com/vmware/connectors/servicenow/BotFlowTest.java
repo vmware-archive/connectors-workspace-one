@@ -140,7 +140,8 @@ class BotFlowTest extends ControllerTestsBase {
     void testViewMyTasksAction() throws Exception {
         String userEmailId = "admin@acme.com";
         mockBackend.expect(requestToUriTemplate(
-                "/api/now/table/task?sysparm_limit=5&sysparm_offset=0&opened_by.email={userEmailId}&active=true&sysparm_query=ORDERBYDESCsys_created_on",
+                "/api/now/table/task?sysparm_display_value=true&sysparm_limit=5&sysparm_offset=0" +
+                        "&opened_by.email={userEmailId}&active=true&sysparm_query=ORDERBYDESCsys_created_on",
                 userEmailId))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
@@ -337,7 +338,8 @@ class BotFlowTest extends ControllerTestsBase {
     }
 
     private void expectTaskReqByNumber(String taskType, String taskNumber, String sNowResponseFile) throws IOException {
-        mockBackend.expect(requestToUriTemplate("/api/now/table/{taskType}?number={taskNumber}", taskType, taskNumber))
+        mockBackend.expect(requestToUriTemplate("/api/now/table/{taskType}?sysparm_display_value=true&number={taskNumber}",
+                taskType, taskNumber))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile(sNowResponseFile), APPLICATION_JSON));
