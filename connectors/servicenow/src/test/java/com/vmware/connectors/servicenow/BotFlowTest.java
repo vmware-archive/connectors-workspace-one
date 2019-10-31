@@ -93,7 +93,7 @@ class BotFlowTest extends ControllerTestsBase {
         String searchText = "laptop";
         String categoryId = "d258b953c611227a0146101fb1be7c31";
         mockBackend.expect(requestToUriTemplate("/api/sn_sc/servicecatalog/items" +
-                "?sysparm_text={searchText}" +
+                        "?sysparm_text={searchText}" +
                         "&sysparm_category={categoryId}" +
                         "&sysparm_limit=10&sysparm_offset=0",
                 searchText, categoryId))
@@ -156,6 +156,28 @@ class BotFlowTest extends ControllerTestsBase {
                 .block();
 
         assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/task_ticket.json")).allowingAnyArrayOrdering());
+    }
+
+    @Test
+    void testViewMyTasksActionShouldReturnServiceNowUrlWhenMoreThanFiveOpenTickets() throws Exception {
+        String userEmailId = "admin@acme.com";
+        mockBackend.expect(requestToUriTemplate(
+                "/api/now/table/task?sysparm_display_value=true&sysparm_limit=5&sysparm_offset=0" +
+                        "&opened_by.email={userEmailId}&active=true&sysparm_query=ORDERBYDESCsys_created_on",
+                userEmailId))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("/botflows/servicenow/response/task_ticket_more_than_5.json"), APPLICATION_JSON));
+
+        String body = performAction(POST, "/api/v1/tasks", SNOW_AUTH_TOKEN, new LinkedMultiValueMap<>())
+                .expectStatus().is2xxSuccessful()
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(res -> normalizeBotObjects(res, mockBackend.url("/")))
+                .block();
+
+        assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/task_ticket_more_than_5.json")).allowingAnyArrayOrdering());
     }
 
     @ParameterizedTest
@@ -425,3 +447,4 @@ class BotFlowTest extends ControllerTestsBase {
         return normalizeBotObjects(body.replace(backendBaseUrl, "https://dev15329.service-now.com/"));
     }
 }
+

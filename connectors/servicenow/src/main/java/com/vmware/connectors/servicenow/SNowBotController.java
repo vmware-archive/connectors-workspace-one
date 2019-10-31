@@ -47,6 +47,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public class SNowBotController {
 
     private static final Logger logger = LoggerFactory.getLogger(SNowBotController.class);
+    private static final Integer MAX_NO_OF_RECENT_TICKETS_TO_FETCH = 5;
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -298,7 +299,7 @@ public class SNowBotController {
         String taskNumber = form.getNumber();
 
         // ToDo: Technically there can be too many open tickets. How many of them will be displayed in the bot UI ?
-        int ticketsLimit = 5;
+        int ticketsLimit = MAX_NO_OF_RECENT_TICKETS_TO_FETCH;
 
         var userEmail = AuthUtil.extractUserEmail(mfToken);
 
@@ -377,7 +378,17 @@ public class SNowBotController {
                                 .setWorkflowId(WF_ID_VIEW_TASK)
                                 .build()))
         );
-
+        if(tasks.size() == MAX_NO_OF_RECENT_TICKETS_TO_FETCH){
+            taskObjects.add(Map.of(ITEM_DETAILS,
+                    new BotItem.Builder()
+                            .setTitle(botTextAccessor.getMessage("view.task.msg", locale, null))
+                            .setUrl(new Link(
+                                            UriComponentsBuilder.fromUriString(baseUrl)
+                                                    .build()
+                                                    .toUriString()
+                                    )
+                            ).build()));
+        }
         return Map.of("objects", List.copyOf(taskObjects));
     }
 
@@ -510,7 +521,7 @@ public class SNowBotController {
         return new BotAction.Builder()
                 .setTitle(botTextAccessor.getActionTitle("deleteTicket", locale))
                 .setDescription(botTextAccessor.getActionDescription("deleteTicket", locale))
-                 // Workflow ids not required in actions ?
+                // Workflow ids not required in actions ?
                 .setType(HttpMethod.DELETE)
                 .addReqHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .setUrl(new Link(routingPrefix + "api/v1/tasks/" + taskSysId))
@@ -854,3 +865,4 @@ public class SNowBotController {
         return Map.of("message", e.getMessage());
     }
 }
+
