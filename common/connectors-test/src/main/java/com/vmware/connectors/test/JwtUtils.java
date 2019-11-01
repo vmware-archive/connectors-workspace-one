@@ -5,7 +5,12 @@
 
 package com.vmware.connectors.test;
 
-import io.jsonwebtoken.Jwts;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestComponent;
@@ -20,9 +25,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
 import java.util.Date;
 
-import static io.jsonwebtoken.Header.JWT_TYPE;
-import static io.jsonwebtoken.Header.TYPE;
-import static io.jsonwebtoken.SignatureAlgorithm.RS256;
+import static com.nimbusds.jose.JOSEObjectType.JWT;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 /**
@@ -40,14 +43,27 @@ public final class JwtUtils {
 
     public String createConnectorToken(Instant expiry, String audience) throws IOException, GeneralSecurityException {
 
-        return Jwts.builder().setHeaderParam(TYPE, JWT_TYPE)
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
                 .claim("prn", "fred@acme")
                 .claim("eml", "admin@acme.com")
-                .claim("aud", audience)
-                .setExpiration(Date.from(expiry))
-                .setIssuedAt(new Date())
-                .signWith(RS256, getSigner())
-                .compact();
+                .audience(audience)
+                .expirationTime(Date.from(expiry))
+                .issueTime(Date.from(Instant.now()))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(
+                new JWSHeader.Builder(JWSAlgorithm.RS256)
+                        .type(JWT)
+                        .build(),
+                claims
+        );
+
+        try {
+            signedJWT.sign(new RSASSASigner(getSigner()));
+            return signedJWT.serialize();
+        } catch (JOSEException e) {
+            throw new AssertionError("Could not sign JWT", e);
+        }
     }
 
     private PrivateKey getSigner() throws IOException, GeneralSecurityException {
