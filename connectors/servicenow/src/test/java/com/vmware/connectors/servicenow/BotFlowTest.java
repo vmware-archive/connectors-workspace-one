@@ -73,6 +73,25 @@ class BotFlowTest extends ControllerTestsBase {
     }
 
     @Test
+    void testDiscovery() throws Exception {
+        String xForwardedHost = "https://my-connector";
+        // Confirm connector has updated the host placeholder.
+        String expectedMetadata = fromFile("/static/discovery/metadata.json")
+                .replace("${CONNECTOR_HOST}", xForwardedHost);
+
+        // Discovery metadata.json is at the connector root.
+        webClient.get()
+                .uri("/")
+                .headers(ControllerTestsBase::headers)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .json(expectedMetadata)
+                // Verify object type is 'botDiscovery'.
+                .jsonPath("$.object_types.botDiscovery").exists();
+    }
+
+    @Test
     @Disabled
     void testCatalogItemsObject() throws Exception {
 

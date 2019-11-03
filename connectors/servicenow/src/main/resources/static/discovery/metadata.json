@@ -23,23 +23,6 @@
     }
   },
   "object_types": {
-    "card": {
-      "doc": {
-        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
-      },
-      "fields": {
-        "ticket_id": {
-          "capture_group": 1,
-          "regex": "\\b(REQ[0-9]{7})\\b"
-        },
-        "email": {
-          "env": "USER_EMAIL"
-        }
-      },
-      "endpoint": {
-        "href": "${CONNECTOR_HOST}/cards/requests"
-      }
-    },
     "botDiscovery": {
       "endpoint": {
         "href": "${CONNECTOR_HOST}/bot-discovery"
