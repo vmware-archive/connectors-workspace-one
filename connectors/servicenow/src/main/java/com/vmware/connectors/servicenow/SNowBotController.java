@@ -47,7 +47,8 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public class SNowBotController {
 
     private static final Logger logger = LoggerFactory.getLogger(SNowBotController.class);
-    private static final Integer MAX_NO_OF_RECENT_TICKETS_TO_FETCH = 5;
+    private static final int MAX_NO_OF_RECENT_TICKETS_TO_FETCH = 5;
+    public static final String VIEW_TASK_MSG_PROPS = "view.task.msg";
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -381,13 +382,8 @@ public class SNowBotController {
         if(tasks.size() == MAX_NO_OF_RECENT_TICKETS_TO_FETCH){
             taskObjects.add(Map.of(ITEM_DETAILS,
                     new BotItem.Builder()
-                            .setTitle(botTextAccessor.getMessage("view.task.msg", locale, null))
-                            .setUrl(new Link(
-                                            UriComponentsBuilder.fromUriString(baseUrl)
-                                                    .build()
-                                                    .toUriString()
-                                    )
-                            ).build()));
+                            .setTitle(botTextAccessor.getMessage(VIEW_TASK_MSG_PROPS, locale, baseUrl))
+                            .build()));
         }
         return Map.of("objects", List.copyOf(taskObjects));
     }

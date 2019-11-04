@@ -143,10 +143,7 @@
     {
       "itemDetails": {
         "id": "00000000-0000-0000-0000-000000000000",
-        "title": "If the ticket you are trying to find is not listed above, you can visit the ticket portal here",
-        "url": {
-          "href": "https://dev15329.service-now.com/"
-        }
+        "title": "If your ticket is not listed above, here is the URL to your ticket dashboard: https://dev15329.service-now.com/ .Hope this will help you find your ticket."
       }
     }
   ]
