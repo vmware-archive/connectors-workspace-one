@@ -26,7 +26,7 @@
         <module>hub-concur</module>
         <module>jira</module>
         <module>salesforce</module>
-        <module>servicenow</module>
+        <module>chatbot-servicenow</module>
         <module>hub-servicenow</module>
         <module>bitbucket-server</module>
         <module>hub-salesforce</module>
