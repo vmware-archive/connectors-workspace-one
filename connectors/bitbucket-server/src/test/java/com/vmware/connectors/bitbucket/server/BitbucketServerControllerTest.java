@@ -86,7 +86,7 @@ class BitbucketServerControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void discovery() throws Exception {
+    void testDiscovery() throws IOException {
         testConnectorDiscovery();
     }
 

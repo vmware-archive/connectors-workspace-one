@@ -48,7 +48,7 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
     }
 
     @Test
-    void testDiscovery() throws Exception {
+    void testDiscovery() throws IOException {
         testConnectorDiscovery();
     }
 

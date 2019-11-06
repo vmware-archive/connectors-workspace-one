@@ -1,0 +1,333 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "title": "Connector discovery schema",
+  "type": "object",
+  "properties": {
+    "image": {
+      "$ref": "#/definitions/link",
+      "description": "Link to a PNG image that represents connector."
+    },
+    "test_auth": {
+      "$ref": "#/definitions/link",
+      "description": "Link to an endpoint that helps to test backend authorization."
+    },
+    "object_types": {
+      "$ref": "#/definitions/object_types",
+      "description": "Object types that the connector supports."
+    },
+    "actions": {
+      "$ref": "#/definitions/actions",
+      "description": "Connector level (Global level) actions that the connector supports."
+    },
+    "config": {
+      "$ref": "#/definitions/configs",
+      "description": "Multi tenant connector config properties that admin will be prompted while configuring Mobile Flows."
+    }
+  },
+  "definitions": {
+    "link": {
+      "type": "object",
+      "properties": {
+        "href": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "href"
+      ]
+    },
+    "object_types": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/object_type",
+            "description": "Each additional property is an object type."
+          }
+        ]
+      }
+    },
+    "object_type": {
+      "type": "object",
+      "properties": {
+        "doc": {
+          "$ref": "#/definitions/link",
+          "description": "Link to the schema of the object type."
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/input_field",
+                "description": "Each additional property describes an input field."
+              }
+            ]
+          }
+        },
+        "pollable": {
+          "type": "boolean",
+          "description": "A hint for the client that polling for this object_type might produce objects containing new data."
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Free form key-value pairs. Can contain additional metadata about the object_type, if anything is required by client."
+        },
+        "endpoint": {
+          "$ref": "#/definitions/link",
+          "description": "Link to an endpoint that produces this object_type."
+        }
+      },
+      "required": [
+        "endpoint"
+      ]
+    },
+    "input_field": {
+      "type": "object",
+      "properties": {
+        "regex": {
+          "type": "string",
+          "description": "Regular expression that can be used by client to capture valid inputs, from a text line or paragraph."
+        },
+        "capture_group": {
+          "type": "integer",
+          "description": "Which parentheses group of the regex captured text to be used."
+        },
+        "env": {
+          "type": "string",
+          "description": "To be collected from client's Environment variables and send in the request. See Discovery in wiki."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "A flag says if this input field is mandatory. If client knows this field then it can include in the request for better results."
+        }
+      },
+      "dependencies": {
+        "capture_group": {
+          "required": [
+            "regex"
+          ]
+        }
+      }
+    },
+    "actions": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/connector_level_action",
+            "description": "Each additional property describes about a connector level action"
+          }
+        ]
+      }
+    },
+    "connector_level_action": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "$ref": "#/definitions/link",
+          "description": "Link to the action."
+        },
+        "user_input": {
+          "type": "array",
+          "description": "Allows the user to enter data to be submitted in this action.",
+          "items": {
+            "$ref": "#/definitions/connector_action_user_input"
+          }
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/input_field",
+                "description": "Each additional property describes an input field."
+              }
+            ]
+          }
+        },
+        "label": {
+          "type": "object",
+          "description": "Localised human-readable description of the action. Locale is the key (ex. en-US, en-GB, en-IN, etc.) and the description is the value."
+        },
+        "completed_label": {
+          "type": "object",
+          "description": "A localized message that says whether the action was successful. Locale is the key and the message is the value."
+        },
+        "type": {
+          "$ref": "#/definitions/http_methods",
+          "description": "The HTTP method to use for submitting the action request."
+        },
+        "action_key": {
+          "type": "string",
+          "description": "A key by which client understand the way to submit the action. See Discovery in wiki"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Free form key-value pairs. Can contain additional metadata about the action, if anything is required by client."
+        }
+      },
+      "if": {
+        "properties": {
+          "action_key": {
+            "const": "USER_INPUT"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "user_input"
+        ]
+      },
+      "required": [
+        "url",
+        "type",
+        "label",
+        "action_key"
+      ]
+    },
+    "connector_action_user_input": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The field's ID, which will be used as the key when this field is submitted."
+        },
+        "label": {
+          "type": "object",
+          "description": "Localised field's label, which will be displayed to the user to describe the expected content of the field. Locale is the key and the message is the value."
+        },
+        "format": {
+          "type": "string",
+          "description": "The format type of the user input."
+        },
+        "select": {
+          "type": "array",
+          "description": "If the format is 'select', choices for selecting should also be specified.",
+          "items": {
+            "$ref": "#/definitions/connector_action_user_input_select"
+          }
+        },
+        "min_length": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The minimum length of the user entered text field."
+        },
+        "max_length": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The maximum length of the user entered text field."
+        }
+      },
+      "if": {
+        "properties": {
+          "format": {
+            "const": "select"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "select"
+        ]
+      },
+      "required": [
+        "id",
+        "label",
+        "format"
+      ]
+    },
+    "connector_action_user_input_select": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "This is used as the form value while submitting the action."
+        },
+        "label": {
+          "type": "object",
+          "description": "Localised label for the select choice. Locale is the key and the label is the value."
+        }
+      },
+      "required": ["value"]
+    },
+    "configs": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/config",
+            "description": "Each additional property is a connector level configuration."
+          }
+        ]
+      }
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "type": "string",
+          "description": "A default value in string for the configuration."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the value expected."
+        },
+        "label": {
+          "type": "object",
+          "description": "Localised short label for the config field, that will be displayed in the admin dashboard. Locale is the key and the message is the value."
+        },
+        "description": {
+          "type": "object",
+          "description": "Localised description for the config field. Locale is the key and the message is the value."
+        },
+        "validators": {
+          "type": "array",
+          "description": "Optional array of validators. Admin is allowed to enter a value that validates against each of these.",
+          "items": {
+            "$ref": "#/definitions/config_validator"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "label"
+      ]
+    },
+    "config_validator": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Config validator type. See wiki for supported validator types."
+        },
+        "description": {
+          "type": "object",
+          "description": "Localised description for the validator. Locale is the key and the message is the value."
+        },
+        "value": {
+          "type": "string",
+          "description": "A value that can be associated with some of the validator types. See Wiki for examples."
+        }
+      },
+      "required": [
+        "type",
+        "description"
+      ]
+    },
+    "http_methods": {
+      "type": "string",
+      "enum": [
+        "DELETE",
+        "GET",
+        "HEAD",
+        "OPTIONS",
+        "PATCH",
+        "POST",
+        "PUT",
+        "TRACE"
+      ]
+    }
+  }
+}

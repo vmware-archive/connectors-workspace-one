@@ -57,11 +57,6 @@
       "doc": {
         "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
       },
-      "fields": {
-        "_temporary": {
-          "regex": "__test_hub_connectors__"
-        }
-      },
       "pollable": true,
       "endpoint": {
         "href": "${CONNECTOR_HOST}/cards/requests"
