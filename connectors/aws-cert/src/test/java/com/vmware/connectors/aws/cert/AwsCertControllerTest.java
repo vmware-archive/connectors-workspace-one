@@ -22,6 +22,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,7 @@ class AwsCertControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testDiscovery() throws Exception {
+    void testDiscovery() throws IOException {
         testConnectorDiscovery();
     }
 

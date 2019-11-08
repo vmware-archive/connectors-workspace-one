@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,7 +52,7 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testDiscovery() throws Exception {
+    void testDiscovery() throws IOException {
         testConnectorDiscovery();
     }
 

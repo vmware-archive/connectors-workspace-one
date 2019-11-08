@@ -10,6 +10,7 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.vmware.connectors.mock.MockWebServerWrapper;
 import com.vmware.connectors.mock.PhaserClientHttpConnector;
+import io.restassured.module.jsv.JsonSchemaValidator;
 import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -80,7 +82,7 @@ public class ControllerTestsBase {
 
 
     @BeforeEach
-    void setup() throws Exception {
+    void setup() {
          mockBackend = new MockWebServerWrapper(new MockWebServer());
     }
 
@@ -148,13 +150,14 @@ public class ControllerTestsBase {
     }
 
     protected void testConnectorDiscovery() throws IOException {
-
         String xForwardedHost = "https://my-connector";
         // Confirm connector has updated the host placeholder.
         String expectedMetadata = fromFile("/static/discovery/metadata.json")
                 .replace("${CONNECTOR_HOST}", xForwardedHost);
+        testConnectorDiscovery(expectedMetadata);
+    }
 
-        // Discovery metadata.json is at the connector root.
+    protected void testConnectorDiscovery(String expectedMetadata) throws IOException {
         webClient.get()
                 .uri("/")
                 .headers(ControllerTestsBase::headers)
@@ -162,8 +165,20 @@ public class ControllerTestsBase {
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
                 .json(expectedMetadata)
-                // Verify object type is 'card'.
                 .jsonPath("$.object_types.card").exists();
+
+        String body  = webClient.get()
+                .uri("/")
+                .headers(ControllerTestsBase::headers)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .block();
+
+        assertThat(body, JsonSchemaValidator.matchesJsonSchema(fromFile("/connector-discovery-response-schema.json")));
     }
 
     protected void headers(HttpHeaders headers, String uri) {

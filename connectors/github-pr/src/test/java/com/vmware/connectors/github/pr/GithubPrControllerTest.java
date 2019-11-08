@@ -19,6 +19,7 @@ import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ class GithubPrControllerTest extends ControllerTestsBase {
     }
 
     @Test
-    void testDiscovery() throws Exception {
+    void testDiscovery() throws IOException {
         testConnectorDiscovery();
     }
 
