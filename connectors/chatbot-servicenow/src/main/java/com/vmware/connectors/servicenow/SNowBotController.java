@@ -385,6 +385,21 @@ public class SNowBotController {
                             .setTitle(botTextAccessor.getMessage(VIEW_TASK_MSG_PROPS, locale, baseUrl))
                             .build()));
         }
+        if(tasks.isEmpty()){
+            taskObjects.add(Map.of(ITEM_DETAILS,
+                    new BotItem.Builder()
+                            .setTitle("No open tickets")
+                            .setDescription("Oops, you don’t have any open tickets right now. But, you can see your older tickets here.")
+                            .setUrl(new Link(
+                                            UriComponentsBuilder.fromUriString(baseUrl)
+                                                    .build()
+                                                    .toUriString()
+                                    )
+                            )
+                            .setType("text")
+                            .setWorkflowId(WF_ID_VIEW_TASK)
+                            .build()));
+        }
         return Map.of("objects", List.copyOf(taskObjects));
     }
 
