@@ -60,6 +60,9 @@ public class BotItem {
     @JsonProperty("workflowId")
     private String workflowId;
 
+    @JsonProperty("workflowStep")
+    private String workflowStep;
+
     public UUID getId() {
         return id;
     }
@@ -106,6 +109,10 @@ public class BotItem {
 
     public String getWorkflowId() {
         return workflowId;
+    }
+
+    public String getWorkflowStep() {
+        return workflowStep;
     }
 
     private BotItem() {
@@ -180,6 +187,11 @@ public class BotItem {
 
         public Builder setWorkflowId(String workflowId) {
             botItem.workflowId = workflowId;
+            return this;
+        }
+
+        public Builder setWorkflowStep(String workflowStep) {
+            botItem.workflowStep = workflowStep;
             return this;
         }
 

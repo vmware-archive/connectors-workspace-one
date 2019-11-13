@@ -11,6 +11,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.vmware.connectors.test.ControllerTestsBase;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,6 +30,7 @@ import static com.vmware.connectors.utils.IgnoredFieldsReplacer.*;
 import static com.vmware.connectors.utils.IgnoredFieldsReplacer.DUMMY_UUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
+import static org.junit.Assert.assertEquals;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
@@ -52,6 +54,8 @@ class BotFlowTest extends ControllerTestsBase {
     private static final String OBJ_TYPE_CART = "cart";
 
     private static final String OBJ_TYPE_BOT_DISCOVERY = "botDiscovery";
+    public static final int TASK_JSON_RESPONSE_LENGTH_IF_EMPTY = 1;
+    public static final String JSON_OBJECT_VARIABLE = "objects";
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -181,6 +185,7 @@ class BotFlowTest extends ControllerTestsBase {
     @Test
     void testViewMyTasksActionIftasksAreEmpty() throws Exception {
         String userEmailId = "admin@acme.com";
+        JSONObject jsonResponseBody = null;
         mockBackend.expect(requestToUriTemplate(
                 "/api/now/table/task?sysparm_display_value=true&sysparm_limit=5&sysparm_offset=0" +
                         "&opened_by.email={userEmailId}&active=true&sysparm_query=ORDERBYDESCsys_created_on",
@@ -196,8 +201,19 @@ class BotFlowTest extends ControllerTestsBase {
                 .collect(Collectors.joining())
                 .map(res -> normalizeBotObjects(res, mockBackend.url("/")))
                 .block();
+        jsonResponseBody = getJsonObjectFromBody(body);
+        assertEquals(jsonResponseBody.getJSONArray(JSON_OBJECT_VARIABLE).length(), TASK_JSON_RESPONSE_LENGTH_IF_EMPTY);
+        assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/task_ticket_if_empty_connector_response.json")));
+    }
 
-        assertThat(body, sameJSONAs(fromFile("/botflows/servicenow/response/task_ticket_if_empty_connector_response.json")).allowingAnyArrayOrdering());
+    private JSONObject getJsonObjectFromBody(String body) {
+        JSONObject jsonResponseBody;
+        try {
+            jsonResponseBody = new JSONObject(body);
+        }catch (Exception err){
+            return null;
+        }
+        return jsonResponseBody;
     }
 
     @Test

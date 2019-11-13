@@ -49,6 +49,9 @@ public class SNowBotController {
     private static final Logger logger = LoggerFactory.getLogger(SNowBotController.class);
     private static final int MAX_NO_OF_RECENT_TICKETS_TO_FETCH = 5;
     public static final String VIEW_TASK_MSG_PROPS = "view.task.msg";
+    public static final String NO_OPEN_TICKETS = "NoOpenTickets";
+    public static final String TEXT = "text";
+    public static final String COMPLETED = "Completed";
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -388,16 +391,16 @@ public class SNowBotController {
         if(tasks.isEmpty()){
             taskObjects.add(Map.of(ITEM_DETAILS,
                     new BotItem.Builder()
-                            .setTitle("No open tickets")
-                            .setDescription("Oops, you don’t have any open tickets right now. But, you can see your older tickets here.")
+                            .setTitle(botTextAccessor.getObjectTitle(NO_OPEN_TICKETS, locale))
+                            .setDescription(botTextAccessor.getActionDescription(NO_OPEN_TICKETS, locale))
                             .setUrl(new Link(
                                             UriComponentsBuilder.fromUriString(baseUrl)
                                                     .build()
                                                     .toUriString()
                                     )
                             )
-                            .setType("text")
-                            .setWorkflowId(WF_ID_VIEW_TASK)
+                            .setType(TEXT)
+                            .setWorkflowStep(COMPLETED)
                             .build()));
         }
         return Map.of("objects", List.copyOf(taskObjects));
