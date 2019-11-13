@@ -12,6 +12,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.Link;
 import com.vmware.connectors.common.utils.AuthUtil;
+import com.vmware.connectors.servicenow.enums.WorkFlowStepEnum;
 import com.vmware.connectors.servicenow.domain.BotAction;
 import com.vmware.connectors.servicenow.domain.BotActionUserInput;
 import com.vmware.connectors.servicenow.domain.BotItem;
@@ -400,7 +401,7 @@ public class SNowBotController {
                                     )
                             )
                             .setType(TEXT)
-                            .setWorkflowStep(COMPLETED)
+                            .setWorkflowStep(WorkFlowStepEnum.COMPLETE)
                             .build()));
         }
         return Map.of("objects", List.copyOf(taskObjects));

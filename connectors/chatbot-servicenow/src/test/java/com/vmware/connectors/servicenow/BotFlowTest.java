@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -201,19 +202,14 @@ class BotFlowTest extends ControllerTestsBase {
                 .collect(Collectors.joining())
                 .map(res -> normalizeBotObjects(res, mockBackend.url("/")))
                 .block();
-        jsonResponseBody = getJsonObjectFromBody(body);
-        assertEquals(jsonResponseBody.getJSONArray(JSON_OBJECT_VARIABLE).length(), TASK_JSON_RESPONSE_LENGTH_IF_EMPTY);
+        int objectsCount = getObjectsCount(body);
+        assertThat(objectsCount, is(1));
         assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/task_ticket_if_empty_connector_response.json")));
     }
 
-    private JSONObject getJsonObjectFromBody(String body) {
-        JSONObject jsonResponseBody;
-        try {
-            jsonResponseBody = new JSONObject(body);
-        }catch (Exception err){
-            return null;
-        }
-        return jsonResponseBody;
+    private int getObjectsCount(String body) {
+        DocumentContext context = JsonPath.using(Configuration.defaultConfiguration()).parse(body);
+        return context.read("$.objects.length()");
     }
 
     @Test
