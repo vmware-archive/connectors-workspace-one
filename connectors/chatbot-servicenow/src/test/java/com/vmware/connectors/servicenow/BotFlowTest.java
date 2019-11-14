@@ -31,7 +31,6 @@ import static com.vmware.connectors.utils.IgnoredFieldsReplacer.*;
 import static com.vmware.connectors.utils.IgnoredFieldsReplacer.DUMMY_UUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
-import static org.junit.Assert.assertEquals;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
@@ -49,14 +48,10 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 class BotFlowTest extends ControllerTestsBase {
 
     private static final String SNOW_AUTH_TOKEN = "test-GOOD-auth-token";
-
     private static final String OBJ_TYPE_CATALOG_ITEM = "catalog";
     private static final String OBJ_TYPE_TASK = "task";
     private static final String OBJ_TYPE_CART = "cart";
-
     private static final String OBJ_TYPE_BOT_DISCOVERY = "botDiscovery";
-    public static final int TASK_JSON_RESPONSE_LENGTH_IF_EMPTY = 1;
-    public static final String JSON_OBJECT_VARIABLE = "objects";
 
     @ParameterizedTest
     @ValueSource(strings = {
