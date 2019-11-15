@@ -394,12 +394,7 @@ public class SNowBotController {
                     new BotItem.Builder()
                             .setTitle(botTextAccessor.getObjectTitle(NO_OPEN_TICKETS, locale))
                             .setDescription(botTextAccessor.getActionDescription(NO_OPEN_TICKETS, locale))
-                            .setUrl(new Link(
-                                            UriComponentsBuilder.fromUriString(baseUrl)
-                                                    .build()
-                                                    .toUriString()
-                                    )
-                            )
+                            .setUrl(new Link(baseUrl))
                             .setType(TEXT)
                             .setWorkflowStep(WorkFlowStepEnum.COMPLETE)
                             .build()));
