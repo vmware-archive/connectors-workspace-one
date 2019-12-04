@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.connectors.common.payloads.response.Link;
+import com.vmware.connectors.servicenow.enums.WorkFlowStepEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,9 @@ public class BotItem {
     @JsonProperty("workflowId")
     private String workflowId;
 
+    @JsonProperty("workflowStep")
+    private WorkFlowStepEnum workflowStep;
+
     public UUID getId() {
         return id;
     }
@@ -106,6 +110,10 @@ public class BotItem {
 
     public String getWorkflowId() {
         return workflowId;
+    }
+
+    public WorkFlowStepEnum getWorkflowStep() {
+        return workflowStep;
     }
 
     private BotItem() {
@@ -180,6 +188,11 @@ public class BotItem {
 
         public Builder setWorkflowId(String workflowId) {
             botItem.workflowId = workflowId;
+            return this;
+        }
+
+        public Builder setWorkflowStep(WorkFlowStepEnum workflowStep) {
+            botItem.workflowStep = workflowStep;
             return this;
         }
 

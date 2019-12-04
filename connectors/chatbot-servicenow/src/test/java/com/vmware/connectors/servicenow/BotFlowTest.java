@@ -11,6 +11,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.vmware.connectors.test.ControllerTestsBase;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -46,11 +48,9 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 class BotFlowTest extends ControllerTestsBase {
 
     private static final String SNOW_AUTH_TOKEN = "test-GOOD-auth-token";
-
     private static final String OBJ_TYPE_CATALOG_ITEM = "catalog";
     private static final String OBJ_TYPE_TASK = "task";
     private static final String OBJ_TYPE_CART = "cart";
-
     private static final String OBJ_TYPE_BOT_DISCOVERY = "botDiscovery";
 
     @ParameterizedTest
@@ -175,6 +175,36 @@ class BotFlowTest extends ControllerTestsBase {
                 .block();
 
         assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/task_ticket.json")).allowingAnyArrayOrdering());
+    }
+
+
+    @Test
+    void testViewMyTasksActionIftasksAreEmpty() throws Exception {
+        String userEmailId = "admin@acme.com";
+        JSONObject jsonResponseBody = null;
+        mockBackend.expect(requestToUriTemplate(
+                "/api/now/table/task?sysparm_display_value=true&sysparm_limit=5&sysparm_offset=0" +
+                        "&opened_by.email={userEmailId}&active=true&sysparm_query=ORDERBYDESCsys_created_on",
+                userEmailId))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("/botflows/servicenow/response/task_ticket_if_empty.json"), APPLICATION_JSON));
+
+        String body = performAction(POST, "/api/v1/tasks", SNOW_AUTH_TOKEN, new LinkedMultiValueMap<>())
+                .expectStatus().is2xxSuccessful()
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(res -> normalizeBotObjects(res, mockBackend.url("/")))
+                .block();
+        int objectsCount = getObjectsCount(body);
+        assertThat(objectsCount, is(1));
+        assertThat(body, sameJSONAs(fromFile("/botflows/connector/response/task_ticket_if_empty_connector_response.json")));
+    }
+
+    private int getObjectsCount(String body) {
+        DocumentContext context = JsonPath.using(Configuration.defaultConfiguration()).parse(body);
+        return context.read("$.objects.length()");
     }
 
     @Test

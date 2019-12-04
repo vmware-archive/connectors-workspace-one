@@ -12,6 +12,7 @@ import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.Link;
 import com.vmware.connectors.common.utils.AuthUtil;
+import com.vmware.connectors.servicenow.enums.WorkFlowStepEnum;
 import com.vmware.connectors.servicenow.domain.BotAction;
 import com.vmware.connectors.servicenow.domain.BotActionUserInput;
 import com.vmware.connectors.servicenow.domain.BotItem;
@@ -49,6 +50,9 @@ public class SNowBotController {
     private static final Logger logger = LoggerFactory.getLogger(SNowBotController.class);
     private static final int MAX_NO_OF_RECENT_TICKETS_TO_FETCH = 5;
     public static final String VIEW_TASK_MSG_PROPS = "view.task.msg";
+    public static final String NO_OPEN_TICKETS = "NoOpenTickets";
+    public static final String TEXT = "text";
+    public static final String COMPLETED = "Completed";
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -383,6 +387,16 @@ public class SNowBotController {
             taskObjects.add(Map.of(ITEM_DETAILS,
                     new BotItem.Builder()
                             .setTitle(botTextAccessor.getMessage(VIEW_TASK_MSG_PROPS, locale, baseUrl))
+                            .build()));
+        }
+        if(tasks.isEmpty()){
+            taskObjects.add(Map.of(ITEM_DETAILS,
+                    new BotItem.Builder()
+                            .setTitle(botTextAccessor.getObjectTitle(NO_OPEN_TICKETS, locale))
+                            .setDescription(botTextAccessor.getActionDescription(NO_OPEN_TICKETS, locale))
+                            .setUrl(new Link(baseUrl))
+                            .setType(TEXT)
+                            .setWorkflowStep(WorkFlowStepEnum.COMPLETE)
                             .build()));
         }
         return Map.of("objects", List.copyOf(taskObjects));
