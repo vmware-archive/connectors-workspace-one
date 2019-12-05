@@ -143,9 +143,9 @@
                                         </assembly>
                                         <runCmds>
                                             <run>yum -y install wget</run>
-                                            <run>wget https://download.java.net/java/GA/jdk13/5b8a42f3905b406298b72d750b6919f6/33/GPL/openjdk-13_linux-x64_bin.tar.gz</run>
-                                            <run>tar xvf openjdk-13*_bin.tar.gz</run>
-                                            <run>ln -s /jdk-13/bin/java /usr/bin/java</run>
+                                            <run>wget https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz</run>
+                                            <run>tar xvf openjdk-11*_bin.tar.gz</run>
+                                            <run>ln -s /jdk-11/bin/java /usr/bin/java</run>
                                             <run>yum -y install /maven/target/rpm/${connector.name}-connector/RPMS/noarch/*.rpm</run>
                                             <run>
                                                 <![CDATA[

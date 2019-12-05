@@ -66,13 +66,14 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     yum update -y
     yum install -y git rpm-build vim nmap-ncat wget
-    wget https://download.java.net/java/GA/jdk13/5b8a42f3905b406298b72d750b6919f6/33/GPL/openjdk-13_linux-x64_bin.tar.gz
-    tar xvf openjdk-13*
-    mv jdk-13 /usr/local/share/
-    ln -s /usr/local/share/jdk-13/bin/java /usr/local/bin/java
+    wget https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz
+    tar xvf openjdk-11*
+    mv jdk-11 /usr/local/share/
+    ln -s /usr/local/share/jdk-11/bin/java /usr/bin/java
     curl -fsSL get.docker.com -o get-docker.sh
     sh get-docker.sh
     usermod -aG docker vagrant
-    service docker start
+    systemctl enable docker
+    systemctl start docker
   SHELL
 end
