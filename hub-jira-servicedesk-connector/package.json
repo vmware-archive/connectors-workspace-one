@@ -1,0 +1,37 @@
+{
+  "name": "jira_service_desk",
+  "version": "1.0.0",
+  "description": "Retrieve and act upon approvals for Atlassian Jira Service Desk",
+  "main": "index.js",
+  "author": "shawd@vmware.com",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "chai": "^4.2.0",
+    "dotenv": "^7.0.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.24.0",
+    "path": "^0.12.7",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
+    "url-join": "^4.0.1",
+    "uuid": "^3.3.3"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "mocha --require test/support/env --reporter spec --bail --check-leaks test/",
+    "lint": "eslint routes/**/**.js test/**/**.js"
+  },
+  "devDependencies": {
+    "eslint": "^6.2.2",
+    "eslint-config-standard": "^14.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jasmine": "^2.10.1",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "mocha": "^6.2.0",
+    "sinon": "^7.4.1"
+  }
+}

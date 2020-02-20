@@ -1,0 +1,8 @@
+{
+    "Items": [
+        {
+            "LoginID": "admin@acme",
+            "PrimaryEmail": "admin@acme.com"
+        }
+    ]
+}

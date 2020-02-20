@@ -1,0 +1,19 @@
+{
+  "@odata.context": "https: //graph.microsoft.com/beta/$metadata#Collection(permission)",
+  "value": [
+    {
+      "@odata.type": "#microsoft.graph.permission",
+      "id": "aTowIy5mfG1lbWJlcnNoaXB8aGVtYW50aGtldGhlQGJhY2tmbGlwdC5jb20",
+      "roles": [
+        "read"
+      ],
+      "grantedTo": {
+        "user": {
+          "email": "hemanthkethe@backflipt.com",
+          "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd",
+          "displayName": "HemanthKethe"
+        }
+      }
+    }
+  ]
+}

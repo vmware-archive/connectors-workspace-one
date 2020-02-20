@@ -1,0 +1,99 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Teams Assist for @mentioned message",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Teams Assist",
+        "subtitle": [
+          "You have been @mentioned 2 times in Group One"
+        ],
+        "links": {
+          "title": "",
+          "subtitle": [
+            "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1571749383861?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1571749383861&parentMessageId=1570801823011"
+          ]
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "By",
+            "description": "Hemanth Kethe"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Channel",
+            "description": "Testing 2"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Message",
+            "description": "<div><div><at id=\"0\">Hitesh</at>&nbsp;another reply</div>\n</div> "
+          },
+          {
+            "type": "GENERAL",
+            "title": "Team",
+            "description": "Group One"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Date/Time",
+            "description": "Sun 22-Oct-90 01:03 PM"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Reply To Message",
+          "url": {
+            "href": "https://hero/connectors/ms_teams/messages/1570801823011/reply"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "actionType": "replyToMessage",
+            "message": "{\"id\":\"1571749383861\",\"webUrl\":\"https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1571749383861?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1571749383861&parentMessageId=1570801823011\",\"replyToId\":\"1570801823011\",\"subject\":null,\"createdDateTime\":\"2090-10-22T13:03:03.861Z\",\"lastModifiedDateTime\":null,\"from\":{\"user\":{\"displayName\":\"Hemanth Kethe\",\"id\":\"47fc13ad-809c-41bb-9768-8d21f92e9dfd\"}},\"summary\":null,\"mentions\":[{\"id\":\"0\",\"mentionText\":\"Hitesh\",\"mentioned\":{\"user\":{\"displayName\":\"Hitesh\",\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}}}],\"body\":{\"contentType\":\"html\",\"content\":\"<div><div><at id=\\\"0\\\">Hitesh</at>&nbsp;another reply</div>\\n</div>\"},\"channelId\":\"19:edc1a6c1be5c4736b7ead64dae9624e3@thread.skype\",\"teamId\":\"28146088-6522-4459-9a52-295772efd51c\",\"channelName\":\"Testing 2\",\"userTimeZone\":\"UTC\",\"attachments\":[],\"teamName\":\"Group One\",\"dateTime\":\"Sun 22-Oct-90 01:03 PM\",\"replyId\":\"1570801823011\"}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Reply Message",
+              "format": "text"
+            }
+          ],
+          "completed_label": "Replied To Message",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "ACT_ON_MESSAGE"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Dismiss",
+          "url": {
+            "href": "https://hero/connectors/ms_teams/messages/1571749383861/dismiss"
+          },
+          "type": "POST",
+          "action_key": "DIRECT",
+          "remove_card_on_completion": true,
+          "request": {
+            "actionType": "dismiss",
+            "message": "{\"id\":\"1571749383861\",\"webUrl\":\"https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1571749383861?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1571749383861&parentMessageId=1570801823011\",\"replyToId\":\"1570801823011\",\"subject\":null,\"createdDateTime\":\"2090-10-22T13:03:03.861Z\",\"lastModifiedDateTime\":null,\"from\":{\"user\":{\"displayName\":\"Hemanth Kethe\",\"id\":\"47fc13ad-809c-41bb-9768-8d21f92e9dfd\"}},\"summary\":null,\"mentions\":[{\"id\":\"0\",\"mentionText\":\"Hitesh\",\"mentioned\":{\"user\":{\"displayName\":\"Hitesh\",\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}}}],\"body\":{\"contentType\":\"html\",\"content\":\"<div><div><at id=\\\"0\\\">Hitesh</at>&nbsp;another reply</div>\\n</div>\"},\"channelId\":\"19:edc1a6c1be5c4736b7ead64dae9624e3@thread.skype\",\"teamId\":\"28146088-6522-4459-9a52-295772efd51c\",\"channelName\":\"Testing 2\",\"userTimeZone\":\"UTC\",\"attachments\":[],\"teamName\":\"Group One\",\"dateTime\":\"Sun 22-Oct-90 01:03 PM\",\"replyId\":\"1570801823011\"}"
+          },
+          "user_input": [],
+          "completed_label": "Dismissed",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "ACT_ON_MESSAGE"
+        }
+      ],
+      "image": {
+        "href": "/images/connector.png"
+      },
+      "hash": "b033f51c-c9eb-3e42-9273-631b1b59b990"
+    }
+  ]
+}

@@ -1,0 +1,1570 @@
+{
+  "responses": [
+    {
+      "id": "userTimeZone",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "private",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#users('3fca3578-eee3-4f5d-b62d-47d17f3cce3a')/mailboxSettings/timeZone",
+        "value": "Dateline Standard Time"
+      }
+    },
+    {
+      "id": "userId",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#users/$entity",
+        "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+        "deletedDateTime": null,
+        "accountEnabled": true,
+        "ageGroup": null,
+        "businessPhones": [],
+        "city": null,
+        "createdDateTime": "2019-04-03T17:45:52Z",
+        "companyName": null,
+        "consentProvidedForMinor": null,
+        "country": null,
+        "department": null,
+        "displayName": "Hitesh",
+        "employeeId": null,
+        "faxNumber": null,
+        "givenName": "Hitesh",
+        "imAddresses": [
+          "hitesh@backflipt.com"
+        ],
+        "isResourceAccount": null,
+        "jobTitle": null,
+        "legalAgeGroupClassification": null,
+        "mail": "hitesh@backflipt.com",
+        "mailNickname": "hitesh",
+        "mobilePhone": null,
+        "onPremisesDistinguishedName": null,
+        "officeLocation": null,
+        "onPremisesDomainName": null,
+        "onPremisesImmutableId": null,
+        "onPremisesLastSyncDateTime": null,
+        "onPremisesSecurityIdentifier": null,
+        "onPremisesSamAccountName": null,
+        "onPremisesSyncEnabled": null,
+        "onPremisesUserPrincipalName": null,
+        "otherMails": [],
+        "passwordPolicies": "None",
+        "passwordProfile": null,
+        "postalCode": null,
+        "preferredDataLocation": null,
+        "preferredLanguage": "en-US",
+        "proxyAddresses": [
+          "smtp:hitesh@backflipt.onmicrosoft.com",
+          "SMTP:hitesh@backflipt.com"
+        ],
+        "refreshTokensValidFromDateTime": "2019-04-04T06:52:55Z",
+        "showInAddressList": null,
+        "signInSessionsValidFromDateTime": "2019-04-04T06:52:55Z",
+        "state": null,
+        "streetAddress": null,
+        "surname": null,
+        "usageLocation": "US",
+        "userPrincipalName": "hitesh@backflipt.com",
+        "externalUserState": null,
+        "externalUserStateChangeDateTime": null,
+        "userType": "Member",
+        "assignedLicenses": [
+          {
+            "disabledPlans": [],
+            "skuId": "f30db892-07e9-47e9-837c-80727f46fd3d"
+          },
+          {
+            "disabledPlans": [],
+            "skuId": "3b555118-da6a-4418-894f-7df1e2096870"
+          }
+        ],
+        "assignedPlans": [
+          {
+            "assignedDateTime": "2019-09-10T12:10:31Z",
+            "capabilityStatus": "Enabled",
+            "service": "WhiteboardServices",
+            "servicePlanId": "b8afc642-032e-4de5-8c0a-507a7bba7e5d"
+          },
+          {
+            "assignedDateTime": "2019-09-10T12:10:31Z",
+            "capabilityStatus": "Enabled",
+            "service": "ProcessSimple",
+            "servicePlanId": "50e68c76-46c6-4674-81f9-75456511b170"
+          },
+          {
+            "assignedDateTime": "2019-09-10T12:10:31Z",
+            "capabilityStatus": "Enabled",
+            "service": "CRM",
+            "servicePlanId": "17ab22cd-a0b3-4536-910a-cb6eb12696c0"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "SharePoint",
+            "servicePlanId": "c7699d2e-19aa-44de-8edf-1736da088ca1"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "MicrosoftCommunicationsOnline",
+            "servicePlanId": "0feaeb32-d00e-4d66-bd5a-43b5b83db82c"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "exchange",
+            "servicePlanId": "9aaf7827-d63c-4b61-89c3-182f06f82e5c"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "YammerEnterprise",
+            "servicePlanId": "7547a3fe-08ee-4ccb-b430-5077c5041653"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "SharePoint",
+            "servicePlanId": "e95bec33-7c88-4a70-8e19-b10bd9d0c014"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "Sway",
+            "servicePlanId": "a23b959c-7ce8-4e57-9140-b90eb88a9e97"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "ProjectWorkManagement",
+            "servicePlanId": "b737dad2-2f6c-4c65-90e3-ca563267e8b9"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "TeamspaceAPI",
+            "servicePlanId": "57ff2da0-773e-42df-b2af-ffb7a2317929"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "PowerAppsService",
+            "servicePlanId": "92f7a6f3-b89b-4bbd-8c30-809e6da5ad1c"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "ProcessSimple",
+            "servicePlanId": "0f9b09cb-62d1-4ff4-9129-43f4996f83f4"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "OfficeForms",
+            "servicePlanId": "159f4cd6-e380-449f-a816-af1a9ef76344"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "To-Do",
+            "servicePlanId": "5e62787c-c316-451f-b873-1d05acd4d12c"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "MicrosoftOffice",
+            "servicePlanId": "c63d4d19-e8cb-460e-b37c-4d6c34603745"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "MicrosoftStream",
+            "servicePlanId": "3c53ea51-d578-46fa-a4c0-fd0a92809a60"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "MicrosoftKaizala",
+            "servicePlanId": "54fc630f-5a40-48ee-8965-af0503c1386e"
+          },
+          {
+            "assignedDateTime": "2019-04-03T17:45:52Z",
+            "capabilityStatus": "Enabled",
+            "service": "exchange",
+            "servicePlanId": "33c4f319-9bdd-48d6-9c4d-410b750a4a5a"
+          }
+        ],
+        "deviceKeys": [],
+        "identities": [
+          {
+            "signInType": "userPrincipalName",
+            "issuer": "backflipt.onmicrosoft.com",
+            "issuerAssignedId": "hitesh@backflipt.com"
+          }
+        ],
+        "onPremisesExtensionAttributes": {
+          "extensionAttribute1": null,
+          "extensionAttribute2": null,
+          "extensionAttribute3": null,
+          "extensionAttribute4": null,
+          "extensionAttribute5": null,
+          "extensionAttribute6": null,
+          "extensionAttribute7": null,
+          "extensionAttribute8": null,
+          "extensionAttribute9": null,
+          "extensionAttribute10": null,
+          "extensionAttribute11": null,
+          "extensionAttribute12": null,
+          "extensionAttribute13": null,
+          "extensionAttribute14": null,
+          "extensionAttribute15": null
+        },
+        "onPremisesProvisioningErrors": [],
+        "provisionedPlans": [
+          {
+            "capabilityStatus": "Enabled",
+            "provisioningStatus": "Success",
+            "service": "MicrosoftCommunicationsOnline"
+          },
+          {
+            "capabilityStatus": "Enabled",
+            "provisioningStatus": "Success",
+            "service": "exchange"
+          },
+          {
+            "capabilityStatus": "Enabled",
+            "provisioningStatus": "Success",
+            "service": "exchange"
+          },
+          {
+            "capabilityStatus": "Enabled",
+            "provisioningStatus": "Success",
+            "service": "SharePoint"
+          },
+          {
+            "capabilityStatus": "Enabled",
+            "provisioningStatus": "Success",
+            "service": "SharePoint"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d8786029-7608-408f-9ec3-386b27d5c0b9",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('d8786029-7608-408f-9ec3-386b27d5c0b9')/channels",
+        "value": [
+          {
+            "id": "19:f55e2414857f47deaf459515799ca0b5@thread.skype",
+            "displayName": "General",
+            "description": "Test team with sabbu",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3af55e2414857f47deaf459515799ca0b5%40thread.skype/General?groupId=d8786029-7608-408f-9ec3-386b27d5c0b9&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    },
+    {
+      "id": "710a71e3-8b69-4b27-8e73-13c0e19a6449",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('710a71e3-8b69-4b27-8e73-13c0e19a6449')/channels",
+        "value": [
+          {
+            "id": "19:04c2f31188ab427aa8dc67e122a59ade@thread.skype",
+            "displayName": "General",
+            "description": "test pub team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a04c2f31188ab427aa8dc67e122a59ade%40thread.skype/General?groupId=710a71e3-8b69-4b27-8e73-13c0e19a6449&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:452315ba334b46c29e48cc174cf2e765@thread.skype",
+            "displayName": "Testing1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a452315ba334b46c29e48cc174cf2e765%40thread.skype/Testing1?groupId=710a71e3-8b69-4b27-8e73-13c0e19a6449&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    },
+    {
+      "id": "28146088-6522-4459-9a52-295772efd51c",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('28146088-6522-4459-9a52-295772efd51c')/channels",
+        "value": [
+          {
+            "id": "19:f3d807c3008d4da69076c2031b91a0c7@thread.skype",
+            "displayName": "General",
+            "description": "Group One",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3af3d807c3008d4da69076c2031b91a0c7%40thread.skype/General?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:e1becf60bba7435c87ea111fb9f4c9ab@thread.skype",
+            "displayName": "Testing 1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3ae1becf60bba7435c87ea111fb9f4c9ab%40thread.skype/Testing+1?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:edc1a6c1be5c4736b7ead64dae9624e3@thread.skype",
+            "displayName": "Testing 2",
+            "description": "this channel is for testing",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/Testing+2?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    },
+    {
+      "id": "c7a5329b-040b-41d2-9126-d5084a4b5148",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('c7a5329b-040b-41d2-9126-d5084a4b5148')/channels",
+        "value": [
+          {
+            "id": "19:d2449322470b4f9a8d44eda1b32fc03e@thread.skype",
+            "displayName": "General",
+            "description": "I wanted to have this team's conversations - to explore what can be done.",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3ad2449322470b4f9a8d44eda1b32fc03e%40thread.skype/General?groupId=c7a5329b-040b-41d2-9126-d5084a4b5148&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:a080fda09f6241709a7e89df5afdff4f@thread.skype",
+            "displayName": "VmwareTesting",
+            "description": "This is to test graph apis on teams",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3aa080fda09f6241709a7e89df5afdff4f%40thread.skype/VmwareTesting?groupId=c7a5329b-040b-41d2-9126-d5084a4b5148&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }, {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams('1916d546-b1b2-4662-928f-321b9999cda0')/channels",
+        "value": [
+          {
+            "id": "19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+            "displayName": "General",
+            "description": "test pvt team",
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a15cf5d1ae521479eba0a86bf0b5b1bf2%40thread.skype/General?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          },
+          {
+            "id": "19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+            "displayName": "channel T1",
+            "description": null,
+            "isFavoriteByDefault": null,
+            "email": "",
+            "webUrl": "https://teams.microsoft.com/l/channel/19%3a4b925b0984cb4d55a23aef477cac5d41%40thread.skype/channel+T1?groupId=1916d546-b1b2-4662-928f-321b9999cda0&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6",
+            "membershipType": "standard"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -96,26 +96,6 @@ curl: (52) Empty reply from server
 
 The container port in your docker run commands' port binding probably isn't specifying the correct `server.port` that your connector is binding to.  Double check that the ContainerPort in `-p HostPort:ContainerPort` agrees with your `--server.port`.
 
-
-
-## RPM
-
-The following are some common problems that only apply to the RPM artifacts.
-
-### Connection Rejected After Install
-
-I cannot connect to the connector after `yum install`.
-
-Because the RPMs require you to specify the `security.oauth2.resource.jwt.key-uri` (preferably in `application.properties` under `/etc/...`) before startup, installing does not try to start the connector, so you have to manually do that the first time:
-
-```
-systemctl start jira-connector
-```
-
-Subsequent `yum upgrade`s, however, assume that you have already configured the key-uri and will restart the service for you after updating the package.
-
-
-
 ## Startup Problems In The Logs
 
 The following are some common startup problems that apply to multiple types of artifacts.

@@ -1,0 +1,18 @@
+{
+  "@odata.context": "https://graph.microsoft.com/V1.0/$metadata#users",
+  "value": [
+    {
+      "businessPhones": [],
+      "displayName": "accreq",
+      "givenName": "accreq",
+      "jobTitle": null,
+      "mail": "accreq@xen13.onmicrosoft.com",
+      "mobilePhone": null,
+      "officeLocation": null,
+      "preferredLanguage": null,
+      "surname": null,
+      "userPrincipalName": "accreq@xen13.onmicrosoft.com",
+      "id": "2f5432b3-b17c-4874-a622-fc21f3a0ebee"
+    }
+  ]
+}

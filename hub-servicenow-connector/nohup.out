@@ -1,0 +1,20 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::        (v2.1.7.RELEASE)
+
+2019-12-12 19:06:31.576  INFO 57071 --- [           main] .c.h.s.HubServiceNowConnectorApplication : Starting HubServiceNowConnectorApplication v2.6-SNAPSHOT on bgurrala-a01.vmware.com with PID 57071 (/Users/bgurrala/vmware/bharath/sourcecode/hub-servicenow-connector/target/hub-servicenow-connector-2.6-SNAPSHOT.jar started by bgurrala in /Users/bgurrala/vmware/bharath/sourcecode/hub-servicenow-connector)
+2019-12-12 19:06:31.579  INFO 57071 --- [           main] .c.h.s.HubServiceNowConnectorApplication : No active profile set, falling back to default profiles: default
+2019-12-12 19:06:33.156  INFO 57071 --- [           main] ctiveUserDetailsServiceAutoConfiguration : 
+
+Using generated security password: a28ee0f4-14f7-4309-977e-b3d695258c5e
+
+2019-12-12 19:06:33.420  INFO 57071 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path ''
+2019-12-12 19:06:34.195  INFO 57071 --- [           main] o.s.s.c.ThreadPoolTaskScheduler          : Initializing ExecutorService 'taskScheduler'
+2019-12-12 19:06:34.358  INFO 57071 --- [           main] o.s.b.web.embedded.netty.NettyWebServer  : Netty started on port(s): 8085
+2019-12-12 19:06:34.361  INFO 57071 --- [           main] .c.h.s.HubServiceNowConnectorApplication : Started HubServiceNowConnectorApplication in 3.273 seconds (JVM running for 3.773)
+2019-12-13 13:32:50.748  INFO 57071 --- [       Thread-2] o.s.s.c.ThreadPoolTaskScheduler          : Shutting down ExecutorService 'taskScheduler'

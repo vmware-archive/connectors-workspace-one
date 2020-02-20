@@ -1,0 +1,18 @@
+{
+  "responses": [
+    {
+      "id": "3",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(microsoft.graph.plannerTask)",
+        "@odata.count": 0,
+        "value": []
+      }
+    }
+  ]
+}

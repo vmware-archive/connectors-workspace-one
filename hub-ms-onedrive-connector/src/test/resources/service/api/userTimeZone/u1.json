@@ -1,0 +1,4 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users('3fca3578-eee3-4f5d-b62d-47d17f3cce3a')/mailboxSettings/timeZone",
+  "value": "India Standard Time"
+}

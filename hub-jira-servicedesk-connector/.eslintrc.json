@@ -1,0 +1,9 @@
+{
+    "plugins": ["jasmine"],    
+    "extends": "standard",
+    "env": {
+        "jasmine": true,
+        "mocha": true,
+        "node": true
+    }
+}

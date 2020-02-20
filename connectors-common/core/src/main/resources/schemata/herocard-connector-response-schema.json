@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "title": "Roswell Hero Card response schema",
+
+  "type": "object",
+  "properties": {
+    "objects": {"type": "array", "items": {"$ref": "#/definitions/CARD"}},
+    "connector_statuses": {"type": "array"}
+  },
+  "additionalProperties": false,
+
+
+  "definitions": {
+    "CARD": {
+      "type": "object",
+      "properties":     {
+        "id":           {"type": "string", "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"},
+        "name":         {"type": "string"},
+        "creation_date": {"type": "string", "format": "date-time"},
+        "expiration_date" :{"type": "string", "format": "date-time"},
+        "due_date":     {"type":  "string", "format": "date-time"},
+        "importance":   {"type": "integer"},
+        "template":     {"$ref": "#/definitions/LINK"},
+        "image":        {"$ref": "#/definitions/LINK"},
+        "header":       {"$ref": "#/definitions/CARD_HEADER"},
+        "body":         {"$ref": "#/definitions/CARD_BODY"},
+        "actions":      {"type": "array", "items": {"$ref": "#/definitions/CARD_ACTION"}},
+        "hash":         {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+
+    "LINK": {
+      "type": "object",
+      "properties": {
+        "href": {"type": "string"}
+      },
+      "required": ["href"],
+      "additionalProperties": false
+    },
+
+    "CARD_HEADER": {
+      "type": "object",
+      "properties": {
+        "title":    {"type": "string"},
+        "subtitle": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+
+    "CARD_BODY": {
+      "type": "object",
+      "properties": {
+        "description": {"type": "string"},
+        "fields":      {"type": "array", "items": {"$ref": "#/definitions/CARD_BODY_FIELD"}}
+      },
+      "additionalProperties": false
+    },
+
+    "CARD_BODY_FIELD": {
+      "type": "object",
+      "properties": {
+        "type":        {"type": "string"},
+        "title":       {"type": "string"},
+        "subtitle":    {"type": "string"},
+        "description": {"type": "string"},
+        "content":     {"type": "array", "items": {"type": "object"}},
+        "items":       {"type": "array", "items": {"$ref": "#/definitions/CARD_BODY_FIELD_ITEM"}}
+      },
+      "additionalProperties": false
+    },
+
+    "CARD_BODY_FIELD_ITEM": {
+      "type": "object",
+      "properties": {
+        "type":             {"type": "string"},
+        "title":            {"type": "string"},
+        "description":      {"type": "string"},
+        "attachment_name":  {"type": "string"},
+        "attachment_url":   {"type": "string"},
+        "attachment_body":  {"type": "array", "items": {"type": "object"}},
+        "content_type":     {"type": "string"},
+        "content_length":   {"type": "integer"},
+        "action_url":       {"type": "string"},
+        "action_type":      {"type": "string"},
+        "created_at":       {"type": "string", "format": "date-time"},
+        "updated_at":       {"type": "string", "format": "date-time"}
+      }
+    },
+
+    "CARD_ACTION": {
+      "type": "object",
+      "properties": {
+        "id":         {"type": "string", "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"},
+        "action_key": {"type": "string"},
+        "label":      {"type": "string"},
+        "completed_label":      {"type": "string"},
+        "url":        {"$ref": "#/definitions/LINK"},
+        "type":       {"$ref": "#/definitions/HTTP_METHODS"},
+        "user_input": {"type": "array", "items": {"$ref": "#/definitions/CARD_ACTION_USER_INPUT"}},
+        "request":    {"type": "object"},
+        "allow_repeated" : {"type": "boolean"},
+        "remove_card_on_completion": {"type": "boolean"},
+        "primary": {"type": "boolean"},
+        "mutually_exclusive_set_id": {"type": "string"}
+      },
+      "required": ["id", "completed_label", "url", "action_key", "label", "type"],
+      "additionalProperties": false
+    },
+
+    "CARD_ACTION_USER_INPUT": {
+      "type": "object",
+      "properties": {
+        "id":         {"type": "string"},
+        "label":      {"type": "string"},
+        "format":     {"type": "string"},
+        "options":    {"type": "object"},
+        "min_length": {"type": "integer", "minimum": 0},
+        "max_length": {"type": "integer", "minimum": 0}
+      },
+      "required": ["id", "label"],
+      "additionalProperties": false
+    },
+
+    "HTTP_METHODS": {
+      "type": "string",
+      "enum": ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "TRACE"]
+    }
+
+  }
+}
+

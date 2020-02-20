@@ -1,0 +1,5 @@
+PORT = 9191
+token_public_key_url = 'http://localhost:10002/security/public-key'
+NODE_ENV = 'test'
+SERVICEDESK_REQUEST_API='http://localhost:10001/servicedeskapi'
+ATLASSIAN_API_SERVER='http://localhost:10001'

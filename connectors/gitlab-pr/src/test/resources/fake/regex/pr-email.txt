@@ -1,7 +1,0 @@
-New Merge Request !15
-
-https://gitlab.com/vmware/test-repo/merge_requests/15
-
-Branches: another-new-branch to master
-Author:    TestUser1
-Assignee:
