@@ -1,6 +1,6 @@
-# Salesforce Connector for WS1 Hub
+# Hub Salesforce Connector for WS1 Hub
 
-The Salesforce connector for WS1 hub presents cards inviting the user to approve or reject an discount approval workflow.
+The Hub Salesforce connector for WS1 hub presents cards inviting the user to approve or reject an discount approval workflow.
 
 Approving discount approval workflow and rejecting discount approval workflow are the actions supported by this connector.
 
