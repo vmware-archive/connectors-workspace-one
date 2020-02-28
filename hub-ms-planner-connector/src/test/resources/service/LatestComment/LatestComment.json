@@ -1,0 +1,59 @@
+{
+  "@odata.context": "https://graph.microsoft.com/beta/$metadata#groups('c7a5329b-040b-41d2-9126-d5084a4b5148')/threads('AAQkADVlZTcwOTY4LTZjMTMtNGViYS05OTQ5LWY5Y2U2NmM1NjQzNAMkABAAQyaByTSPA0i8dXyJ3JNRzhAAQyaByTSPA0i8dXyJ3JNRzg%3D%3D')/posts",
+  "value": [
+    {
+      "@odata.etag": "W/\"CQAAABYAAADStnN/GxUJSZ6fl/u72/N1AAAHlSEF\"",
+      "id": "AAMkADVlZTcwOTY4LTZjMTMtNGViYS05OTQ5LWY5Y2U2NmM1NjQzNABGAAAAAAD6VBJG51IkT5ft_jTjrNumBwDStnN-GxUJSZ6fl-u72-N1AAAAAAEMAADStnN-GxUJSZ6fl-u72-N1AAAHlWbLAAA=",
+      "createdDateTime": "2019-11-12T12:13:39Z",
+      "lastModifiedDateTime": "2019-11-12T12:13:39Z",
+      "changeKey": "CQAAABYAAADStnN/GxUJSZ6fl/u72/N1AAAHlSEF",
+      "categories": [],
+      "receivedDateTime": "2019-11-12T12:13:39Z",
+      "hasAttachments": false,
+      "importance": "normal",
+      "body": {
+        "contentType": "html",
+        "content": "<html><body><div>\r\n<div>\r\n<div>\r\n<div><font size=\"2\"><span style=\"font-size:10pt;\">Task <a href=\"https://tasks.office.com/backflipt.com/en-us/Home/Task/eQ6gLQY5-EmAlnl91MUfy2QAEqrS?Type=Comment&amp;Channel=GroupMailbox&amp;CreatedTime=637091576151870000\" target=\"_blank\" rel=\"noopener noreferrer\">test\r\ncomment task</a> assigned to Hitesh</span></font></div>\r\n<table id=\"jSanity_hideInPlanner\">\r\n<tr>\r\n<td style=\"padding:40px 0 0 0;\">\r\n<table width=\"224\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">\r\n<tr>\r\n<td style=\"background-color:#31752F;padding:10px 30px 12px 30px;\">\r\n<div align=\"center\" style=\"text-align:center;\"><a href=\"https://tasks.office.com/backflipt.com/en-us/Home/Task/eQ6gLQY5-EmAlnl91MUfy2QAEqrS?Type=Comment&amp;Channel=GroupMailbox&amp;CreatedTime=637091576151870000\" target=\"_blank\" style=\"text-decoration:none;\"><span style=\"color:white;font-size:14px;font-family:Segoe UI,sans-serif,serif,EmojiFont;text-decoration:none;\">Reply\r\nin Microsoft Planner</span></a></div>\r\n</td>\r\n</tr>\r\n</table>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td style=\"padding:15px 0 0 0;\">\r\n<div><span style=\"color:#666666;font-size:10px;font-family:Segoe UI,sans-serif,serif,EmojiFont;font-weight:lighter;\">You can also reply to this email to add a task comment.</span></div>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td style=\"padding:10px 0 0 0;\">\r\n<div><span style=\"color:#666666;font-size:10px;font-family:Segoe UI,sans-serif,serif,EmojiFont;font-weight:lighter;\">This task is in the <a href=\"https://tasks.office.com/backflipt.com/en-us/Home/PlanViews/Haqi7tGlgUqUSzSAXgz-SmQABiYg?Type=Comment&amp;Channel=GroupMailbox&amp;CreatedTime=637091576151870000\">another</a>\r\nplan.</span></div>\r\n</td>\r\n</tr>\r\n</table>\r\n</div>\r\n</div>\r\n</div>\r\n</body></html>"
+      },
+      "from": {
+        "emailAddress": {
+          "name": "Hemanth Kethe",
+          "address": "hemanthkethe@backflipt.com"
+        }
+      },
+      "sender": {
+        "emailAddress": {
+          "name": "Hemanth Kethe",
+          "address": "hemanthkethe@backflipt.com"
+        }
+      }
+    },
+    {
+      "@odata.etag": "W/\"CQAAABYAAADStnN/GxUJSZ6fl/u72/N1AAAHlSER\"",
+      "id": "AAMkADVlZTcwOTY4LTZjMTMtNGViYS05OTQ5LWY5Y2U2NmM1NjQzNABGAAAAAAD6VBJG51IkT5ft_jTjrNumBwDStnN-GxUJSZ6fl-u72-N1AAAAAAEMAADStnN-GxUJSZ6fl-u72-N1AAAHlWbMAAA=",
+      "createdDateTime": "2019-11-12T12:13:46Z",
+      "lastModifiedDateTime": "2019-11-12T12:13:46Z",
+      "changeKey": "CQAAABYAAADStnN/GxUJSZ6fl/u72/N1AAAHlSER",
+      "categories": [],
+      "receivedDateTime": "2019-11-12T12:13:46Z",
+      "hasAttachments": false,
+      "importance": "normal",
+      "body": {
+        "contentType": "html",
+        "content": "<html><body><div>\r\n<div>hiiiiii \r\n<table id=\"jSanity_hideInPlanner\">\r\n<tr>\r\n<td style=\"padding:40px 0 0 0;\">\r\n<div><span style=\"color:#666666;font-size:10px;font-family:Segoe UI,sans-serif,serif,EmojiFont;font-weight:lighter;\">These comments are about the task <a href=\"https://tasks.office.com/backflipt.com/en-us/Home/Task/eQ6gLQY5-EmAlnl91MUfy2QAEqrS?Type=Comment&amp;Channel=GroupMailbox&amp;CreatedTime=637091576172240000\">test\r\ncomment task</a> in the plan <a href=\"https://tasks.office.com/backflipt.com/en-us/Home/PlanViews/Haqi7tGlgUqUSzSAXgz-SmQABiYg?Type=Comment&amp;Channel=GroupMailbox&amp;CreatedTime=637091576172240000\">another</a>.</span></div>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td style=\"padding:10px 0 0 0;\">\r\n<div><span style=\"color:#666666;font-size:10px;font-family:Segoe UI,sans-serif,serif,EmojiFont;font-weight:lighter;\"><a href=\"https://tasks.office.com/backflipt.com/en-us/Home/Task/eQ6gLQY5-EmAlnl91MUfy2QAEqrS?Type=Comment&amp;Channel=GroupMailbox&amp;CreatedTime=637091576172240000\">Reply\r\nin Microsoft Planner</a> or reply to this email to add a task comment.</span></div>\r\n</td>\r\n</tr>\r\n</table>\r\n</div>\r\n</div>\r\n</body></html>"
+      },
+      "from": {
+        "emailAddress": {
+          "name": "Hemanth Kethe",
+          "address": "hemanthkethe@backflipt.com"
+        }
+      },
+      "sender": {
+        "emailAddress": {
+          "name": "Hemanth Kethe",
+          "address": "hemanthkethe@backflipt.com"
+        }
+      }
+    }
+  ]
+}

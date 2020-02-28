@@ -1,0 +1,3 @@
+spring:
+  application:
+    name: hub-ms-planner-connector

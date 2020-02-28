@@ -1,0 +1,35 @@
+{
+  "@odata.context": "https://graph.microsoft.com/beta/$metadata#teams",
+  "value": [
+    {
+      "id": "c7a5329b-040b-41d2-9126-d5084a4b5148",
+      "displayName": "Microsoft Graph discussions",
+      "description": "I wanted to have this team's conversations - to explore what can be done.",
+      "isArchived": false
+    },
+    {
+      "id": "d8786029-7608-408f-9ec3-386b27d5c0b9",
+      "displayName": "Test team with sabbu",
+      "description": "Test team with sabbu",
+      "isArchived": false
+    },
+    {
+      "id": "28146088-6522-4459-9a52-295772efd51c",
+      "displayName": "Group One",
+      "description": "Group One",
+      "isArchived": false
+    },
+    {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0",
+      "displayName": "test pvt team",
+      "description": "test pvt team",
+      "isArchived": false
+    },
+    {
+      "id": "710a71e3-8b69-4b27-8e73-13c0e19a6449",
+      "displayName": "test pub team",
+      "description": "test pub team",
+      "isArchived": false
+    }
+  ]
+}

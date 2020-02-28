@@ -1,0 +1,19 @@
+{
+  "image": {
+    "href": "${CONNECTOR_HOST}/images/connector.png"
+  },
+  "test_auth": {
+    "href": "${CONNECTOR_HOST}/test-auth"
+  },
+  "object_types": {
+    "card": {
+      "pollable": true,
+      "doc": {
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/cards/requests"
+      }
+    }
+  }
+}

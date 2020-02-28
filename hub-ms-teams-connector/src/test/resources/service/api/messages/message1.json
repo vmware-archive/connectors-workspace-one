@@ -1,0 +1,40 @@
+{
+  "id": "1571742046171",
+  "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1571742046171?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1571742046171&parentMessageId=1570792618427",
+  "replyToId": "1570792618427",
+  "subject": null,
+  "createdDateTime": "2019-10-22T11:00:46.171Z",
+  "lastModifiedDateTime": null,
+  "from": {
+    "user": {
+      "displayName": "Hemanth Kethe",
+      "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd"
+    }
+  },
+  "summary": null,
+  "mentions": [
+    {
+      "id": "0",
+      "mentionText": "Hitesh",
+      "mentioned": {
+        "user": {
+          "displayName": "Hitesh",
+          "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+        }
+      }
+    }
+  ],
+  "body": {
+    "contentType": "html",
+    "content": "<div><div><at id=\"0\">Hitesh</at> reply</div>\n</div>"
+  },
+  "channelId": "19:edc1a6c1be5c4736b7ead64dae9624e3@thread.skype",
+  "teamId": "28146088-6522-4459-9a52-295772efd51c",
+  "channelName": "Testing 2",
+  "userTimeZone": "India Standard Time",
+  "attachments": [],
+  "teamName": "Group One",
+  "createdDate": "22 10 2019 11:00:46 IST",
+  "dateTime": "Tue 22-Oct-19 04:30 PM",
+  "replyId": "1570792618427"
+}

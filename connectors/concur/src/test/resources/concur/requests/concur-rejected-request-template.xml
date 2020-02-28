@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ActionStatus xmlns="http://www.concursolutions.com/api/expense/expensereport/2011/03">
-    <Message>The action cannot be executed because the item has recently been changed. Please refresh your list and try again.</Message>
-    <Status>FAILURE</Status>
-</ActionStatus>

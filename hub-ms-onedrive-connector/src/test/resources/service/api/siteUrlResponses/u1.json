@@ -1,0 +1,14 @@
+{
+  "@odata.context": "https://graph.microsoft.com/beta/$metadata#sites/$entity",
+  "createdDateTime": "2019-03-25T11:15:43.067Z",
+  "description": "This is the personal space of pavan. You can use this space to create lists, document libraries to store, organize, and share information with others.",
+  "id": "backflipt-my.sharepoint.com,3b4fbdfd-a6c1-4b4e-a5a1-ba26e2e81243,7849a5b3-019f-4bc7-a407-65f41107c481",
+  "lastModifiedDateTime": "2019-12-24T06:12:51Z",
+  "name": "pavan_backflipt_com",
+  "webUrl": "https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com",
+  "displayName": "pavan",
+  "root": {},
+  "siteCollection": {
+    "hostname": "backflipt-my.sharepoint.com"
+  }
+}

@@ -1,9 +1,0 @@
-{
-  "author": {
-    "username": "TestUser1"
-  },
-  "body": "test-body",
-  "created_at": "2018-01-16T14:25:56Z",
-  "noteable_type": "MergeRequest",
-  "updated_at": "2018-01-16T14:25:56Z"
-}

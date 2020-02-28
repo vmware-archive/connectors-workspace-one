@@ -1,0 +1,255 @@
+{
+  "responses": [
+    {
+      "id": "5",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(microsoft.graph.plannerBucket)",
+        "@odata.count": 1,
+        "value": [
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "To do",
+            "planId": "bbZlPaPMak-dUQBIrFgHG2QAEbTJ",
+            "orderHint": "8586293434706373534Po",
+            "id": "DB7Vuiq9nUO38GgmxTEMT2QACoLL"
+          }
+        ]
+      }
+    },
+    {
+      "id": "2",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(microsoft.graph.plannerBucket)",
+        "@odata.count": 2,
+        "value": [
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBASCc=\"",
+            "name": "Backflipt",
+            "planId": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "orderHint": "858629352349",
+            "id": "W6AXFzUKwUqyEnHV25wu8mQABcba"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBASCc=\"",
+            "name": "Vmware",
+            "planId": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "orderHint": "8586293523935307224PY",
+            "id": "CL9pQK4YA02oyD2U9ABvpmQALIbx"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(microsoft.graph.plannerBucket)",
+        "@odata.count": 1,
+        "value": [
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBASCc=\"",
+            "name": "To do new plan",
+            "planId": "RP3KhiW65kCOotCu60RR0WQAGZb3",
+            "orderHint": "8586291026580920150Pp",
+            "id": "SGa4ULa2tEKrclFqHw8cwGQALRLo"
+          }
+        ]
+      }
+    },
+    {
+      "id": "4",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(microsoft.graph.plannerBucket)",
+        "@odata.count": 1,
+        "value": [
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "To do",
+            "planId": "Haqi7tGlgUqUSzSAXgz-SmQABiYg",
+            "orderHint": "8586293496982836119P#",
+            "id": "wW9XcXRclEu9gIX3rBpsY2QAE1QH"
+          }
+        ]
+      }
+    },
+    {
+      "id": "3",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(microsoft.graph.plannerBucket)",
+        "@odata.count": 1,
+        "value": [
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "To do",
+            "planId": "2pfMcnofj0SLhToqkxq5GmQAABGx",
+            "orderHint": "8586293352817333425PW",
+            "id": "qpgVV84r2UitRb8cef7L5mQAAjoU"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(microsoft.graph.plannerBucket)",
+        "@odata.count": 17,
+        "value": [
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket 16",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "85862913n",
+            "id": "k51AabrAAESo7aZY1jmzdmQAAxVX"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket 15",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "858629176\\}",
+            "id": "f91Qkw07UkOmkaivhcswMWQAE1Gy"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket 14",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "858629177&",
+            "id": "gMW3_JV4JEyutfbHSZ4h2mQAJ0kq"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket thirteen",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "858629179b",
+            "id": "JgSdmMdX6EOlyw5uPvr-rGQANWoS"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket twelve",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "85862917;t",
+            "id": "57cJRZD1P0q-XdBpiU2KUWQAMWfW"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket eleven",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "85862917@<",
+            "id": "F-DwQFUAXEi2ODTc2aBAlmQAFntr"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket ten",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "85862917Im",
+            "id": "t722ONvEeku_H158iPEzOGQAOehC"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket nine",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "85862917[=",
+            "id": "qtlffxCIOEWSDYa8lVu0UWQAIv0u"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket eight",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "85862918#",
+            "id": "tIBCO9SiVUeiiAiLUl6dWGQAETmo"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket seven",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "85862919$",
+            "id": "IxiF1jru1Ea0TUMWuVRI_2QADpmG"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket six",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "8586291;^",
+            "id": "dsu6FbMwwUK5Xqgi4gzvZ2QAGfA5"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket five",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "8586291@+",
+            "id": "LKyoDHw_PUCEhWMOjVeaj2QANgtN"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket four",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "8586291I3",
+            "id": "8Qfwb1acdUeCaD4sNXAsDWQAGwHe"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket three",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "8586291[/",
+            "id": "t4bpdMn7CUCea8Ltip40EmQANmen"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket two",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "8586292#",
+            "id": "fyWpSHAcKUuJIQSk_OsBRGQALJCa"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBARCc=\"",
+            "name": "bucket one",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "85862933Y5",
+            "id": "RGg1_hfVEUmlH2cyaJ9EF2QANnmw"
+          },
+          {
+            "@odata.etag": "W/\"JzEtQnVja2V0QEBAQEBAQEBAQEBAQEBASCc=\"",
+            "name": "To do",
+            "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+            "orderHint": "8586293467580124545Pe",
+            "id": "SyiBpteYJUCu4HwCCyhWpmQAPKjQ"
+          }
+        ]
+      }
+    }
+  ]
+}

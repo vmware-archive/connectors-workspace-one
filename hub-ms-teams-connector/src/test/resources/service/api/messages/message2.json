@@ -1,0 +1,40 @@
+{
+  "id": "1571749369136",
+  "webUrl": "",
+  "replyToId": "1570792426510",
+  "subject": null,
+  "createdDateTime": "2019-10-23T10:58:37.000Z",
+  "lastModifiedDateTime": null,
+  "from": {
+    "user": {
+      "displayName": "Hemanth Kethe",
+      "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd"
+    }
+  },
+  "summary": null,
+  "mentions": [
+    {
+      "id": "0",
+      "mentionText": "Hitesh",
+      "mentioned": {
+        "user": {
+          "displayName": "Hitesh",
+          "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+        }
+      }
+    }
+  ],
+  "body": {
+    "contentType": "html",
+    "content": "<div><div><at id=\"0\">Hitesh</at> testing reply</div>\n</div>"
+  },
+  "channelId": "19:edc1a6c1be5c4736b7ead64dae9624e3@thread.skype",
+  "teamId": "28146088-6522-4459-9a52-295772efd51c",
+  "channelName": "Testing 2",
+  "userTimeZone": "India Standard Time",
+  "attachments": [],
+  "teamName": "Group One",
+  "createdDate": "23 10 2019 10:58:37 IST",
+  "dateTime": "Wed 23-Oct-19 04:28 PM",
+  "replyId": "1570792426510"
+}

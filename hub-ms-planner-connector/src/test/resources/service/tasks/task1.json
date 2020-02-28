@@ -1,0 +1,49 @@
+{
+  "@odata.etag": "W/\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBARCc=\"",
+  "planId": "Xboe7YIW00qRR1Z4Anjio2QABURS",
+  "bucketId": "t4bpdMn7CUCea8Ltip40EmQANmen",
+  "groupId": "group1",
+  "title": "task greater than 14 days",
+  "orderHint": "8586291036061996212Pg",
+  "assigneePriority": "8586291035460903174",
+  "percentComplete": 0,
+  "startDateTime": null,
+  "createdDateTime": "2019-10-31T06:28:59.3872633Z",
+  "dueDateTime": "2010-11-15T10:00:00Z",
+  "hasDescription": false,
+  "previewType": "automatic",
+  "completedDateTime": null,
+  "completedBy": null,
+  "referenceCount": 0,
+  "checklistItemCount": 0,
+  "activeChecklistItemCount": 0,
+  "conversationThreadId": null,
+  "priority": 5,
+  "id": "4AOsPl68BU259Ie_5yODWmQAPXo9",
+  "createdBy": {
+    "user": {
+      "displayName": null,
+      "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd"
+    }
+  },
+  "appliedCategories": {},
+  "assignments": {
+    "3fca3578-eee3-4f5d-b62d-47d17f3cce3a": {
+      "@odata.type": "#microsoft.graph.plannerAssignment",
+      "assignedDateTime": "2019-10-31T06:28:59.3872633Z",
+      "orderHint": "8586291036061996212P}",
+      "assignedBy": {
+        "user": {
+          "displayName": null,
+          "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd"
+        }
+      }
+    }
+  },
+  "taskMetaInfo": {
+    "groupId": "groupId",
+    "bucketId": "bucketId",
+    "planName": "title",
+    "bucketName": "bucket"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "@odata.context": "https://graph.microsoft.com/beta/$metadata#users('15fdbf0f-3dfe-4dcf-bf6d-60c1481f334a')/people(displayName,givenName,emailAddresses)",
+  "value": [
+    {
+      "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd",
+      "displayName": "Hemanth Kethe",
+      "givenName": "Hemanth",
+      "emailAddresses": [
+        {
+          "address": "hemanthkethe@backflipt.com",
+          "rank": -4.0
+        }
+      ]
+    }
+  ]
+}
