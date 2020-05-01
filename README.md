@@ -80,22 +80,35 @@ Unzip the repo if you downloaded a zip.
 Use the below command from within the repository directory to create the docker image:
 
 ```
-docker build -t jira-service-desk-connector .
+docker build -t jira-service-desk .
 ```
 
 ### Running
 
-The latest published versions of the connectors are available in the [Docker Hub registry](https://hub.docker.com/u/ws1connectors/).
-
-For example, you can run the latest jira-service-desk-connector with:
+You can run your local container built from the docker build command above with:
 
 ```
-docker run --name jira-service-desk-connector \
+docker run --name jira-service-desk \
            -p 8080:8080 \
+           -e PORT=8080 \
+           -e token_public_key_url="https://prod.hero.vmwservices.com/security/public-key" \
+           -e MF_JWT_PUB_KEY_URI="https://prod.hero.vmwservices.com/security/public-key" \
            -d \
-           ws1connectors/jira-service-desk-connector \
-           --server.port=8080 \
-           --token_public_key_url="https://prod.hero.vmwservices.com/security/public-key"
+           jira-service-desk
+```
+
+The latest published versions of the connectors are available in the [Docker Hub registry](https://hub.docker.com/u/ws1connectors/).
+
+For example, you can run the latest jira-service-desk connector with:
+
+```
+docker run --name jira-service-desk \
+           -p 8080:8080 \
+           -e PORT=8080 \
+           -e token_public_key_url="https://prod.hero.vmwservices.com/security/public-key" \
+           -e MF_JWT_PUB_KEY_URI="https://prod.hero.vmwservices.com/security/public-key" \
+           -d \
+           ws1connectors/jira-service-desk
 ```
 
 ## Troubleshooting
