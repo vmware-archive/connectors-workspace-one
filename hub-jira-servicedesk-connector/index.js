@@ -67,6 +67,7 @@ app.post('/setHash', function (req, res) {
   jira.setHash(req.body.hash)
   res.status(200).json({ new_hash: req.body.hash })
 })
+app.get('/health', (req, res) => res.json({ status: 'UP' }))
 
 console.log(`CONNECTOR LISTENING ON PORT ${PORT}`)
 module.exports = app.listen(PORT)

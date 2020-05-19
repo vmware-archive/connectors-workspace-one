@@ -1,2 +1,11 @@
 /node_modules/*
 .env
+
+# IntelliJ files
+.idea/
+
+# Vim swp files
+*.swp
+
+# Mac Finder files
+.DS_Store

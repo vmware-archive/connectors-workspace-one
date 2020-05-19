@@ -1,6 +1,6 @@
-# Hub Jira Service Desk Connector
+# WS1Jira Service Desk Approval Connector
 
-Hub Jira Service Desk connector allows a user to view, approve, or decline Approvals in their Jira Service Desk approval queue.
+This connector allows a user to view, approve, or decline Approvals in their Jira Service Desk approval queue.
 
 ## Discovery
 The discovery URL is of the form:
@@ -97,5 +97,3 @@ The sample card looks something like this:
         }
 
 Each card has two actions -- `Approve`, or `Decline`
-
-For generic details on how to build, install, and configure connectors, please see the [README](https://github.com/vmware/connectors-workspace-one/blob/master/README.md) at the root of this repository.
