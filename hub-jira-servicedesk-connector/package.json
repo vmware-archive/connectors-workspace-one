@@ -20,8 +20,9 @@
   },
   "scripts": {
     "start": "node index.js",
+    "verify": "npm run test && npm run lint",
     "test": "mocha --require test/support/env --reporter spec --bail --check-leaks test/",
-    "lint": "eslint routes/**/**.js test/**/**.js"
+    "lint": "eslint *.js routes/**/**.js test/**/**.js"
   },
   "devDependencies": {
     "eslint": "^6.2.2",

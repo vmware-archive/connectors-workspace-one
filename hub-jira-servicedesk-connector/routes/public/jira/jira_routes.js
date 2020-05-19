@@ -196,12 +196,16 @@ const getCloudId = async (req, res, next) => {
   if (res.locals.cloudId) {
     next()
   } else {
-    const cloudId = await jiraRest.getCloudId(res.locals.connectorAuthorization)
-    if (cloudId) {
-      res.locals.cloudId = cloudId
-      next()
-    } else {
-      res.status(500).json({ error: 'Could not find a valid cloud ID for this account' })
+    try {
+      const cloudId = await jiraRest.getCloudId(res.locals.connectorAuthorization)
+      if (cloudId) {
+        res.locals.cloudId = cloudId
+        next()
+      } else {
+        res.status(500).json({ error: 'Could not find a valid cloud ID for this account' })
+      }
+    } catch (err) {
+      res.status(500).json({ error: 'Could not retrieve cloud ID for this account: ' + err.message })
     }
   }
 }

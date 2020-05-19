@@ -94,7 +94,7 @@ const verifyAuthAsync = async (authorization, options) => {
 }
 
 const envPublicKeyURL = () => {
-  return process.env.token_public_key_url
+  return process.env.MF_JWT_PUB_KEY_URI
 }
 
 /**
@@ -116,7 +116,7 @@ const getPublicKey = async (options) => {
         new Date(expiresAtTime)
       )
     }
-    
+
     if (options.authPubKeyUrl in pubKeyCache) {
       if (process.env.DEBUG) {
         console.log('Deleting old entry and replacing')
