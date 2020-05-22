@@ -123,4 +123,4 @@ to [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-Workspace One Connectors are available under the [BSD 2 license](https://github.com/vmware/connectors-workspace-one/blob/master/LICENSE.txt)
+Workspace One Connectors are available under the [BSD 2 license](LICENSE.txt)
