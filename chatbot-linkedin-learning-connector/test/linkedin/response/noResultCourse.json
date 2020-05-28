@@ -1,0 +1,39 @@
+{
+    "metadata": {
+        "assetTypeFacetMetadata": [
+            {
+                "count": 0,
+                "assetType": "COURSE"
+            },
+            {
+                "count": 0,
+                "assetType": "LEARNING_PATH"
+            },
+            {
+                "count": 0,
+                "assetType": "VIDEO"
+            }
+        ],
+        "difficultyLevelFacetMetadata": [
+            {
+                "difficultyLevel": "ADVANCED",
+                "count": 0
+            },
+            {
+                "difficultyLevel": "BEGINNER",
+                "count": 0
+            },
+            {
+                "difficultyLevel": "INTERMEDIATE",
+                "count": 0
+            }
+        ]
+    },
+    "elements": [],
+    "paging": {
+        "total": 0,
+        "count": 1,
+        "start": 0,
+        "links": []
+    }
+}

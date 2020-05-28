@@ -1,0 +1,76 @@
+{
+      "objects": [
+        {
+          "backend_id": "random",
+          "body": {
+            "fields": [
+              {
+                "description": "Bootstrap 4 Essential Training",
+                "title": "Title",
+                "type": "GENERAL"
+              },
+              {
+                "description": "Ray Villalobos",
+                "title": "Instructor",
+                "type": "GENERAL"
+              },
+              {
+                "description": "6h 42m",
+                "title": "Duration",
+                "type": "GENERAL"
+              },
+              {
+              "items": [
+                  {
+                    "description": "Bootstrap—a front-end framework using HTML, CSS, and jQuery—is designed to help developers quickly and easily build responsive, mobile-ready websites that are cross-browser compatible. An open-source framework, Bootstrap features a 12-column grid and components that are ready to use. In this course, Ray Villalobos helps you get started with Bootstrap 4, providing an overview of all of the goodies in this popular framework. Ray covers the installation options, and walks through the basic styles that normalize how your content is displayed on different platforms and browsers. He also explains how to use the flexbox grid system to build nearly any kind of layout you can dream up, use different classes to easily get around your project, work with interactive components like dropdowns and carousels, and more.",
+                    "title": "Description",
+                    "type": "GENERAL"
+                  },
+                  {
+                    "description": "Bootstrap, Front-end Development, Front-End Web Development, Web Development, Technology",
+                    "title": "Category",
+                    "type": "GENERAL"
+                  },
+                  {
+                    "description": "2017-03-31T00:00:00.000Z",
+                    "title": "Released",
+                    "type": "GENERAL"
+                  },
+                  {
+                  "description": "2020-02-19T18:08:58.033Z",
+                    "title": "Updated at",
+                    "type": "GENERAL"
+                  },
+                  {
+                    "description": "BEGINNER",
+                    "title": "Difficulty",
+                    "type": "GENERAL"
+                  }
+                ],
+                "title": "About Course",
+                "type": "SECTION"
+             }
+            ]
+          },
+          "creation_date": "random",
+          "hash": "random",
+          "header": {
+            "links": {
+              "subtitle": [
+                "https://www.linkedin.com/learning/bootstrap-4-essential-training"
+              ],
+              "title": "https://www.linkedin.com/learning/bootstrap-4-essential-training"
+            },
+            "subtitle": [
+              "View course"
+            ],
+            "title": "LinkedIn Learning: New course available"
+        },
+          "id": "random",
+          "image": {
+            "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-linkedin-learning.png"
+          },
+          "name": "LinkedIn Learning"
+        }
+     ]
+    }

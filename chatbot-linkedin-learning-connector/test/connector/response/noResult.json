@@ -1,0 +1,11 @@
+{
+    "objects": [
+        {
+            "itemDetails": {
+                "title": "I’m sorry. I could not find any courses related to that search. You can view more courses here: https://www.linkedin.com/learning/",
+                "description": "Please try again with different search",
+                "type": "text"
+            }
+        }
+    ]
+}
