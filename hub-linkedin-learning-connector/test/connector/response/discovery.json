@@ -1,0 +1,13 @@
+{
+    "image": {
+      "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-linkedin-learning.png"
+    },
+    "object_types": {
+      "card": {
+        "endpoint": {
+          "href": "https://my-host:3030/abc/api/cards"
+        },
+        "pollable": true
+      }
+    }
+  }

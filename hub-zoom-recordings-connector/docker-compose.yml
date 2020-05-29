@@ -1,0 +1,16 @@
+version: '2.3'
+services:
+  connector:
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '100k'
+        max-file: '100'
+    build: .
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      - MF_JWT_PUB_KEY_URI=https://dev.hero.vmwservices.com/security/public-key
+    env_file:
+      - .env
+    restart: always

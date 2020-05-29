@@ -1,0 +1,16 @@
+{
+  "image": {
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-zoom.png"
+  },
+  "object_types": {
+    "card": {
+      "pollable": true,
+      "endpoint": {
+        "href": "https://my-host:3030/abc/api/cards"
+      },
+      "doc": {
+        "href": "https://vmwaresamples.github.io/card-connectors-guide/#schema/herocard-response-schema.json"
+      }
+    }
+  }
+}

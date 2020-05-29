@@ -1,0 +1,37 @@
+{
+  "name": "linkedin-learning",
+  "version": "1.0.0",
+  "description": "LinkedIn Learning connector to MobileFlows For Hub chatbot usecases",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@stash.air-watch.com:7999/ufo/chatbot-linkedin-learning-connector.git"
+  },
+  "keywords": [
+    "chatbot",
+    "linkedInLearning"
+  ],
+  "author": "Bilal Dar <bdar@vmware.com>",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5",
+    "uuid": "^7.0.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "mocha": "^7.0.1"
+  }
+}

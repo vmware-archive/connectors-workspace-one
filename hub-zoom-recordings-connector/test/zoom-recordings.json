@@ -1,0 +1,159 @@
+{
+    "from": "2020-03-04",
+    "to": "2020-03-05",
+    "page_count": 1,
+    "page_size": 30,
+    "total_records": 2,
+    "next_page_token": "",
+    "meetings": [
+      {
+        "uuid": "wSTRm1ZA3E00l0w",
+        "id": 4752962893,
+        "account_id": "47522ejCs969aSibe5gUJ4",
+        "host_id": "5Ju0XlhFSCrkdES7Chhdzg",
+        "topic": "Sumit Zamadar's Personal Meeting Room",
+        "type": 4,
+        "start_time": "2020-03-04T12:34:55Z",
+        "timezone": "Asia/Kolkata",
+        "duration": 0,
+        "total_size": 242766,
+        "recording_count": 7,
+        "share_url": "https://VMware.zoom.us/rec/share/5JZ4F4Cz6VhOeImU2micAYN5RoC9aaa81yke-KUEyEgrDqrHZKANWtzlM7-50LDj",
+        "recording_files": [
+          {
+            "id": "93c26def-8a0d-4711-8d2c-7af1cce60a81",
+            "meeting_id": "wSTRm1ZA3E00l0w",
+            "recording_start": "2020-03-04T12:35:05Z",
+            "recording_end": "2020-03-04T12:35:10Z",
+            "file_type": "M4A",
+            "file_size": 34502,
+            "play_url": "https://VMware.zoom.us/rec/play/tJd-de_8-203EoWV5ASDBfd4W9TpLPis1XBI-6BemUm1AngCN1ukZrNDa-OaNKh-A1l7hUzvBubVwrnS",
+            "download_url": "https://VMware.zoom.us/rec/download/tJd-de_8-203EoWV5ASDBfd4W9TpLPis1XBI-6BemUm1AngCN1ukZrNDa-OaNKh-A1l7hUzvBubVwrnS",
+            "status": "completed",
+            "recording_type": "audio_only"
+          },
+          {
+            "meeting_id": "wSTRm1ZA3E00l0w",
+            "recording_start": "2020-03-04T12:35:05Z",
+            "recording_end": "2020-03-04T12:35:10Z",
+            "file_type": "TIMELINE",
+            "download_url": "https://VMware.zoom.us/rec/download/01d03b48-af74-462d-a8c7-ed8308c8c64e"
+          },
+          {
+            "id": "9c7c75d4-dfef-470c-83e4-c670c3783f34",
+            "meeting_id": "wSTRm1ZA3E00l0w",
+            "recording_start": "2020-03-04T12:35:32Z",
+            "recording_end": "2020-03-04T12:35:42Z",
+            "file_type": "CHAT",
+            "file_size": 39,
+            "play_url": "https://VMware.zoom.us/rec/play/tMcqJO6t-j83ToLA5gSDBfYqW9S-e6-sgScZ-qAOy0e2BXMHNlOuN7dEM-Mz14WKou-dqtlNWcNV0Y7U",
+            "download_url": "https://VMware.zoom.us/rec/download/tMcqJO6t-j83ToLA5gSDBfYqW9S-e6-sgScZ-qAOy0e2BXMHNlOuN7dEM-Mz14WKou-dqtlNWcNV0Y7U",
+            "status": "completed",
+            "recording_type": "chat_file"
+          },
+          {
+            "id": "bfea2b1e-77bf-403f-ab05-e97a129c5553",
+            "meeting_id": "wSTRm1ZA3E00l0w",
+            "recording_start": "2020-03-04T12:35:05Z",
+            "recording_end": "2020-03-04T12:35:10Z",
+            "file_type": "MP4",
+            "file_size": 50033,
+            "play_url": "https://VMware.zoom.us/rec/play/78J4Juv6r243HdPH5gSDAvUvW43vLq6shygZq_IPxRywVnUAZwLzNLFAN-UE7lX2pLBDh0Bid13tgQBn",
+            "download_url": "https://VMware.zoom.us/rec/download/78J4Juv6r243HdPH5gSDAvUvW43vLq6shygZq_IPxRywVnUAZwLzNLFAN-UE7lX2pLBDh0Bid13tgQBn",
+            "status": "completed",
+            "recording_type": "shared_screen_with_speaker_view"
+          },
+          {
+            "id": "d14ea04b-1ad4-44b3-a89f-6459a2959858",
+            "meeting_id": "wSTRm1ZA3E00l0w",
+            "recording_start": "2020-03-04T12:35:32Z",
+            "recording_end": "2020-03-04T12:35:42Z",
+            "file_type": "M4A",
+            "file_size": 65853,
+            "play_url": "https://VMware.zoom.us/rec/play/6ZUpIrioqmk3G4XBtASDBqR6W421J_2s1CUb86IPxUq8W3ULY1eiMLQTa3gOzEVhpxgMl6ShxWw0HP0",
+            "download_url": "https://VMware.zoom.us/rec/download/6ZUpIrioqmk3G4XBtASDBqR6W421J_2s1CUb86IPxUq8W3ULY1eiMLQTa3gOzEVhpxgMl6ShxWw0HP0",
+            "status": "completed",
+            "recording_type": "audio_only"
+          },
+          {
+            "meeting_id": "wSTRm1ZA3E00l0w",
+            "recording_start": "2020-03-04T12:35:32Z",
+            "recording_end": "2020-03-04T12:35:42Z",
+            "file_type": "TIMELINE",
+            "download_url": "https://VMware.zoom.us/rec/download/a7bb20bd-5066-4669-a047-f22d09481a91"
+          },
+          {
+            "id": "ef488477-22e7-4980-8ce6-48d18ae0a018",
+            "meeting_id": "wSTRm1ZA3E00l0w",
+            "recording_start": "2020-03-04T12:35:32Z",
+            "recording_end": "2020-03-04T12:35:42Z",
+            "file_type": "MP4",
+            "file_size": 92339,
+            "play_url": "https://VMware.zoom.us/rec/play/6MIpf-GsqTw3GNbAtwSDC_55W9Tue62s1ilK-_tcmU_kU3ELZFalNeQQZrEJQuwJ_TnXJXN1VaoK9NwW",
+            "download_url": "https://VMware.zoom.us/rec/download/6MIpf-GsqTw3GNbAtwSDC_55W9Tue62s1ilK-_tcmU_kU3ELZFalNeQQZrEJQuwJ_TnXJXN1VaoK9NwW",
+            "status": "completed",
+            "recording_type": "shared_screen_with_speaker_view"
+          }
+        ]
+      },
+      {
+        "uuid": "XIsxEnPVRVm5fSkW+w1Iew==",
+        "id": 296750026,
+        "account_id": "47522ejCs969aSibe5gUJ4",
+        "host_id": "5Ju0XlhFSCrkdES7Chhdzg",
+        "topic": "Sumit Zamadar's Zoom Meeting",
+        "type": 2,
+        "start_time": "2020-03-04T11:04:30Z",
+        "timezone": "Asia/Kolkata",
+        "duration": 0,
+        "total_size": 377034,
+        "recording_count": 4,
+        "share_url": "https://VMware.zoom.us/rec/share/1e1uP5z2zl1IfImQ5nrcZe0-R6Xoaaa81yNP8qIOxR7LC5Rl702L1dLLy3ZhpCNT",
+        "recording_files": [
+          {
+            "id": "2ec4d883-a8e3-44fc-92d4-6ebd6ee3ff85",
+            "meeting_id": "XIsxEnPVRVm5fSkW+w1Iew==",
+            "recording_start": "2020-03-04T11:04:34Z",
+            "recording_end": "2020-03-04T11:04:58Z",
+            "file_type": "MP4",
+            "file_size": 218206,
+            "play_url": "https://VMware.zoom.us/rec/play/v8F-c72gpjg3S9zAswSDBqAqW9W_eq-s1HRMrvVYmUzjBXgGYFSnN7sXYeOxEjF5R4vQoADqyDFTfVdO",
+            "download_url": "https://VMware.zoom.us/rec/download/v8F-c72gpjg3S9zAswSDBqAqW9W_eq-s1HRMrvVYmUzjBXgGYFSnN7sXYeOxEjF5R4vQoADqyDFTfVdO",
+            "status": "completed",
+            "recording_type": "shared_screen_with_speaker_view"
+          },
+          {
+            "id": "5a915d32-3e3a-4ded-85b8-403bda001e8c",
+            "meeting_id": "XIsxEnPVRVm5fSkW+w1Iew==",
+            "recording_start": "2020-03-04T11:04:34Z",
+            "recording_end": "2020-03-04T11:04:58Z",
+            "file_type": "CHAT",
+            "file_size": 55,
+            "play_url": "https://VMware.zoom.us/rec/play/uMUkduz8rTk3GYGW4QSDVqMtW9S4fKOs1iEdqKdczE-0BnhQYFqvNbcQM-SZ4beVsbBQAE6wKAZtmM2t",
+            "download_url": "https://VMware.zoom.us/rec/download/uMUkduz8rTk3GYGW4QSDVqMtW9S4fKOs1iEdqKdczE-0BnhQYFqvNbcQM-SZ4beVsbBQAE6wKAZtmM2t",
+            "status": "completed",
+            "recording_type": "chat_file"
+          },
+          {
+            "id": "affd2c47-cedb-4164-bdb6-8bcd66f2f6fe",
+            "meeting_id": "XIsxEnPVRVm5fSkW+w1Iew==",
+            "recording_start": "2020-03-04T11:04:34Z",
+            "recording_end": "2020-03-04T11:04:58Z",
+            "file_type": "M4A",
+            "file_size": 158773,
+            "play_url": "https://VMware.zoom.us/rec/play/7MJ7I-v7qjw3SYHB4gSDA_B9W47pfK2s2nNNrvULmk3jVSZWM1XwYbFEZeC7pcYnUK7Ae6dw4EA0YASL",
+            "download_url": "https://VMware.zoom.us/rec/download/7MJ7I-v7qjw3SYHB4gSDA_B9W47pfK2s2nNNrvULmk3jVSZWM1XwYbFEZeC7pcYnUK7Ae6dw4EA0YASL",
+            "status": "completed",
+            "recording_type": "audio_only"
+          },
+          {
+            "meeting_id": "XIsxEnPVRVm5fSkW+w1Iew==",
+            "recording_start": "2020-03-04T11:04:34Z",
+            "recording_end": "2020-03-04T11:04:58Z",
+            "file_type": "TIMELINE",
+            "download_url": "https://VMware.zoom.us/rec/download/5f48d034-e182-44a5-9c7e-815b67bd9717"
+          }
+        ]
+      }
+    ]
+}

@@ -1,0 +1,1564 @@
+{
+    "metadata": {
+        "assetTypeFacetMetadata": [
+            {
+                "count": 14790,
+                "assetType": "VIDEO"
+            },
+            {
+                "count": 574,
+                "assetType": "COURSE"
+            },
+            {
+                "count": 37,
+                "assetType": "LEARNING_PATH"
+            }
+        ],
+        "difficultyLevelFacetMetadata": [
+            {
+                "difficultyLevel": "INTERMEDIATE",
+                "count": 8386
+            },
+            {
+                "difficultyLevel": "BEGINNER",
+                "count": 4034
+            },
+            {
+                "difficultyLevel": "ADVANCED",
+                "count": 2626
+            }
+        ]
+    },
+    "elements": [
+        {
+            "urn": "urn:li:lyndaCourse:372545",
+            "contents": [
+                {
+                    "asset": {
+                        "urn": "urn:li:lyndaChapter:(urn:li:lyndaCourse:372545,600577)",
+                        "contents": [
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600578)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Welcome"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600579)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "What you should know"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600580)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Use the exercise files"
+                                    }
+                                }
+                            }
+                        ],
+                        "type": "CHAPTER",
+                        "title": {
+                            "locale": {
+                                "country": "US",
+                                "language": "en"
+                            },
+                            "value": "Introduction"
+                        }
+                    }
+                },
+                {
+                    "asset": {
+                        "urn": "urn:li:lyndaChapter:(urn:li:lyndaCourse:372545,600581)",
+                        "contents": [
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600582)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Introduction"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,722288)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Installation options"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,722289)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Creating a basic template"
+                                    }
+                                }
+                            }
+                        ],
+                        "type": "CHAPTER",
+                        "title": {
+                            "locale": {
+                                "country": "US",
+                                "language": "en"
+                            },
+                            "value": "1. Getting Started"
+                        }
+                    }
+                },
+                {
+                    "asset": {
+                        "urn": "urn:li:lyndaChapter:(urn:li:lyndaCourse:372545,600585)",
+                        "contents": [
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600586)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Basic styles overview"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600587)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Basic typography"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2223596)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Typographic utilities"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600589)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Blockquotes and lists"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2222768)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Using colors with Bootstrap"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2224259)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Work with images"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,722290)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "CSS variables"
+                                    }
+                                }
+                            }
+                        ],
+                        "type": "CHAPTER",
+                        "title": {
+                            "locale": {
+                                "country": "US",
+                                "language": "en"
+                            },
+                            "value": "2. Using Basic Styles"
+                        }
+                    }
+                },
+                {
+                    "asset": {
+                        "urn": "urn:li:lyndaChapter:(urn:li:lyndaCourse:372545,600592)",
+                        "contents": [
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600593)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Layout overview"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2290321)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Using containers"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2291308)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Working with rows and columns"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2290322)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Multiple column classes"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600597)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Offset columns"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600598)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Nested columns"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702963)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Custom order"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600600)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Grid alignment options"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,722292)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Display properties"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702965)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Flexbox container options"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,722291)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Individual flex elements"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702967)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Floating elements"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2222769)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Margin and padding"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702969)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Visibility"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2223597)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Sizing utilities"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2223598)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Using borders"
+                                    }
+                                }
+                            }
+                        ],
+                        "type": "CHAPTER",
+                        "title": {
+                            "locale": {
+                                "country": "US",
+                                "language": "en"
+                            },
+                            "value": "3. Mastering Layout with Bootstrap"
+                        }
+                    }
+                },
+                {
+                    "asset": {
+                        "urn": "urn:li:lyndaChapter:(urn:li:lyndaCourse:372545,600604)",
+                        "contents": [
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600605)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Navbar overview"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702971)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Create basic navigation"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702972)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Create a navbar"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702973)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Use branding and text"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702974)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Add a dropdown to navigation"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702975)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Add form elements"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702976)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Control positioning"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702977)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Create collapsible content"
+                                    }
+                                }
+                            }
+                        ],
+                        "type": "CHAPTER",
+                        "title": {
+                            "locale": {
+                                "country": "US",
+                                "language": "en"
+                            },
+                            "value": "4. Using Navs and Navbar Components"
+                        }
+                    }
+                },
+                {
+                    "asset": {
+                        "urn": "urn:li:lyndaChapter:(urn:li:lyndaCourse:372545,600613)",
+                        "contents": [
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600614)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Basic style element overview"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702978)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Create buttons"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600616)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Button groups"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702979)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Use badges"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600618)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Progress bar styles"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2222770)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "List groups"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600620)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Breadcrumbs"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2222771)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Shadows"
+                                    }
+                                }
+                            }
+                        ],
+                        "type": "CHAPTER",
+                        "title": {
+                            "locale": {
+                                "country": "US",
+                                "language": "en"
+                            },
+                            "value": "5. Style Element Overview"
+                        }
+                    }
+                },
+                {
+                    "asset": {
+                        "urn": "urn:li:lyndaChapter:(urn:li:lyndaCourse:372545,600621)",
+                        "contents": [
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600622)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Layout components overview"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702981)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Add a jumbotron"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2225246)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Table styles"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702983)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Basic card layouts"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702984)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Card content classes"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2290323)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Card layouts"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600628)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Use the media object"
+                                    }
+                                }
+                            }
+                        ],
+                        "type": "CHAPTER",
+                        "title": {
+                            "locale": {
+                                "country": "US",
+                                "language": "en"
+                            },
+                            "value": "6. Using Layout Component"
+                        }
+                    }
+                },
+                {
+                    "asset": {
+                        "urn": "urn:li:lyndaChapter:(urn:li:lyndaCourse:372545,600629)",
+                        "contents": [
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600630)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Form styles overview"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600631)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Create a basic form"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600632)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Checkboxes and radio classes"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600633)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Size and validation styles"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,722296)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Multicolumn forms"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,722297)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Create input groups"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2225247)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Custom form components"
+                                    }
+                                }
+                            }
+                        ],
+                        "type": "CHAPTER",
+                        "title": {
+                            "locale": {
+                                "country": "US",
+                                "language": "en"
+                            },
+                            "value": "7. Using Form Styles"
+                        }
+                    }
+                },
+                {
+                    "asset": {
+                        "urn": "urn:li:lyndaChapter:(urn:li:lyndaCourse:372545,600636)",
+                        "contents": [
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600637)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Interactive component overview"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702986)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Add tooltips"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702987)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Display popovers"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702988)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Create alerts"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600641)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Use dropdowns"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600642)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Add collapse accordions"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2222772)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Use modals"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2222773)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Build carousels"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,702990)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Use scrollspy"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2225248)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Toasts"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2225249)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Spinners"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2222774)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Pagination"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2223599)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Stretched links"
+                                    }
+                                }
+                            },
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,2225250)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Embeds"
+                                    }
+                                }
+                            }
+                        ],
+                        "type": "CHAPTER",
+                        "title": {
+                            "locale": {
+                                "country": "US",
+                                "language": "en"
+                            },
+                            "value": "8. Working with Interactive Components"
+                        }
+                    }
+                },
+                {
+                    "asset": {
+                        "urn": "urn:li:lyndaChapter:(urn:li:lyndaCourse:372545,600646)",
+                        "contents": [
+                            {
+                                "asset": {
+                                    "urn": "urn:li:lyndaVideo:(urn:li:lyndaCourse:372545,600647)",
+                                    "contents": [],
+                                    "type": "VIDEO",
+                                    "title": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "Next steps"
+                                    }
+                                }
+                            }
+                        ],
+                        "type": "CHAPTER",
+                        "title": {
+                            "locale": {
+                                "country": "US",
+                                "language": "en"
+                            },
+                            "value": "Conclusion"
+                        }
+                    }
+                }
+            ],
+            "details": {
+                "descriptionIncludingHtml": {
+                    "locale": {
+                        "country": "US",
+                        "language": "en"
+                    },
+                    "value": "Bootstrap—a front-end framework using HTML, CSS, and jQuery—is designed to help developers quickly and easily build responsive, mobile-ready websites that are cross-browser compatible. An open-source framework, Bootstrap features a 12-column grid and components that are ready to use. In this course, Ray Villalobos helps you get started with Bootstrap 4, providing an overview of all of the goodies in this popular framework. Ray covers the installation options, and walks through the basic styles that normalize how your content is displayed on different platforms and browsers. He also explains how to use the flexbox grid system to build nearly any kind of layout you can dream up, use different classes to easily get around your project, work with interactive components like dropdowns and carousels, and more."
+                },
+                "images": {
+                    "primary": "https://cdn.lynda.com/course/372545/372545-1559322096563-16x9.jpg"
+                },
+                "level": "BEGINNER",
+                "publishedAt": 1490918400000,
+                "lastUpdatedAt": 1582135738033,
+                "description": {
+                    "locale": {
+                        "country": "US",
+                        "language": "en"
+                    },
+                    "value": "Bootstrap—a front-end framework using HTML, CSS, and jQuery—is designed to help developers quickly and easily build responsive, mobile-ready websites that are cross-browser compatible. An open-source framework, Bootstrap features a 12-column grid and components that are ready to use. In this course, Ray Villalobos helps you get started with Bootstrap 4, providing an overview of all of the goodies in this popular framework. Ray covers the installation options, and walks through the basic styles that normalize how your content is displayed on different platforms and browsers. He also explains how to use the flexbox grid system to build nearly any kind of layout you can dream up, use different classes to easily get around your project, work with interactive components like dropdowns and carousels, and more."
+                },
+                "shortDescription": {
+                    "locale": {
+                        "country": "US",
+                        "language": "en"
+                    },
+                    "value": "Learn the essentials of Bootstrap 4. Discover how to use this popular front-end framework to quickly and easily build responsive, mobile-ready websites."
+                },
+                "availability": "AVAILABLE",
+                "availableLocales": [
+                    {
+                        "country": "US",
+                        "language": "en"
+                    }
+                ],
+                "relationships": [],
+                "classifications": [
+                    {
+                        "path": [],
+                        "associatedClassification": {
+                            "urn": "urn:li:skill:50099",
+                            "owner": {
+                                "urn": "urn:li:organization:1337",
+                                "name": {
+                                    "locale": {
+                                        "country": "US",
+                                        "language": "en"
+                                    },
+                                    "value": "LinkedIn"
+                                }
+                            },
+                            "name": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "Bootstrap"
+                            },
+                            "type": "SKILL"
+                        },
+                        "assigner": {
+                            "urn": "urn:li:organization:1337",
+                            "name": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "LinkedIn"
+                            }
+                        }
+                    },
+                    {
+                        "path": [],
+                        "associatedClassification": {
+                            "urn": "urn:li:skill:1578",
+                            "owner": {
+                                "urn": "urn:li:organization:1337",
+                                "name": {
+                                    "locale": {
+                                        "country": "US",
+                                        "language": "en"
+                                    },
+                                    "value": "LinkedIn"
+                                }
+                            },
+                            "name": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "Front-end Development"
+                            },
+                            "type": "SKILL"
+                        },
+                        "assigner": {
+                            "urn": "urn:li:organization:1337",
+                            "name": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "LinkedIn"
+                            }
+                        }
+                    },
+                    {
+                        "path": [
+                            {
+                                "urn": "urn:li:lyndaCategory:7189",
+                                "owner": {
+                                    "urn": "urn:li:organization:1337",
+                                    "name": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "LinkedIn"
+                                    }
+                                },
+                                "name": {
+                                    "locale": {
+                                        "country": "US",
+                                        "language": "en"
+                                    },
+                                    "value": "Web Development"
+                                },
+                                "type": "SUBJECT"
+                            },
+                            {
+                                "urn": "urn:li:lyndaCategory:7164",
+                                "owner": {
+                                    "urn": "urn:li:organization:1337",
+                                    "name": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "LinkedIn"
+                                    }
+                                },
+                                "name": {
+                                    "locale": {
+                                        "country": "US",
+                                        "language": "en"
+                                    },
+                                    "value": "Technology"
+                                },
+                                "type": "LIBRARY"
+                            }
+                        ],
+                        "associatedClassification": {
+                            "urn": "urn:li:lyndaCategory:7293",
+                            "owner": {
+                                "urn": "urn:li:organization:1337",
+                                "name": {
+                                    "locale": {
+                                        "country": "US",
+                                        "language": "en"
+                                    },
+                                    "value": "LinkedIn"
+                                }
+                            },
+                            "name": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "Front-End Web Development"
+                            },
+                            "type": "TOPIC"
+                        },
+                        "assigner": {
+                            "urn": "urn:li:organization:1337",
+                            "name": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "LinkedIn"
+                            }
+                        }
+                    },
+                    {
+                        "path": [
+                            {
+                                "urn": "urn:li:lyndaCategory:7164",
+                                "owner": {
+                                    "urn": "urn:li:organization:1337",
+                                    "name": {
+                                        "locale": {
+                                            "country": "US",
+                                            "language": "en"
+                                        },
+                                        "value": "LinkedIn"
+                                    }
+                                },
+                                "name": {
+                                    "locale": {
+                                        "country": "US",
+                                        "language": "en"
+                                    },
+                                    "value": "Technology"
+                                },
+                                "type": "LIBRARY"
+                            }
+                        ],
+                        "associatedClassification": {
+                            "urn": "urn:li:lyndaCategory:7189",
+                            "owner": {
+                                "urn": "urn:li:organization:1337",
+                                "name": {
+                                    "locale": {
+                                        "country": "US",
+                                        "language": "en"
+                                    },
+                                    "value": "LinkedIn"
+                                }
+                            },
+                            "name": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "Web Development"
+                            },
+                            "type": "SUBJECT"
+                        },
+                        "assigner": {
+                            "urn": "urn:li:organization:1337",
+                            "name": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "LinkedIn"
+                            }
+                        }
+                    },
+                    {
+                        "path": [],
+                        "associatedClassification": {
+                            "urn": "urn:li:lyndaCategory:7164",
+                            "owner": {
+                                "urn": "urn:li:organization:1337",
+                                "name": {
+                                    "locale": {
+                                        "country": "US",
+                                        "language": "en"
+                                    },
+                                    "value": "LinkedIn"
+                                }
+                            },
+                            "name": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "Technology"
+                            },
+                            "type": "LIBRARY"
+                        },
+                        "assigner": {
+                            "urn": "urn:li:organization:1337",
+                            "name": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "LinkedIn"
+                            }
+                        }
+                    }
+                ],
+                "urls": {
+                    "webLaunch": "https://www.linkedin.com/learning/bootstrap-4-essential-training",
+                    "ssoLaunch": "https://www.linkedin.com/checkpoint/enterprise/login/2043620?pathWildcard=2043620&application=learning&redirect=https%3A%2F%2Fwww%2Elinkedin%2Ecom%2Flearning%2Fbootstrap-4-essential-training%3Fu%3D2043620",
+                    "aiccLaunch": "https://www.linkedin.com/learning/aicc?content=urn%3Ali%3AlyndaCourse%3A372545&account=urn%3Ali%3AenterpriseApplicationInstance%3A%28urn%3Ali%3AenterpriseAccount%3A2043620%2C2198202%29"
+                },
+                "shortDescriptionIncludingHtml": {
+                    "locale": {
+                        "country": "US",
+                        "language": "en"
+                    },
+                    "value": "Learn the essentials of Bootstrap 4. Discover how to use this popular front-end framework to quickly and easily build responsive, mobile-ready websites."
+                },
+                "contributors": [
+                    {
+                        "urn": "urn:li:lyndaAuthor:832401",
+                        "contributionType": "AUTHOR",
+                        "authorDetails": {
+                            "firstName": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "Ray"
+                            },
+                            "lastName": {
+                                "locale": {
+                                    "country": "US",
+                                    "language": "en"
+                                },
+                                "value": "Villalobos"
+                            }
+                        },
+                        "name": {
+                            "locale": {
+                                "country": "US",
+                                "language": "en"
+                            },
+                            "value": "Ray Villalobos"
+                        }
+                    }
+                ],
+                "timeToComplete": {
+                    "duration": 24131,
+                    "unit": "SECOND"
+                }
+            },
+            "type": "COURSE",
+            "title": {
+                "locale": {
+                    "country": "US",
+                    "language": "en"
+                },
+                "value": "Bootstrap 4 Essential Training"
+            }
+        }
+    ],
+    "paging": {
+        "total": 500,
+        "count": 1,
+        "start": 0,
+        "links": [
+            {
+                "rel": "next",
+                "href": "/v2/learningAssets?assetFilteringCriteria.assetTypes[0]=course&assetFilteringCriteria.classifications[0]=urn%3Ali%3AlyndaCategory%3A7189&assetFilteringCriteria.licensedOnly=true&assetPresentationCriteria.sortBy=RECENCY&count=1&q=criteria&start=1",
+                "type": "application/json"
+            }
+        ]
+    }
+}
