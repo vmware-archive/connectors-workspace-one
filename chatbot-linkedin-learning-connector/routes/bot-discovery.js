@@ -1,6 +1,6 @@
 'use strict'
 
-const uuid = require('uuid/v4')
+const { v4: uuid } = require('uuid')
 const workflowId = require('../utils/workflow-ids')
 
 exports.capabilities = function (req, res) {
