@@ -2,7 +2,7 @@
  * Create card objects form linkedIn learning response.
  * @param res - LinkedIn learning response object.
  */
-const uuidV4 = require('uuid/v4')
+const { v4: uuid } = require('uuid')
 const sha1 = require('sha1')
 const utils = require('../utils/utility')
 
@@ -17,7 +17,7 @@ const forCardObjects = (res) => {
 const forSingleCourse = (courseRes) => {
   const backendId = courseRes.urn
   return {
-    id: uuidV4(),
+    id: uuid(),
     name: 'LinkedIn Learning',
     creation_date: new Date().toISOString(),
     backend_id: backendId,

@@ -1,6 +1,6 @@
 'use strict'
 
-const uuid = require('uuid/v4')
+const { v4: uuid } = require('uuid')
 const connectorAuth = require('./connector-auth')
 const LINKEDIN_LOGO_PATH = 'https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-linkedin-learning.png'
 
