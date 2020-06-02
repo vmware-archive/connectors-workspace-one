@@ -1,0 +1,106 @@
+{
+  "objects": [
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "I have added Apple MacBook Pro to your cart.",
+        "description": "Things in your shopping cart.",
+        "type": "confirmation",
+        "workflowStep": "Incomplete"
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Here are the items currently in your cart:",
+        "description": "Here are the items currently in your cart:",
+        "type": "text",
+        "workflowStep": "Incomplete"
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Dell XPS 13",
+        "description": "Dell XPS 13",
+        "image": {
+          "href": "https://mock-snow.com/407e31844f889200086eeed18110c7ef.iix"
+        },
+        "type": "text",
+        "workflowStep": "Incomplete"
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Apple MacBook Pro",
+        "description": "Apple MacBook Pro",
+        "image": {
+          "href": "https://mock-snow.com/c82c480ccb821200f2de77a4634c9c64.iix"
+        },
+        "type": "text",
+        "workflowStep": "Incomplete"
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Apple MacBook Pro",
+        "description": "Apple MacBook Pro",
+        "image": {
+          "href": "https://mock-snow.com/c82c480ccb821200f2de77a4634c9c64.iix"
+        },
+        "type": "text",
+        "workflowStep": "Incomplete"
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "What would you like to do next?",
+        "description": "What would you like to do next?",
+        "type": "text",
+        "actions": [
+          {
+            "title": "Empty Cart",
+            "description": "Empty everything in the cart.",
+            "type": "DELETE",
+            "url": {
+              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+            },
+            "payload": {},
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "userInput": []
+          },
+          {
+            "title": "Checkout",
+            "description": "Checkout your cart.",
+            "type": "POST",
+            "url": {
+              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/checkout"
+            },
+            "payload": {},
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "userInput": []
+          },
+          {
+            "title": "Add Another",
+            "description": "Add another item to cart",
+            "type": "GET",
+            "url": {
+              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/deviceCategoryList"
+            },
+            "payload": {},
+            "headers": {},
+            "userInput": []
+          }
+        ],
+        "workflowStep": "Incomplete"
+      }
+    }
+  ]
+}

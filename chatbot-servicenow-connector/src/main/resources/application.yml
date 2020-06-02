@@ -1,0 +1,30 @@
+logging:
+  level:
+    org:
+      springframework: INFO
+  file: logs/servicenowconn.log
+  pattern:
+    level: "<servicenowconn> <client_ip: %X{clientIp}> <correlation_id: %X{requestId}> <tenant_id: %X{tenantId}> <user_id: %X{userId}> %5p"
+server:
+  servlet:
+    contextPath: /servicenow-connector
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  server-header: servicenow-connector
+
+# Mobile Flows server public key url (you must override this in /etc)
+# examples:
+# security.oauth2.resource.jwt.key-uri=https://dev.hero.vmwservices.com/security/public-key
+# security.oauth2.resource.jwt.key-uri=https://prod.hero.vmwservices.com/security/public-key
+security:
+  oauth2:
+    resource:
+      jwt:
+        key-uri: to-be-replaced-by-ebextension
+management:
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: health

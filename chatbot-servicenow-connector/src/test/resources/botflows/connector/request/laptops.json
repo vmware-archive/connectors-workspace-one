@@ -1,0 +1,16 @@
+{
+  "tokens": {
+    "catalog": [
+      "Service Catalog"
+    ],
+    "text": [
+      "laptop"
+    ],
+    "category": [
+      "hardware"
+    ],
+    "contextId": [
+      "laptops-context-1"
+    ]
+  }
+}

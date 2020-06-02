@@ -1,0 +1,40 @@
+{
+  "short_description": "ASUS G Series",
+  "kb_article": "",
+  "icon": "3984344647311200e0ef563dbb9a7114.iix",
+  "description": "\n\t\t\t<p>\n\t\t\t\t<font size=\"3\">\n\t\t\t\t\t<span style=\"color: gray;\">\n\t\t\t\t\t\tAsus G Series Notebook</span>\n\t\t\t\t</font>\n\t\t\t</p>\n\t\t\t<ul><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">Intel Core i7-2630QM 2.0GHz</span>\n\t\t\t\t</li><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">8GB Memory 500GB HDD</span>\n\t\t\t\t</li><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">NVIDIA GeForce GTX 460M</span>\n\t\t\t\t</li><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">DVD Super Multi</span>\n\t\t\t\t</li></ul>",
+  "mandatory_attachment": false,
+  "request_method": "",
+  "type": "catalog_item",
+  "visible_standalone": true,
+  "local_currency": "USD",
+  "sys_class_name": "pc_hardware_cat_item",
+  "sys_id": "7e87837237153000158bbfc8bcbe5df6",
+  "content_type": "",
+  "price": "$839.99",
+  "recurring_frequency": "Weekly",
+  "price_currency": "USD",
+  "order": 200,
+  "show_price": true,
+  "recurring_price": "$0.00",
+  "show_quantity": true,
+  "picture": "89aec80ccb821200f2de77a4634c9c94.iix",
+  "url": "",
+  "recurring_price_currency": "USD",
+  "localized_price": "$839.99",
+  "catalogs": [
+    {
+      "sys_id": "e0d08b13c3330100c8b837659bba8fb4",
+      "active": true,
+      "title": "Service Catalog"
+    }
+  ],
+  "name": "Asus G Series",
+  "localized_recurring_price": "$0.00",
+  "show_wishlist": true,
+  "category": {
+    "sys_id": "d258b953c611227a0146101fb1be7c31",
+    "title": "Hardware"
+  },
+  "show_delivery_time": true
+}

@@ -1,0 +1,197 @@
+{
+  "result": [
+    {
+      "short_description": "ASUS G Series",
+      "kb_article": "",
+      "icon": "3984344647311200e0ef563dbb9a7114.iix",
+      "description": "\n\t\t\t<p>\n\t\t\t\t<font size=\"3\">\n\t\t\t\t\t<span style=\"color: gray;\">\n\t\t\t\t\t\tAsus G Series Notebook</span>\n\t\t\t\t</font>\n\t\t\t</p>\n\t\t\t<ul><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">Intel Core i7-2630QM 2.0GHz</span>\n\t\t\t\t</li><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">8GB Memory 500GB HDD</span>\n\t\t\t\t</li><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">NVIDIA GeForce GTX 460M</span>\n\t\t\t\t</li><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">DVD Super Multi</span>\n\t\t\t\t</li></ul>",
+      "mandatory_attachment": false,
+      "request_method": "",
+      "type": "catalog_item",
+      "visible_standalone": true,
+      "local_currency": "USD",
+      "sys_class_name": "pc_hardware_cat_item",
+      "sys_id": "7e87837237153000158bbfc8bcbe5df6",
+      "content_type": "",
+      "price": "$839.99",
+      "recurring_frequency": "Weekly",
+      "price_currency": "USD",
+      "order": 200,
+      "show_price": true,
+      "recurring_price": "$0.00",
+      "show_quantity": true,
+      "picture": "89aec80ccb821200f2de77a4634c9c94.iix",
+      "url": "",
+      "recurring_price_currency": "USD",
+      "localized_price": "$839.99",
+      "catalogs": [
+        {
+          "sys_id": "e0d08b13c3330100c8b837659bba8fb4",
+          "active": true,
+          "title": "Service Catalog"
+        }
+      ],
+      "name": "Asus G Series",
+      "localized_recurring_price": "$0.00",
+      "show_wishlist": true,
+      "category": {
+        "sys_id": "d258b953c611227a0146101fb1be7c31",
+        "title": "Hardware"
+      },
+      "show_delivery_time": true
+    },
+    {
+      "short_description": "Dell XPS 13",
+      "kb_article": "",
+      "icon": "fe7f75844f889200086eeed18110c784.iix",
+      "description": "<p style=\"margin-top: 0px;\"><font size=\"3\" color=\"#808080\" face=\"arial,helvetica,sans-serif\">Dell XPS 13</font></p>\n<p style=\"margin-top: 0px;\"><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\">The corporate standard laptop for developers. High performance processing and storage.</font></p>\n<p style=\"margin-top: 0px;\"><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\">Specifications:</font></p>\n<ul><li><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\">3.1 GHz Intel Core i7 processor</font></li><li><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\">250 GB or 500GB Solid State Drive</font></li><li><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\">8 GB RAM</font></li><li><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\">Microsoft Windows 8 or Ubuntu</font></li><li><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\">Tomcat, Eclipse, Firefox, Chrome</font></li></ul>",
+      "mandatory_attachment": false,
+      "request_method": "",
+      "type": "catalog_item",
+      "visible_standalone": true,
+      "local_currency": "USD",
+      "sys_class_name": "sc_cat_item",
+      "sys_id": "3cecd2350a0a0a6a013a3a35a5e41c07",
+      "content_type": "",
+      "price": "$1,000.00",
+      "recurring_frequency": null,
+      "price_currency": "USD",
+      "order": 300,
+      "show_price": true,
+      "recurring_price": "$0.00",
+      "show_quantity": true,
+      "picture": "407e31844f889200086eeed18110c7ef.iix",
+      "url": "",
+      "recurring_price_currency": "USD",
+      "localized_price": "$1,100.00",
+      "catalogs": [
+        {
+          "sys_id": "e0d08b13c3330100c8b837659bba8fb4",
+          "active": true,
+          "title": "Service Catalog"
+        }
+      ],
+      "name": "Development Laptop (PC)",
+      "localized_recurring_price": "$0.00",
+      "show_wishlist": true,
+      "category": {
+        "sys_id": "d258b953c611227a0146101fb1be7c31",
+        "title": "Hardware"
+      },
+      "show_delivery_time": true
+    },
+    {
+      "short_description": "Apple MacBook Pro",
+      "kb_article": "",
+      "icon": "6785e7dccb921200f2de77a4634c9cd7.iix",
+      "description": "\n\t\t\t<p>\n\t\t\t\t<font size=\"3\">\n\t\t\t\t\t<span style=\"color: gray;\">\n\t\t\t\t\t\tApple MacBook Pro MD104LL/A 15.4-Inch Laptop</span>\n\t\t\t\t</font>\n\t\t\t</p>\n\t\t\t<ul><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">2.6 GHz Quad-Core Intel Core i7 processor</span>\n\t\t\t\t</li><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">8 GB DDR3 RAM; 750 GB Hard Drive</span>\n\t\t\t\t</li><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">15.4 inch LED-backlit display, 1440-by-900 resolution</span>\n\t\t\t\t</li><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">NVIDIA GeForce GT 650M 1GB Graphics</span>\n\t\t\t\t</li><li style=\"color: gray;\">\n\t\t\t\t\t<span style=\"font-size: 10.0pt;\">Mac OS X v10.7 Lion, 7 Hour Battery Life</span>\n\t\t\t\t</li></ul>",
+      "mandatory_attachment": false,
+      "request_method": "",
+      "type": "catalog_item",
+      "visible_standalone": true,
+      "local_currency": "USD",
+      "sys_class_name": "pc_hardware_cat_item",
+      "sys_id": "2ab7077237153000158bbfc8bcbe5da9",
+      "content_type": "",
+      "price": "$1,099.99",
+      "recurring_frequency": "Weekly",
+      "price_currency": "USD",
+      "order": 100,
+      "show_price": true,
+      "recurring_price": "$0.00",
+      "show_quantity": true,
+      "picture": "c82c480ccb821200f2de77a4634c9c64.iix",
+      "url": "",
+      "recurring_price_currency": "USD",
+      "localized_price": "$1,099.99",
+      "catalogs": [
+        {
+          "sys_id": "e0d08b13c3330100c8b837659bba8fb4",
+          "active": true,
+          "title": "Service Catalog"
+        }
+      ],
+      "name": "Apple MacBook Pro 15\"",
+      "localized_recurring_price": "$0.00",
+      "show_wishlist": true,
+      "category": {
+        "sys_id": "d258b953c611227a0146101fb1be7c31",
+        "title": "Hardware"
+      },
+      "show_delivery_time": true
+    },
+    {
+      "short_description": "Loaner Laptop",
+      "kb_article": "",
+      "icon": "037582084f889200086eeed18110c7b0.iix",
+      "description": "<p><span style=\"font-size: 10.0pt; color: gray;\">Did you break your laptop? Maybe lost it? Need a temporary loaner? We can help.</span></p>\n<p><span style=\"font-size: 10.0pt; color: gray;\">In order to take advantage of a loaner notebook computer, you must meet company eligibility requirements per the Notebook Loaner Policy</span></p>\n<p><span style=\"font-size: 10.0pt; color: gray;\">Loaner laptops will be provided based on what devices are available.</span></p>",
+      "show_price": false,
+      "mandatory_attachment": false,
+      "request_method": "",
+      "type": "catalog_item",
+      "show_quantity": true,
+      "visible_standalone": true,
+      "sys_class_name": "sc_cat_item",
+      "picture": "67cdf9444f889200086eeed18110c7f9.iix",
+      "url": "",
+      "sys_id": "10f110aec611227601fbe1841e7e417c",
+      "content_type": "",
+      "price": "$2,100.00",
+      "catalogs": [
+        {
+          "sys_id": "e0d08b13c3330100c8b837659bba8fb4",
+          "active": true,
+          "title": "Service Catalog"
+        }
+      ],
+      "name": "Notebook Computer Loaner",
+      "show_wishlist": true,
+      "category": {
+        "sys_id": "d258b953c611227a0146101fb1be7c31",
+        "title": "Hardware"
+      },
+      "order": 500,
+      "show_delivery_time": true
+    },
+    {
+      "short_description": "Acer Aspire NX",
+      "kb_article": "",
+      "icon": "16d0ca844f889200086eeed18110c7b5.iix",
+      "description": "<p class=\"p1\"><font size=\"3\" color=\"#808080\" face=\"arial,helvetica,sans-serif\"><span class=\"s1\">Acer Aspire NX</span></font></p>\n<p class=\"p2\"><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\"><span class=\"s1\">The corporate standard laptop for sales employees.</span></font></p>\n<p class=\"p2\"><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\"><span class=\"s1\">High performance and light weight.</span></font></p>\n<p class=\"p2\"><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\"><span class=\"s1\">Item Includes:</span></font></p>\n<ul class=\"ul1\"><li class=\"li3\"><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\"><span class=\"s1\">2.5 GHz intel Core i5 Processor</span></font></li><li class=\"li3\"><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\"><span class=\"s1\">750 GB Hard Drive</span></font></li><li class=\"li3\"><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\"><span class=\"s1\">8 GB RAM</span></font></li><li class=\"li3\"><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\"><span class=\"s1\">Microsoft Windows 8</span></font></li><li class=\"li3\"><font size=\"2\" color=\"#808080\" face=\"arial,helvetica,sans-serif\"><span class=\"s1\">Microsoft Office</span></font></li></ul>",
+      "mandatory_attachment": false,
+      "request_method": "",
+      "type": "catalog_item",
+      "visible_standalone": true,
+      "local_currency": "USD",
+      "sys_class_name": "sc_cat_item",
+      "sys_id": "e212a942c0a80165008313c59764eea1",
+      "content_type": "",
+      "price": "$1,100.00",
+      "recurring_frequency": "Annually",
+      "price_currency": "USD",
+      "order": 0,
+      "show_price": true,
+      "recurring_price": "$100.00",
+      "show_quantity": true,
+      "picture": "bbc00e844f889200086eeed18110c756.iix",
+      "url": "",
+      "recurring_price_currency": "USD",
+      "localized_price": "$1,100.00",
+      "catalogs": [
+        {
+          "sys_id": "e0d08b13c3330100c8b837659bba8fb4",
+          "active": true,
+          "title": "Service Catalog"
+        }
+      ],
+      "name": "Sales Laptop",
+      "localized_recurring_price": "$100.00",
+      "show_wishlist": true,
+      "category": {
+        "sys_id": "d258b953c611227a0146101fb1be7c31",
+        "title": "Hardware"
+      },
+      "show_delivery_time": true
+    }
+  ]
+}
