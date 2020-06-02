@@ -1,0 +1,88 @@
+{
+  "objects": [
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Here are your most recent, open tickets.",
+        "type": "text",
+        "workflowStep": "Complete"
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "ServiceNow ticket: TKT0010001",
+        "subtitle": "Open",
+        "description": "Via connector action",
+        "workflowStep":"Complete",
+        "url": {
+          "href":"https://dev15329.service-now.com/task.do?sys_id=f8cfe469db153300ea92eb41ca96198b"
+        },
+        "type": "status",
+        "tabularData": [
+          {
+            "data": [
+              {
+                "title": "impact",
+                "shortDescription": "3 - Low"
+              },
+              {
+                "title": "status",
+                "shortDescription": "Open"
+              },
+              {
+                "title": "shortDescription",
+                "shortDescription": "Via connector action"
+              },
+              {
+                "title": "ticketNo",
+                "shortDescription": "TKT0010001",
+                "url": {
+                  "href": "https://dev15329.service-now.com/task.do?sys_id=f8cfe469db153300ea92eb41ca96198b"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "ServiceNow ticket: TKT0010002",
+        "subtitle": "Open",
+        "description": "Via connector action 2",
+        "workflowStep":"Complete",
+        "url": {
+          "href":"https://dev15329.service-now.com/task.do?sys_id=f9817ca9db153300ea92eb41ca9619d7"
+        },
+        "type": "status",
+        "tabularData": [
+          {
+            "data": [
+              {
+                "title": "impact",
+                "shortDescription": "3"
+              },
+              {
+                "title": "status",
+                "shortDescription": "Open"
+              },
+              {
+                "title": "shortDescription",
+                "shortDescription": "Via connector action 2"
+              },
+              {
+                "title": "ticketNo",
+                "shortDescription": "TKT0010002",
+                "url": {
+                  "href": "https://dev15329.service-now.com/task.do?sys_id=f9817ca9db153300ea92eb41ca9619d7"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "objects": [
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Error occurred during cart operation",
+        "description": "User Not Authenticated",
+        "type": "confirmation",
+        "workflowStep": "Complete"
+      }
+    }
+  ]
+}

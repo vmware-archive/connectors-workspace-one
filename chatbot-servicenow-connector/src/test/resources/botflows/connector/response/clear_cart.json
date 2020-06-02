@@ -1,0 +1,13 @@
+{
+  "objects": [
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Your cart has been cleared!",
+        "description": "There are no items in cart",
+        "type": "confirmation",
+        "workflowStep": "Complete"
+      }
+    }
+  ]
+}

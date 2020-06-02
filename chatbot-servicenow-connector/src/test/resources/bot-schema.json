@@ -1,0 +1,242 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type":"object",
+  "properties":{
+    "itemDetails":{
+      "$ref":"#/definitions/itemDetails"
+    },
+    "children":{
+      "type": "array",
+      "items":{
+        "$ref":"#/definitions/item"
+      },
+      "description":"List of items associated with this item"
+    }
+  },
+  "definitions":{
+    "item": {
+      "type": "object",
+      "properties":{
+        "itemDetails": {
+          "$ref":"#/definitions/itemDetails"
+        },
+        "children":{
+          "type": "array",
+          "items":{
+            "$ref":"#/definitions/item"
+          },
+          "description":"List of items associated with this item"
+        }
+      }
+    },
+    "itemDetails": {
+      "type": "object",
+      "properties":{
+        "id":{
+          "type":"string",
+          "description":"unique identifier for the item"
+        },
+        "contextId":{
+          "type": "string",
+          "description": "Context ID for associating this object with a given conversation"
+        },
+        "title":{
+          "type":"string",
+          "description":"Title for the item"
+        },
+        "subtitle":{
+          "type":"string",
+          "description":"Subtitle for the item"
+        },
+        "shortDescription":{
+          "type":"string",
+          "description":"Short description of the item"
+        },
+        "description":{
+          "type":"string",
+          "description":"Additional details about the item"
+        },
+        "image":{
+          "$ref":"#/definitions/imageLink",
+          "description":"Link to an image associated with this item"
+        },
+        "type":{
+          "type":"string",
+          "description": "The type of data, used by the UX to determine how to lay out the data"
+        },
+        "workflowId":{
+          "type":"string",
+          "description":"The workflow that is associated with this object"
+        },
+        "workflowStep":{
+          "type":"string",
+          "description":"Current step in the workflow"
+        },
+        "tabularData":{
+          "type":"array",
+          "items":{
+            "$ref":"#/definitions/tabularData"
+          },
+          "description":"Tabular data to be rendered directly by the UI layer"
+        },
+        "actions":{
+          "type": "array",
+          "items":{
+            "$ref":"#/definitions/action"
+          },
+          "description":"List of actions that can be taken on this object"
+        }
+      },
+      "required":[
+        "title",
+        "description"
+      ],
+      "additionalProperties":false
+    },
+    "action":{
+      "type":"object",
+      "properties":{
+        "title":{
+          "type":"string",
+          "description":"Title of the action"
+        },
+        "description":{
+          "type":"string",
+          "description":"Description of the action"
+        },
+        "image":{
+          "$ref":"#/definitions/imageLink",
+          "description":"Link to an image to use for the action"
+        },
+        "url":{
+          "$ref":"#/definitions/url",
+          "description":"Link to the path to use for the action"
+        },
+        "userInput":{
+          "type": "array",
+          "items":{
+            "$ref":"#/definitions/userInput"
+          },
+          "description":"User input fields"
+        },
+        "payload":{
+          "$ref":"#/definitions/payload",
+          "description":"Additional payload parameters to send with the request"
+        },
+        "headers":{
+          "$ref":"#/definitions/headers",
+          "description":"Required headers to send with the request"
+        },
+        "type":{
+          "type":"string",
+          "description":"The HTTP method to use for submitting the action request"
+        }
+      },
+      "required":[
+        "title",
+        "description",
+        "url"
+      ],
+      "additionalProperties":false
+    },
+    "tabularData":{
+      "type":"object",
+      "properties":{
+        "title":{
+          "type":"string",
+          "description": "The title of the data set"
+        },
+        "description":{
+          "type":"string",
+          "description": "The description of the data set"
+        },
+        "type":{
+          "type":"string",
+          "description": "The type of data, used by the UX to determine the layout of the data"
+        },
+        "data":{
+          "type":"array",
+          "items":{
+            "$ref":"#/definitions/data"
+          },
+          "description": "The data presented in key-value pairs to be rendered directly by the user interface"
+        }
+      }
+    },
+    "url":{
+      "type":"object",
+      "properties":{
+        "href":{
+          "type":"string",
+          "format":"uri"
+        },
+        "title":{
+          "type":"string",
+          "description":"Description of the url."
+        }
+      },
+      "required":[
+        "href"
+      ]
+    },
+    "userInput":{
+      "type":"object",
+      "properties":{
+        "id": {
+          "type": "string",
+          "description": "The field's ID which will be used as the key when this field is submitted"
+        },
+        "label": {
+          "type": "string",
+          "description": "The field's label which will be displayed to the user to describe the expected content of the field"
+        },
+        "format": {
+          "type": "string",
+          "description": "The type of user input - allowed values are textarea and select"
+        },
+        "options": {
+          "type": "object",
+          "description": "Options to present when the format is set to select"
+        },
+        "minLength": {
+          "type": "integer",
+          "description": "The minimum length of the field"
+        },
+        "maxLength": {
+          "type": "integer",
+          "description": "The maximum length of the field"
+        },
+        "value":{
+          "type":"string",
+          "description":"The value entered by the user to be passed back to the connector"
+        }
+      }
+    },
+    "data":{
+      "type":"object"
+    },
+    "payload":{
+      "type":"object"
+    },
+    "headers":{
+      "type":"object"
+    },
+    "imageLink":{
+      "type":"object",
+      "properties":{
+        "href":{
+          "type":"string",
+          "format":"uri"
+        },
+        "alternateText":{
+          "type":"string",
+          "description":"Alternate text for the image"
+        }
+      },
+      "additionalProperties":true,
+      "required":[
+        "href"
+      ]
+    }
+  }
+}

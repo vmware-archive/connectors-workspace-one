@@ -1,0 +1,199 @@
+{
+  "objects": [
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "ASUS G Series",
+        "description": "Asus G Series Notebook\nIntel Core i7-2630QM 2.0GHz\n8GB Memory 500GB HDD\nNVIDIA GeForce GTX 460M\nDVD Super Multi",
+        "image": {
+          "href": "https://mock-snow.com/89aec80ccb821200f2de77a4634c9c94.iix"
+        },
+        "type": "item",
+        "actions": [
+          {
+            "title": "Add to cart",
+            "description": "Add this item to my shopping cart.",
+            "type": "PUT",
+            "url": {
+              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+            },
+            "payload": {
+              "itemId": "7e87837237153000158bbfc8bcbe5df6"
+            },
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "userInput": []
+          }
+        ],
+        "workflowStep": "Incomplete",
+        "tabularData": [
+          {
+            "data": [
+              {
+                "title": "Price",
+                "shortDescription": "$839.99"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Dell XPS 13",
+        "description": "Dell XPS 13\n\nThe corporate standard laptop for developers. High performance processing and storage.\n\nSpecifications:\n3.1 GHz Intel Core i7 processor\n250 GB or 500GB Solid State Drive\n8 GB RAM\nMicrosoft Windows 8 or Ubuntu\nTomcat, Eclipse, Firefox, Chrome",
+        "image": {
+          "href": "https://mock-snow.com/407e31844f889200086eeed18110c7ef.iix"
+        },
+        "type": "item",
+        "actions": [
+          {
+            "title": "Add to cart",
+            "description": "Add this item to my shopping cart.",
+            "type": "PUT",
+            "url": {
+              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+            },
+            "payload": {
+              "itemId": "3cecd2350a0a0a6a013a3a35a5e41c07"
+            },
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "userInput": []
+          }
+        ],
+        "workflowStep": "Incomplete",
+        "tabularData": [
+          {
+            "data": [
+              {
+                "title": "Price",
+                "shortDescription": "$1,000.00"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Apple MacBook Pro",
+        "description": "Apple MacBook Pro MD104LL/A 15.4-Inch Laptop\n2.6 GHz Quad-Core Intel Core i7 processor\n8 GB DDR3 RAM; 750 GB Hard Drive\n15.4 inch LED-backlit display, 1440-by-900 resolution\nNVIDIA GeForce GT 650M 1GB Graphics\nMac OS X v10.7 Lion, 7 Hour Battery Life",
+        "image": {
+          "href": "https://mock-snow.com/c82c480ccb821200f2de77a4634c9c64.iix"
+        },
+        "type": "item",
+        "actions": [
+          {
+            "title": "Add to cart",
+            "description": "Add this item to my shopping cart.",
+            "type": "PUT",
+            "url": {
+              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+            },
+            "payload": {
+              "itemId": "2ab7077237153000158bbfc8bcbe5da9"
+            },
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "userInput": []
+          }
+        ],
+        "workflowStep": "Incomplete",
+        "tabularData": [
+          {
+            "data": [
+              {
+                "title": "Price",
+                "shortDescription": "$1,099.99"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Loaner Laptop",
+        "description": "Did you break your laptop? Maybe lost it? Need a temporary loaner? We can help.\n\nIn order to take advantage of a loaner notebook computer, you must meet company eligibility requirements per the Notebook Loaner Policy\n\nLoaner laptops will be provided based on what devices are available.",
+        "image": {
+          "href": "https://mock-snow.com/67cdf9444f889200086eeed18110c7f9.iix"
+        },
+        "type": "item",
+        "actions": [
+          {
+            "title": "Add to cart",
+            "description": "Add this item to my shopping cart.",
+            "type": "PUT",
+            "url": {
+              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+            },
+            "payload": {
+              "itemId": "10f110aec611227601fbe1841e7e417c"
+            },
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "userInput": []
+          }
+        ],
+        "workflowStep": "Incomplete",
+        "tabularData": [
+          {
+            "data": [
+              {
+                "title": "Price",
+                "shortDescription": "$2,100.00"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Acer Aspire NX",
+        "description": "Acer Aspire NX\n\nThe corporate standard laptop for sales employees.\n\nHigh performance and light weight.\n\nItem Includes:\n2.5 GHz intel Core i5 Processor\n750 GB Hard Drive\n8 GB RAM\nMicrosoft Windows 8\nMicrosoft Office",
+        "image": {
+          "href": "https://mock-snow.com/bbc00e844f889200086eeed18110c756.iix"
+        },
+        "type": "item",
+        "actions": [
+          {
+            "title": "Add to cart",
+            "description": "Add this item to my shopping cart.",
+            "type": "PUT",
+            "url": {
+              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+            },
+            "payload": {
+              "itemId": "e212a942c0a80165008313c59764eea1"
+            },
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "userInput": []
+          }
+        ],
+        "workflowStep": "Incomplete",
+        "tabularData": [
+          {
+            "data": [
+              {
+                "title": "Price",
+                "shortDescription": "$1,100.00"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

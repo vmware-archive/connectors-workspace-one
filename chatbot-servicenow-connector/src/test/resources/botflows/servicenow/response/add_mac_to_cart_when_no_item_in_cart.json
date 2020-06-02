@@ -1,0 +1,19 @@
+{
+  "result": {
+    "cart_id": "bf89c983db513300ea92eb41ca9619dc",
+    "subtotal": "$1,499.00",
+    "items": [
+      {
+        "catalog_item_id": "3cecd2350a0a0a6a013a3a35a5e41c07",
+        "quantity": "1",
+        "localized_price": "$1,100.00",
+        "price": "$1,000.00",
+        "recurring_frequency": "",
+        "localized_recurring_price": "$0.00",
+        "recurring_price": "$0.00",
+        "item_name": "Development Laptop (PC)",
+        "cart_item_id": "cd5fad02db113300ea92eb41ca961965"
+      }
+    ]
+  }
+}
