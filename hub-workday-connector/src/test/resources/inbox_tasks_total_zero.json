@@ -1,0 +1,30 @@
+{
+  "total": 0,
+  "data": [
+    {
+      "id": "fc844b7a8f6f813f79efb5ffd6115505",
+      "descriptor": "Approval by Manager",
+      "href": "https://workday.com/ccx/api/api/v1/tenant/inboxTasks/fc844b7a8f6f813f79efb5ffd6115505",
+      "stepType": {
+        "descriptor": "Approval",
+        "id": "d8c8920e446c11de98360015c5e6daf6"
+      },
+      "assigned": "2019-11-25T05:32:49.001Z",
+      "subject": {
+        "descriptor": "Ashton Burns",
+        "id": "1a6228638d1401a7e91052d2b14af008",
+        "href": "https://workday.com/ccx/api/api/v1/tenant/workers/1a6228638d1401a7e91052d2b14af008"
+      },
+      "overallProcess": {
+        "descriptor": "Absence Request: Ashton Burns",
+        "id": "fc844b7a8f6f01580738a5ffd6115105",
+        "href": "https://workday.com/ccx/api/api/v1/tenant/timeOffRequest/fc844b7a8f6f01580738a5ffd6115105"
+      },
+      "due": "2019-11-26",
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      }
+    }
+  ]
+}

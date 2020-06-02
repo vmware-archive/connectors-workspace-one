@@ -1,0 +1,216 @@
+{
+  "objects": [
+    {
+      "header": {
+        "title": "Absence Request: Ashton Burns"
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Start Date",
+            "description": "December, 11, 2019"
+          },
+          {
+            "type": "GENERAL",
+            "title": "End Date",
+            "description": "December, 11, 2019"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Total",
+            "description": "8 Hours-Sick (Hours)"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Requested By",
+            "description": "Ashton Burns"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Assigned On",
+            "description": "November, 25, 2019"
+          },
+          {
+            "type": "SECTION",
+            "title": "Absence Details",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Date",
+                "description": "December, 11, 2019"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Type",
+                "description": "Sick (Hours)"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Day of the Week",
+                "description": "Wednesday"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Total",
+                "description": "8 Hours"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "primary": true,
+          "label": "Approve",
+          "url": {
+            "href": "https://dev.hero.example.com/connectors/id/workday-connector/api/v1/timeoff-tasks/fc844b7a8f6f813f79efb5ffd6115505/approve"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "comment",
+              "label": "Comment",
+              "format": "textarea"
+            }
+          ],
+          "completed_label": "Approved",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        },
+        {
+          "label": "Decline",
+          "url": {
+            "href": "https://dev.hero.example.com/connectors/id/workday-connector/api/v1/timeoff-tasks/fc844b7a8f6f813f79efb5ffd6115505/decline"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Declined",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+      },
+      "backend_id": "fc844b7a8f6f813f79efb5ffd6115505"
+    },
+    {
+      "header": {
+        "title": "Absence Request: Ashton Burns"
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Start Date",
+            "description": "December, 03, 2019"
+          },
+          {
+            "type": "GENERAL",
+            "title": "End Date",
+            "description": "December, 03, 2019"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Total",
+            "description": "8 Hours-Sick (Hours)"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Requested By",
+            "description": "Ashton Burns"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Assigned On",
+            "description": "November, 25, 2019"
+          },
+          {
+            "type": "SECTION",
+            "title": "Absence Details",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Date",
+                "description": "December, 03, 2019"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Type",
+                "description": "Sick (Hours)"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Day of the Week",
+                "description": "Tuesday"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Total",
+                "description": "8 Hours"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "primary": true,
+          "label": "Approve",
+          "url": {
+            "href": "https://dev.hero.example.com/connectors/id/workday-connector/api/v1/timeoff-tasks/fc844b7a8f6f81861b9f7b58d5114205/approve"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "comment",
+              "label": "Comment",
+              "format": "textarea"
+            }
+          ],
+          "completed_label": "Approved",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        },
+        {
+          "label": "Decline",
+          "url": {
+            "href": "https://dev.hero.example.com/connectors/id/workday-connector/api/v1/timeoff-tasks/fc844b7a8f6f81861b9f7b58d5114205/decline"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Declined",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+      },
+      "backend_id": "fc844b7a8f6f81861b9f7b58d5114205"
+    }
+  ]
+}

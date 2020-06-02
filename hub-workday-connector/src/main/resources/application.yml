@@ -1,0 +1,33 @@
+logging:
+  level:
+    org:
+      springframework: INFO
+  file: logs/workdayconn.log
+  pattern:
+    level: "<workdayconn> <client_ip: %X{clientIp}> <correlation_id: %X{requestId}> <tenant_id: %X{tenantId}> <user_id: %X{userId}> %5p"
+server:
+  servlet:
+    contextPath: /workday-connector
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  server-header: workday-connector
+
+# Mobile Flows server public key url (you must override this in /etc)
+# examples:
+# security.oauth2.resource.jwt.key-uri=https://dev.hero.vmwservices.com/security/public-key
+# security.oauth2.resource.jwt.key-uri=https://prod.hero.vmwservices.com/security/public-key
+security:
+  oauth2:
+    resource:
+      jwt:
+        key-uri: to-be-replaced-by-ebextension
+management:
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: health
+connector:
+  default:
+    image: https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png

@@ -1,0 +1,105 @@
+{
+  "total": 4,
+  "data": [
+    {
+      "id": "fc844b7a8f6f813f79efb5ffd6115505",
+      "descriptor": "Approval by Manager",
+      "href": "https://workday.com/ccx/api/api/v1/tenant/inboxTasks/fc844b7a8f6f813f79efb5ffd6115505",
+      "stepType": {
+        "descriptor": "Approval",
+        "id": "d8c8920e446c11de98360015c5e6daf6"
+      },
+      "assigned": "2019-11-25T05:32:49.001Z",
+      "subject": {
+        "descriptor": "Ashton Burns",
+        "id": "1a6228638d1401a7e91052d2b14af008",
+        "href": "https://workday.com/ccx/api/api/v1/tenant/workers/1a6228638d1401a7e91052d2b14af008"
+      },
+      "overallProcess": {
+        "descriptor": "Time Off Request: Ashton Burns",
+        "id": "fc844b7a8f6f01580738a5ffd6115105",
+        "href": "https://workday.com/ccx/api/api/v1/tenant/timeOffRequest/fc844b7a8f6f01580738a5ffd6115105"
+      },
+      "due": "2019-11-26",
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      }
+    },
+    {
+      "id": "fc844b7a8f6f81861b9f7b58d5114205",
+      "descriptor": "Approval by Manager",
+      "href": "https://workday.com/ccx/api/api/v1/tenant/inboxTasks/fc844b7a8f6f81861b9f7b58d5114205",
+      "stepType": {
+        "descriptor": "Approval",
+        "id": "d8c8920e446c11de98360015c5e6daf6"
+      },
+      "assigned": "2019-11-25T05:02:30.890Z",
+      "subject": {
+        "descriptor": "Ashton Burns",
+        "id": "1a6228638d1401a7e91052d2b14af008",
+        "href": "https://workday.com/ccx/api/api/v1/tenant/workers/1a6228638d1401a7e91052d2b14af008"
+      },
+      "overallProcess": {
+        "descriptor": "Time Off Request: Ashton Burns",
+        "id": "fc844b7a8f6f01223ce56358d5113e05",
+        "href": "https://workday.com/ccx/api/api/v1/tenant/timeOffRequest/fc844b7a8f6f01223ce56358d5113e05"
+      },
+      "due": "2019-11-26",
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      }
+    },
+    {
+      "id": "f598f956fc0881ada227f4f8fe015200",
+      "descriptor": "Onboarding Setup",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/inboxTasks/f598f956fc0881ada227f4f8fe015200",
+      "due": "2019-06-08",
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      },
+      "subject": {
+        "descriptor": "Hire: David Delgado",
+        "id": "f598f956fc080131cd2b20bcfe013500",
+        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/businessProcesses/f598f956fc080131cd2b20bcfe013500"
+      },
+      "assigned": "2019-06-07T19:59:08.537Z",
+      "stepType": {
+        "descriptor": "Initiation",
+        "id": "d8c892f4446c11de98360015c5e6daf6"
+      },
+      "overallProcess": {
+        "descriptor": "Hire: David Delgado",
+        "id": "f598f956fc080131cd2b20bcfe013500",
+        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/businessProcesses/f598f956fc080131cd2b20bcfe013500"
+      }
+    },
+    {
+      "id": "47220ccb95f281bdad5e4eacfa018e00",
+      "descriptor": "Hire",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/inboxTasks/47220ccb95f281bdad5e4eacfa018e00",
+      "due": "2019-06-14",
+      "status": {
+        "descriptor": "Automatic Initiate",
+        "id": "2e024d041dc11000061c92d42617000b"
+      },
+      "subject": {
+        "descriptor": "HR Operations Department",
+        "id": "dd782b74c51344dda5f4975404e8217f",
+        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/supervisoryOrganizations/dd782b74c51344dda5f4975404e8217f"
+      },
+      "assigned": "2019-06-07T19:55:58.016Z",
+      "stepType": {
+        "descriptor": "Initiation",
+        "id": "d8c892f4446c11de98360015c5e6daf6"
+      },
+      "overallProcess": {
+        "descriptor": "Hire: David Delgado - HR Manager",
+        "id": "47220ccb95f20193893642acfa018a00",
+        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/businessProcesses/47220ccb95f20193893642acfa018a00"
+      }
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+<FindBugsFilter>
+    <!-- begin global exclusions -->
+    <!-- maintain in alphabetical order -->
+    <Match>
+        <Bug pattern="AI_ANNOTATION_ISSUES_NEEDS_NULLABLE"/>
+    </Match>
+    <Match>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Bug pattern="CE_CLASS_ENVY"/>
+    </Match>
+    <Match>
+        <Bug pattern="CLI_CONSTANT_LIST_INDEX"/>
+    </Match>
+    <Match>
+        <Bug pattern="EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS"/>
+    </Match> <!-- intentional -->
+    <Match>
+        <Bug pattern="EXS_EXCEPTION_SOFTENING_NO_CHECKED"/>
+    </Match> <!-- intentional -->
+    <Match>
+        <Bug pattern="IMC_IMMATURE_CLASS_NO_TOSTRING"/>
+    </Match> <!-- minor -->
+    <Match>
+        <Bug pattern="IMC_IMMATURE_CLASS_WRONG_FIELD_ORDER"/>
+    </Match>
+    <Match>
+        <Bug pattern="OCP_OVERLY_CONCRETE_PARAMETER"/>
+    </Match> <!-- minor -->
+    <Match>
+        <Bug pattern="PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS"/>
+    </Match> <!-- gives false positives -->
+    <Match>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    </Match> <!-- gives false positives in java11 https://github.com/spotbugs/spotbugs/issues/259 -->
+    <Match>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match> <!-- gives false positives in java11 https://github.com/spotbugs/spotbugs/issues/868 -->
+    <Match>
+        <Bug pattern="WEM_WEAK_EXCEPTION_MESSAGING"/>
+    </Match> <!-- intentional, for security -->
+    <Match>
+        <Bug pattern="WI_MANUALLY_ALLOCATING_AN_AUTOWIRED_BEAN"/>
+    </Match>
+    <!-- maintain in alphabetical order -->
+    <!-- end global exclusions -->
+
+    <!-- begin test-specific exceptions -->
+    <!-- maintain in alphabetical order -->
+    <Match>
+        <Class name="~.*(Test|TestBase|Builder)(\$.*)?$"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST,
+                        FCBL_FIELD_COULD_BE_LOCAL,
+                        JVR_JDBC_VENDOR_RELIANCE,
+                        LUI_USE_SINGLETON_LIST,
+                        NAB_NEEDLESS_BOOLEAN_CONSTANT_CONVERSION,
+                        NM_CLASS_NOT_EXCEPTION,
+                        NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE,
+                        NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS,
+                        NP_NULL_PARAM_DEREF_NONVIRTUAL,
+                        OPM_OVERLY_PERMISSIVE_METHOD,
+                        RV_RETURN_VALUE_IGNORED,
+                        RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT,
+                        SACM_STATIC_ARRAY_CREATED_IN_METHOD,
+                        SEC_SIDE_EFFECT_CONSTRUCTOR,
+                        SIC_INNER_SHOULD_BE_STATIC,
+                        SIC_INNER_SHOULD_BE_STATIC_ANON,
+                        ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD,
+                        STT_TOSTRING_STORED_IN_FIELD,
+                        UPM_UNCALLED_PRIVATE_METHOD,
+                        URF_UNREAD_FIELD,
+                        UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR
+                        "/>
+    </Match>
+    <!-- maintain in alphabetical order -->
+    <!-- end test-specific exceptions -->~
+
+    <!-- begin individual exception/exemption items -->
+    <!-- end individual exception/exemption items -->
+
+</FindBugsFilter>

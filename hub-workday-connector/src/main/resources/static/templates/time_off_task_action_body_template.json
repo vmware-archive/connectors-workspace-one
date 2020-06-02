@@ -1,0 +1,6 @@
+{
+  "id": "${timeoff_task_id}",
+  "descriptor": "${timeoff_task_descriptor}",
+  "href": "${timeoff_task_url}",
+  "comment": "${timeoff_task_action_comments}"
+}

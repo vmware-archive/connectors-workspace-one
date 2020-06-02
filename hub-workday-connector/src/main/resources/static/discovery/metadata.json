@@ -1,0 +1,26 @@
+{
+  "image": {
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+  },
+  "object_types": {
+    "card": {
+      "doc": {
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "pollable": true,
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}${CONTEXT_PATH}/cards/requests"
+      }
+    },
+    "day0-card": {
+      "doc": {
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "pollable": true,
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}${CONTEXT_PATH}/cards/day0/requests"
+      }
+    }
+  }
+}
+

@@ -1,0 +1,24 @@
+{
+  "id": "fc844b7a8f6f01580738a5ffd6115105",
+  "descriptor": "Absence Request: Ashton Burns",
+  "href": "https://workday.com/ccx/api/api/v1/tenant/timeOffRequest/fc844b7a8f6f01580738a5ffd6115105",
+  "subject": "Ashton Burns",
+  "assignedOn": "2019-11-25T05:32:49.001Z",
+  "due": "2019-11-26",
+  "overallStatus": "In Progress",
+  "firstDayOfTimeOff": "201912-11",
+  "lastDayOfTimeOff": "201912-11",
+  "totalTimeOffDuration": "8 Hours-Sick (Hours)",
+  "inboxTaskId": "fc844b7a8f6f813f79efb5ffd6115505",
+  "inboxTaskHref": "https://workday.com/ccx/api/api/v1/tenant/inboxTasks/fc844b7a8f6f813f79efb5ffd6115505",
+  "timeOffItems": [
+    {
+      "date": "201912-11",
+      "dayOfWeek": "Unknown",
+      "type": "Sick (Hours)",
+      "requestedTimeOffQuantity": "8",
+      "unitOfTime": "Hours",
+      "comments": null
+    }
+  ]
+}

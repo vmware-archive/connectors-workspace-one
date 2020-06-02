@@ -1,0 +1,13 @@
+target/
+.idea/
+*.iws
+*.iml
+*.ipr
+*.log
+*.log.*
+*.sw*
+.m2/
+.mvn/
+.DS_Store
+workday_connector_maven_osstpmgt.yaml
+excluded_workday_connector_maven_osstpmgt.yaml

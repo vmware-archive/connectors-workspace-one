@@ -1,0 +1,64 @@
+{
+  "objects": [
+    {
+      "header": {
+        "title": "Onboarding Setup"
+      },
+      "body": {
+        "description": "You have Hire: David Delgado and Hire: David Delgado - HR Manager tasks to complete in Workday!",
+        "fields": [
+          {
+            "type": "SECTION",
+            "title": "Task 1",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Task Name",
+                "description": "Hire: David Delgado"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Due",
+                "description": "June, 08, 2019"
+              }
+            ]
+          },
+          {
+            "type": "SECTION",
+            "title": "Task 2",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Task Name",
+                "description": "Hire: David Delgado - HR Manager"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Due",
+                "description": "June, 14, 2019"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "primary": true,
+          "label": "Open In Workday",
+          "url": {
+            "href": "http://workday.com"
+          },
+          "type": "GET",
+          "action_key": "OPEN_IN",
+          "request": {},
+          "user_input": [],
+          "completed_label": "Open In Workday",
+          "allow_repeated": true
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+      }
+    }
+  ]
+}
