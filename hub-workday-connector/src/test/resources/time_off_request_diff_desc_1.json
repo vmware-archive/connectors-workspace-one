@@ -1,0 +1,82 @@
+{
+  "id": "fc844b7a8f6f01580738a5ffd6115105",
+  "descriptor": "Time Off Request: Ashton Burns",
+  "href": "https://workday.com/ccx/api/api/v1/tenant/timeOffRequest/fc844b7a8f6f01580738a5ffd6115105",
+  "subject": {
+    "descriptor": "Ashton Burns",
+    "id": "1a6228638d1401a7e91052d2b14af008",
+    "href": "https://workday.com/ccx/api/api/v1/tenant/workers/1a6228638d1401a7e91052d2b14af008"
+  },
+  "eventRecordsAwaitingAction": [
+    {
+      "id": "fc844b7a8f6f813f79efb5ffd6115505",
+      "descriptor": "Approval by Manager",
+      "href": "https://workday.com/ccx/api/api/v1/tenant/inboxTasks/fc844b7a8f6f813f79efb5ffd6115505",
+      "assignedToWorkers": [
+        {
+          "id": "bc5a1b523c9a4bb986cb5f49d009f41f",
+          "descriptor": "Robert Hsing",
+          "href": "https://workday.com/ccx/api/api/v1/tenant/workers/bc5a1b523c9a4bb986cb5f49d009f41f",
+          "primarySupervisoryOrganization": {
+            "descriptor": "Human Resources",
+            "id": "e02485f863ec48d39a082bb95cc4abe4",
+            "href": "https://workday.com/ccx/api/api/v1/tenant/supervisoryOrganizations/e02485f863ec48d39a082bb95cc4abe4"
+          },
+          "businessTitle": "Director, HR Operations",
+          "primaryWorkEmail": "rhsing@workday.net"
+        }
+      ]
+    }
+  ],
+  "transactionStatus": {
+    "descriptor": "In Progress",
+    "id": "e2d08afc53614c37b32b31270bb8bee3"
+  },
+  "approvalWID": "fc844b7a8f6f813f79efb5ffd6115505",
+  "workersCompletedMostRecentStep": {
+    "id": "1a6228638d1401a7e91052d2b14af008",
+    "descriptor": "Ashton Burns",
+    "href": "https://workday.com/ccx/api/api/v1/tenant/workers/1a6228638d1401a7e91052d2b14af008",
+    "isManager": false,
+    "primaryWorkEmail": "ashton.burns@workday.net",
+    "businessTitle": "HR Manager",
+    "primarySupervisoryOrganization": {
+      "descriptor": "HR Operations Department",
+      "id": "dd782b74c51344dda5f4975404e8217f",
+      "href": "https://workday.com/ccx/api/api/v1/tenant/supervisoryOrganizations/dd782b74c51344dda5f4975404e8217f"
+    }
+  },
+  "timeOffEntry": [
+    {
+      "id": "fc844b7a8f6f01927d3da5ffd6115205",
+      "descriptor": "12/11/2019 - 8 Hours (Ashton Burns)",
+      "timeOff": {
+        "id": "14bb677ad94b4bc6acc87d6a652f1a9f",
+        "descriptor": "Sick (Hours)",
+        "href": "https://workday.com/ccx/api/api/v1/tenant/timeOffs/14bb677ad94b4bc6acc87d6a652f1a9f",
+        "plan": {
+          "descriptor": "USA Sick Plan (GPS/SPEC)",
+          "id": "4819781e7f90410cb32c9f800f57f149"
+        }
+      },
+      "timeOffRequest": {
+        "id": "fc844b7a8f6f01580738a5ffd6115105",
+        "descriptor": "Time Off Request: Ashton Burns",
+        "href": "https://workday.com/ccx/api/api/v1/tenant/timeOffRequest/fc844b7a8f6f01580738a5ffd6115105",
+        "status": "In Progress"
+      },
+      "units": "8",
+      "employee": {
+        "descriptor": "Ashton Burns",
+        "id": "1a6228638d1401a7e91052d2b14af008",
+        "href": "https://workday.com/ccx/api/api/v1/tenant/workers/1a6228638d1401a7e91052d2b14af008"
+      },
+      "unitOfTime": {
+        "descriptor": "Hours",
+        "id": "c4dacbd56bca4a9a8950e8d3ed21bbdb"
+      },
+      "date": "2019-12-11"
+    }
+  ],
+  "due": "2019-11-26"
+}

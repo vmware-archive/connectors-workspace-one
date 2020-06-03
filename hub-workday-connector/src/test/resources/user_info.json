@@ -1,0 +1,19 @@
+{
+  "total": 1,
+  "data": [
+    {
+      "currency": "USD",
+      "enablePdfAndExcel": true,
+      "timezone": "US/Pacific",
+      "email": "user1@example.com",
+      "imageLastUpdated": "2009-02-03T11:32:27.483Z",
+      "locale": "en_US",
+      "workerID": "247$137",
+      "fullName": "User1 Test",
+      "language": "en_US",
+      "workdayID": "0a2ee91d9f8f412dbf093881608f5d4e",
+      "userName": "user1",
+      "instanceID": "39$189"
+    }
+  ]
+}
