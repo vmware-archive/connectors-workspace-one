@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msPlanner.utils
 
 import com.vmware.connectors.common.payloads.response.Card
@@ -11,7 +16,6 @@ import org.springframework.web.reactive.function.BodyExtractors
 import org.springframework.web.reactive.function.client.*
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
-import java.util.*
 
 /**
  * Extension Function for Map which returns the value for the given key as String
@@ -187,13 +191,7 @@ private suspend fun createResponseException(
                             charset,
                             request
                     )
-                else UnknownHttpStatusCodeException(
-                        response.rawStatusCode(),
-                        response.headers().asHttpHeaders(),
-                        bodyBytes,
-                        charset,
-                        request
-                )
+                else UnknownHttpStatusCodeException(response.rawStatusCode(), response.headers().asHttpHeaders(), bodyBytes, charset, request)
             }
             .awaitFirst()
 }
@@ -247,14 +245,6 @@ fun Any.serialize() = JsonParser.serialize(this)
 inline fun <reified T : Any> String.deserialize() = JsonParser.deserialize<T>(this)
 
 /**
- * Extension Function for String which returns the Map
- *
- * @receiver String
- * @returns Map
- */
-//fun String.deserialize() = JsonParser.deserialize(this)
-
-/**
  * Extension Function for AnyType to convert the Receiver to the Required Type
  *
  * @receiver Any Type
@@ -263,20 +253,15 @@ inline fun <reified T : Any> String.deserialize() = JsonParser.deserialize<T>(th
 inline fun <reified T : Any> Any.convertValue() = JsonParser.convertValue<T>(this)
 
 /**
- * Extension Function for AnyType to convert the Receiver to the Required Type
+ * This function will calculate the execution time of the Passed Function
  *
- * @receiver Any Type
- * @param clazz Class Object
- * @returns the AnyType
+ * @param function Function
+ * @returns the Pair of Function Result and the Execution Time
  */
-//fun Any.convertValue(clazz: Class<Any>) = JsonParser.convertValue(this, clazz)
+ suspend fun<T> measureTimeMillisPair(function: suspend () -> T): Pair<T, Long> {
+    val startTime = System.currentTimeMillis()
+    val result: T = function()
+    val endTime = System.currentTimeMillis()
 
-/**
- * Extension Function for String which returns the UUID
- *
- * @receiver String
- * @returns the UUID
- */
-//fun String.toUUID() = UUID.nameUUIDFromBytes(toByteArray())
-
-
+    return Pair(result, endTime - startTime)
+}

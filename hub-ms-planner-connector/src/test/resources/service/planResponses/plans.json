@@ -1,6 +1,23 @@
 {
   "responses": [
     {
+      "id": "1",
+      "status": 403,
+      "headers": {
+        "Cache-Control": "no-cache"
+      },
+      "body": {
+        "error": {
+          "code": "",
+          "message": "You do not have the required permissions to access this item.",
+          "innerError": {
+            "request-id": "360c406c-73f8-43d7-bd70-0346bf4ba904",
+            "date": "2020-02-06T06:18:20"
+          }
+        }
+      }
+    },
+    {
       "id": "10",
       "status": 200,
       "headers": {

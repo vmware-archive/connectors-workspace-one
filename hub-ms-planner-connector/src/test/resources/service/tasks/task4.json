@@ -1,0 +1,62 @@
+{
+  "@odata.etag": "W/\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+  "id": "evCy5UXMrkCrlVu3g4wx2mQAFC9-",
+  "planId": "BODd529VLk6cwGeF35O4L2QAHS4b",
+  "bucketId": "RGg1_hfVEUmlH2cyaJ9EF2QANnmw",
+  "conversationThreadId": "thread123",
+  "createdDateTime": "2019-10-28T09:23:48.3259841Z",
+  "dueDateTime": "2019-11-13T10:00:00Z",
+  "title": "Get graph api",
+  "orderHint": "8586293523172297582PH",
+  "assigneePriority": "",
+  "percentComplete": 99,
+  "startDateTime": null,
+  "hasDescription": false,
+  "previewType": "automatic",
+  "completedDateTime": null,
+  "completedBy": null,
+  "priority": 1,
+  "referenceCount": 0,
+  "assignments": {
+    "3fca3578-eee3-4f5d-b62d-47d17f3cce3a": {
+      "@odata.type": "#microsoft.graph.plannerAssignment",
+      "assignedDateTime": "2019-10-28T09:23:48.3259841Z",
+      "orderHint": "8586293523172297582P*",
+      "assignedBy": {
+        "user": {
+          "displayName": null,
+          "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+        }
+      }
+    }
+  },
+  "checklistItemCount": 0,
+  "activeChecklistItemCount": 0,
+  "createdBy": {
+    "user": {
+      "displayName": null,
+      "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+    }
+  },
+  "taskMetaInfo": {
+    "groupId": "1",
+    "bucketId": "RGg1_hfVEUmlH2cyaJ9EF2QANnmw",
+    "planName": "",
+    "bucketName": "bucket one"
+  },
+  "userId" : "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+  "groupId":"4",
+  "url":"https://tasks.office.com/Home/Planner#/plantaskboard?groupId=1&planId=BODd529VLk6cwGeF35O4L2QAHS4b&taskId=evCy5UXMrkCrlVu3g4wx2mQAFC9-",
+  "etag":"W/\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+  "appliedCategories": {
+    "category1" : true
+  },
+  "categoryMap": {
+    "category1": null,
+    "category2": null,
+    "category3": null,
+    "category4": null,
+    "category5": null,
+    "category6": null
+  }
+}

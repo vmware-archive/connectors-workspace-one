@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msPlanner.dto
 
 /**
@@ -8,27 +13,5 @@ package com.vmware.connectors.msPlanner.dto
  */
 data class Days(
         val days: Int,
-        val zone: String
-)
-
-/**
- * Hours object.
- *
- * @property hours represents the number of hours.
- * @property zone represents the zone.
- */
-data class Hours(
-        val hours: Int,
-        val zone: String
-)
-
-/**
- * represents the Minutes object.
- *
- * @property minutes represents the minutes.
- * @property zone represents the zone.
- */
-data class Minutes(
-        val minutes: Int,
         val zone: String
 )

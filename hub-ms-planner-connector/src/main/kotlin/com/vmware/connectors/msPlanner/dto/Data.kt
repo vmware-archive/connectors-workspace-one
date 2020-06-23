@@ -1,11 +1,14 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msPlanner.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.vmware.connectors.msPlanner.config.Endpoints
 import com.vmware.connectors.msPlanner.utils.JsonParser
-
-const val DATE_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 
 /**
  * TaskInfo Object
@@ -23,20 +26,6 @@ data class TaskInfo(
         private val task: String
 ) {
     val taskObj = JsonParser.deserialize<Task>(this.task)
-}
-
-/**
- * UserRoles Object
- */
-object UserRoles {
-    /**
-     * General User
-     */
-    const val USER = "user"
-    /**
-     * Manager Role
-     */
-    const val MANAGER = "manager"
 }
 
 /**
@@ -78,12 +67,6 @@ data class Task(
          */
         @JsonProperty("conversationThreadId")
         val conversationThreadId: String?,
-//        /**
-//         * This sets the type of preview that shows up on the task.
-//         * Possible values are: automatic, noPreview, checklist, description, reference.
-//         */
-////        @JsonProperty("previewType")
-//        val previewType: String,
         /**
          * Date and time at which the task is created.
          * The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time.
@@ -212,18 +195,16 @@ data class Identity(
         val id: String
 )
 
+/**
+ * TaskDetails Object
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TaskDetails(
-        /**
-         * Read-only. ID of the task details. It is 28 characters long and case-sensitive.
-         */
-        @JsonProperty("id")
-        val id: String,
         /**
          * Description of the task
          */
         @JsonProperty("description")
-        val description: String,
+        val description: String?,
         /**
          * The collection of references on the task.
          */
@@ -231,6 +212,9 @@ data class TaskDetails(
         val references: Map<String, ExternalReference>
 )
 
+/**
+ * ExternalReference Object
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ExternalReference(
         /**
@@ -238,21 +222,6 @@ data class ExternalReference(
          */
         @JsonProperty("alias")
         val alias: String
-        /**
-         * Read-only. User ID by which this is last modified.
-         */
-//        @JsonProperty("lastModifiedBy")
-//        val lastModifiedBy: IdentitySet,
-        /**
-         * Used to set the relative priority order in which the reference will be shown as a preview on the task.
-         */
-//        @JsonProperty("previewPriority")
-//        val previewPriority: String,
-        /**
-         * Used to describe the type of the reference. Types include: PowerPoint, Word, Excel, Other.
-         */
-//        @JsonProperty("type")
-//        val type: String
 )
 
 /**

@@ -1,0 +1,439 @@
+{
+  "responses": [
+    {
+      "id": "10",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(microsoft.graph.plannerPlan)",
+        "@odata.count": 1,
+        "value": [
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          },
+          {
+            "@odata.etag": "W/\"JzEtUGxhbiAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "createdDateTime": "2019-10-28T09:22:29.7143536Z",
+            "owner": "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7",
+            "title": "Test",
+            "id": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              },
+              "application": {
+                "displayName": null,
+                "id": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            },
+            "contexts": {
+              "5e4a3abc-1dab-40b2-8630-8f77cf7b09d7": {
+                "@odata.type": "#microsoft.graph.plannerPlanContext",
+                "associationType": "PlannerWeb",
+                "createdDateTime": "2019-10-28T09:22:31.1343231Z",
+                "displayNameSegments": [
+                  "Test"
+                ],
+                "ownerAppId": "09abbdfd-ed23-44ee-a2d9-a627aa1c90f3"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

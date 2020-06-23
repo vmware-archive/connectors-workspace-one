@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msPlanner.config
 
 /**
@@ -5,8 +10,6 @@ package com.vmware.connectors.msPlanner.config
  */
 object Endpoints {
     fun getUserIdUrl(baseUrl: String) = "$baseUrl/me"
-
-    fun getUserNameUrl(baseUrl: String, id: String) = "$baseUrl/users/$id"
 
     fun getUserTimeZoneUrl(baseUrl: String) = "$baseUrl/me/mailboxsettings/timeZone"
 

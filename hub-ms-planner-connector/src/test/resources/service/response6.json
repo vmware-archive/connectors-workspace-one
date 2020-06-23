@@ -40,22 +40,6 @@
           },
           {
             "type": "GENERAL",
-            "title": "Notes",
-            "description": "hello"
-          },
-          {
-            "type": "SECTION",
-            "title": "Comments",
-            "items": [
-              {
-                "type": "GENERAL",
-                "title": "Hemanth Kethe",
-                "description": "hiiiiii"
-              }
-            ]
-          },
-          {
-            "type": "GENERAL",
             "title": "Start Date",
             "description": "Thu 01-Jan-70"
           },
@@ -63,20 +47,6 @@
             "type": "GENERAL",
             "title": "Due Date",
             "description": "Fri 29-May-20"
-          },
-          {
-            "type": "SECTION",
-            "title": "Attachments",
-            "items": [
-              {
-                "type": "ATTACHMENT_URL",
-                "title": "google",
-                "attachment_name": "google",
-                "attachment_content_type": "application/octet-stream",
-                "attachment_url": "https://google.com",
-                "attachment_method": "GET"
-              }
-            ]
           },
           {
             "type": "GENERAL",

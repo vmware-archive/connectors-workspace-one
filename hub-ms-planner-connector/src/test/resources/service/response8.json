@@ -44,17 +44,6 @@
             "description": "hello"
           },
           {
-            "type": "SECTION",
-            "title": "Comments",
-            "items": [
-              {
-                "type": "GENERAL",
-                "title": "Hemanth Kethe",
-                "description": "hiiiiii"
-              }
-            ]
-          },
-          {
             "type": "GENERAL",
             "title": "Start Date",
             "description": "Thu 01-Jan-70"
@@ -98,7 +87,7 @@
           "remove_card_on_completion": true,
           "request": {
             "actionType": "markAsCompleted",
-            "task": "{\"@odata.etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\",\"id\":\"evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"planId\":\"BODd529VLk6cwGeF35O4L2QAHS4b\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"conversationThreadId\":\"thread123\",\"createdDateTime\":\"2019-10-28T09:23:48.3259841Z\",\"startDateTime\":\"1970-01-01T00:00:00Z\",\"dueDateTime\":\"2020-05-29T10:53:36Z\",\"title\":\"Get graph api\",\"percentComplete\":0,\"priority\":5,\"referenceCount\":0,\"assignments\":{\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\":{\"assignedBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"assignedDateTime\":\"2019-10-28T09:23:48.3259841Z\"}},\"createdBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"taskMetaInfo\":{\"groupId\":\"1\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"planName\":\"\",\"bucketName\":\"bucket one\"},\"userId\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\",\"appliedCategories\":{\"category1\":\"true\"},\"categoryMap\":{\"category1\":null,\"category2\":null,\"category3\":null,\"category4\":null,\"category5\":null,\"category6\":null},\"groupId\":\"1\",\"url\":\"https://tasks.office.com/Home/Planner#/plantaskboard?groupId=1&planId=BODd529VLk6cwGeF35O4L2QAHS4b&taskId=evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\"}"
+            "task": "{\"@odata.etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\",\"id\":\"evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"planId\":\"BODd529VLk6cwGeF35O4L2QAHS4b\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"conversationThreadId\":null,\"createdDateTime\":\"2019-10-28T09:23:48.3259841Z\",\"startDateTime\":\"1970-01-01T00:00:00Z\",\"dueDateTime\":\"2020-05-29T10:56:36Z\",\"title\":\"Get graph api\",\"percentComplete\":0,\"priority\":5,\"referenceCount\":0,\"assignments\":{\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\":{\"assignedBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"assignedDateTime\":\"2019-10-28T09:23:48.3259841Z\"}},\"createdBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"taskMetaInfo\":{\"groupId\":\"1\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"planName\":\"\",\"bucketName\":\"bucket one\"},\"userId\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\",\"appliedCategories\":{\"category1\":\"true\"},\"categoryMap\":{\"category1\":null,\"category2\":null,\"category3\":null,\"category4\":null,\"category5\":null,\"category6\":null},\"groupId\":\"1\",\"url\":\"https://tasks.office.com/Home/Planner#/plantaskboard?groupId=1&planId=BODd529VLk6cwGeF35O4L2QAHS4b&taskId=evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\"}"
           },
           "user_input": [
             {
@@ -121,7 +110,7 @@
           "action_key": "USER_INPUT",
           "request": {
             "actionType": "addComment",
-            "task": "{\"@odata.etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\",\"id\":\"evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"planId\":\"BODd529VLk6cwGeF35O4L2QAHS4b\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"conversationThreadId\":\"thread123\",\"createdDateTime\":\"2019-10-28T09:23:48.3259841Z\",\"startDateTime\":\"1970-01-01T00:00:00Z\",\"dueDateTime\":\"2020-05-29T10:53:36Z\",\"title\":\"Get graph api\",\"percentComplete\":0,\"priority\":5,\"referenceCount\":0,\"assignments\":{\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\":{\"assignedBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"assignedDateTime\":\"2019-10-28T09:23:48.3259841Z\"}},\"createdBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"taskMetaInfo\":{\"groupId\":\"1\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"planName\":\"\",\"bucketName\":\"bucket one\"},\"userId\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\",\"appliedCategories\":{\"category1\":\"true\"},\"categoryMap\":{\"category1\":null,\"category2\":null,\"category3\":null,\"category4\":null,\"category5\":null,\"category6\":null},\"groupId\":\"1\",\"url\":\"https://tasks.office.com/Home/Planner#/plantaskboard?groupId=1&planId=BODd529VLk6cwGeF35O4L2QAHS4b&taskId=evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\"}"
+            "task": "{\"@odata.etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\",\"id\":\"evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"planId\":\"BODd529VLk6cwGeF35O4L2QAHS4b\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"conversationThreadId\":null,\"createdDateTime\":\"2019-10-28T09:23:48.3259841Z\",\"startDateTime\":\"1970-01-01T00:00:00Z\",\"dueDateTime\":\"2020-05-29T10:56:36Z\",\"title\":\"Get graph api\",\"percentComplete\":0,\"priority\":5,\"referenceCount\":0,\"assignments\":{\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\":{\"assignedBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"assignedDateTime\":\"2019-10-28T09:23:48.3259841Z\"}},\"createdBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"taskMetaInfo\":{\"groupId\":\"1\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"planName\":\"\",\"bucketName\":\"bucket one\"},\"userId\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\",\"appliedCategories\":{\"category1\":\"true\"},\"categoryMap\":{\"category1\":null,\"category2\":null,\"category3\":null,\"category4\":null,\"category5\":null,\"category6\":null},\"groupId\":\"1\",\"url\":\"https://tasks.office.com/Home/Planner#/plantaskboard?groupId=1&planId=BODd529VLk6cwGeF35O4L2QAHS4b&taskId=evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\"}"
           },
           "user_input": [
             {

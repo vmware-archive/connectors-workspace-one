@@ -54,6 +54,60 @@
           "address": "hemanthkethe@backflipt.com"
         }
       }
+    },
+    {
+      "@odata.etag": "W/\"CQAAABYAAADStnN/GxUJSZ6fl/u72/N1AAAHlSEF\"",
+      "id": "AAMkADVlZTcwOTY4LTZjMTMtNGViYS05OTQ5LWY5Y2U2NmM1NjQzNABGAAAAAAD6VBJG51IkT5ft_jTjrNumBwDStnN-GxUJSZ6fl-u72-N1AAAAAAEMAADStnN-GxUJSZ6fl-u72-N1AAAHlWbLAAA=",
+      "createdDateTime": "2019-11-12T12:13:39Z",
+      "lastModifiedDateTime": "2019-11-12T12:13:39Z",
+      "changeKey": "CQAAABYAAADStnN/GxUJSZ6fl/u72/N1AAAHlSEF",
+      "categories": [],
+      "receivedDateTime": "2019-11-12T12:13:39Z",
+      "hasAttachments": false,
+      "importance": "normal",
+      "body": {
+        "contentType": "html",
+        "content": "<html><body></body></html>"
+      },
+      "from": {
+        "emailAddress": {
+          "name": "Hemanth Kethe",
+          "address": "hemanthkethe@backflipt.com"
+        }
+      },
+      "sender": {
+        "emailAddress": {
+          "name": "Hemanth Kethe",
+          "address": "hemanthkethe@backflipt.com"
+        }
+      }
+    },
+    {
+      "@odata.etag": "W/\"CQAAABYAAADStnN/GxUJSZ6fl/u72/N1AAAHlSEF\"",
+      "id": "AAMkADVlZTcwOTY4LTZjMTMtNGViYS05OTQ5LWY5Y2U2NmM1NjQzNABGAAAAAAD6VBJG51IkT5ft_jTjrNumBwDStnN-GxUJSZ6fl-u72-N1AAAAAAEMAADStnN-GxUJSZ6fl-u72-N1AAAHlWbLAAA=",
+      "createdDateTime": "2019-11-12T12:13:39Z",
+      "lastModifiedDateTime": "2019-11-12T12:13:39Z",
+      "changeKey": "CQAAABYAAADStnN/GxUJSZ6fl/u72/N1AAAHlSEF",
+      "categories": [],
+      "receivedDateTime": "2019-11-12T12:13:39Z",
+      "hasAttachments": false,
+      "importance": "normal",
+      "body": {
+        "contentType": "html",
+        "content": "<html><body><table id=\"jSanity_hideInPlanner\"></table></body></html>"
+      },
+      "from": {
+        "emailAddress": {
+          "name": "Hemanth Kethe",
+          "address": "hemanthkethe@backflipt.com"
+        }
+      },
+      "sender": {
+        "emailAddress": {
+          "name": "Hemanth Kethe",
+          "address": "hemanthkethe@backflipt.com"
+        }
+      }
     }
   ]
 }

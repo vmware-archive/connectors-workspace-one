@@ -1,8 +1,11 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msPlanner.utils
 
-import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
-import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 /**
@@ -10,31 +13,13 @@ import java.nio.charset.StandardCharsets
  */
 object URLDecoding {
     /**
-     * this function returns the decoded URL.
+     * returns the decoded URL.
      *
      * @param value encoded String
      * @returns the decoded String
      */
     fun decodeValue(value: String): String {
-        return try {
-            URLDecoder.decode(value, StandardCharsets.UTF_8.toString())
-        } catch (ex: UnsupportedEncodingException) {
-            throw RuntimeException(ex.cause)
-        }
+        return URLDecoder.decode(value, StandardCharsets.UTF_8.toString())
     }
-
-    /**
-     * this function returns the encoded URL.
-     *
-     * @param value decoded String
-     * @returns the encoded String
-     */
-//    fun encodeValue(value: String): String {
-//        return try {
-//            URLEncoder.encode(value, StandardCharsets.UTF_8.toString())
-//        } catch (ex: UnsupportedEncodingException) {
-//            throw RuntimeException(ex.cause)
-//        }
-//    }
 
 }
