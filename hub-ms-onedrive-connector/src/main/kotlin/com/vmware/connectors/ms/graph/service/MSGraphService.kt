@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.ms.graph.service
 
 import com.vmware.connectors.ms.graph.config.Endpoints
@@ -13,13 +18,20 @@ import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBody
-import org.springframework.web.reactive.function.client.awaitBodyOrNull
-import org.springframework.web.reactive.function.client.awaitExchange
+import org.springframework.web.reactive.function.client.*
+import reactor.core.publisher.Mono
 import java.text.MessageFormat
 import java.time.LocalDateTime
 
+/**
+ * MSGraphService Class contains the functions necessary to fetch the pendingAccessRequests Data
+ * and the following Actions(Approve,Reject) to be performed on the AccessRequest
+ * and every function in the class requires the following parameters
+ * baseUrl - tenant url
+ * authorization - Microsoft Teams User Bearer Token
+ *
+ * @property client WebClient: library to make async http calls
+ */
 @Component
 class MSGraphService(
         @Autowired private val client: WebClient,
@@ -28,7 +40,6 @@ class MSGraphService(
         @Value("classpath:templates/Access-Request-Decline-Email-To-Requester.html")
         private val accessRequestDeclineEmailToRequesterTemplateResource: Resource
 ) {
-
     private val logger = getLogger()
 
     private val accessRequestApprovalEmailToRequesterTemplate = accessRequestApprovalEmailToRequesterTemplateResource.readAsString()
@@ -40,16 +51,17 @@ class MSGraphService(
 
 
     /**
-     * this Function will return List of RequestAccessMails from the User's Account
+     *  fetches the List of RequestAccessMails from the User's Account
      *
+     * @param authorization is the token needed for authorizing the call
      * @param baseUrl is the endPoint to be called
      * @param dateAfter LocalDateTime Object
-     * @param authorization is the token needed for authorizing the call
+     * @returns List of OutlookItem objects
      */
-    private suspend fun  getRequestAccessMails(
+    private suspend fun getRequestAccessMails(
+            authorization: String,
             baseUrl: String,
-            dateAfter: LocalDateTime,
-            authorization: String
+            dateAfter: LocalDateTime
     ): List<OutlookMailItem> {
         val dateCursor = formatDate(dateAfter)
         val filterQry = "ReceivedDateTime ge $dateCursor and (from/emailAddress/address) eq 'no-reply@sharepointonline.com'"
@@ -59,28 +71,27 @@ class MSGraphService(
                 .get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchangeAndThrowError {
-                    logger.error(it) { "Error while fetching mails for user" }
-                }
-                .awaitBodyOrNull<Map<String, Any>>()
-                ?.getListOrNull<Map<String, Any>>("value")
+                .awaitExchange()
+                .awaitBody<Map<String, Any>>()
+                .getListOrNull<Map<String, Any>>("value")
                 ?.convertValue()
                 ?: emptyList()
     }
 
     /**
-     * this Function will take filePath and sitePath and returns the fileId
+     *  fetches the fileId of the Resource
      *
+     * @param authorization is the token needed for authorizing the call
      * @param baseUrl is the endPoint to be called
      * @param siteId siteID of the Resource
      * @param filePath is the Path of the SharedFile
-     * @param authorization is the token needed for authorizing the call
+     * @returns the File Id of the Resource
      */
     private suspend fun getFileIdFromFilePath(
+            authorization: String,
             baseUrl: String,
             siteId: String,
-            filePath: String,
-            authorization: String
+            filePath: String
     ): String? {
         logger.info { "fetching file info for $filePath for site $siteId" }
         val url = Endpoints.getFileIdFromFilePathUrl(baseUrl, siteId, filePath)
@@ -88,30 +99,27 @@ class MSGraphService(
                 .get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchange()
-                .also {
-                    if (it.statusCode().is4xxClientError || it.statusCode().is5xxServerError) {
-                        logger.error { "Error while fetching fileid from file path $siteId $filePath" }
-                    }
+                .awaitExchangeAndThrowError {
+                    logger.error(it) { "Error while fetching fileid from file path $siteId $filePath" }
                 }
-                .awaitBodyOrNull<Map<String, Any>>()
-                ?.getStringOrNull("id")
+                .awaitBody<Map<String, Any>>()
+                .getStringOrNull("id")
     }
 
     /**
-     * this Function will take siteHostName and sitePath and
-     *  returns the Resource's SiteId
+     * fetches the SiteId of the Resource
      *
+     * @param authorization is the token needed for authorizing the call
      * @param baseUrl is the endPoint to be called
      * @param siteHostName is HostName of the Site
      * @param sitePath is the Path of the Site
-     * @param authorization is the token needed for authorizing the call
+     * @returns the Site Id of the Resource
      */
     private suspend fun getSiteIdFromSitePath(
+            authorization: String,
             baseUrl: String,
             siteHostName: String,
-            sitePath: String,
-            authorization: String
+            sitePath: String
     ): String? {
         val url = Endpoints.getSiteIdCallUrl(baseUrl, siteHostName, sitePath)
         return client
@@ -119,24 +127,24 @@ class MSGraphService(
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, authorization)
                 .awaitExchange()
-                .awaitBodyOrNull<Map<String, Any>>()
-                ?.getStringOrNull("id")
+                .awaitBody<Map<String, Any>>()
+                .getStringOrNull("id")
     }
 
     /**
-     * this function will decline the Request to Access the SharedFile and
-     *  will send the Email to the Requested User
+     * declines the Access Request to the SharedFile and
+     * will respond to the Requested User
      *
+     *  @param authorization is the token needed for authorizing the call
      *  @param baseUrl is the endPoint to be called
      *  @param accessRequest AccessRequest
      *  @param comments comments while declining the Request
-     *  @param authorization is the token needed for authorizing the call
      */
     suspend fun declinePermissionToResource(
+            authorization: String,
             baseUrl: String,
             accessRequest: AccessRequest,
-            comments: String?,
-            authorization: String
+            comments: String?
     ) {
 
         if (accessRequest.requestedBy != null) {
@@ -152,28 +160,28 @@ class MSGraphService(
             logger.info { "comments -> $comments" }
             val subject = """Administrator has responded to your request for '${accessRequest.resource.name}'"""
 
-            sendMail(baseUrl, authorization, to, subject = subject, body = body)
+            sendMail(authorization, baseUrl, to, subject = subject, body = body)
         }
     }
 
     /**
-     * this function will Accept the Request to Access the SharedFile and
-     *  will send the Email to the Requested User
+     * Accepts the Access Request to the SharedFile and
+     *  will respond to the Requested User
      *
+     *  @param authorization is the token needed for authorizing the call
      *  @param baseUrl is the endPoint to be called
      *  @param accessRequest AccessRequest
      *  @param roles List of roles that user is allowing on Shared File/Folder
      *  @param comments comments while declining the Request
-     *  @param authorization is the token needed for authorizing the call
      *  @returns the Map
      */
     suspend fun addPermissionToFile(
+            authorization: String,
             baseUrl: String,
             accessRequest: AccessRequest,
             roles: List<String>,
-            comments: String?,
-            authorization: String
-    ): Map<String, Any>? {
+            comments: String?
+    ): Map<String, Any> {
 
         val url = Endpoints.inviteUrl(baseUrl, accessRequest.resource.siteId, accessRequest.resource.id)
 
@@ -194,11 +202,11 @@ class MSGraphService(
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, authorization)
                 .contentType(MediaType.APPLICATION_JSON)
-                .syncBody(params)
+                .body(Mono.just(params))
                 .awaitExchangeAndThrowError {
                     logger.error(it) { "Error while adding permission for accessRequest: $accessRequest" }
                 }
-                .awaitBodyOrNull<Map<String, Any>>()
+                .awaitBody<Map<String, Any>>()
 
         if (accessRequest.requestedBy != null) {
             val to = listOf(accessRequest.requestedBy.toEmailAddress())
@@ -224,8 +232,8 @@ class MSGraphService(
             val subject = """Administrator has responded to your request for '${accessRequest.resource.name}'"""
 
             sendMail(
-                    baseUrl,
                     authorization,
+                    baseUrl,
                     to,
                     subject = subject,
                     body = body
@@ -235,17 +243,17 @@ class MSGraphService(
     }
 
     /**
-     * this function will returns the relevant people for the User
+     * fetches the relevant people for the User
      *
+     * @param authorization is the token needed for authorizing the call
      *  @param baseUrl is the endPoint to be called
      *  @param searchName displayName to be Searched
-     *  @param authorization is the token needed for authorizing the call
      *  @returns the Map containing RelevantPeople for the User
      */
     private suspend fun getRelevantPeopleForUser(
+            authorization: String,
             baseUrl: String,
-            searchName: String,
-            authorization: String
+            searchName: String
     ): Map<String, Any>? {
         val url = Endpoints.getRelevantPeopleWithNameUrl(baseUrl, searchName)
         return client
@@ -257,18 +265,18 @@ class MSGraphService(
     }
 
     /**
-     * this function will take an url and returns the hostName,sitePath,filePath
+     * fetches the hostName,sitePath,filePath of the Resource
      * @param url is the URL Resource
      * @returns the Triple<hostName,sitePath,filePath>
      */
-    private fun getSharepointParams(url: String): Triple<String, String, String>? {
+    private fun getSharePointParams(url: String): Triple<String, String, String>? {
         val regex = Regex(pattern = "https://(.+.sharepoint.com)(/[^/.]+/[^/.]+)/[^/.]+(/.+)")
         val matches = regex.matchEntire(url)?.groupValues
         return if (matches != null) Triple(matches[1], matches[2], matches[3]) else null
     }
 
     /**
-     * this function will return the CorrectPerson Among the RelevantPeople
+     * fetches the CorrectPerson Among the RelevantPeople
      *
      * @param matchedPeople are relevant People
      * @param searchName is the displayName of the user
@@ -288,6 +296,14 @@ class MSGraphService(
                 ?.getStringOrNull("address")
     }
 
+    /**
+     * fetches the CorrectPerson Among the knownUsers
+     *
+     * @param users are user's domain people
+     * @param searchName is the displayName of the user
+     * @returns the correctPerson among Domain's People
+     */
+
     private fun findCorrectPersonAmongUsers(
             users: Map<String, Any>,
             searchName: String
@@ -301,15 +317,16 @@ class MSGraphService(
     }
 
     /**
-     * this function will return the user's TimeZone
+     * fetches the user's TimeZone Or
+     * Null if the user did not set TimeZone.
      *
      * @param authorization is the token needed for authorizing the call
      * @param baseUrl is the endPoint to be called
      * @returns the tomeZone of the User
      */
     suspend fun getUserTimeZone(
-            baseUrl: String,
-            authorization: String
+            authorization: String,
+            baseUrl: String
     ): String? {
         val url = Endpoints.getUserTimeZoneUrl(baseUrl)
         return client
@@ -324,140 +341,172 @@ class MSGraphService(
     }
 
     /**
-     * this Function will get AccessRequestData froM THE User's Mails.
+     * fetches the AccessRequestData from The User's Mails.
      *
+     * @param authorization is the token required for authorizing the call
      * @param baseUrl is the endPoint to be called
      * @param emails is List of OutLookMailItem Objects
-     * @param authorization is the token required for authorizing the call
      * @param timeZone is timeZone of the User
      * @returns the List of AccessRequest Object
      */
     private suspend fun getAccessRequestDataFromMails(
+            authorization: String,
             baseUrl: String,
             emails: List<OutlookMailItem>,
-            authorization: String,
             timeZone: String
     ): List<AccessRequest> {
         val requestAccessMails = emails.filter { email ->
-            accessRequestMailSubjectRegex.matches(email.subject)
+            logger.info { "Regex matched -> ${accessRequestMailSubjectRegex.matches(email.subject)}" }
+            accessRequestMailSubjectRegex.matches(email.subject) ||
+                    directAccessRequestMailSubjectRegex.matches(email.subject)
         }
-        logger.info { "rejected mails by subject-> ${emails.minus(requestAccessMails).map { it.id }}" }
+        logger.info { "rejected mails by subject-> ${emails.minus(requestAccessMails).map { it.id + it.subject}}" }
         return requestAccessMails
                 .mapNotNull { email ->
-                    val body = email.content
+                    try {
+                        val body = email.content
 
-                    logger.info { "email body is null -> ${body.isNullOrEmpty()}" }
+                        logger.info { "email body is null -> ${body == null}" }
 
-                    body?.let {
-                        val doc = Jsoup.parse(body)
-                        // Get File Info
-                        val entireFileUrl = doc.select("a[href]").map { it.attr("href") }.last()
-                        val fileUrl = getUrlWithoutParameters(entireFileUrl)
-                        val siteParams = getSharepointParams(fileUrl)
-                        siteParams?.let { params ->
-                            val siteHostName = params.first
-                            val sitePath = params.second.urlDecode()
-                            val filePath = params.third.urlDecode()
-                            logger.info { "entireFileUrl-> $entireFileUrl fileUrl-> $fileUrl filePath-> $filePath" }
+                        body?.let {
+                            val doc = Jsoup.parse(body)
+                            // Get File Info
+                            val entireFileUrl = doc.select("a[href]").map { it.attr("href") }.last()
+                            val fileUrl = getUrlWithoutParameters(entireFileUrl)
+                            val siteParamsQry =  getSharePointParams(fileUrl)
+                            val siteParams = if (siteParamsQry != null) {
+                                siteParamsQry
+                            } else {
+                                val qParams = getUrlQueryParameters(entireFileUrl)
+                                val fUrl = qParams?.getStringOrNull("url")
+                                fUrl?.let { getSharePointParams(it) }
+                            }
+                            logger.info { "siteParams-> $siteParams entireFileUrl -> $entireFileUrl fileUrl-> $fileUrl" }
 
-                            val siteId = getSiteIdFromSitePath(baseUrl, siteHostName, sitePath, authorization)
+                            siteParams?.let { params ->
+                                val siteHostName = params.first
+                                val sitePath = params.second.urlDecode()
+                                val filePath = params.third.urlDecode()
+                                logger.info { "entireFileUrl-> $entireFileUrl fileUrl-> $fileUrl filePath-> $filePath" }
 
-                            siteId?.let {
-                                val fileId = getFileIdFromFilePath(baseUrl, it, filePath, authorization)
-                                val fileName = filePath.split("/").last()
-                                //Get requestedFor User Info
+                                val siteId = getSiteIdFromSitePath(authorization, baseUrl, siteHostName, sitePath)
+                                logger.info { "siteId-> $siteId" }
 
-                                val requestedForGroup = accessRequestMailSubjectForGroupRegex.matches(email.subject)
-                                val directlyRequested = directAccessRequestMailSubjectRegex.matches(email.subject)
+                                siteId?.let {
+                                    val fileId = getFileIdFromFilePath(authorization, baseUrl, it, filePath)
+                                    val fileName = filePath.split("/").last()
+                                    //Get requestedFor User Info
 
-                                val requestedForName = when {
-                                    directlyRequested -> email.replyTo.firstOrNull()?.name
-                                    requestedForGroup -> accessRequestMailSubjectForGroupRegex
-                                            .matchEntire(email.subject)
-                                            ?.groupValues
-                                            ?.lastOrNull()
-                                    else -> accessRequestMailSubjectRegex
-                                            .matchEntire(email.subject)
-                                            ?.groupValues
-                                            ?.lastOrNull()
-                                }
-                                val requestedForEmail = requestedForName?.let {
-                                    if (directlyRequested) {
-                                        email.replyTo.firstOrNull()?.address
-                                    } else {
-                                        val matchedPeople = getRelevantPeopleForUser(baseUrl, requestedForName, authorization)
-                                        findCorrectPersonAmongRelevants(matchedPeople, requestedForName)
-                                                ?: findCorrectPersonAmongUsers(
-                                                        getAllUsers(baseUrl, authorization),
-                                                        requestedForName
-                                                )
+                                    val requestedForGroup = accessRequestMailSubjectForGroupRegex.matches(email.subject)
+                                    val directlyRequested = directAccessRequestMailSubjectRegex.matches(email.subject)
+
+                                    val requestedForName = when {
+                                        directlyRequested -> email.replyTo.firstOrNull()?.name
+                                        requestedForGroup -> accessRequestMailSubjectForGroupRegex
+                                                .matchEntire(email.subject)
+                                                ?.groupValues
+                                                ?.lastOrNull()
+                                        else -> accessRequestMailSubjectRegex
+                                                .matchEntire(email.subject)
+                                                ?.groupValues
+                                                ?.lastOrNull()
                                     }
+                                    logger.info { "fileId-> $fileId requestedForName-> $requestedForName" }
+
+                                    val requestedForEmail = requestedForName?.let {
+                                        if (directlyRequested) {
+                                            email.replyTo.firstOrNull()?.address
+                                        } else {
+                                            val emailReg = Regex("$requestedForName \\((.*?)\\)")
+                                            val requestedFor = emailReg.find(body)?.groupValues?.get(1)
+                                            if (requestedFor == null) {
+                                                val matchedPeople = getRelevantPeopleForUser(authorization, baseUrl, requestedForName)
+                                                logger.info {"matchedPeople -> $matchedPeople" }
+                                                findCorrectPersonAmongRelevants(matchedPeople, requestedForName)
+                                                        ?: findCorrectPersonAmongUsers(
+                                                                getAllUsers(authorization, baseUrl),
+                                                                requestedForName
+                                                        )
+                                            } else requestedFor
+                                        }
+                                    }
+                                    // Get RequestedBy UserInfo
+                                    val requestedByName = email.replyTo.firstOrNull()?.name
+                                    val requestedByEmail = email.replyTo.firstOrNull()?.address
+
+                                    logger.info { "fileId-> $fileId requestedBy-> $requestedByEmail requestedFor-> $requestedForEmail" }
+                                    // Return AccessRequest Card Data
+
+                                    if (fileId == null || requestedForEmail == null) {
+
+                                        logger.warn { "************ Ignoring mail as insufficient data for mail-> ${email.id} *********" }
+                                        return@mapNotNull null
+                                    }
+
+                                    AccessRequest(
+                                            id = email.id,
+                                            requestedBy = if (requestedByEmail != null && requestedByName != null) {
+                                                User(emailId = requestedByEmail, name = requestedByName)
+                                            } else null,
+                                            requestedFor = listOf(User(emailId = requestedForEmail, name = requestedForName)),
+                                            resource = com.vmware.connectors.ms.graph.dto.Resource(
+                                                    id = fileId,
+                                                    path = filePath,
+                                                    name = fileName,
+                                                    url = entireFileUrl,
+                                                    siteId = siteId
+                                            ),
+                                            sharedForGroup = requestedForGroup,
+                                            receivedDate = parseDate(email.receivedDateTime, timeZone)
+                                    )
                                 }
-                                // Get RequestedBy UserInfo
-                                val requestedByName = email.replyTo.firstOrNull()?.name
-                                val requestedByEmail = email.replyTo.firstOrNull()?.address
-
-                                logger.info { "fileId-> $fileId requestedBy-> $requestedByEmail requestedFor-> $requestedForEmail" }
-                                // Return AccessRequest Card Data
-
-                                if (fileId == null || requestedForEmail == null) {
-
-                                    logger.warn { "************ Ignoring mail as insufficient data for mail-> ${email.id} *********" }
-                                    return@mapNotNull null
-                                }
-
-                                logger.info { "Creating AR obj with file-> $fileId" }
-
-
-                                AccessRequest(
-                                        id = email.id,
-                                        requestedBy = if (requestedByEmail != null && requestedByName != null) {
-                                            User(emailId = requestedByEmail, name = requestedByName)
-                                        } else null,
-                                        requestedFor = listOf(User(emailId = requestedForEmail, name = requestedForName)),
-                                        resource = com.vmware.connectors.ms.graph.dto.Resource(
-                                                id = fileId,
-                                                path = filePath,
-                                                name = fileName,
-                                                url = entireFileUrl,
-                                                siteId = siteId
-                                        ),
-                                        sharedForGroup = requestedForGroup,
-                                        receivedDate = parseDate(email.receivedDateTime, timeZone)
-                                )
                             }
                         }
+                    } catch (ex: Exception) {
+                        ex.message?.let {
+                            if (it.contains("401 Unauthorized")) {
+                                throw ex
+                            }
+                        }
+                        logger.info { "email rejected due to insufficient data -. ${email.subject}" }
+                        null
                     }
                 }
     }
 
     /**
-     * this function will get the PendingAccessRequests from mail since given time
+     * fetches the PendingAccessRequests from mail since given time
      *
-     * @param baseUrl is the endPoint to be called
      * @param authorization is the token needed for authorizing the call
+     * @param baseUrl is the endPoint to be called
      * @param minutes is number od hours to get the AccessRequests
      * @returns the List of AccessRequest Objects
      */
     suspend fun getPendingAccessRequestsSinceMinutes(
-            baseUrl: String,
             authorization: String,
+            baseUrl: String,
             minutes: Long
     ): List<AccessRequest> {
         val since = getDateTimeMinusMinutes(minutes)
-        val mails = getRequestAccessMails(baseUrl, since, authorization)
-        val timeZone = getUserTimeZone(baseUrl, authorization) ?: "UTC"
-        return getAccessRequestDataFromMails(baseUrl, mails, authorization, timeZone)
+        val mails = getRequestAccessMails(authorization, baseUrl, since)
+        val timeZone = getUserTimeZone(authorization, baseUrl) ?: "UTC"
+        return getAccessRequestDataFromMails(authorization, baseUrl, mails, timeZone)
     }
 
     /**
      * Send an email to from the authorized user mail box
-     * @param authorization : token needed for authorizing the call
-     * all params required for an email
+     * @param authorization token needed for authorizing the call
+     * @param baseUrl is the endPoint to be called
+     * @param to to: recipients for the message
+     * @param cc cc: recipients for the message
+     * @param replyTo The email addresses to use when replying
+     * @param body is body of the message(can be text or html)
+     * @param subject is the subject of the message
+     * @param saveToSentItems whether to save in sentItems or not
      */
     private suspend fun sendMail(
-            baseUrl: String,
             authorization: String,
+            baseUrl: String,
             to: List<EmailAddress>,
             cc: List<EmailAddress> = emptyList(),
             replyTo: List<EmailAddress> = emptyList(),
@@ -482,23 +531,24 @@ class MSGraphService(
                 .uri(Endpoints.sendMailUrl(baseUrl))
                 .header(HttpHeaders.AUTHORIZATION, authorization)
                 .contentType(MediaType.APPLICATION_JSON)
-                .syncBody(mailItem)
+                .body(Mono.just(mailItem))
                 .awaitExchangeAndThrowError {
                     logger.error(it) { "error while sending mail" }
                 }
                 .statusCode()
+                .is2xxSuccessful
 
         logger.info { "Mail Sent resp status-> $status" }
     }
 
     /**
-     * this Function will get All the Users in the user Domain
+     * fetches All the Users in the user Domain
      *
-     * @param baseUrl is the endPoint to be Called
      * @param authorization token needed for authorizing the call
+     * @param baseUrl is the endPoint to be Called
      * @returns the user's Information
      */
-    private suspend fun getAllUsers(baseUrl: String, authorization: String): Map<String, Any> {
+    private suspend fun getAllUsers(authorization: String, baseUrl: String): Map<String, Any> {
         val url = Endpoints.getAllUsers(baseUrl)
         return client
                 .get()
@@ -506,20 +556,5 @@ class MSGraphService(
                 .header(HttpHeaders.AUTHORIZATION, authorization)
                 .awaitExchange()
                 .awaitBody()
-    }
-
-    /**
-     * gets the emaiId from the Vmware user token
-     */
-    fun getUserEmailFromToken(token: String?): String? {
-        val pl = token
-                ?.split(" ")
-                ?.lastOrNull()
-                ?.split(".")
-                ?.get(1)
-                ?.toBase64DecodedString()
-
-        return pl?.let { JsonParser.deserialize(it) }
-                ?.getStringOrNull("eml")
     }
 }

@@ -1,0 +1,380 @@
+{
+  "@odata.context": "https://graph.microsoft.com/beta/$metadata#users(displayName,givenName,mail)",
+  "value": [
+    {
+      "displayName": "Admin",
+      "givenName": "Admin",
+      "mail": "admin@backflipt.com"
+    },
+    {
+      "displayName": "Adrianus Foolen",
+      "givenName": null,
+      "mail": "afoolen@axway.com"
+    },
+    {
+      "displayName": "Anil Kapatkar",
+      "givenName": "Anil",
+      "mail": "anil@backflipt.com"
+    },
+    {
+      "displayName": "Anil",
+      "givenName": "Anil",
+      "mail": "anil@ws1incontext.com"
+    },
+    {
+      "displayName": "Ann Shishkova",
+      "givenName": null,
+      "mail": "Ann.Shishkova@syncplicity.com"
+    },
+    {
+      "displayName": "Anika Verma",
+      "givenName": null,
+      "mail": "anverma@axway.com"
+    },
+    {
+      "displayName": "Appdev",
+      "givenName": "Appdev",
+      "mail": "appdev@backflipt.com"
+    },
+    {
+      "displayName": "Ashfaq",
+      "givenName": "Ashfaq",
+      "mail": "ashfaq@backflipt.com"
+    },
+    {
+      "displayName": "Ashka Vakil",
+      "givenName": "Ashka",
+      "mail": "ashka@backflipt.com"
+    },
+    {
+      "displayName": "Ashwani Verma",
+      "givenName": null,
+      "mail": "averma@axway.com"
+    },
+    {
+      "displayName": "Bojidar Ivanov",
+      "givenName": null,
+      "mail": "bivanov@axway.com"
+    },
+    {
+      "displayName": "Chris Tratar",
+      "givenName": "Chris",
+      "mail": "chris.tratar@backflipt.com"
+    },
+    {
+      "displayName": "Divakara Challa",
+      "givenName": null,
+      "mail": "dchalla@axway.com"
+    },
+    {
+      "displayName": "dchalla",
+      "givenName": null,
+      "mail": "dchalla@axway.co"
+    },
+    {
+      "displayName": "Dimitar Dimchev Dimitrov",
+      "givenName": null,
+      "mail": "dddimitrov@axway.com"
+    },
+    {
+      "displayName": "Demo User1",
+      "givenName": "Demo",
+      "mail": "demouser1@backflipt.com"
+    },
+    {
+      "displayName": "Dolly Karedi",
+      "givenName": "Dolly",
+      "mail": "Dolly@backflipt.com"
+    },
+    {
+      "displayName": "DXCInfra",
+      "givenName": "DXC",
+      "mail": "DXCInfra@backflipt.com"
+    },
+    {
+      "displayName": "Elena Kyurchieva",
+      "givenName": null,
+      "mail": "ekyurchieva@axway.com"
+    },
+    {
+      "displayName": "Hemant Sahani",
+      "givenName": "Hemant",
+      "mail": "hemant@backflipt.com"
+    },
+    {
+      "displayName": "Hemanth Kethe",
+      "givenName": "Hemanth",
+      "mail": "hemanthkethe@backflipt.com"
+    },
+    {
+      "displayName": "Hithesh Chowdary",
+      "givenName": "Hithesh",
+      "mail": "hitesh@backflipt.com"
+    },
+    {
+      "displayName": "Ifteqar",
+      "givenName": "Ifteqar",
+      "mail": "ifteqar@backflipt.com"
+    },
+    {
+      "displayName": "Ivan Zhelev",
+      "givenName": null,
+      "mail": "izhelev@axway.com"
+    },
+    {
+      "displayName": "John Casalaspi",
+      "givenName": "John",
+      "mail": "john.casalaspi@backflipt.com"
+    },
+    {
+      "displayName": "Kumar Gargeya",
+      "givenName": "Kumar",
+      "mail": "kumar@backflipt.com"
+    },
+    {
+      "displayName": "Kumar",
+      "givenName": null,
+      "mail": "kumar@ws1incontext.com"
+    },
+    {
+      "displayName": "Mayura Jayam",
+      "givenName": "Mayura",
+      "mail": "mayura@backflipt.com"
+    },
+    {
+      "displayName": "Matt O'Leary",
+      "givenName": null,
+      "mail": "moleary@axway.com"
+    },
+    {
+      "displayName": "Mihail Trifonov",
+      "givenName": null,
+      "mail": "mtrifonov@axway.com"
+    },
+    {
+      "displayName": "Neha",
+      "givenName": "Neha",
+      "mail": "Neha@backflipt.com"
+    },
+    {
+      "displayName": "Pavan",
+      "givenName": "pavan",
+      "mail": "pavan@backflipt.com"
+    },
+    {
+      "displayName": "pavan",
+      "givenName": null,
+      "mail": "pavan@xen13.onmicrosoft.com"
+    },
+    {
+      "displayName": "Pavan Babu",
+      "givenName": null,
+      "mail": "pavan@xenovusinc.com"
+    },
+    {
+      "displayName": "pavan",
+      "givenName": null,
+      "mail": "pavan@xen13.onmcirosoft.com"
+    },
+    {
+      "displayName": "Pavan Sandeep",
+      "givenName": "Pavan",
+      "mail": "pavansandeep@backflipt.com"
+    },
+    {
+      "displayName": "Pavel Boev",
+      "givenName": null,
+      "mail": "pboev@axway.com"
+    },
+    {
+      "displayName": "Petar Dimitrov",
+      "givenName": null,
+      "mail": "pdimitrov@axway.com"
+    },
+    {
+      "displayName": "Pete Karolczak",
+      "givenName": "Pete",
+      "mail": "pete@backflipt.com"
+    },
+    {
+      "displayName": "Pete Karolczak",
+      "givenName": null,
+      "mail": "pete@integrated-cyber.com"
+    },
+    {
+      "displayName": "Peter Ogden",
+      "givenName": null,
+      "mail": "pogden@axway.com"
+    },
+    {
+      "displayName": "Pradyumn",
+      "givenName": "Pradyumn",
+      "mail": "pradyumn@backflipt.com"
+    },
+    {
+      "displayName": "Panayot Vladikov",
+      "givenName": null,
+      "mail": "pvladikov@axway.com"
+    },
+    {
+      "displayName": "rajani",
+      "givenName": "rajani",
+      "mail": "rajani@backflipt.com"
+    },
+    {
+      "displayName": "Rajeev",
+      "givenName": "rajeev",
+      "mail": "rajeev@backflipt.com"
+    },
+    {
+      "displayName": "Ram Jayam",
+      "givenName": "Ram",
+      "mail": "ram@backflipt.com"
+    },
+    {
+      "displayName": "Ram",
+      "givenName": null,
+      "mail": "ram@ws1incontext.com"
+    },
+    {
+      "displayName": "Kameshwar Rao",
+      "givenName": "Kameshwar",
+      "mail": "rao@backflipt.com"
+    },
+    {
+      "displayName": "Kameshwar",
+      "givenName": null,
+      "mail": "rao@ws1incontext.com"
+    },
+    {
+      "displayName": "Reachus",
+      "givenName": "Reachus",
+      "mail": "reachus@backflipt.com"
+    },
+    {
+      "displayName": "Ruby Simhadri",
+      "givenName": "Ruby",
+      "mail": "ruby@backflipt.com"
+    },
+    {
+      "displayName": "Sabbu",
+      "givenName": "Vijay",
+      "mail": "sabbu@backflipt.com"
+    },
+    {
+      "displayName": "Sabbu",
+      "givenName": null,
+      "mail": "sabbu@ws1incontext.com"
+    },
+    {
+      "displayName": "Sai kumar",
+      "givenName": "Sai",
+      "mail": "Sai@backflipt.com"
+    },
+    {
+      "displayName": "Sai Sandeep",
+      "givenName": "Sai",
+      "mail": "saisandeep@backflipt.com"
+    },
+    {
+      "displayName": "Samantha",
+      "givenName": "Samantha",
+      "mail": "Samantha@backflipt.com"
+    },
+    {
+      "displayName": "savitha",
+      "givenName": "savitha",
+      "mail": "savitha@backflipt.com"
+    },
+    {
+      "displayName": "Scott Lopez",
+      "givenName": "Scott",
+      "mail": "scott.lopez@backflipt.com"
+    },
+    {
+      "displayName": "Srinivas Shankavaram",
+      "givenName": "Srinivas",
+      "mail": "shankavaram@backflipt.com"
+    },
+    {
+      "displayName": "shravani",
+      "givenName": "shravani",
+      "mail": "shravani@backflipt.com"
+    },
+    {
+      "displayName": "Saurabh Malhotra",
+      "givenName": null,
+      "mail": "smalhotra@axway.com"
+    },
+    {
+      "displayName": "Srin Kumar",
+      "givenName": null,
+      "mail": "snkumar@axway.com"
+    },
+    {
+      "displayName": "sravani",
+      "givenName": "sravani",
+      "mail": "sravani@backflipt.com"
+    },
+    {
+      "displayName": "Srini Gargeya",
+      "givenName": "Srini",
+      "mail": "Srini@backflipt.com"
+    },
+    {
+      "displayName": "Srini",
+      "givenName": "Srini",
+      "mail": "srini@ws1incontext.com"
+    },
+    {
+      "displayName": "Sergey Spasskiy",
+      "givenName": null,
+      "mail": "sspasskiy@axway.com"
+    },
+    {
+      "displayName": "Support",
+      "givenName": "Backflipt",
+      "mail": "support@backflipt.com"
+    },
+    {
+      "displayName": "systemchat",
+      "givenName": "systemchat",
+      "mail": "systemchat@backflipt.com"
+    },
+    {
+      "displayName": "test",
+      "givenName": null,
+      "mail": null
+    },
+    {
+      "displayName": "Tyson Kamp",
+      "givenName": null,
+      "mail": "tkamp@axway.com"
+    },
+    {
+      "displayName": "vamsi",
+      "givenName": "vamsi",
+      "mail": "vamsi@backflipt.com"
+    },
+    {
+      "displayName": "Vamsi",
+      "givenName": null,
+      "mail": "vamsi@ws1incontext.com"
+    },
+    {
+      "displayName": "Victor",
+      "givenName": "Victor",
+      "mail": "victor@backflipt.com"
+    },
+    {
+      "displayName": "Vinod",
+      "givenName": "Vinod",
+      "mail": "vinod@backflipt.com"
+    },
+    {
+      "displayName": "Vivek Mody",
+      "givenName": null,
+      "mail": "vmody@axway.com"
+    }
+  ]
+}

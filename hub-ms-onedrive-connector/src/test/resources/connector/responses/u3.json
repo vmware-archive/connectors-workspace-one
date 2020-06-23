@@ -1,0 +1,109 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Microsoft OneDrive File Access Approval",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Microsoft OneDrive - File/folder access request",
+        "subtitle": [
+          "Nokia_101_1010_ -_ RM-769_RTTE_DoC.pdf"
+        ],
+        "links": {
+          "title": "",
+          "subtitle": [
+            "https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Nokia%20-%20120/Nokia_101_1010_%20-_%20RM-769_RTTE_DoC.pdf"
+          ]
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Requested On",
+            "description": "Mon 24-Feb-20 05:24 PM"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Approve read",
+          "url": {
+            "href": "https://hero/connectors/ms-graph-connector/access/requests/AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAADdLikIAAA=/approve"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "accessRequest": "{\"id\":\"AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAADdLikIAAA=\",\"requestedBy\":{\"emailId\":\"\",\"name\":\"\",\"personType\":\"\"},\"requestedFor\":[{\"emailId\":\"\",\"name\":\"\",\"personType\":\"\"}],\"resource\":{\"id\":\"0176WBI5BABNPWBLFSSVALI3QVWOYAI5DJ\",\"path\":\"/Backflipt Discover Canned Demo Documents/Nokia - 120/Nokia_101_1010_ -_ RM-769_RTTE_DoC.pdf\",\"name\":\"Nokia_101_1010_ -_ RM-769_RTTE_DoC.pdf\",\"url\":\"https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Nokia%20-%20120/Nokia_101_1010_%20-_%20RM-769_RTTE_DoC.pdf\",\"siteId\":\"backflipt-my.sharepoint.com,3b4fbdfd-a6c1-4b4e-a5a1-ba26e2e81243,7849a5b3-019f-4bc7-a407-65f41107c481\"},\"sharedForGroup\":false,\"receivedDate\":1582545254000}",
+            "roles": "read"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Comments for read access",
+              "format": "text"
+            }
+          ],
+          "completed_label": "Approved read access",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "APPROVE_ACTION"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Approve edit",
+          "url": {
+            "href": "https://hero/connectors/ms-graph-connector/access/requests/AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAADdLikIAAA=/approve"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "accessRequest": "{\"id\":\"AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAADdLikIAAA=\",\"requestedBy\":{\"emailId\":\"\",\"name\":\"\",\"personType\":\"\"},\"requestedFor\":[{\"emailId\":\"\",\"name\":\"\",\"personType\":\"\"}],\"resource\":{\"id\":\"0176WBI5BABNPWBLFSSVALI3QVWOYAI5DJ\",\"path\":\"/Backflipt Discover Canned Demo Documents/Nokia - 120/Nokia_101_1010_ -_ RM-769_RTTE_DoC.pdf\",\"name\":\"Nokia_101_1010_ -_ RM-769_RTTE_DoC.pdf\",\"url\":\"https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Nokia%20-%20120/Nokia_101_1010_%20-_%20RM-769_RTTE_DoC.pdf\",\"siteId\":\"backflipt-my.sharepoint.com,3b4fbdfd-a6c1-4b4e-a5a1-ba26e2e81243,7849a5b3-019f-4bc7-a407-65f41107c481\"},\"sharedForGroup\":false,\"receivedDate\":1582545254000}",
+            "roles": "write"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Comments for edit access",
+              "format": "text"
+            }
+          ],
+          "completed_label": "Approved edit access",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "APPROVE_ACTION"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Decline",
+          "url": {
+            "href": "https://hero/connectors/ms-graph-connector/access/requests/AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAADdLikIAAA=/decline"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "accessRequest": "{\"id\":\"AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAADdLikIAAA=\",\"requestedBy\":{\"emailId\":\"\",\"name\":\"\",\"personType\":\"\"},\"requestedFor\":[{\"emailId\":\"\",\"name\":\"\",\"personType\":\"\"}],\"resource\":{\"id\":\"0176WBI5BABNPWBLFSSVALI3QVWOYAI5DJ\",\"path\":\"/Backflipt Discover Canned Demo Documents/Nokia - 120/Nokia_101_1010_ -_ RM-769_RTTE_DoC.pdf\",\"name\":\"Nokia_101_1010_ -_ RM-769_RTTE_DoC.pdf\",\"url\":\"https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Nokia%20-%20120/Nokia_101_1010_%20-_%20RM-769_RTTE_DoC.pdf\",\"siteId\":\"backflipt-my.sharepoint.com,3b4fbdfd-a6c1-4b4e-a5a1-ba26e2e81243,7849a5b3-019f-4bc7-a407-65f41107c481\"},\"sharedForGroup\":false,\"receivedDate\":1582545254000}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Comments",
+              "format": "text"
+            }
+          ],
+          "completed_label": "Access declined",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "APPROVE_ACTION"
+        }
+      ],
+      "image": {
+        "href": "/images/connector.png"
+      },
+      "hash": "a536465d-8624-30af-b189-33324df51187"
+    }
+  ]
+}

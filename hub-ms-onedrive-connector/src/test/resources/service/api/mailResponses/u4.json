@@ -1,0 +1,66 @@
+{
+  "@odata.context": "https://graph.microsoft.com/beta/$metadata#users('15fdbf0f-3dfe-4dcf-bf6d-60c1481f334a')/messages(id,subject,body,replyTo,isRead,receivedDateTime)",
+  "value": [
+    {
+      "@odata.etag": "W/\"CQAAABYAAAA3KSPYe/KZR7aInnc//TlOAADc2DR4\"",
+      "id": "AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAADdLikIAAA=",
+      "createdDateTime": "2020-02-24T11:54:13Z",
+      "lastModifiedDateTime": "2020-02-24T11:54:14Z",
+      "changeKey": "CQAAABYAAAA3KSPYe/KZR7aInnc//TlOAADc2DR4",
+      "categories": [],
+      "receivedDateTime": "2020-02-24T11:54:14Z",
+      "sentDateTime": "2020-02-24T11:54:10Z",
+      "hasAttachments": false,
+      "internetMessageId": "<65652dcc-f89b-46b7-83fe-6cea34004a16@DM6NAM10FT031.eop-nam10.prod.protection.outlook.com>",
+      "subject": "sravani wants to access 'Nokia_101_1010 - RM-769_RTTE_DoC'",
+      "bodyPreview": "I'd like access, please.\r\nAccept or decline this request\r\nRequested resource: https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Nokia%20-%20120/Nokia_101_1010_%20-_%20RM-769_RTTE_Do",
+      "importance": "normal",
+      "parentFolderId": "AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQAuAAAAAAB2SoqlDyz_RINLEN5EjuTaAQA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA=",
+      "conversationId": "AAQkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQAQAF8tWNy3lp1GjEagvGsxkc0=",
+      "conversationIndex": "AQHV6wkiXy1Y3LeWnUaMRqC8azGRzQ==",
+      "isDeliveryReceiptRequested": null,
+      "isReadReceiptRequested": false,
+      "isRead": false,
+      "isDraft": false,
+      "webLink": "https://outlook.office365.com/owa/?ItemID=AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz%2BRINLEN5EjuTaBwA3KSPYe%2FKZR7aInnc%2F%2FTlOAAAAAAEMAAA3KSPYe%2FKZR7aInnc%2F%2FTlOAADdLikIAAA%3D&exvsurl=1&viewmodel=ReadMessageItem",
+      "inferenceClassification": "focused",
+      "body": {
+        "contentType": "html",
+        "content": "<html>\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n<meta content=\"text/html; charset=utf-8\">\r\n</head>\r\n<body>\r\n<style type=\"text/css\">\r\n<!--\r\na\r\n\t{color:#0072bc;\r\n\ttext-decoration:none}\r\n-->\r\n</style>\r\n<table border=\"0\" cellspacing=\"0\" cellpadding=\"8\" dir=\"ltr\" style=\"width:100%\">\r\n<tbody>\r\n<tr>\r\n<td align=\"left\" valign=\"top\" width=\"0\"><img src=\"cid:SenderPicture\" width=\"96\"></td>\r\n<td align=\"left\" valign=\"top\">\r\n<div style=\"font-family:'Segoe UI Semilight','Segoe UI',Verdana,sans-serif; color:#444444\">\r\n<div style=\"margin-bottom:21px; font-size:18px\">I'd like access, please.</div>\r\n<div style=\"font-size:14px\">\r\n<div style=\"margin-bottom:8px; font-size:28px; font-family:'Segoe UI Light','Segoe UI',Verdana,sans-serif; color:#444444\">\r\n<a href=\"https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Access%20Requests/pendingreq.aspx?mbypass=1\">Accept or decline this request</a>\r\n<div style=\"font-family:'Segoe UI Semilight','Segoe UI',Verdana,sans-serif; font-size:14px; margin-top:14px\">\r\nRequested resource: <a href=\"https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Nokia%20-%20120/Nokia_101_1010_%20-_%20RM-769_RTTE_DoC.pdf\">\r\nhttps://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Nokia%20-%20120/Nokia_101_1010_%20-_%20RM-769_RTTE_DoC.pdf</a></div>\r\n<div style=\"font-family:'Segoe UI Semilight','Segoe UI',Verdana,sans-serif; font-size:14px; margin-top:14px\">\r\nRequested by: sravani(sravani@backflipt.com)</div>\r\n</div>\r\n</div>\r\n</div>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n</body>\r\n</html>\r\n"
+      },
+      "sender": {
+        "emailAddress": {
+          "name": "sravani",
+          "address": "no-reply@sharepointonline.com"
+        }
+      },
+      "from": {
+        "emailAddress": {
+          "name": "sravani",
+          "address": "no-reply@sharepointonline.com"
+        }
+      },
+      "toRecipients": [
+        {
+          "emailAddress": {
+            "name": "Pavan",
+            "address": "pavan@backflipt.com"
+          }
+        }
+      ],
+      "ccRecipients": [],
+      "bccRecipients": [],
+      "replyTo": [
+        {
+          "emailAddress": {
+            "name": "",
+            "address": ""
+          }
+        }
+      ],
+      "flag": {
+        "flagStatus": "notFlagged"
+      }
+    }
+  ]
+}

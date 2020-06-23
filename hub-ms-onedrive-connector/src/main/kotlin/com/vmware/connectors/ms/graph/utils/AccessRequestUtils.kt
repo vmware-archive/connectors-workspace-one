@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.ms.graph.utils
 
 import com.vmware.connectors.common.payloads.response.*
@@ -30,7 +35,6 @@ fun AccessRequest.toCard(
         userTimeZone: String
 ): Card {
 
-//    val openActionBuilder = cardUtils.buildOpenActionBuilder("actions.open", resource.url, locale)
     val formatter = SimpleDateFormat(DATE_FORMAT_PATTERN).apply {
         this.timeZone = TimeZone.getTimeZone("UTC")
     }
@@ -40,9 +44,7 @@ fun AccessRequest.toCard(
     val receivedDateString = formatter.format(receivedDate)
     val requiredDate = getDateFormatString(receivedDateString, userTimeZone)
     
-    val requestedFor = requestedFor
-            .map { it.name }
-            .joinToString(", ")
+    val requestedFor = requestedFor.joinToString(", ") { it.name }
 
     val cardBodyBuilder = CardBody.Builder()
             .apply {
@@ -51,9 +53,7 @@ fun AccessRequest.toCard(
                 }
             }
             .addField(cardUtils.buildGeneralBodyField("requested.for", requestedFor, locale))
-//            .addField(cardUtils.buildGeneralBodyField("resource", resource.name, locale))
             .addField(cardUtils.buildGeneralBodyField("date", requiredDate, locale))
-//            .addField(buildAttachmentUrlBodyField("resource", resource.name, resource.url, locale, cardUtils))
 
     val uniqUUID = UUID.nameUUIDFromBytes(id.toByteArray())
 
@@ -74,12 +74,10 @@ fun AccessRequest.toCard(
             .setName(cardUtils.cardTextAccessor.getMessage("card.name", locale))
             .setHeader(cardHeader)
             .setBody(cardBodyBuilder.build())
-//        .addAction(openActionBuilder.build())
             .addAction(approveForReadActionBuilder.build())
             .addAction(approveForWriteActionBuilder.build())
             .addAction(declineActionBuilder.build())
 
-    // Set icon url.
     CommonUtils.buildConnectorImageUrl(card, request)
 
     return card.build()
@@ -196,27 +194,3 @@ private fun buildDeclineActionBuilder(
             .setRemoveCardOnCompletion(true)
             .addRequestParam("accessRequest", JsonParser.serialize(accessRequest))
 }
-
-///**
-// * Builder for CardBodyField
-// *
-// * @param title: title of the field
-// * @param url: attachment url of the field
-// * @return CardBodyField
-// */
-//private fun buildAttachmentUrlBodyField(titleMessageKey: String, title: String, url: String, locale: Locale?, cardUtils: CardUtils): CardBodyField? {
-//    val item = CardBodyFieldItem.Builder()
-//            .setAttachmentName(title)
-//            .setTitle(title)
-//            .setAttachmentMethod(HttpMethod.GET)
-//            .setAttachmentUrl(url)
-//            .setType(CardBodyFieldType.ATTACHMENT_URL)
-//            .setAttachmentContentType(MediaType.TEXT_PLAIN_VALUE)
-//            .build()
-//
-//    return CardBodyField.Builder()
-//            .setTitle(cardUtils.cardTextAccessor.getMessage("$titleMessageKey.title", locale))
-//            .setType(CardBodyFieldType.SECTION)
-//            .addItem(item)
-//            .build()
-//}
