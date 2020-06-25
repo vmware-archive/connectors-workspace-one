@@ -1,13 +1,15 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.ms.graph.controller
 
 import com.vmware.connectors.common.payloads.response.Cards
-import com.vmware.connectors.ms.graph.config.PENDING_ACCESS_REQUESTS_SINCE_HOURS
+import com.vmware.connectors.ms.graph.config.*
 import com.vmware.connectors.ms.graph.dto.ApproveActionRequest
 import com.vmware.connectors.ms.graph.service.MSGraphService
-import com.vmware.connectors.ms.graph.utils.CardUtils
-import com.vmware.connectors.ms.graph.utils.addCards
-import com.vmware.connectors.ms.graph.utils.getLogger
-import com.vmware.connectors.ms.graph.utils.toCard
+import com.vmware.connectors.ms.graph.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -21,18 +23,13 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.*
 import javax.validation.Valid
 
-
-const val AUTHORIZATION = "Authorization"
-const val CONNECTOR_AUTH_HEADER = "X-Connector-Authorization"
-const val CONNECTOR_BASE_URL_HEADER = "X-Connector-Base-Url"
-const val ROUTING_PREFIX = "x-routing-prefix"
-
 /**
  * Cards Request Rest API Controller
  *
  * This Controller has 2 REST endpoints
- * 1. /test-auth
- * 2. /cards/requests
+ * 1. /cards/requests
+ * 2./access/requests/{accessRequestId}/approve
+ * 3./access/requests/{accessRequestId}/decline
  *
  * @property service ConnectorBackendService: service to communicate with Backend API
  * @property cardUtils cardUtils: internal module that is used while building cards
@@ -49,6 +46,7 @@ class MSGraphCardsController(
     /**
      * Gives Card Objects that are available for the user for this connector
      *
+     * @param token: Connector user token
      * @param authorization: Connector user token that is passed as a header(X-Connector-Authorization) in the request
      * @param baseUrl: Connector base url that is passed as a header(X-Connector-Base-Url) in the request
      * @param routingPrefix: Connector routing prefix, this is used if the request is proxied from a reverse-proxy/load-balancer to make the card action urls
@@ -58,7 +56,7 @@ class MSGraphCardsController(
      */
     @PostMapping(path = ["/cards/requests"], produces = [APPLICATION_JSON_VALUE], consumes = [APPLICATION_JSON_VALUE])
     suspend fun getCards(
-            @RequestHeader(name = AUTHORIZATION) token: String?,
+            @RequestHeader(name = AUTHORIZATION) token: String,
             @RequestHeader(name = CONNECTOR_BASE_URL_HEADER) baseUrl: String,
             @RequestHeader(name = CONNECTOR_AUTH_HEADER) authorization: String,
             @RequestHeader(name = ROUTING_PREFIX) routingPrefix: String,
@@ -66,11 +64,12 @@ class MSGraphCardsController(
             request: ServerHttpRequest
     ): ResponseEntity<Any> {
 
-        val userEmail = service.getUserEmailFromToken(token)
+        val userEmail = VmwareUtils.getUserEmailFromToken(token)
         logger.info { "cards request call for : $userEmail" }
 
-        val userTimeZone = service.getUserTimeZone(baseUrl, authorization) ?: "UTC"
-        val accessRequests = service.getPendingAccessRequestsSinceMinutes(baseUrl, authorization, PENDING_ACCESS_REQUESTS_SINCE_HOURS)
+        val userTimeZone = service.getUserTimeZone(authorization, baseUrl) ?: "UTC"
+        logger.info { "Time Zone: $userTimeZone" }
+        val accessRequests = service.getPendingAccessRequestsSinceMinutes(authorization, baseUrl, PENDING_ACCESS_REQUESTS_SINCE_MINUTES)
                 .map {
                     it.toCard(request, routingPrefix, locale, cardUtils, userTimeZone)
                 }
@@ -81,6 +80,7 @@ class MSGraphCardsController(
     /**
      * REST endpoint for approving an share access request
      *
+     * @param baseUrl: Connector base url that is passed as a header(X-Connector-Base-Url) in the request
      * @param authorization: Connector backend system authorization key
      * @param accessRequestId: accessRequestId path variable
      * @param request: [ApproveActionRequest], approve access request payload.
@@ -95,7 +95,7 @@ class MSGraphCardsController(
 
         logger.info { "Approve access request id : $accessRequestId with request-> $request" }
 
-        service.addPermissionToFile(baseUrl, request.accessRequestObj, request.rolesArray, request.comments, authorization)
+        service.addPermissionToFile(authorization, baseUrl, request.accessRequestObj, request.rolesArray, request.comments)
 
         return ResponseEntity.status(HttpStatus.CREATED).build()
     }
@@ -103,8 +103,8 @@ class MSGraphCardsController(
     /**
      * REST endpoint for declining an share access request
      *
-     * @param authorization: Connector backend system authorization key
      * @param baseUrl: Connector base url
+     * @param authorization: Connector backend system authorization key
      * @param accessRequestId: accessRequestId path variable
      * @param request: [ApproveActionRequest], decline access request payload.
      * @return ResponseEntity<Any>
@@ -118,7 +118,7 @@ class MSGraphCardsController(
 
         logger.info { "Decline access request id : $accessRequestId with request-> $request" }
 
-        service.declinePermissionToResource(baseUrl, request.accessRequestObj, request.comments, authorization)
+        service.declinePermissionToResource(authorization, baseUrl, request.accessRequestObj, request.comments)
 
         return ResponseEntity.status(HttpStatus.CREATED).build()
     }

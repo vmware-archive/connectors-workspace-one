@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.ms.graph.utils
 
 import com.vmware.connectors.common.payloads.response.Card
@@ -9,11 +14,14 @@ import org.springframework.http.HttpRequest
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.BodyExtractors
 import org.springframework.web.reactive.function.client.*
+import java.io.UnsupportedEncodingException
 import java.net.URI
 import java.net.URISyntaxException
+import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+
 
 /**
  * Extension Function for Map which returns the value for the given key as String
@@ -125,13 +133,7 @@ private suspend fun createResponseException(
                             charset,
                             request
                     )
-                else UnknownHttpStatusCodeException(
-                        response.rawStatusCode(),
-                        response.headers().asHttpHeaders(),
-                        bodyBytes,
-                        charset,
-                        request
-                )
+                else UnknownHttpStatusCodeException(response.rawStatusCode(), response.headers().asHttpHeaders(), bodyBytes, charset, request)
             }
             .awaitFirst()
 }
@@ -143,29 +145,30 @@ private suspend fun createResponseException(
  * @param onError: callback function which will be called if there is any error during http call
  * @return ClientResponse
  */
-suspend fun WebClient.RequestHeadersSpec<out WebClient.RequestHeadersSpec<*>>.awaitExchangeAndThrowError(onError: ((WebClientResponseException) -> Unit)? = null): ClientResponse {
+suspend fun WebClient.RequestHeadersSpec<out WebClient.RequestHeadersSpec<*>>.awaitExchangeAndThrowError(onError: ((WebClientResponseException) -> Unit)): ClientResponse {
     return awaitExchange()
             .also { response ->
                 if (response.statusCode().isError) {
-                    val excp = createResponseException(response)
-                    if (onError != null) onError(excp)
-                    throw excp
-//                throw WebClientResponseException(response.rawStatusCode(), "", null, null, null)
+                    val exp = createResponseException(response)
+                    onError(exp)
+                    throw exp
                 }
             }
 }
 
-//fun String.urlEncode(): String = URLEncoder.encode(this, Charsets.UTF_8.toString())
+/**
+ * Extension Function For String which returns the Decoded String
+ * @receiver [String]
+ * @return the urlDecodedString
+ */
 fun String.urlDecode(): String = URLDecoder.decode(this, Charsets.UTF_8.toString())
 
-//fun Date.minusDays(days: Int): Date {
-//    val referenceDate = this
-//    val c = Calendar.getInstance()
-//    c.time = referenceDate
-//    c.add(Calendar.DAY_OF_WEEK, -1*days)
-//    return c.time
-//}
-
+/**
+ * this function will return the url without parameters
+ *
+ * @param url URL String
+ * @returns the url without parameters
+ */
 @Throws(URISyntaxException::class)
 fun getUrlWithoutParameters(url: String): String {
     val uri = URI(url)
@@ -174,6 +177,24 @@ fun getUrlWithoutParameters(url: String): String {
             uri.path,
             null, // Ignore the query part of the input url
             uri.fragment).toString()
+}
+
+/**
+ * this function will return the url parameters
+ *
+ * @param url URL String
+ * @returns the url parameters
+ */
+@Throws(UnsupportedEncodingException::class)
+fun getUrlQueryParameters(url: String): Map<String, String>? {
+    val query = URL(url).query
+    val pairs = query.split("&")
+    return if (pairs.isNotEmpty()) {
+        pairs.map {
+            val idx = it.indexOf("=")
+            (URLDecoder.decode(it.substring(0, idx), "UTF-8") to URLDecoder.decode(it.substring(idx + 1), "UTF-8"))
+        }.toMap()
+    } else null
 }
 
 /**

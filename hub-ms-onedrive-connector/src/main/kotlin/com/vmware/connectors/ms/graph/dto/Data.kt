@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.ms.graph.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -33,15 +38,11 @@ data class OutlookMailItem(
          * 	The body of the message.
          * 	It can be in HTML or text format. Find out about safe HTML in a message body.
          */
-        @JsonProperty("body") val body: Map<String, Any>,
+        @JsonProperty("body") private val body: Map<String, Any>,
         /**
          * 	The email addresses to use when replying.
          */
-        @JsonProperty("replyTo") val replyTo: List<EmailAddress>,
-        /**
-         * Indicates whether the message has been read.
-         */
-        @JsonProperty("isRead") val isRead: Boolean
+        @JsonProperty("replyTo") val replyTo: List<EmailAddress>
 ) {
     private val contentType = body.getStringOrNull("contentType")
     private val contentIsHtml: Boolean = (contentType == "html")
@@ -138,6 +139,9 @@ data class User(
          */
         val personType: String = ""
 ) {
+    /**
+     * this function will return EmailAddress Object
+     */
     fun toEmailAddress() = EmailAddress(mapOf("name" to name, "address" to emailId))
 }
 

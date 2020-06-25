@@ -1,7 +1,9 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.ms.graph.config
-
-
-private const val ODATA_API_PREFIX = "api/data/v9.0"
 
 /**
  * Backend Service API endpoints

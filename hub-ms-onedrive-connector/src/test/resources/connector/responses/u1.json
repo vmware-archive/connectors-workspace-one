@@ -2,10 +2,10 @@
   "objects": [
     {
       "id": "00000000-0000-0000-0000-000000000000",
-      "name": "MS File/Folder Access Request Approval",
+      "name": "Microsoft OneDrive File Access Approval",
       "creation_date": "1970-01-01T00:00:00Z",
       "header": {
-        "title": "File/Folder Access Request",
+        "title": "Microsoft OneDrive - File/folder access request",
         "subtitle": [
           "7368X4-Series-QA.pdf"
         ],
@@ -18,11 +18,6 @@
       },
       "body": {
         "fields": [
-          {
-            "type": "GENERAL",
-            "title": "Requested By",
-            "description": "Sai Sandeep"
-          },
           {
             "type": "GENERAL",
             "title": "Requested For",
@@ -39,7 +34,7 @@
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "primary": true,
-          "label": "Approve Read",
+          "label": "Approve read",
           "url": {
             "href": "https://hero/connectors/ms-graph-connector/access/requests/AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAACzvleGAAA=/approve"
           },
@@ -47,24 +42,24 @@
           "action_key": "USER_INPUT",
           "remove_card_on_completion": true,
           "request": {
-            "accessRequest": "{\"id\":\"AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAACzvleGAAA=\",\"requestedBy\":{\"emailId\":\"saisandeep@backflipt.com\",\"name\":\"Sai Sandeep\",\"personType\":\"\"},\"requestedFor\":[{\"emailId\":\"hemanthkethe@backflipt.com\",\"name\":\"Hemanth Kethe\",\"personType\":\"\"}],\"resource\":{\"id\":\"0176WBI5BABNPWBLFSSVALI3QVWOYAI5DJ\",\"path\":\"/Backflipt Discover Canned Demo Documents/Arista 7000 series - 72/7368X4-Series-QA.pdf\",\"name\":\"7368X4-Series-QA.pdf\",\"url\":\"https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Arista%207000%20series%20-%2072/7368X4-Series-QA.pdf\",\"siteId\":\"backflipt-my.sharepoint.com,3b4fbdfd-a6c1-4b4e-a5a1-ba26e2e81243,7849a5b3-019f-4bc7-a407-65f41107c481\"},\"sharedForGroup\":false,\"receivedDate\":1577102798000}",
+            "accessRequest": "{\"id\":\"AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAACzvleGAAA=\",\"requestedBy\":null,\"requestedFor\":[{\"emailId\":\"hemanthkethe@backflipt.com\",\"name\":\"Hemanth Kethe\",\"personType\":\"\"}],\"resource\":{\"id\":\"0176WBI5BABNPWBLFSSVALI3QVWOYAI5DJ\",\"path\":\"/Backflipt Discover Canned Demo Documents/Arista 7000 series - 72/7368X4-Series-QA.pdf\",\"name\":\"7368X4-Series-QA.pdf\",\"url\":\"https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Arista%207000%20series%20-%2072/7368X4-Series-QA.pdf\",\"siteId\":\"backflipt-my.sharepoint.com,3b4fbdfd-a6c1-4b4e-a5a1-ba26e2e81243,7849a5b3-019f-4bc7-a407-65f41107c481\"},\"sharedForGroup\":false,\"receivedDate\":1577102798000}",
             "roles": "read"
           },
           "user_input": [
             {
               "id": "comments",
-              "label": "Comments For Read Access",
+              "label": "Comments for read access",
               "format": "text"
             }
           ],
-          "completed_label": "Approved Read Access",
+          "completed_label": "Approved read access",
           "allow_repeated": false,
           "mutually_exclusive_set_id": "APPROVE_ACTION"
         },
         {
           "id": "00000000-0000-0000-0000-000000000000",
           "primary": true,
-          "label": "Approve Edit",
+          "label": "Approve edit",
           "url": {
             "href": "https://hero/connectors/ms-graph-connector/access/requests/AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAACzvleGAAA=/approve"
           },
@@ -72,17 +67,17 @@
           "action_key": "USER_INPUT",
           "remove_card_on_completion": true,
           "request": {
-            "accessRequest": "{\"id\":\"AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAACzvleGAAA=\",\"requestedBy\":{\"emailId\":\"saisandeep@backflipt.com\",\"name\":\"Sai Sandeep\",\"personType\":\"\"},\"requestedFor\":[{\"emailId\":\"hemanthkethe@backflipt.com\",\"name\":\"Hemanth Kethe\",\"personType\":\"\"}],\"resource\":{\"id\":\"0176WBI5BABNPWBLFSSVALI3QVWOYAI5DJ\",\"path\":\"/Backflipt Discover Canned Demo Documents/Arista 7000 series - 72/7368X4-Series-QA.pdf\",\"name\":\"7368X4-Series-QA.pdf\",\"url\":\"https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Arista%207000%20series%20-%2072/7368X4-Series-QA.pdf\",\"siteId\":\"backflipt-my.sharepoint.com,3b4fbdfd-a6c1-4b4e-a5a1-ba26e2e81243,7849a5b3-019f-4bc7-a407-65f41107c481\"},\"sharedForGroup\":false,\"receivedDate\":1577102798000}",
+            "accessRequest": "{\"id\":\"AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAACzvleGAAA=\",\"requestedBy\":null,\"requestedFor\":[{\"emailId\":\"hemanthkethe@backflipt.com\",\"name\":\"Hemanth Kethe\",\"personType\":\"\"}],\"resource\":{\"id\":\"0176WBI5BABNPWBLFSSVALI3QVWOYAI5DJ\",\"path\":\"/Backflipt Discover Canned Demo Documents/Arista 7000 series - 72/7368X4-Series-QA.pdf\",\"name\":\"7368X4-Series-QA.pdf\",\"url\":\"https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Arista%207000%20series%20-%2072/7368X4-Series-QA.pdf\",\"siteId\":\"backflipt-my.sharepoint.com,3b4fbdfd-a6c1-4b4e-a5a1-ba26e2e81243,7849a5b3-019f-4bc7-a407-65f41107c481\"},\"sharedForGroup\":false,\"receivedDate\":1577102798000}",
             "roles": "write"
           },
           "user_input": [
             {
               "id": "comments",
-              "label": "Comments For Edit Access",
+              "label": "Comments for edit access",
               "format": "text"
             }
           ],
-          "completed_label": "Approved Edit Access",
+          "completed_label": "Approved edit access",
           "allow_repeated": false,
           "mutually_exclusive_set_id": "APPROVE_ACTION"
         },
@@ -96,7 +91,7 @@
           "action_key": "USER_INPUT",
           "remove_card_on_completion": true,
           "request": {
-            "accessRequest": "{\"id\":\"AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAACzvleGAAA=\",\"requestedBy\":{\"emailId\":\"saisandeep@backflipt.com\",\"name\":\"Sai Sandeep\",\"personType\":\"\"},\"requestedFor\":[{\"emailId\":\"hemanthkethe@backflipt.com\",\"name\":\"Hemanth Kethe\",\"personType\":\"\"}],\"resource\":{\"id\":\"0176WBI5BABNPWBLFSSVALI3QVWOYAI5DJ\",\"path\":\"/Backflipt Discover Canned Demo Documents/Arista 7000 series - 72/7368X4-Series-QA.pdf\",\"name\":\"7368X4-Series-QA.pdf\",\"url\":\"https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Arista%207000%20series%20-%2072/7368X4-Series-QA.pdf\",\"siteId\":\"backflipt-my.sharepoint.com,3b4fbdfd-a6c1-4b4e-a5a1-ba26e2e81243,7849a5b3-019f-4bc7-a407-65f41107c481\"},\"sharedForGroup\":false,\"receivedDate\":1577102798000}"
+            "accessRequest": "{\"id\":\"AAMkAGJmZjcwNjQyLTUzNTktNDhiZC1hMDc2LTljYjJkNDgxMzZhYQBGAAAAAAB2SoqlDyz_RINLEN5EjuTaBwA3KSPYe-KZR7aInnc--TlOAAAAAAEMAAA3KSPYe-KZR7aInnc--TlOAACzvleGAAA=\",\"requestedBy\":null,\"requestedFor\":[{\"emailId\":\"hemanthkethe@backflipt.com\",\"name\":\"Hemanth Kethe\",\"personType\":\"\"}],\"resource\":{\"id\":\"0176WBI5BABNPWBLFSSVALI3QVWOYAI5DJ\",\"path\":\"/Backflipt Discover Canned Demo Documents/Arista 7000 series - 72/7368X4-Series-QA.pdf\",\"name\":\"7368X4-Series-QA.pdf\",\"url\":\"https://backflipt-my.sharepoint.com/personal/pavan_backflipt_com/Documents/Backflipt%20Discover%20Canned%20Demo%20Documents/Arista%207000%20series%20-%2072/7368X4-Series-QA.pdf\",\"siteId\":\"backflipt-my.sharepoint.com,3b4fbdfd-a6c1-4b4e-a5a1-ba26e2e81243,7849a5b3-019f-4bc7-a407-65f41107c481\"},\"sharedForGroup\":false,\"receivedDate\":1577102798000}"
           },
           "user_input": [
             {
@@ -105,7 +100,7 @@
               "format": "text"
             }
           ],
-          "completed_label": "Access Declined",
+          "completed_label": "Access declined",
           "allow_repeated": false,
           "mutually_exclusive_set_id": "APPROVE_ACTION"
         }

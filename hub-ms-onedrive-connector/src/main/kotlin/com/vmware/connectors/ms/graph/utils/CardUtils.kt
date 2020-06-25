@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.ms.graph.utils
 
 import com.vmware.connectors.common.payloads.response.CardActionInputField
@@ -16,7 +21,7 @@ import java.util.*
  */
 @Component
 class CardUtils(
-    @Autowired val cardTextAccessor: CardTextAccessor
+        @Autowired val cardTextAccessor: CardTextAccessor
 ) {
 
     /**
@@ -35,11 +40,11 @@ class CardUtils(
             locale: Locale?
     ): CardActionInputField {
         return CardActionInputField
-            .Builder()
-            .setId(id)
-            .setFormat(format)
-            .setLabel(cardTextAccessor.getMessage(labelKey, locale))
-            .build()
+                .Builder()
+                .setId(id)
+                .setFormat(format)
+                .setLabel(cardTextAccessor.getMessage(labelKey, locale))
+                .build()
     }
 
     /**
@@ -58,31 +63,11 @@ class CardUtils(
         return if (StringUtils.isBlank(content)) {
             null
         } else CardBodyField.Builder()
-            .setTitle(cardTextAccessor.getMessage("$titleMessageKey.title", locale))
-            .setDescription(cardTextAccessor.getMessage("$titleMessageKey.content", locale, content))
-            .setType(CardBodyFieldType.GENERAL)
-            .build()
+                .setTitle(cardTextAccessor.getMessage("$titleMessageKey.title", locale))
+                .setDescription(cardTextAccessor.getMessage("$titleMessageKey.content", locale, content))
+                .setType(CardBodyFieldType.GENERAL)
+                .build()
     }
-
-//    /**
-//     * Card Action Open Url Action Builder
-//     *
-//     * @param actionLabelKey
-//     * @param url: url to open
-//     * @param locale: User Locale
-//     * @param allowRepeated: if true, user can make this action more than 1 time
-//     * @param removeCardOnCompletion: if true, card is removed once user takes action
-//     * @return CardAction.Builder
-//     */
-//    fun buildOpenActionBuilder(actionLabelKey: String, url: String, locale: Locale?, allowRepeated: Boolean = true, removeCardOnCompletion: Boolean = false): CardAction.Builder {
-//        return CardAction.Builder()
-//            .setLabel(cardTextAccessor.getActionLabel(actionLabelKey, locale))
-//            .setActionKey("OPEN_IN")
-//            .setUrl(url)
-//            .setType(HttpMethod.GET)
-//            .setAllowRepeated(allowRepeated)
-//            .setRemoveCardOnCompletion(removeCardOnCompletion)
-//    }
 }
 
 
