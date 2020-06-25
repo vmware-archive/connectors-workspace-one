@@ -1,9 +1,15 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msPlanner.service
 
 import com.vmware.connectors.msPlanner.config.Endpoints
 import com.vmware.connectors.msPlanner.config.Endpoints.getGroupIdsUrl
 import com.vmware.connectors.msPlanner.config.Endpoints.getNewConversationThreadUrl
 import com.vmware.connectors.msPlanner.config.Endpoints.replyToTaskUrl
+import com.vmware.connectors.msPlanner.config.FORMATTER
 import com.vmware.connectors.msPlanner.config.MAX_DUE_DAYS
 import com.vmware.connectors.msPlanner.dto.Days
 import com.vmware.connectors.msPlanner.dto.Task
@@ -22,7 +28,11 @@ import reactor.core.publisher.Mono
 import java.util.*
 
 /**
- * MsPlannerBackendService class
+ * MsPlannerBackendService class contains functions which will fetch the tasks
+ * that are due Today and the following Actions(Mark Task as Completed,Add Comment to Task)
+ * and every function in the class requires the following parameters
+ * baseUrl - tenant url
+ * authorization - Microsoft Teams User Bearer Token
  *
  * @property client: WebClient: library to make async http calls
  */
@@ -32,275 +42,289 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
     private val logger = getLogger()
 
     /**
-     * This function will return the user id
+     * fetches the user id of the current User.
      *
-     * @param authorization is the token needed for authorizing the call
-     * @param baseUrl is the endPoint to be called
-     * @returns the user's id
+     * @param authorization is the token needed for authorizing the call.
+     * @param baseUrl is the endPoint to be called.
+     * @returns the user's id.
      */
     private suspend fun getUserId(
             authorization: String,
-            baseUrl: String
+            baseUrl: String,
+            currentUser: String?
     ): String {
-        return client
-                .get()
-                .uri(Endpoints.getUserIdUrl(baseUrl))
-                .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchange()
-                .awaitBody<Map<String, Any>>()
-                .getStringOrDefault("id")
+        val resp = measureTimeMillisPair {
+            client
+                    .get()
+                    .uri(Endpoints.getUserIdUrl(baseUrl))
+                    .header(HttpHeaders.AUTHORIZATION, authorization)
+                    .awaitExchange()
+                    .awaitBody<Map<String, Any>>()
+                    .getStringOrDefault("id")
+        }
+        logger.debug { "Time Taken For getUserId for $currentUser->${resp.second}" }
+        return resp.first
     }
 
     /**
-     * This function will return the user's Name
+     * fetches the user's TimeZone or
+     * Null if the user did not set TimeZone.
      *
-     * @param authorization is the token needed for authorizing the call
-     * @param id is the user's id
-     * @param baseUrl is the endPoint to be called
-     * @returns the user's displayName
-     */
-    suspend fun getUserNameFromUserId(
-            authorization: String,
-            id: String,
-            baseUrl: String
-    ): String? {
-        val url = Endpoints.getUserNameUrl(baseUrl, id)
-        return client
-                .get()
-                .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchange()
-                .awaitBody<Map<String, Any>>()
-                .getStringOrNull("displayName")
-    }
-
-    /**
-     * this function will return the user's TimeZone
-     *
-     * @param authorization is the token needed for authorizing the call
-     * @param baseUrl is the endPoint to be called
-     * @returns the tomeZone of the User
+     * @param authorization is the token needed for authorizing the call.
+     * @param baseUrl is the endPoint to be called.
+     * @returns the timeZone of the User.
      */
     suspend fun getUserTimeZone(
             authorization: String,
-            baseUrl: String
+            baseUrl: String,
+            currentUser: String?
     ): String? {
         val url = Endpoints.getUserTimeZoneUrl(baseUrl)
-        return client
-                .get()
-                .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchange()
-//        AndThrowError {
-//                    logger.error(it) { "error while getting user's timeZone -> $url with $authorization" }
-//                }
-                .awaitBody<Map<String, Any>>()
-                .getStringOrException("value")
+        val response = measureTimeMillisPair {
+            client
+                    .get()
+                    .uri(url)
+                    .header(HttpHeaders.AUTHORIZATION, authorization)
+                    .awaitExchange()
+                    .awaitBody<Map<String, Any>>()
+                    .getStringOrException("value")
+        }
+        logger.debug { "Time Taken For getUserTimeZone for $currentUser-->${response.second}" }
+        return response.first
     }
 
     /**
-     * This function will return the id's of the user groups
+     * fetches the user groupIds.
      *
-     * @param authorization is the token needed for authorizing the call
-     * @param baseUrl is the endPoint to be called
-     * @returns the list of all group ids
+     * @param authorization is the token needed for authorizing the call.
+     * @param baseUrl is the endPoint to be called.
+     * @returns the list of group Ids.
      */
     private suspend fun getGroupIds(
             authorization: String,
-            baseUrl: String
+            baseUrl: String,
+            currentUser: String?
     ): List<String> {
-        val response = client
-                .post()
-                .uri(getGroupIdsUrl(baseUrl))
-                .header(HttpHeaders.AUTHORIZATION, authorization)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .body(
-                        Mono.just(
-                                mapOf(
-                                        "securityEnabledOnly" to false
-                                )
-                        )
-                )
-                .awaitExchange()
-                .awaitBody<Map<String, Any>>()
-        return response.getListOrException("value")
+        val response = measureTimeMillisPair {
+            client
+                    .post()
+                    .uri(getGroupIdsUrl(baseUrl))
+                    .header(HttpHeaders.AUTHORIZATION, authorization)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .body(
+                            Mono.just(
+                                    mapOf(
+                                            "securityEnabledOnly" to false
+                                    )
+                            )
+                    )
+                    .awaitExchange()
+                    .awaitBody<Map<String, Any>>()
+        }
+        logger.debug { "Time Taken to getGroupIds for $currentUser--->${response.second}" }
+        return response.first.getListOrException("value")
     }
 
     /**
-     * This function will return the id's of the user group Planners
+     * fetches the Information About Plans
      *
-     * @param groupIds is the list of group ids
-     * @param authorization is the token needed for authorizing the call
+     * @param authorization is the token needed for authorizing the call.
      * @param baseUrl is the endPoint to be called.
-     * @param plans is the list of ids to be returned
-     * @returns the list of all group Planner ids
+     * @param groupIds is the list of group Ids.
+     * @param plans is the list of Plans to be returned.
+     * @returns the list of Plans with Details.
      */
-    private suspend fun getPlans(
-            groupIds: List<String>,
+    private suspend fun getPlanInfoFromGroupIds(
             authorization: String,
             baseUrl: String,
+            groupIds: List<String>,
+            currentUser: String?,
             plans: List<String> = emptyList()
     ): List<String> {
-        return when {
-            groupIds.isEmpty() -> plans
-            groupIds.size <= 20 ->
-                plans.plus(
-                        getIds(authorization, baseUrl, getPlanBatchBody(groupIds))
-                                .map {
-                                    val planId = it.getStringOrException("id")
-                                    val groupId = it.getStringOrException("groupId")
-                                    val title = it.getStringOrException("title")
-                                    "$groupId $planId $title"
-                                }
-                )
-            else -> {
-                val batchBody = getPlanBatchBody(groupIds.take(20))
-                plans.plus(getIds(authorization, baseUrl, batchBody)
-                        .map {
-                            val planId = it.getStringOrException("id")
-                            val groupId = it.getStringOrException("groupId")
-                            val title = it.getStringOrException("title")
-                            "$groupId $planId $title"
-                        }) +
-                        getPlans(groupIds.drop(20), authorization, baseUrl, plans)
+        val response = measureTimeMillisPair {
+            when {
+                groupIds.isEmpty() -> plans
+                groupIds.size <= 20 ->
+                    plans.plus(
+                            getBucketsOrTasksInfoFromBatchBody(authorization, baseUrl, buildPlanBatchBody(groupIds), currentUser)
+                                    .map {
+                                        val planId = it.getStringOrException("id")
+                                        val groupId = it.getStringOrException("groupId")
+                                        val title = it.getStringOrException("title")
+                                        "$groupId $planId $title"
+                                    }
+                    )
+                else -> {
+                    val batchBody = buildPlanBatchBody(groupIds.take(20))
+                    val totalPlans = plans.plus(getBucketsOrTasksInfoFromBatchBody(authorization, baseUrl, batchBody, currentUser)
+                            .map {
+                                val planId = it.getStringOrException("id")
+                                val groupId = it.getStringOrException("groupId")
+                                val title = it.getStringOrException("title")
+                                "$groupId $planId $title"
+                            })
+                    getPlanInfoFromGroupIds(authorization, baseUrl, groupIds.drop(20), currentUser, totalPlans)
+                }
             }
         }
+        logger.debug { "Time Taken to get All Plans for $currentUser--->${response.second}" }
+        return response.first
     }
 
     /**
-     * This function will return the id's of the Planner Buckets
+     * fetches the Information About Buckets
      *
-     * @param planIds is the list of Planner ids
-     * @param authorization is the token needed for authorizing the call
+     * @param authorization is the token needed for authorizing the call.
      * @param baseUrl is the endPoint to be called.
-     * @param buckets is the list of bucket ids to be returned
-     * @returns the list of all Planner bucket ids
+     * @param planIds is the list of Planner Ids.
+     * @param buckets is the list of buckets to be returned.
+     * @returns the list of Buckets With Details.
      */
-    private suspend fun getBuckets(
-            planIds: List<String>,
+    private suspend fun getBucketInfoFromPlanIds(
             authorization: String,
             baseUrl: String,
+            currentUser: String?,
+            planIds: List<String>,
             buckets: List<String> = emptyList()
     ): List<String> {
-        return when {
-            planIds.isEmpty() -> buckets
-            planIds.size <= 20 ->
-                buckets.plus(getIds(authorization, baseUrl, getBucketBatchBody(planIds), isBucket = true)
-                        .map {
-                            val bucketId = it.getStringOrException("id")
-                            val groupId = it.getStringOrException("groupId")
-                            val planName = it.getStringOrException("title")
-                            val bucketName = it.getStringOrException("name")
-                            TaskMetaInfo(groupId, bucketId, planName, bucketName).serialize()
-                        })
-            else -> {
-                val batchBody = getBucketBatchBody(planIds.take(20))
-                buckets.plus(getIds(authorization, baseUrl, batchBody, isBucket = true)
-                        .map {
-                            val bucketId = it.getStringOrException("id")
-                            val groupId = it.getStringOrException("groupId")
-                            val planName = it.getStringOrException("title")
-                            val bucketName = it.getStringOrException("name")
-                            TaskMetaInfo(groupId, bucketId, planName, bucketName).serialize()
-                        }) +
-                        getPlans(planIds.drop(20), authorization, baseUrl, planIds)
+        val response = measureTimeMillisPair {
+            when {
+                planIds.isEmpty() -> buckets
+                planIds.size <= 20 ->
+                    buckets.plus(getBucketsOrTasksInfoFromBatchBody(authorization, baseUrl, buildBucketBatchBody(planIds), currentUser, isBucket = true)
+                            .map {
+                                val bucketId = it.getStringOrException("id")
+                                val groupId = it.getStringOrException("groupId")
+                                val planName = it.getStringOrException("title")
+                                val bucketName = it.getStringOrException("name")
+                                TaskMetaInfo(groupId, bucketId, planName, bucketName).serialize()
+                            })
+                else -> {
+                    val batchBody = buildBucketBatchBody(planIds.take(20))
+                    val totalBuckets = buckets.plus(getBucketsOrTasksInfoFromBatchBody(authorization, baseUrl, batchBody, currentUser, isBucket = true)
+                            .map {
+                                val bucketId = it.getStringOrException("id")
+                                val groupId = it.getStringOrException("groupId")
+                                val planName = it.getStringOrException("title")
+                                val bucketName = it.getStringOrException("name")
+                                TaskMetaInfo(groupId, bucketId, planName, bucketName).serialize()
+                            })
+                    getBucketInfoFromPlanIds(authorization, baseUrl, currentUser, planIds.drop(20), totalBuckets)
+                }
             }
         }
+        logger.debug { "Time Taken to get All Buckets for $currentUser--->${response.second}" }
+        return response.first
     }
 
     /**
-     * This function will return all the user's tasks in Task Object Format
+     * fetches the Tasks that are DueToday.
      *
-     * @param authorization is the token needed for authorizing the call
+     * @param authorization is the token needed for authorizing the call.
      * @param baseUrl is the endPoint to be called.
-     * @returns the list of all the users's tasks
+     * @returns the list of filtered Tasks.
      */
-    suspend fun getTasks(
+    suspend fun getFilteredTasks(
             authorization: String,
-            baseUrl: String
+            baseUrl: String,
+            currentUser: String?
     ): List<Task> {
-        val userId = getUserId(authorization, baseUrl)
-        val groupIds = getGroupIds(authorization, baseUrl)
-        val planIds = getPlans(groupIds, authorization, baseUrl)
-        val planCategoriesMap = planIds.map { it.split(" ")[1] }.associateWith { getLabelCategories(authorization, baseUrl, it) }
-        val bucketIds = getBuckets(planIds, authorization, baseUrl)
-        val tasks = getAllTasks(authorization, baseUrl, bucketIds).map {
-            val planId = it.getStringOrException("planId")
-            it.plus("userId" to userId)
-                    .plus("categoryMap" to planCategoriesMap.getValue(planId))
+        val response = measureTimeMillisPair {
+            val userId = getUserId(authorization, baseUrl, currentUser)
+            val groupIds = getGroupIds(authorization, baseUrl, currentUser)
+            val planIds = getPlanInfoFromGroupIds(authorization, baseUrl, groupIds, currentUser)
+            val planCategoriesMap = planIds.map { it.split(" ")[1] }.associateWith { getLabelCategoriesForPlan(authorization, baseUrl, it, currentUser) }
+            val bucketIds = getBucketInfoFromPlanIds(authorization, baseUrl, currentUser, planIds)
+            val tasks = getTasks(authorization, baseUrl, bucketIds, currentUser).map {
+                val planId = it.getStringOrException("planId")
+                it.plus("userId" to userId)
+                        .plus("categoryMap" to planCategoriesMap.getValue(planId))
+            }
+            tasks.map { it.convertValue<Task>() }
+                    .filter {
+                        it.percentComplete != 100 && it.dueDateTime != null
+                                && it.dueDateTime <= formatDateToString(Date().plus(Days(MAX_DUE_DAYS, "UTC")))
+                    }
         }
-        return tasks.map { it.convertValue<Task>() }
-                .filter {
-                    it.percentComplete != 100 && it.dueDateTime != null
-                            && it.dueDateTime <= formatDateToString(Date().plus(Days(MAX_DUE_DAYS, "UTC")))
-                }
+        logger.debug { "time taken for getting tasks due today for $currentUser-->${response.second}" }
+        return response.first
     }
 
     /**
-     * This function will make the call to the endPoint and
-     * returns responses
+     * fetches the Batch response
+     * when [isBucket] is false this will fetch the Task Batch Response
+     * when [isTask] is false this will fetch the Bucket Batch Response
      *
-     * @param authorization is the token needed for authorizing the call
+     * @param authorization is the token needed for authorizing the call.
      * @param baseUrl is the endPoint to be called.
-     * @param batchBody is the body of the batch request
-     * @returns the list of required ids
+     * @param batchBody is the body of the batch request.
+     * @param isBucket whether the batch body Belongs to Bucket or Not.
+     * @param isTask whether the batch body Belongs to Task or Not.
+     * @returns the list of Map that contains the Batch Response.
      */
-    private suspend fun getIds(
+    private suspend fun getBucketsOrTasksInfoFromBatchBody(
             authorization: String,
             baseUrl: String,
             batchBody: List<Map<String, String>>,
+            currentUser: String?,
             isBucket: Boolean = false,
             isTask: Boolean = false
     ): List<Map<String, Any>> {
-        val client = client
-                .post()
-                .uri(Endpoints.getAllIdsUrl(baseUrl))
-                .header(HttpHeaders.AUTHORIZATION, authorization)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                .body(
-                        Mono.just(
-                                mapOf(
-                                        "requests" to batchBody
-                                )
-                        )
-                )
-                .awaitExchange()
-                .awaitBody<Map<String, Any>>()
-        val responses = client.getListOrException<Map<String, Any>>("responses")
+        val response = measureTimeMillisPair {
+            client
+                    .post()
+                    .uri(Endpoints.getAllIdsUrl(baseUrl))
+                    .header(HttpHeaders.AUTHORIZATION, authorization)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                    .body(
+                            Mono.just(
+                                    mapOf(
+                                            "requests" to batchBody
+                                    )
+                            )
+                    )
+                    .awaitExchange()
+                    .awaitBody<Map<String, Any>>()
+        }
+        val responses = response.first.getListOrException<Map<String, Any>>("responses")
         val body = responses
                 .map { (it.getMapOrException<String, Any>("body")).plus("id" to it.getStringOrException("id")) }
+        logger.debug { "Time Taken to get Ids Common Function for $currentUser--->${response.second}" }
         return when {
-            isBucket -> body.flatMap {
+            isBucket -> body.mapNotNull {
                 val id = it.getStringOrException("id").split(" ")
                 val groupId = id.first()
                 val title = id.drop(2).joinToString(separator = " ")
-                it.getListOrException<Map<String, Any>>("value").map { value ->
+                it.getListOrNull<Map<String, Any>>("value")?.map { value ->
                     value.plus(mapOf("groupId" to groupId, "title" to title))
                 }
-            }
-            isTask -> body.flatMap {
-                it.getListOrException<Map<String, Any>>("value")
-            }
-            else -> body.flatMap {
-                it.getListOrException<Map<String, Any>>("value").map { value ->
+            }.flatten()
+            isTask -> body.mapNotNull {
+                it.getListOrNull<Map<String, Any>>("value")
+            }.flatten()
+            else -> body.mapNotNull {
+                it.getListOrNull<Map<String, Any>>("value")?.map { value ->
                     value.plus(mapOf("groupId" to it.getValue("id")))
                 }
-            }
+            }.flatten()
         }
     }
 
     /**
-     * This function will return all the user's tasks
+     *  fetch all the user's tasks
      *
-     * @param authorization is the token needed for authorizing the call
+     * @param authorization is the token needed for authorizing the call.
      * @param baseUrl is the endPoint to be called.
-     * @returns the list of all user's tasks
+     * @param bucketIds is the List of User's Bucket Ids.
+     * @param tasks is List of Map that contains Task Response.
+     * @returns the list of all user's tasks.
      */
-    private suspend fun getAllTasks(
+    private suspend fun getTasks(
             authorization: String,
             baseUrl: String,
             bucketIds: List<String>,
+            currentUser: String?,
             tasks: List<Map<String, Any>> = emptyList()
     ): List<Map<String, Any>> {
         val bucketIdsMap = bucketIds.associate {
@@ -310,31 +334,34 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
         return when {
             bucketIds.isEmpty() -> tasks
             bucketIds.size <= 20 ->
-                tasks.plus(getIds(authorization, baseUrl, getTaskBatchBody(bucketIds), isBucket = false, isTask = true).map {
+                tasks.plus(getBucketsOrTasksInfoFromBatchBody(authorization, baseUrl, buildTaskBatchBody(bucketIds), currentUser, isBucket = false, isTask = true).map {
                     it.plus("taskMetaInfo" to bucketIdsMap.getValue(it.getStringOrException("bucketId")))
                 })
             else -> {
-                val batchBody = getTaskBatchBody(bucketIds.take(20))
-                tasks.plus(getIds(authorization, baseUrl, batchBody).map {
+                val batchBody = buildTaskBatchBody(bucketIds.take(20))
+                val totalTasks = tasks.plus(getBucketsOrTasksInfoFromBatchBody(authorization, baseUrl, batchBody, currentUser).map {
                     it.plus("taskMetaInfo" to bucketIdsMap.getValue(it.getStringOrException("bucketId")))
-                }) +
-                        getAllTasks(authorization, baseUrl, bucketIds.drop(20), tasks)
+                })
+                getTasks(authorization, baseUrl, bucketIds.drop(20), currentUser, totalTasks)
             }
         }
     }
 
     /**
-     * returns the user Tasks
-     * @param tasks list of user's tasks
-     * @returns the pair of userId to list of user's tasks
+     * fetches the userid and assigned tasks for the user
+     * @param tasks list of user's tasks.
+     * @param timeZone timeZon of the User.
+     * @returns the pair of userId to Assigned tasks.
      */
-    fun getUserTasks(
-            tasks: List<Task>
+    fun getUserIdToAssignedTasks(
+            tasks: List<Task>,
+            timeZone: String
     ): Pair<String?, List<Task>> {
         val filteredTasks = tasks
                 .filter {
-                    it.assignments.keys.contains(it.userId) &&
-                            formatDateWithOutTime(formatStringToDate(it.dueDateTime)) == formatDateWithOutTime(Date())
+                    it.assignments.keys.contains(it.userId) && it.dueDateTime != null &&
+                            getUserDueDateInUserTimeZone(it.dueDateTime, timeZone, FORMATTER) ==
+                            getUserDueDateInUserTimeZone(getCurrentUtcTime(), timeZone, FORMATTER)
                 }
                 .sortedBy { it.dueDateTime }
         val userId = tasks.firstOrNull()?.userId
@@ -343,9 +370,10 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
 
     /**
      * updates the task as completed.
-     * @param authorization is the token needed for authorizing the call
+     * @param authorization is the token needed for authorizing the call.
      * @param baseUrl is the endPoint to be called.
      * @param task is the Task Object.
+     * @returns the status of the Completion of Task.
      */
     suspend fun markTaskAsCompleted(
             authorization: String,
@@ -357,11 +385,13 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
     }
 
     /**
-     * updates the task's conversationId property.
-     * @param authorization is the token needed for authorizing the call
+     * creates a new conversation thread and add the comment to the task
+     *
+     * @param authorization is the token needed for authorizing the call.
      * @param baseUrl is the endPoint to be called.
      * @param task is the Task Object.
      * @param comment is the first message to be posted.
+     * @returns the status of the update.
      */
     private suspend fun updateConversationId(
             authorization: String,
@@ -370,18 +400,19 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
             comment: String
     ): Boolean {
         val body = mapOf("conversationThreadId" to
-                getNewConversationThread(
+                createNewConversationThread(
                         authorization, baseUrl, task.groupId, task.title, comment
                 ))
         return updateTask(authorization, baseUrl, task, body)
     }
 
     /**
-     * updates the given task.
-     * @param authorization is the token needed for authorizing the call
+     * updates the task Object.
+     * @param authorization is the token needed for authorizing the call.
      * @param baseUrl is the endPoint to be called.
-     * @param task is the Task Object to be updated
-     * @param body of the post request.
+     * @param task is the Task Object to be updated.
+     * @param body of the post request to update the Task.
+     * @returns the status of the Update.
      */
     private suspend fun updateTask(
             authorization: String,
@@ -391,33 +422,37 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
     ): Boolean {
         val eTag = task.eTag
         val url = Endpoints.updateTaskUrl(baseUrl, task.id)
-        return client
-                .patch()
-                .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, authorization)
-                .header(HttpHeaders.IF_MATCH, eTag)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .body(Mono.just(body))
-                .awaitExchange()
+        val response = measureTimeMillisPair {
+            client
+                    .patch()
+                    .uri(url)
+                    .header(HttpHeaders.AUTHORIZATION, authorization)
+                    .header(HttpHeaders.IF_MATCH, eTag)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .body(Mono.just(body))
+                    .awaitExchange()
+        }
+        logger.debug { "time taken to update Task---->${response.second}" }
+        return response.first
                 .statusCode()
                 .is2xxSuccessful
     }
 
     /**
      *
-     * this function replies a message to the task
-     * @param authorization is the token needed for authorizing the call
+     * will add the comment to the task.
+     * @param authorization is the token needed for authorizing the call.
      * @param baseUrl is the endPoint to be called.
-     * @param task is the Task Object to be updated
-     * @param message reply text to be sent
+     * @param task is the Task Object to be updated.
+     * @param message text to be Added to the task.
+     * @return if comment is successfully added true else false
      */
-    suspend fun addCommentsToTask(
+    suspend fun addCommentToTask(
             authorization: String,
             baseUrl: String,
             task: Task,
             message: String?
     ): Boolean {
-        logger.info { "conversationThreadId -> ${task}, message -> $message" }
         return if (task.conversationThreadId != null && message != null) {
             val url = replyToTaskUrl(baseUrl, task.groupId, task.conversationThreadId)
             client
@@ -425,7 +460,7 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
                     .uri(url)
                     .header(HttpHeaders.AUTHORIZATION, authorization)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .body(Mono.just(getAddCommentsToTaskBody(message)))
+                    .body(Mono.just(buildAddCommentsToTaskBody(message)))
                     .awaitExchange()
                     .statusCode()
                     .is2xxSuccessful
@@ -434,20 +469,21 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
                 val updatedTask = getTaskById(baseUrl, authorization, task.id, task.groupId)
                 if (updatedTask.conversationThreadId == null) {
                     updateConversationId(authorization, baseUrl, task, message)
-                } else addCommentsToTask(authorization, baseUrl, updatedTask, message)
+                } else addCommentToTask(authorization, baseUrl, updatedTask, message)
             } else false
         }
     }
 
     /**
-     * creates the new conversation and returns the New ConversationThread Id.
-     * @param authorization is the token needed for authorizing the call
+     * creates a conversation and fetches the New ConversationThread Id.
+     * @param authorization is the token needed for authorizing the call.
      * @param baseUrl is the endPoint to be called.
+     * @param groupId is the user's Group Id.
      * @param taskName is the Name of the Task.
-     * @param comment is the first message to be posted
-     * @returns the New ConversationThread Id.
+     * @param comment text to be Added to the task.
+     * @return New ConversationThread Id.
      */
-    private suspend fun getNewConversationThread(
+    private suspend fun createNewConversationThread(
             authorization: String,
             baseUrl: String,
             groupId: String,
@@ -455,26 +491,30 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
             comment: String
     ): String {
         val url = getNewConversationThreadUrl(baseUrl, groupId)
-        return client
-                .post()
-                .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, authorization)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .body(Mono.just(getConversationThreadBody(taskName, comment)))
-                .awaitExchange()
-                .awaitBody<Map<String, Any>>()
-                .getListOrException<Map<String, Any>>("threads").first()
-                .getStringOrException("id")
+        val response = measureTimeMillisPair {
+            client
+                    .post()
+                    .uri(url)
+                    .header(HttpHeaders.AUTHORIZATION, authorization)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .body(Mono.just(buildConversationThreadBody(taskName, comment)))
+                    .awaitExchange()
+                    .awaitBody<Map<String, Any>>()
+                    .getListOrException<Map<String, Any>>("threads").first()
+                    .getStringOrException("id")
+        }
+        logger.debug { "time Taken For getNewConversationThread---->${response.second}" }
+        return response.first
     }
 
     /**
-     * this function returns the Task object.
+     * fetches the More Task Details Using the [taskId].
      *
      * @param baseUrl is the endPoint to be called.
-     * @param authorization is the token needed for authorizing the call
+     * @param authorization is the token needed for authorizing the call.
      * @param taskId is the Id of the Task.
      * @param groupId is the Id of the Group to which the task belongs to.
-     * @returns the Task Object.
+     * @return Task Object.
      */
     private suspend fun getTaskById(
             baseUrl: String,
@@ -482,19 +522,23 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
             taskId: String,
             groupId: String): Task {
         val url = Endpoints.getTaskByIdUrl(baseUrl, taskId)
-        val task = client.get()
-                .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchange()
-                .awaitBody<Map<String, Any>>()
-                .plus(mapOf("groupId" to groupId))
-        return task.convertValue()
+        val response = measureTimeMillisPair {
+            client.get()
+                    .uri(url)
+                    .header(HttpHeaders.AUTHORIZATION, authorization)
+                    .awaitExchange()
+                    .awaitBody<Map<String, Any>>()
+                    .plus(mapOf("groupId" to groupId))
+        }
+        logger.debug { "time taken for getTaskById---->${response.second}" }
+        return response.first.convertValue()
     }
 
     /**
-     * gets userPrincipalName(email) from the user office365 profile
-     * @param authorization: authorization OAuth token
-     * @return user emailId
+     * get userPrincipalName(email) from the user office365 profile.
+     * @param authorization: authorization OAuth token.
+     * @param baseUrl is the endPoint to be called.
+     * @returns user emailId.
      */
 
     suspend fun getO365UserEmailFromToken(authorization: String, baseUrl: String): String? {
@@ -511,94 +555,92 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
     }
 
     /**
-     * gets the emaiId from the Vmware user token
+     * fetches detailed Information About the Task.
+     *
+     * @param authorization is the token needed for authorizing the call.
+     * @param baseUrl is the endPoint to be called.
+     * @param task Task Object.
+     * @returns TaskDetails object.
      */
-    fun getUserEmailFromToken(token: String): String? {
-        val pl = token
-                .split(" ")
-                .lastOrNull()
-                ?.split(".")
-                ?.get(1)
-                ?.toBase64DecodedString()
-
-        return pl?.deserialize<Map<String, Any>>()
-                ?.getStringOrNull("eml")
+    suspend fun getMoreTaskDetails(task: Task, authorization: String, baseUrl: String, currentUser: String?): TaskDetails {
+        val response = measureTimeMillisPair {
+            client
+                    .get()
+                    .uri(Endpoints.getTaskDetailsUrl(baseUrl, task.id))
+                    .header(HttpHeaders.AUTHORIZATION, authorization)
+                    .awaitExchange()
+                    .awaitBody<TaskDetails>()
+        }
+        logger.debug { "time taken for moreTaskDetails for $currentUser --->${response.second}" }
+        return response.first
     }
 
     /**
-     * returns details of the task
+     * fetches the latest comments on the task.
      *
-     * @receiver Task object
-     * @param authorization is the token needed for authorizing the call
+     * @param authorization is the token needed for authorizing the call.
      * @param baseUrl is the endPoint to be called.
-     * @returns TaskDetails object
+     * @param task Task Object.
+     * @return List of senderName to Comment Pair.
      */
-    suspend fun getMoreTaskDetails(task: Task, authorization: String, baseUrl: String): TaskDetails {
-        return client
-                .get()
-                .uri(Endpoints.getTaskDetailsUrl(baseUrl, task.id))
-                .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchange()
-                .awaitBody()
-    }
-
-    /**
-     * this fumction will returns the latest comment on the task.
-     *
-     * @param task is the Task object
-     * @param authorization is the token needed for authorizing the call
-     * @param baseUrl is the endPoint to be called.
-     * @returns the latest comment of the task.
-     */
-    suspend fun getLatestCommentOnTask(
-            task: Task,
+    suspend fun getLatestCommentsOnTask(
             authorization: String,
-            baseUrl: String): String? {
+            baseUrl: String,
+            task: Task,
+            currentUser: String?): List<Pair<String, String>>? {
         return task.conversationThreadId?.let {
             val url = Endpoints.getLatestCommentOnTaskUrl(baseUrl, task.groupId, it)
-            val comments = client
+            val response = measureTimeMillisPair {
+                client
+                        .get()
+                        .uri(url)
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
+                        .awaitExchange()
+                        .awaitBody<Map<String, Any>>()
+                        .getListOrException<Map<String, Any>>("value")
+                        .map { value ->
+                            val body = value.getMapOrException<String, Any>("body")
+                            val message = body.getStringOrException("content")
+                            val sender = value.getMapOrException<String, Any>("sender")
+                            val address = sender.getMapOrException<String, Any>("emailAddress")
+                            val senderName = address.getStringOrException("name")
+                            senderName to getStringExtractedFromHtml(message)
+                        }
+                        .filter { comment -> comment.second != "" }
+                        .reversed()
+            }
+            logger.debug { "time taken for getLatestMessagesOnTask For $currentUser----->${response.second}" }
+            val comments = response.first
+            if (comments.size <= 3) comments else (comments.take(3))
+        }
+    }
+
+    /**
+     * fetches the Label Category Names
+     *
+     * @param authorization is the token needed for authorizing the call.
+     * @param baseUrl is the endPoint to be called.
+     * @param planId is the UniqueId of the plan.
+     * @returns the map that contains Label Category to the Label Name.
+     */
+    private suspend fun getLabelCategoriesForPlan(
+            authorization: String,
+            baseUrl: String,
+            planId: String,
+            currentUser: String?
+    ): Map<String, String?> {
+        val url = Endpoints.getLabelCategoriesUrl(baseUrl, planId)
+        val response = measureTimeMillisPair {
+            client
                     .get()
                     .uri(url)
                     .header(HttpHeaders.AUTHORIZATION, authorization)
                     .awaitExchange()
                     .awaitBody<Map<String, Any>>()
-                    .getListOrException<Map<String, Any>>("value")
-                    .map { value ->
-                        val body = value.getMapOrException<String, Any>("body")
-                        val message = body.getStringOrException("content")
-                        val sender = value.getMapOrException<String, Any>("sender")
-                        val address = sender.getMapOrException<String, Any>("emailAddress")
-                        val senderName = address.getStringOrException("name")
-                        senderName to getStringExtractedFromHtml(message)
-                    }
-                    .filter { comment -> comment.second != "" }
-                    .reversed()
-            return if (comments.size <= 3) generateHtmlFromComments(comments)
-            else generateHtmlFromComments(comments.take(3))
+                    .getMapOrException<String, String>("categoryDescriptions")
         }
-    }
-
-    /**
-     * this function returns the CategoryNames Map
-     *
-     * @param authorization is the token needed for authorizing the call
-     * @param baseUrl is the endPoint to be called
-     * @param planId is the UniqueId of the plan
-     * @returns the CategoriesMap
-     */
-    private suspend fun getLabelCategories(
-            authorization: String,
-            baseUrl: String,
-            planId: String
-    ): Map<String, String?> {
-        val url = Endpoints.getLabelCategoriesUrl(baseUrl, planId)
-        return client
-                .get()
-                .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchange()
-                .awaitBody<Map<String, Any>>()
-                .getMapOrException("categoryDescriptions")
+        logger.debug { "Time Taken for getLabelCategories for $currentUser --->${response.second}" }
+        return response.first
     }
 
 }

@@ -1,0 +1,86 @@
+{
+  "responses": [
+    {
+      "id": "1",
+      "status": 403,
+      "headers": {
+        "Cache-Control": "no-cache"
+      },
+      "body": {
+        "error": {
+          "code": "",
+          "message": "You do not have the required permissions to access this item.",
+          "innerError": {
+            "request-id": "360c406c-73f8-43d7-bd70-0346bf4ba904",
+            "date": "2020-02-06T06:18:20"
+          }
+        }
+      }
+    },
+    {
+      "id": "4",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-cache",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(microsoft.graph.plannerTask)",
+        "@odata.count": 1,
+        "value": [
+          {
+            "@odata.etag": "W/\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\"",
+            "planId": "BODd529VLk6cwGeF35O4L2QAHS4b",
+            "bucketId": "RGg1_hfVEUmlH2cyaJ9EF2QANnmw",
+            "taskMetaInfo": {
+              "groupId": "1",
+              "bucketId": "RGg1_hfVEUmlH2cyaJ9EF2QANnmw",
+              "planName": "",
+              "bucketName": "bucket one"
+            },
+            "title": "Get graph api",
+            "orderHint": "8586293523172297582PH",
+            "assigneePriority": "",
+            "percentComplete": 0,
+            "startDateTime": "1970-01-01T00:00:00Z",
+            "createdDateTime": "2019-10-28T09:23:48.3259841Z",
+            "dueDateTime": "2019-11-13T10:00:00Z",
+            "hasDescription": false,
+            "previewType": "automatic",
+            "completedDateTime": null,
+            "completedBy": null,
+            "referenceCount": 0,
+            "checklistItemCount": 0,
+            "activeChecklistItemCount": 0,
+            "conversationThreadId": null,
+            "priority": 5,
+            "id": "evCy5UXMrkCrlVu3g4wx2mQAFC9-",
+            "createdBy": {
+              "user": {
+                "displayName": null,
+                "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+              }
+            },
+            "appliedCategories": {
+              "category1" : true
+            },
+            "assignments": {
+              "3fca3578-eee3-4f5d-b62d-47d17f3cce3a": {
+                "@odata.type": "#microsoft.graph.plannerAssignment",
+                "assignedDateTime": "2019-10-28T09:23:48.3259841Z",
+                "orderHint": "8586293523172297582P*",
+                "assignedBy": {
+                  "user": {
+                    "displayName": null,
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

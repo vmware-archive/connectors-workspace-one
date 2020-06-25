@@ -1,0 +1,272 @@
+{
+  "@odata.context": "https://graph.microsoft.com/beta/$metadata#planner/tasks('kNv2mexZ40uX8IcaEy8IV2QANoHe')/details/$entity",
+  "@odata.etag": "W/\"JzEtVGFza0RldGFpbHMgQEBAQEBAQEBAQEBAQEBDbCc=\"",
+  "description": "hello",
+  "previewType": "noPreview",
+  "id": "kNv2mexZ40uX8IcaEy8IV2QANoHe",
+  "references": {
+
+  },
+  "checklist": {
+    "26180": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "85862814:I",
+      "lastModifiedDateTime": "2019-11-11T07:22:17.0641415Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "29424": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "85862814J$",
+      "lastModifiedDateTime": "2019-11-11T07:22:40.3734545Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "36808": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "85862814<=",
+      "lastModifiedDateTime": "2019-11-11T07:22:44.0017112Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "40229": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": false,
+      "title": "b",
+      "orderHint": "8586281500Yh",
+      "lastModifiedDateTime": "2019-11-11T07:20:42.1536313Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "45753": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": false,
+      "title": "j5k",
+      "orderHint": "85862814\\:",
+      "lastModifiedDateTime": "2019-11-11T07:21:46.1422934Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "53796": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "858628149=5",
+      "lastModifiedDateTime": "2019-11-11T07:22:35.4548384Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "63418": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": false,
+      "title": "nn",
+      "orderHint": "8586281500F6",
+      "lastModifiedDateTime": "2019-11-11T07:20:43.9358882Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "64092": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "85862814mD",
+      "lastModifiedDateTime": "2019-11-11T07:22:50.736108Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "65425": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "85862814=~",
+      "lastModifiedDateTime": "2019-11-11T07:22:37.7673255Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "65860": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "858628149;K",
+      "lastModifiedDateTime": "2019-11-11T07:22:19.6101966Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "70115": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "8586281499;p",
+      "lastModifiedDateTime": "2019-11-11T07:22:29.1834642Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "76535": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "85862814An",
+      "lastModifiedDateTime": "2019-11-11T07:22:38.82661Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "83360": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "858628149:;",
+      "lastModifiedDateTime": "2019-11-11T07:22:48.0321124Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "83954": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "8586281499@{",
+      "lastModifiedDateTime": "2019-11-11T07:22:29.9143911Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "84244": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "858628149Jb",
+      "lastModifiedDateTime": "2019-11-11T07:22:17.9079216Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "84915": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "858628149\\r",
+      "lastModifiedDateTime": "2019-11-11T07:22:17.527144Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "90886": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "8586281499IK",
+      "lastModifiedDateTime": "2019-11-11T07:22:31.0016908Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "92677": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": false,
+      "title": "vvv",
+      "orderHint": "8586281501052448329Ps",
+      "lastModifiedDateTime": "2019-11-11T07:20:40.2640322Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "99256": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": true,
+      "title": "b",
+      "orderHint": "858628149A;",
+      "lastModifiedDateTime": "2019-11-11T07:22:18.3205332Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    },
+    "99471": {
+      "@odata.type": "#microsoft.graph.plannerChecklistItem",
+      "isChecked": false,
+      "title": "bbb",
+      "orderHint": "85862814999z",
+      "lastModifiedDateTime": "2019-11-11T07:22:00.5271034Z",
+      "lastModifiedBy": {
+        "user": {
+          "displayName": null,
+          "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62"
+        }
+      }
+    }
+  }
+}

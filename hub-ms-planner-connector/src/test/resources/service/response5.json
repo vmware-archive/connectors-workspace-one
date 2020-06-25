@@ -1,0 +1,120 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Microsoft Planner Assist",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Microsoft Planner - Task reminder",
+        "subtitle": [
+          "Task due today"
+        ],
+        "links": {
+          "title": "",
+          "subtitle": [
+            "https://tasks.office.com/Home/Planner#/plantaskboard?groupId=1&planId=BODd529VLk6cwGeF35O4L2QAHS4b&taskId=evCy5UXMrkCrlVu3g4wx2mQAFC9-"
+          ]
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Task Name",
+            "description": "Get graph api"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Bucket",
+            "description": "bucket one"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Status(Progress)",
+            "description": "Not started"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Priority",
+            "description": "Medium"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Notes",
+            "description": "hello"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Start Date",
+            "description": "Thu 01-Jan-70"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Due Date",
+            "description": "Fri 29-May-20"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Label",
+            "description": "category1"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Complete",
+          "url": {
+            "href": "https://hero/connectors/ms_planner/planner/tasks/evCy5UXMrkCrlVu3g4wx2mQAFC9-/mark/completed"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "actionType": "markAsCompleted",
+            "task": "{\"@odata.etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\",\"id\":\"evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"planId\":\"BODd529VLk6cwGeF35O4L2QAHS4b\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"conversationThreadId\":\"thread123\",\"createdDateTime\":\"2019-10-28T09:23:48.3259841Z\",\"startDateTime\":\"1970-01-01T00:00:00Z\",\"dueDateTime\":\"2020-05-29T10:53:34Z\",\"title\":\"Get graph api\",\"percentComplete\":0,\"priority\":5,\"referenceCount\":0,\"assignments\":{\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\":{\"assignedBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"assignedDateTime\":\"2019-10-28T09:23:48.3259841Z\"}},\"createdBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"taskMetaInfo\":{\"groupId\":\"1\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"planName\":\"\",\"bucketName\":\"bucket one\"},\"userId\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\",\"appliedCategories\":{\"category1\":\"true\"},\"categoryMap\":{\"category1\":null,\"category2\":null,\"category3\":null,\"category4\":null,\"category5\":null,\"category6\":null},\"groupId\":\"1\",\"url\":\"https://tasks.office.com/Home/Planner#/plantaskboard?groupId=1&planId=BODd529VLk6cwGeF35O4L2QAHS4b&taskId=evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\"}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Comments before completing the task",
+              "format": "text"
+            }
+          ],
+          "completed_label": "Completed",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "COMPLETE_TASK"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Comment",
+          "url": {
+            "href": "https://hero/connectors/ms_planner/planner/tasks/evCy5UXMrkCrlVu3g4wx2mQAFC9-/comment"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {
+            "actionType": "addComment",
+            "task": "{\"@odata.etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\",\"id\":\"evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"planId\":\"BODd529VLk6cwGeF35O4L2QAHS4b\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"conversationThreadId\":\"thread123\",\"createdDateTime\":\"2019-10-28T09:23:48.3259841Z\",\"startDateTime\":\"1970-01-01T00:00:00Z\",\"dueDateTime\":\"2020-05-29T10:53:34Z\",\"title\":\"Get graph api\",\"percentComplete\":0,\"priority\":5,\"referenceCount\":0,\"assignments\":{\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\":{\"assignedBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"assignedDateTime\":\"2019-10-28T09:23:48.3259841Z\"}},\"createdBy\":{\"conversation\":null,\"user\":{\"displayName\":null,\"id\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\"}},\"taskMetaInfo\":{\"groupId\":\"1\",\"bucketId\":\"RGg1_hfVEUmlH2cyaJ9EF2QANnmw\",\"planName\":\"\",\"bucketName\":\"bucket one\"},\"userId\":\"3fca3578-eee3-4f5d-b62d-47d17f3cce3a\",\"appliedCategories\":{\"category1\":\"true\"},\"categoryMap\":{\"category1\":null,\"category2\":null,\"category3\":null,\"category4\":null,\"category5\":null,\"category6\":null},\"groupId\":\"1\",\"url\":\"https://tasks.office.com/Home/Planner#/plantaskboard?groupId=1&planId=BODd529VLk6cwGeF35O4L2QAHS4b&taskId=evCy5UXMrkCrlVu3g4wx2mQAFC9-\",\"etag\":\"W/\\\"JzEtVGFzayAgQEBAQEBAQEBAQEBAQEBASCc=\\\"\"}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Provide your comments here",
+              "format": "text"
+            }
+          ],
+          "completed_label": "Commented",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "COMMENT_ON_TASK"
+        }
+      ],
+      "image": {
+        "href": "/images/connector.png"
+      },
+      "backend_id": "00000000-0000-0000-0000-000000000000",
+      "hash": "00000000-0000-0000-0000-000000000000"
+    }
+  ]
+}

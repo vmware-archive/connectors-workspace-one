@@ -1,12 +1,18 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msPlanner.controller
 
 import com.vmware.connectors.common.payloads.response.Cards
+import com.vmware.connectors.msPlanner.config.AUTHORIZATION
+import com.vmware.connectors.msPlanner.config.CONNECTOR_AUTH_MESSAGE_HEADER
+import com.vmware.connectors.msPlanner.config.CONNECTOR_BASE_URL_PLANNER_HEADER
+import com.vmware.connectors.msPlanner.config.MESSAGE_ROUTING_PREFIX
 import com.vmware.connectors.msPlanner.dto.TaskInfo
 import com.vmware.connectors.msPlanner.service.MsPlannerBackendService
-import com.vmware.connectors.msPlanner.utils.CardUtils
-import com.vmware.connectors.msPlanner.utils.addCards
-import com.vmware.connectors.msPlanner.utils.buildUserCard
-import com.vmware.connectors.msPlanner.utils.getLogger
+import com.vmware.connectors.msPlanner.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.CREATED
@@ -14,17 +20,12 @@ import org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
 import javax.validation.Valid
 
-const val CONNECTOR_AUTH_MESSAGE_HEADER = "X-Connector-Authorization"
-const val MESSAGE_ROUTING_PREFIX = "x-routing-prefix"
-const val AUTHORIZATION = "Authorization"
-const val CONNECTOR_BASE_URL_TEAMS_HEADER = "X-Connector-Base-Url"
 
 /**
  * Card Actions Rest API Controller
@@ -39,8 +40,8 @@ const val CONNECTOR_BASE_URL_TEAMS_HEADER = "X-Connector-Base-Url"
  */
 @RestController
 class CardsActionsController(
-    @Autowired private val service: MsPlannerBackendService,
-    @Autowired private val cardUtils: CardUtils
+        @Autowired private val service: MsPlannerBackendService,
+        @Autowired private val cardUtils: CardUtils
 ) {
     private val logger = getLogger()
 
@@ -60,35 +61,35 @@ class CardsActionsController(
             @RequestHeader(name = AUTHORIZATION) token: String,
             @RequestHeader(name = CONNECTOR_AUTH_MESSAGE_HEADER) authorization: String,
             @RequestHeader(name = MESSAGE_ROUTING_PREFIX) routingPrefix: String,
-            @RequestHeader(name = CONNECTOR_BASE_URL_TEAMS_HEADER) baseUrl: String,
+            @RequestHeader(name = CONNECTOR_BASE_URL_PLANNER_HEADER) baseUrl: String,
             locale: Locale,
             request: ServerHttpRequest
     ): ResponseEntity<Any> {
-        val userEmail = service.getUserEmailFromToken(token)
         val currentUserEmail = service.getO365UserEmailFromToken(authorization, baseUrl)
+        val response = measureTimeMillisPair {
+            val userEmail = VmwareUtils.getUserEmailFromToken(token)
 
-        logger.info { "Building cards for user -> $userEmail with $currentUserEmail" }
+            logger.info { "Building cards for user -> $userEmail with $currentUserEmail" }
 
-        val timeZone = service.getUserTimeZone(authorization, baseUrl) ?: "UTC"
+            val timeZone = service.getUserTimeZone(authorization, baseUrl, currentUserEmail) ?: "UTC"
+            val tasks = service.getFilteredTasks(authorization, baseUrl, currentUserEmail)
 
-        val tasks = service.getTasks(authorization, baseUrl)
+            logger.info { "Tasks:  ${tasks.count()}" }
 
-        logger.info { "Tasks:  ${tasks.count()}" }
+            val userTasks = service.getUserIdToAssignedTasks(tasks, timeZone)
 
-        val userTasks = service.getUserTasks(tasks)
+            logger.info { "TasksDueToday: ${userTasks.second.count()}" }
 
-        logger.info { "TasksDueToday: ${userTasks.second.count()}" }
+            if (userTasks.first != null)
+                userTasks.second.map { task ->
+                    task.buildUserCard(request, routingPrefix, locale, cardUtils, timeZone, service, authorization, baseUrl, currentUserEmail)
+                }
+            else emptyList()
+        }
+        logger.info { "cards count for $currentUserEmail-> ${response.first.count()}" }
+        logger.info { "total time taken for cards request for $currentUserEmail--->${response.second}" }
 
-        val userName = userTasks.first?.let { service.getUserNameFromUserId(authorization, it, baseUrl) }
-        val cards = userName?.let {
-            userTasks.second.map { task ->
-                task.buildUserCard(request, routingPrefix, locale, cardUtils, userName, timeZone, service, authorization, baseUrl)
-            }
-        } ?: emptyList()
-
-        logger.info { "cards -> ${cards.count()}" }
-
-        return ResponseEntity.ok(Cards().addCards(cards))
+        return ResponseEntity.ok(Cards().addCards(response.first))
     }
 
 
@@ -96,22 +97,20 @@ class CardsActionsController(
      * REST endpoint for adding user mentioned comment to the planner task
      *
      * @param authorization: Connector backend system authorization key
-     * @param taskId: taskId path variable
+     * @param baseUrl: Connector base url that is passed as a header(X-Connector-Base-Url) in the request
      * @param request: [TaskInfo], task payload.
-     * @param cardType : task card type, request param
      * @return ResponseEntity<Any>
      */
     @PostMapping(path = ["/planner/tasks/{taskId}/comment"], consumes = [APPLICATION_FORM_URLENCODED_VALUE])
     suspend fun addCommentToTask(
             @RequestHeader(name = CONNECTOR_AUTH_MESSAGE_HEADER) authorization: String,
-            @RequestHeader(name = CONNECTOR_BASE_URL_TEAMS_HEADER) baseUrl: String,
-            @PathVariable taskId: String,
+            @RequestHeader(name = CONNECTOR_BASE_URL_PLANNER_HEADER) baseUrl: String,
             @Valid request: TaskInfo
 
     ): ResponseEntity<Any> {
         val currentUserEmail = service.getO365UserEmailFromToken(authorization, baseUrl)
         logger.info { " addCommentToTask started -> $currentUserEmail" }
-        val success = service.addCommentsToTask(authorization, baseUrl, request.taskObj, request.comments)
+        val success = service.addCommentToTask(authorization, baseUrl, request.taskObj, request.comments)
         logger.info { " addCommentToTask status -> $success" }
         return ResponseEntity.status(CREATED).build()
     }
@@ -120,22 +119,20 @@ class CardsActionsController(
      * REST endpoint for adding user mentioned comment to the planner task
      *
      * @param authorization: Connector backend system authorization key
-     * @param taskId: taskId path variable
+     * @param baseUrl: Connector base url that is passed as a header(X-Connector-Base-Url) in the request
      * @param request: [TaskInfo], task payload.
-     * @param cardType : task card type, request param
      * @return ResponseEntity<Any>
      */
     @PostMapping(path = ["/planner/tasks/{taskId}/mark/completed"], consumes = [APPLICATION_FORM_URLENCODED_VALUE])
     suspend fun markTaskAsCompleted(
             @RequestHeader(name = CONNECTOR_AUTH_MESSAGE_HEADER) authorization: String,
-            @RequestHeader(name = CONNECTOR_BASE_URL_TEAMS_HEADER) baseUrl: String,
-            @PathVariable taskId: String,
+            @RequestHeader(name = CONNECTOR_BASE_URL_PLANNER_HEADER) baseUrl: String,
             @Valid request: TaskInfo
 
     ): ResponseEntity<Any> {
         val currentUserEmail = service.getO365UserEmailFromToken(authorization, baseUrl)
         logger.info { "markTaskAsCompleted started -> $currentUserEmail" }
-        val commentSuccess = service.addCommentsToTask(authorization, baseUrl, request.taskObj, request.comments)
+        val commentSuccess = service.addCommentToTask(authorization, baseUrl, request.taskObj, request.comments)
         val completedSuccess = service.markTaskAsCompleted(authorization, baseUrl, request.taskObj)
         logger.info { "markTaskAsCompleted status -> $commentSuccess, $completedSuccess" }
         return ResponseEntity.status(CREATED).build()
@@ -145,12 +142,13 @@ class CardsActionsController(
      * REST endpoint for dismissing planner tasks card
 
      * @param authorization: Connector backend system authorization key
+     * @param baseUrl: Connector base url that is passed as a header(X-Connector-Base-Url) in the request
      * @return ResponseEntity<Any>
      */
-    @PostMapping(path = ["/planner/{cardType}/dismiss"], consumes = [APPLICATION_FORM_URLENCODED_VALUE])
+    @PostMapping(path = ["/planner/user/dismiss"], consumes = [APPLICATION_FORM_URLENCODED_VALUE])
     suspend fun dismissCard(
             @RequestHeader(name = CONNECTOR_AUTH_MESSAGE_HEADER) authorization: String,
-            @RequestHeader(name = CONNECTOR_BASE_URL_TEAMS_HEADER) baseUrl: String
+            @RequestHeader(name = CONNECTOR_BASE_URL_PLANNER_HEADER) baseUrl: String
     ): ResponseEntity<Any> {
         val currentUserEmail = service.getO365UserEmailFromToken(authorization, baseUrl)
         logger.info { "Dismissed card for -> $currentUserEmail" }

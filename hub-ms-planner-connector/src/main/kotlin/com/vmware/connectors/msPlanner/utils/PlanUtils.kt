@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msPlanner.utils
 
 import com.vmware.connectors.msPlanner.config.Endpoints
@@ -6,14 +11,14 @@ import org.jsoup.Jsoup
 import org.springframework.http.HttpMethod
 
 /**
- * This function will return the single batch request.
+ * Builds the individual batch request.
  *
  * @param id is the identity of the request
  * @param method is the http method to be called
  * @param url is the url of the end point
  * @returns the single request for batch
  */
-fun getSingleBatchRequest(
+fun buildIndividualBatchRequest(
         id: String,
         method: String,
         url: String
@@ -26,16 +31,16 @@ fun getSingleBatchRequest(
 }
 
 /**
- * This function will return the PlanRequestBatchBody
+ * builds the Plan Batch Body
  *
- * @param groupIds is the ids of the users groups
- * @returns the batch request body
+ * @param groupIds is the list of Ids of the user groups
+ * @returns the batch request body build from [groupIds]
  */
-fun getPlanBatchBody(
+fun buildPlanBatchBody(
         groupIds: List<String>
 ): List<Map<String, String>> {
     return groupIds.map { groupId ->
-        getSingleBatchRequest(
+        buildIndividualBatchRequest(
                 groupId,
                 HttpMethod.GET.name,
                 Endpoints.getPlanBatchBodyUrl(groupId)
@@ -44,18 +49,18 @@ fun getPlanBatchBody(
 }
 
 /**
- * This function will return the BucketRequestBatchBody.
+ * builds the BucketRequestBatchBody.
  *
- * @param planDetails is the details of plans in which each element
+ * @param planDetails is the list of plan Details of the user.
  *  contains planId and groupId separated with space.
- * @returns the batch request body
+ * @returns the batch request body for bucket batch request
  */
-fun getBucketBatchBody(
+fun buildBucketBatchBody(
         planDetails: List<String>
 ): List<Map<String, String>> {
     return planDetails.map { planDetail ->
         val list = planDetail.split(" ")
-        getSingleBatchRequest(
+        buildIndividualBatchRequest(
                 planDetail,
                 HttpMethod.GET.name,
                 Endpoints.getBucketBatchBodyUrl(list[1])
@@ -64,17 +69,17 @@ fun getBucketBatchBody(
 }
 
 /**
- * This function will return the PlanRequestBatchBody.
+ * builds the TaskRequestBatchBody.
  *
- * @param taskMetaInfos is the list of serialized TaskMetaInfo object
- * @returns the batch request body
+ * @param taskMetaInfos is the list of serialized TaskMetaInfo objects
+ * @returns the batch request body for task batch t=request
  */
-fun getTaskBatchBody(
+fun buildTaskBatchBody(
         taskMetaInfos: List<String>
 ): List<Map<String, String>> {
     return taskMetaInfos.map { taskMetaInfoString ->
         val taskMetaInfo = JsonParser.deserialize<TaskMetaInfo>(taskMetaInfoString)
-        getSingleBatchRequest(
+        buildIndividualBatchRequest(
                 taskMetaInfo.bucketId,
                 HttpMethod.GET.name,
                 Endpoints.getTaskBatchBodyUrl(taskMetaInfo.bucketId)
@@ -83,13 +88,13 @@ fun getTaskBatchBody(
 }
 
 /**
- * This function will return the ConversationThread Body.
+ * builds the ConversationThread request Body.
  *
  * @param taskName is the title of the task
  * @param comment is the message to be added
- * @returns the body of the conversation Thread.
+ * @returns the body of the conversation Thread request.
  */
-fun getConversationThreadBody(
+fun buildConversationThreadBody(
         taskName: String,
         comment: String
 ): Map<String, Any> {
@@ -110,12 +115,12 @@ fun getConversationThreadBody(
 }
 
 /**
- * This function will return the AddComments Body.
+ * builds  the add comment to task request Body.
  *
  * @param message is the message to be sent
- * @returns the AddComments body.
+ * @returns the add comment to task request body.
  */
-fun getAddCommentsToTaskBody(
+fun buildAddCommentsToTaskBody(
         message: String
 ): Map<String, Any> {
     return mapOf(
@@ -132,34 +137,15 @@ fun getAddCommentsToTaskBody(
  * this function takes the HTML Page Content and returns the
  *  Required Content
  *
- *  @param string is the HTML Page Content
+ *  @param html is the HTML Page Content
  *  @returns the required Content
  */
-fun getStringExtractedFromHtml(string: String): String {
-    val document = Jsoup.parse(string)
-    document.getElementById("jSanity_hideInPlanner")?.remove() ?: return document.text()
-    document.getElementsByTag("span")?.remove()
+fun getStringExtractedFromHtml(html: String): String {
+    val document = Jsoup.parse(html)
+    document.select("table").remove()
+    document.select("span").remove()
     return document.text()
-}
-
-/**
- * this function will generate the HTML document
- *
- * @param list List containing name and Comment
- * @returns the HTML document
- */
-fun generateHtmlFromComments(list: List<Pair<String, String>>): String {
-    val prefix = "<html>\n" +
-            "<body>\n" +
-            "<table>\n"
-    val suffix = "</tr>\n" +
-            "</table>\n" +
-            "\n" +
-            "</body>\n" +
-            "</html>"
-    return list.joinToString(prefix = prefix, postfix = suffix, separator = "\n") {
-        "<tr>\n" +
-                " <td > ${it.first}&nbsp:&nbsp${it.second} </td>\n\n" +
-                " </tr>"
-    }
+            .replace("\\r\\n", "")
+            .replace("\\n", "")
+            .trim()
 }

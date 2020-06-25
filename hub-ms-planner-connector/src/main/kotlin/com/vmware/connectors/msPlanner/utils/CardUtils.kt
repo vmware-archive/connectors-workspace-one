@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msPlanner.utils
 
 import com.vmware.connectors.common.payloads.response.CardActionInputField
@@ -12,6 +17,11 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import java.util.*
 
+/**
+ * CardUtils Class
+ *
+ * @property cardTextAccessor Internationalization module that is used while preparing cards.
+ */
 @Component
 class CardUtils(
         @Autowired val cardTextAccessor: CardTextAccessor
@@ -20,10 +30,10 @@ class CardUtils(
     /**
      * Card Action Input Field Builder
      *
-     * @param id: action user input field id
-     * @param format: action user input field format. Example values are text, textarea, date, etc..
-     * @param labelKey: field literal key
-     * @param locale: User Locale
+     * @param id action user input field id
+     * @param format action user input field format. Example values are text, textarea, date, etc..
+     * @param labelKey field literal key
+     * @param locale User Locale
      * @return CardActionInputField
      */
     fun buildUserInputField(id: String, format: String, labelKey: String, locale: Locale?): CardActionInputField {
@@ -38,9 +48,9 @@ class CardUtils(
     /**
      * Builder for CardBodyField
      *
-     * @param titleMessageKey: prefix of field literal key
-     * @param content: field value
-     * @param locale: User locale
+     * @param titleMessageKey prefix of field literal key
+     * @param content field value
+     * @param locale User locale
      * @return CardBodyField
      */
     fun buildGeneralBodyField(titleMessageKey: String, content: String, locale: Locale?): CardBodyField? {
@@ -56,9 +66,9 @@ class CardUtils(
     /**
      * Builder for CardBodyField
      *
-     * @param titleMessageKey: prefix of field literal key
-     * @param attachments: Attachments List
-     * @param locale: User locale
+     * @param titleMessageKey prefix of field literal key
+     * @param attachments Attachments List
+     * @param locale User locale
      * @return CardBodyField
      */
     fun buildAttachmentBodyField(
@@ -83,8 +93,8 @@ class CardUtils(
     /**
      * Builder for CardBodyField
      *
-     * @param fileName: Name of the Attachment
-     * @param attachmentUrl: Attachment Url
+     * @param fileName Name of the Attachment
+     * @param attachmentUrl Attachment Url
      * @return CardBodyFieldItem
      */
     private fun buildAttachmentBodyFieldItem(
@@ -102,4 +112,48 @@ class CardUtils(
                 .build()
     }
 
+    /**
+     * Builder for CardBodyField
+     *
+     * @param titleMessageKey prefix of field literal key.
+     * @param comments List of SenderName to Comment Pair.
+     * @param locale User locale
+     * @return CardBodyField
+     */
+    fun buildCommentBodyField(
+            titleMessageKey: String,
+            comments: List<Pair<String, String>>,
+            locale: Locale?
+    ): CardBodyField? {
+        return if (comments.isEmpty()) {
+            null
+        } else {
+            val commentField = CardBodyField.Builder()
+                    .setTitle(cardTextAccessor.getMessage("$titleMessageKey.title", locale))
+                    .setType(CardBodyFieldType.SECTION)
+            comments.map { (name, comment) ->
+                val fieldItem = buildCommentBodyFieldItem(name, comment)
+                commentField.addItem(fieldItem)
+            }
+            return commentField.build()
+        }
+    }
+
+    /**
+     * Builder for CardBodyField
+     *
+     * @param name Name of the Sender
+     * @param comment Comment Body
+     * @return CardBodyFieldItem
+     */
+    private fun buildCommentBodyFieldItem(
+            name: String,
+            comment: String
+    ): CardBodyFieldItem {
+        return CardBodyFieldItem.Builder()
+                .setTitle(name)
+                .setDescription(comment)
+                .setType(CardBodyFieldType.GENERAL)
+                .build()
+    }
 }
