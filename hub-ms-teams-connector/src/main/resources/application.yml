@@ -13,3 +13,6 @@ management:
   trace:
     http:
       include: REQUEST_HEADERS, RESPONSE_HEADERS, PRINCIPAL, REMOTE_ADDRESS, TIME_TAKEN
+
+logging:
+  config: 'classpath:logback-json.xml'

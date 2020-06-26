@@ -1,0 +1,2572 @@
+{
+  "responses": [
+    {
+      "id": "28146088-6522-4459-9a52-295772efd51c 19:f3d807c3008d4da69076c2031b91a0c7@thread.skype",
+      "status": 200,
+      "headers": {
+        "Preference-Applied": "odata.track-changes",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(chatMessage)",
+        "@odata.nextLink": "https://graph.microsoft.com/beta//teams/28146088-6522-4459-9a52-295772efd51c/channels/19:f3d807c3008d4da69076c2031b91a0c7@thread.skype/messages/delta?$skiptoken=J6CZl26afWmrC2uN-k8ggYS78Oik4rZ7kjgwxZ3iGkjxEiFow8FRTi6rvPPoQ2U8jP0jiyaesJ6x7rXpGWX33UWhLDEKzMLMWA6PhSZrSyG8BrDytpfd7PvgK35-pH7htg5A6prTn2UEE1gsHy02UWnEMNB2cqz1Q13hDMWyDc5IIKvpmX1WmjSPXbc6z_-31acX__Flur5X0ExJ66sMEw.YyVgZYyk0Wr3ihsRnXXeoBpbgyLJVfES-mDwH3NmX1M",
+        "value": []
+      }
+    },
+    {
+      "id": "28146088-6522-4459-9a52-295772efd51c 19:e1becf60bba7435c87ea111fb9f4c9ab@thread.skype",
+      "status": 200,
+      "headers": {
+        "Preference-Applied": "odata.track-changes",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(chatMessage)",
+        "@odata.nextLink": "https://graph.microsoft.com/beta//teams/28146088-6522-4459-9a52-295772efd51c/channels/19:e1becf60bba7435c87ea111fb9f4c9ab@thread.skype/messages/delta?$skiptoken=J6CZl26afWmrC2uN-k8ggYS78Oik4rZ7kjgwxZ3iGkjxEiFow8FRTi6rvPPoQ2U8jP0jiyaesJ6x7rXpGWX33UWhLDEKzMLMWA6PhSZrSyG8BrDytpfd7PvgK35-pH7htg5A6prTn2UEE1gsHy02UWnEMNB2cqz1Q13hDMWyDc5IIKvpmX1WmjSPXbc6z_-31acX__Flur5X0ExJ66sMEw.YyVgZYyk0Wr3ihsRnXXeoBpbgyLJVfES-mDwH3NmX1M",
+        "value": []
+      }
+    },
+    {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0 19:4b925b0984cb4d55a23aef477cac5d41@thread.skype",
+      "status": 200,
+      "headers": {
+        "Preference-Applied": "odata.track-changes",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(chatMessage)",
+        "@odata.nextLink": "https://graph.microsoft.com/beta//teams/1916d546-b1b2-4662-928f-321b9999cda0/channels/19:4b925b0984cb4d55a23aef477cac5d41@thread.skype/messages/delta?$skiptoken=J6CZl26afWmrC2uN-k8ggYS78Oik4rZ7kjgwxZ3iGkjxEiFow8FRTi6rvPPoQ2U8jP0jiyaesJ6x7rXpGWX33UWhLDEKzMLMWA6PhSZrSyG8BrDytpfd7PvgK35-pH7htg5A6prTn2UEE1gsHy02UWnEMNB2cqz1Q13hDMWyDc5IIKvpmX1WmjSPXbc6z_-31acX__Flur5X0ExJ66sMEw.YyVgZYyk0Wr3ihsRnXXeoBpbgyLJVfES-mDwH3NmX1M",
+        "value": []
+      }
+    },
+    {
+      "id": "710a71e3-8b69-4b27-8e73-13c0e19a6449 19:452315ba334b46c29e48cc174cf2e765@thread.skype",
+      "status": 200,
+      "headers": {
+        "Preference-Applied": "odata.track-changes",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(chatMessage)",
+        "@odata.nextLink": "https://graph.microsoft.com/beta//teams/710a71e3-8b69-4b27-8e73-13c0e19a6449/channels/19:452315ba334b46c29e48cc174cf2e765@thread.skype/messages/delta?$skiptoken=J6CZl26afWmrC2uN-k8ggYS78Oik4rZ7kjgwxZ3iGkjxEiFow8FRTi6rvPPoQ2U8jP0jiyaesJ6x7rXpGWX33UWhLDEKzMLMWA6PhSZrSyG8BrDytpfd7PvgK35-pH7htg5A6prTn2UEE1gsHy02UWnEMNB2cqz1Q13hDMWyDc5IIKvpmX1WmjSPXbc6z_-31acX__Flur5X0ExJ66sMEw.YyVgZYyk0Wr3ihsRnXXeoBpbgyLJVfES-mDwH3NmX1M",
+        "value": []
+      }
+    },
+    {
+      "id": "c7a5329b-040b-41d2-9126-d5084a4b5148 19:d2449322470b4f9a8d44eda1b32fc03e@thread.skype",
+      "status": 200,
+      "headers": {
+        "Preference-Applied": "odata.track-changes",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(chatMessage)",
+        "@odata.nextLink": "https://graph.microsoft.com/beta//teams/c7a5329b-040b-41d2-9126-d5084a4b5148/channels/19:d2449322470b4f9a8d44eda1b32fc03e@thread.skype/messages/delta?$skiptoken=J6CZl26afWmrC2uN-k8ggYS78Oik4rZ7kjgwxZ3iGkjxEiFow8FRTi6rvPPoQ2U8jP0jiyaesJ6x7rXpGWX33UWhLDEKzMLMWA6PhSZrSyG8BrDytpfd7PvgK35-pH7htg5A6prTn2UEE1gsHy02UWnEMNB2cqz1Q13hDMWyDc5IIKvpmX1WmjSPXbc6z_-31acX__Flur5X0ExJ66sMEw.YyVgZYyk0Wr3ihsRnXXeoBpbgyLJVfES-mDwH3NmX1M",
+        "value": []
+      }
+    },
+    {
+      "id": "d8786029-7608-408f-9ec3-386b27d5c0b9 19:f55e2414857f47deaf459515799ca0b5@thread.skype",
+      "status": 200,
+      "headers": {
+        "Preference-Applied": "odata.track-changes",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(chatMessage)",
+        "@odata.nextLink": "https://graph.microsoft.com/beta//teams/d8786029-7608-408f-9ec3-386b27d5c0b9/channels/19:f55e2414857f47deaf459515799ca0b5@thread.skype/messages/delta?$skiptoken=J6CZl26afWmrC2uN-k8ggYS78Oik4rZ7kjgwxZ3iGkjxEiFow8FRTi6rvPPoQ2U8jP0jiyaesJ6x7rXpGWX33UWhLDEKzMLMWA6PhSZrSyG8BrDytpfd7PvgK35-pH7htg5A6prTn2UEE1gsHy02UWnEMNB2cqz1Q13hDMWyDc5IIKvpmX1WmjSPXbc6z_-31acX__Flur5X0ExJ66sMEw.YyVgZYyk0Wr3ihsRnXXeoBpbgyLJVfES-mDwH3NmX1M",
+        "value": []
+      }
+    },
+    {
+      "id": "c7a5329b-040b-41d2-9126-d5084a4b5148 19:a080fda09f6241709a7e89df5afdff4f@thread.skype",
+      "status": 200,
+      "headers": {
+        "Preference-Applied": "odata.track-changes",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(chatMessage)",
+        "@odata.nextLink": "https://graph.microsoft.com/beta//teams/c7a5329b-040b-41d2-9126-d5084a4b5148/channels/19:a080fda09f6241709a7e89df5afdff4f@thread.skype/messages/delta?$skiptoken=J6CZl26afWmrC2uN-k8ggYS78Oik4rZ7kjgwxZ3iGkjxEiFow8FRTi6rvPPoQ2U8jP0jiyaesJ6x7rXpGWX33UWhLDEKzMLMWA6PhSZrSyG8BrDytpfd7PvgK35-pH7htg5A6prTn2UEE1gsHy02UWnEMNB2cqz1Q13hDMWyDc5IIKvpmX1WmjSPXbc6z_-31acX__Flur5X0ExJ66sMEw.YyVgZYyk0Wr3ihsRnXXeoBpbgyLJVfES-mDwH3NmX1M",
+        "value": []
+      }
+    },
+    {
+      "id": "1916d546-b1b2-4662-928f-321b9999cda0 19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype",
+      "status": 200,
+      "headers": {
+        "Preference-Applied": "odata.track-changes",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(chatMessage)",
+        "@odata.nextLink": "https://graph.microsoft.com/beta//teams/1916d546-b1b2-4662-928f-321b9999cda0/channels/19:15cf5d1ae521479eba0a86bf0b5b1bf2@thread.skype/messages/delta?$skiptoken=J6CZl26afWmrC2uN-k8ggYS78Oik4rZ7kjgwxZ3iGkjxEiFow8FRTi6rvPPoQ2U8jP0jiyaesJ6x7rXpGWX33UWhLDEKzMLMWA6PhSZrSyG8BrDytpfd7PvgK35-pH7htg5A6prTn2UEE1gsHy02UWnEMNB2cqz1Q13hDMWyDc5IIKvpmX1WmjSPXbc6z_-31acX__Flur5X0ExJ66sMEw.YyVgZYyk0Wr3ihsRnXXeoBpbgyLJVfES-mDwH3NmX1M",
+        "value": []
+      }
+    },
+    {
+      "id": "710a71e3-8b69-4b27-8e73-13c0e19a6449 19:04c2f31188ab427aa8dc67e122a59ade@thread.skype",
+      "status": 200,
+      "headers": {
+        "Preference-Applied": "odata.track-changes",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(chatMessage)",
+        "@odata.nextLink": "https://graph.microsoft.com/beta//teams/710a71e3-8b69-4b27-8e73-13c0e19a6449/channels/19:04c2f31188ab427aa8dc67e122a59ade@thread.skype/messages/delta?$skiptoken=J6CZl26afWmrC2uN-k8ggYS78Oik4rZ7kjgwxZ3iGkjxEiFow8FRTi6rvPPoQ2U8jP0jiyaesJ6x7rXpGWX33UWhLDEKzMLMWA6PhSZrSyG8BrDytpfd7PvgK35-pH7htg5A6prTn2UEE1gsHy02UWnEMNB2cqz1Q13hDMWyDc5IIKvpmX1WmjSPXbc6z_-31acX__Flur5X0ExJ66sMEw.YyVgZYyk0Wr3ihsRnXXeoBpbgyLJVfES-mDwH3NmX1M",
+        "value": []
+      }
+    },
+    {
+      "id": "28146088-6522-4459-9a52-295772efd51c 19:edc1a6c1be5c4736b7ead64dae9624e3@thread.skype",
+      "status": 200,
+      "headers": {
+        "Preference-Applied": "odata.track-changes",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(chatMessage)",
+        "@odata.nextLink": "https://graph.microsoft.com/beta//teams/28146088-6522-4459-9a52-295772efd51c/channels/19:edc1a6c1be5c4736b7ead64dae9624e3@thread.skype/messages/delta?$skiptoken=J6CZl26afWmrC2uN-k8ggYS78Oik4rZ7kjgwxZ3iGkjxEiFow8FRTi6rvPPoQ2U8f7lp1HNpDnQBxrLV3gYOI5C3Jzu3MKcb9JMuPVOmmkjl0JZlTsFBjZ9-rAHKMAI2Q-erkS6lEd9cUKAfveocEdLROr1RgIqGjVUBrGFC_FoJZBCEgBJCAm5_yV6rf9FsyLLVnuLaRfVozoTptPJrbQ.apGxMqtWn3UUNeBPE83ZiqR5a7OVC489eSKaj21F-qg",
+        "value": [
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1571749328086",
+            "messageType": "message",
+            "createdDateTime": "2019-10-22T13:02:08.086Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1571749328086?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1571749328086&parentMessageId=1571749328086",
+            "policyViolation": null,
+            "id": "1571749328086",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd",
+                "displayName": "Hemanth Kethe",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> hiii</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1571749334626",
+            "messageType": "message",
+            "createdDateTime": "2019-10-22T13:02:14.626Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1571749334626?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1571749334626&parentMessageId=1571749334626",
+            "policyViolation": null,
+            "id": "1571749334626",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd",
+                "displayName": "Hemanth Kethe",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> hello</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570792426510",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T11:13:46.51Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570792426510?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570792426510&parentMessageId=1570792426510",
+            "policyViolation": null,
+            "id": "1570792426510",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "text",
+              "content": "hello testing2"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "28146088-6522-4459-9a52-295772efd51c 19:edc1a6c1be5c4736b7ead64dae9624e3@thread.skype",
+      "status": 200,
+      "headers": {
+        "Preference-Applied": "odata.track-changes",
+        "OData-Version": "4.0",
+        "Content-Type": "application/json;odata.metadata=minimal;odata.streaming=true;IEEE754Compatible=false;charset=utf-8"
+      },
+      "body": {
+        "@odata.context": "https://graph.microsoft.com/beta/$metadata#Collection(chatMessage)",
+        "@odata.nextLink": "https://graph.microsoft.com/beta/teams/28146088-6522-4459-9a52-295772efd51c/channels/19:edc1a6c1be5c4736b7ead64dae9624e3@thread.skype/messages/delta?$skiptoken=J6CZl26afWmrC2uN-k8ggYS78Oik4rZ7kjgwxZ3iGkjxEiFow8FRTi6rvPPoQ2U8f7lp1HNpDnQBxrLV3gYOI5C3Jzu3MKcb9JMuPVOmmkjl0JZlTsFBjZ9-rAHKMAI2Q-erkS6lEd9cUKAfveocEdLROr1RgIqGjVUBrGFC_FoJZBCEgBJCAm5_yV6rf9FsyLLVnuLaRfVozoTptPJrbQ.apGxMqtWn3UUNeBPE83ZiqR5a7OVC489eSKaj21F-qg",
+        "value": [
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1571749328086",
+            "messageType": "message",
+            "createdDateTime": "2019-10-22T13:02:08.086Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1571749328086?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1571749328086&parentMessageId=1571749328086",
+            "policyViolation": null,
+            "id": "1571749328086",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd",
+                "displayName": "Hemanth Kethe",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> hiii</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1571749334626",
+            "messageType": "message",
+            "createdDateTime": "2019-10-22T13:02:14.626Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1571749334626?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1571749334626&parentMessageId=1571749334626",
+            "policyViolation": null,
+            "id": "1571749334626",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd",
+                "displayName": "Hemanth Kethe",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> hello</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570792426510",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T11:13:46.51Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570792426510?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570792426510&parentMessageId=1570792426510",
+            "policyViolation": null,
+            "id": "1570792426510",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "text",
+              "content": "hello testing2"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 5</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh  group1 test 6</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 7</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 8</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 9</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 10</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 11</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 12</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 13</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 14</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 15</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 16</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 18</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          },
+          {
+            "@odata.type": "#microsoft.graph.chatMessage",
+            "replyToId": null,
+            "etag": "1570801823011",
+            "messageType": "message",
+            "createdDateTime": "2019-10-11T13:50:23.011Z",
+            "lastModifiedDateTime": null,
+            "deletedDateTime": null,
+            "subject": "",
+            "summary": null,
+            "importance": "normal",
+            "locale": "en-us",
+            "webUrl": "https://teams.microsoft.com/l/message/19%3Aedc1a6c1be5c4736b7ead64dae9624e3%40thread.skype/1570801823011?groupId=28146088-6522-4459-9a52-295772efd51c&tenantId=b6fbc3af-4616-4899-ab7d-f99d1917fcd6&createdTime=1570801823011&parentMessageId=1570801823011",
+            "policyViolation": null,
+            "id": "1570801823011",
+            "from": {
+              "application": null,
+              "device": null,
+              "conversation": null,
+              "user": {
+                "id": "eafe30ea-0a59-40ef-bd7a-36a1ed5d0d62",
+                "displayName": "Sai Sandeep",
+                "userIdentityType": "aadUser"
+              }
+            },
+            "body": {
+              "contentType": "html",
+              "content": "<div><div><at id=\"0\">Hitesh</at> group1 test 2</div>\n</div>"
+            },
+            "attachments": [],
+            "mentions": [
+              {
+                "id": 0,
+                "mentionText": "Hitesh",
+                "mentioned": {
+                  "application": null,
+                  "device": null,
+                  "conversation": null,
+                  "user": {
+                    "id": "3fca3578-eee3-4f5d-b62d-47d17f3cce3a",
+                    "displayName": "Hitesh",
+                    "userIdentityType": "aadUser"
+                  }
+                }
+              }
+            ],
+            "reactions": []
+          }
+        ]
+      }
+    }
+  ]
+}

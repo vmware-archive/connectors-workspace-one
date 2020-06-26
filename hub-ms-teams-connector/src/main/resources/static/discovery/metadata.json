@@ -1,6 +1,6 @@
 {
   "image": {
-    "href": "${CONNECTOR_HOST}/images/connector.png"
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-teams.png"
   },
   "test_auth": {
     "href": "${CONNECTOR_HOST}/test-auth"

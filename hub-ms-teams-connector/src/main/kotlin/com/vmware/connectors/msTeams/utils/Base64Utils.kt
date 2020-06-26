@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msTeams.utils
 
 import java.util.*
@@ -8,10 +13,10 @@ object Base64Utils {
     private val decoder = Base64.getDecoder()
 
     /**
-     * this function will return the decoded ByteArray
+     * return the decoded ByteArray
      *
      * @param s is the encoded String
-     * @return ByteArray
+     * @return decode ByteArray
      */
     fun decode(s: String): ByteArray = decoder.decode(s)
 }

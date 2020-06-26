@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msTeams.utils
 
 import com.fasterxml.jackson.module.kotlin.convertValue
@@ -13,7 +18,6 @@ object JsonParser {
     val mapper = jacksonObjectMapper()
             .apply { dateFormat = SimpleDateFormat("dd MM yyyy HH:mm:ss z") }
 
-    val logger = getLogger()
 
     /**
      * serializes any object to [String]
@@ -46,7 +50,6 @@ object JsonParser {
     inline fun <reified T : Any> deserialize(string: String) = try {
         mapper.readValue<T>(string)
     } catch (ex: Exception) { // raised when preconditions not met
-        logger.error(ex) { "Failed to deserialize: $string" }
         throw Exception(ex)
     }
 

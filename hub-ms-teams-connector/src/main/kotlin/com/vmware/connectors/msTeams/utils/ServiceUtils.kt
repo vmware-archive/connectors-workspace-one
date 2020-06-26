@@ -1,55 +1,51 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msTeams.utils
 
-import com.vmware.connectors.msTeams.config.DATE_FORMAT_PATTERN
-import com.vmware.connectors.msTeams.config.Endpoints
+import com.vmware.connectors.msTeams.config.*
 import com.vmware.connectors.msTeams.dto.*
+import org.jsoup.Jsoup
 import org.springframework.http.HttpMethod
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * creates the single batch request
+ * builds a individual batch request
  *
  * @param id: id of the individual request
- * @param method: http method to be used
+ * @param method: http method of the individual request
  * @param url: url of the individual request
- * @param body: body of the individual request (optional)
- * @param headers : headers of the individual request (optional)
- * @returns the body of single batch request
+ * @returns a individual batch request
  */
-fun getSingleBatchRequest(
+fun buildIndividualBatchRequest(
         id: String,
         method: String,
-        url: String,
-        body: String? = null,
-        headers: String? = null
+        url: String
 ): Map<String, String> {
-    val map = mapOf(
+    return mapOf(
             "id" to id,
             "method" to method,
             "url" to url
     )
-    return when {
-        headers == null -> map
-        body == null -> map.plus("headers" to headers)
-        else -> map.plus(mapOf("headers" to headers, "body" to body))
-    }
 }
 
 /**
- * creates the body of the batch
+ * builds the body for the batch request for retrieving messages within [MESSAGES_LOOKUP_WINDOW_HOURS] Hours
  *
- * @param idList: list containing team id and channel id
- * @param method : http method to be used
- * @returns the body of the batch
+ * @param teamIdToChannelIdMap: list containing team id and channel id
+ * @param method : http method of the batch request
+ * @returns the body of the batch request
  */
-fun getMessagesUsingBatchesUrlBody(
-        idList: List<Pair<String, String>>,
+fun buildBatchBodyForMessages(
+        teamIdToChannelIdMap: List<Pair<String, String>>,
         method: String
 ): List<Map<String, String>> {
-    val date = getDateTimeMinusHours(1)
-    return idList.map { (teamID, channelID) ->
-        getSingleBatchRequest(
+    val date = getDateTimeMinusHours(MESSAGES_LOOKUP_WINDOW_HOURS)
+    return teamIdToChannelIdMap.map { (teamID, channelID) ->
+        buildIndividualBatchRequest(
                 "$teamID $channelID",
                 method,
                 Endpoints.getChannelMessagesDeltaUsingBatchUrl(date, teamID, channelID)
@@ -58,25 +54,25 @@ fun getMessagesUsingBatchesUrlBody(
 }
 
 /**
- * gets the list of Message Objects in last one hour
+ * returns the list of Message Objects in specified window in [MENTIONS_LOOKUP_WINDOW_MINUTES] minutes
  *
  * @param messages : List of Message Objects
- * @returns the list of Message Objects in last one hour
+ * @returns the list of Message Objects in specified window in [MENTIONS_LOOKUP_WINDOW_MINUTES] minutes
  *
  */
 fun getRecentMessages(messages: List<Message>): List<Message> {
     val sortedMessages = messages.sortedByDescending { it.createdDate }
     return sortedMessages.takeWhile {
-        it.createdDate > (Date() - Minutes(5, "UTC"))
+        it.createdDate > (Date() - Minutes(MENTIONS_LOOKUP_WINDOW_MINUTES, "UTC"))
     }
 }
 
 /**
- * gets the list of Message Objects that contains given user mentions
+ * returns the list of Message Objects in which user is @mentioned
  *
  * @param messages : List of Message Objects
  * @param userId : id of the user
- * @returns the list of Message Objects that contains given user mentions
+ * @returns the list of Message Objects in which user is @mentioned
  */
 fun getMessagesWithUserMentions(messages: List<Message>, userId: String): List<Message> {
     return messages.filter { message ->
@@ -87,36 +83,36 @@ fun getMessagesWithUserMentions(messages: List<Message>, userId: String): List<M
 }
 
 /**
- * gets the pair of Recent Messages and New body for the batch
+ * returns  Recent Messages and body for performing next batch request
  *
- * @param responses : List of Response Objects of a batch
- * @param body : body of the batch
- * @param messages : List of Message Objects
- * @returns the pair of Recent Messages and New body for the batch
+ * @param messageBatchResponses : List of message batch responses
+ * @param nextBatchBody : body of the next batch that is returned when recursion completes
+ * @param messages : List of recent Message Objects of all responses that is returned when recursion completes
+ * @returns Recent Messages and body for performing next batch request
  */
-fun getNewBodyAndRecentMessages(
-        responses: List<Response>,
-        body: List<Map<String, String>> = emptyList(),
+fun getNextBatchBodyAndRecentMessages(
+        messageBatchResponses: List<MessageBatchResponse>,
+        nextBatchBody: List<Map<String, String>> = emptyList(),
         messages: List<Message> = emptyList(),
         replies: Boolean = false
 ): Pair<List<Map<String, String>>, List<Message>> {
-    return if (responses.isEmpty())
-        Pair(body, messages)
+    return if (messageBatchResponses.isEmpty())
+        Pair(nextBatchBody, messages)
     else {
-        val response = responses.first()
-        val (messages1, booleanValue) = getMessageAndBoolean(response, replies)
-        if (booleanValue && response.body.parsedNextLink != null) {
-            getNewBodyAndRecentMessages(
-                    responses.drop(1),
-                    body.plus(getSingleBatchRequest(response.id, "GET", response.body.parsedNextLink)),
-                    messages.plus(messages1),
+        val messageBatchResponse = messageBatchResponses.first()
+        val (messageBatchResponseMessages, isNext) = getMessageAndIsNext(messageBatchResponse, replies)
+        if (isNext && messageBatchResponse.body.parsedNextLink != null) {
+            getNextBatchBodyAndRecentMessages(
+                    messageBatchResponses.drop(1),
+                    nextBatchBody.plus(buildIndividualBatchRequest(messageBatchResponse.id, "GET", messageBatchResponse.body.parsedNextLink)),
+                    messages.plus(messageBatchResponseMessages),
                     replies
             )
         } else {
-            getNewBodyAndRecentMessages(
-                    responses.drop(1),
-                    body,
-                    messages.plus(messages1),
+            getNextBatchBodyAndRecentMessages(
+                    messageBatchResponses.drop(1),
+                    nextBatchBody,
+                    messages.plus(messageBatchResponseMessages),
                     replies
             )
         }
@@ -124,25 +120,25 @@ fun getNewBodyAndRecentMessages(
 }
 
 /**
- * modifies the responses
+ * transforms the batch response to Message Batch Response
  *
  * @param responses obtained after batch request
- * @param idChannelMap contains the map of channel id and team id to Channel object
- * @return the Modified Response Object
+ * @param channelsMap contains the map with channel id as key and channel as value
+ * @return MessageBatchResponse object
  */
-fun getModifiedResponsesFromResponse(
+fun transformBatchResponseToMessageBatchResponse(
         responses: List<Map<String, Any>>,
-        idChannelMap: Map<String, Channel>,
+        channelsMap: Map<String, Channel>,
         userTimeZone: String
-): List<Response> {
+): List<MessageBatchResponse> {
     return responses.map { resp ->
         val ids = resp.getStringOrException("id").split(" ")
         val (teamId, channelId) = (ids[0] to ids[1])
-        val channel = idChannelMap.getValue(channelId)
+        val channel = channelsMap.getValue(channelId)
         val batchBody = resp.getMapOrException<String, Any>("body")
         resp + (
                 "body" to
-                        getModifiedBatchBody(
+                        transformMessagesOfMessageBatchResponseBody(
                                 batchBody,
                                 teamId,
                                 channelId,
@@ -151,15 +147,17 @@ fun getModifiedResponsesFromResponse(
                                 userTimeZone
                         )
                 )
-    }.convertValue()
+    }.mapNotNull {
+        it.convertValueOrNull<MessageBatchResponse>()
+    }
 }
 
 /**
- * this function will return the Date as String with Format [EEE dd-MMM-yy hh:mm a]
+ * returns the Date with respect to the given time zone in [RETURN_FORMAT] format
  *
  * @param dateString Date Object as String
  * @param timeZone timeZone of the User
- * @returns the Date as String
+ * @returns the Date with respect to the given time zone in [RETURN_FORMAT] format
  */
 fun getDateFormatString(dateString: String, timeZone: String): String {
     val formatter = SimpleDateFormat(DATE_FORMAT_PATTERN)
@@ -167,22 +165,22 @@ fun getDateFormatString(dateString: String, timeZone: String): String {
                 this.timeZone = TimeZone.getTimeZone("UTC")
             }
     val date = formatter.parse(getDateStringWithRespectToTimeZone(dateString, timeZone))
-    val formatter1 = SimpleDateFormat("EEE dd-MMM-yy hh:mm a")
+    val returnFormatter = SimpleDateFormat(RETURN_FORMAT)
             .apply {
                 this.timeZone = TimeZone.getTimeZone("UTC")
             }
-    return formatter1.format(date)
+    return returnFormatter.format(date)
 }
 
 /**
- * this function will return the requestBody of the getChannels Api
+ * builds the requestBody for fetching channels from teams
  *
  * @param teams List of Team Objects
- * @returns the request Body of the Channels API
+ * @returns the requestBody for fetching channels from teams
  */
-fun getChannelsUsingBatchBody(teams: List<Team>): List<Map<String, String>> {
+fun buildBatchBodyForChannels(teams: List<Team>): List<Map<String, String>> {
     return teams.map {
-        getSingleBatchRequest(
+        buildIndividualBatchRequest(
                 it.id,
                 HttpMethod.GET.name,
                 Endpoints.getChannelsUsingBatchUrl(it.id)
@@ -191,37 +189,41 @@ fun getChannelsUsingBatchBody(teams: List<Team>): List<Map<String, String>> {
 }
 
 /**
- * this function will returns the List of Channel Objects
+ * returns the List of Channel Objects from the channels batch response
  *
- * @param responses is the response of the API call
- * @param teamMap is the Map with teamName as keys and Team Object as Values
+ * @param channelsBatchResponse is the response of the channels batch call
+ * @param teamsMap is the Map with team id as keys and Team Object as Values
  * @returns the List of Channel Objects
  */
-fun getChannelsFromResponse(responses: List<Map<String, Any>>, teamMap: Map<String, Team>): List<Channel> {
-    val filteredResponse = responses.filter {
+fun getChannelsFromChannelsBatchResponse(
+        channelsBatchResponse: List<Map<String, Any>>,
+        teamsMap: Map<String, Team>
+): List<Channel> {
+    val filteredResponse = channelsBatchResponse.filter {
         it["id"] !in listOf("userId", "userTimeZone")
     }
     return filteredResponse.flatMap { resp ->
         val id = resp.getValue("id") as String
         val body = resp.getMapOrException<String, Any>("body")
-        val value = body.getListOrException<Map<String, Any>>("value")
+        val value = body.getListOrDefault<Map<String, Any>>("value")
         value.map {
             it.plus("teamId" to id)
                     .plus(
-                            "teamName" to teamMap.getValue(id).displayName
+                            "teamName" to teamsMap.getValue(id).displayName
                     )
         }.convertValue<List<Channel>>()
     }
 }
 
 /**
- * filters the mentions list
+ * returns mentions of the given raw message in which any user is mentioned that is removing @all @team mentions etc.
  *
- * @param msg:map containing the messages
- * @returns the list of filtered messages
+ * @param message is the  raw message
+ * @returns list of only mentions of the given raw message in which any user is mentioned
+ *           that is removing @all @team mentions etc
  */
-fun filterMentions(msg: Map<String, Any>): List<Map<String, Any>> {
-    val mentions = msg.getListOrException<Map<String, Any>>("mentions")
+fun filterMentions(message: Map<String, Any>): List<Map<String, Any>> {
+    val mentions = message.getListOrException<Map<String, Any>>("mentions")
     return if (mentions.isEmpty())
         mentions
     else {
@@ -233,35 +235,35 @@ fun filterMentions(msg: Map<String, Any>): List<Map<String, Any>> {
 }
 
 /**
- * this function will returns the modified Request Body
+ * transforms the messages of the message batch response body
  *
- * @param batchBody is the Request Body to be Modified
+ * @param messageBatchResponseBody is the Response Body to be transformed
  * @param teamId is uniqueId of the team
  * @param channelId is uniqueId of the Channel
  * @param teamName is the Name of the Team
  * @param channelName is the Name of the Channel
  * @param userTimeZone is the TimeZone of the User
- * @returns the Modified Request Body
+ * @returns transformed message batch response body
  */
-fun getModifiedBatchBody(
-        batchBody: Map<String, Any>,
+fun transformMessagesOfMessageBatchResponseBody(
+        messageBatchResponseBody: Map<String, Any>,
         teamId: String,
         channelId: String,
         teamName: String,
         channelName: String,
         userTimeZone: String
 ): Map<String, Any> {
-    return batchBody +
+    return messageBatchResponseBody +
             (
-                    "value" to batchBody
-                            .getListOrException<Map<String, Any>>("value")
-                            .map { msg ->
-                                msg + mapOf(
+                    "value" to messageBatchResponseBody
+                            .getListOrDefault<Map<String, Any>>("value")
+                            .map { message ->
+                                message + mapOf(
                                         "teamId" to teamId,
                                         "channelId" to channelId,
                                         "channelName" to channelName,
                                         "userTimeZone" to userTimeZone,
-                                        "mentions" to filterMentions(msg),
+                                        "mentions" to filterMentions(message),
                                         "teamName" to teamName
                                 )
                             }
@@ -269,23 +271,23 @@ fun getModifiedBatchBody(
 }
 
 /**
- * this function will return the new Response from the given Response
+ * Transforms tht messages of the message batch response
  *
  * @param responses Responses to be modified
  * @param messagesMap is the Map with messageId as keys and Message Object as values
- * @returns the List of Response Objects
+ * @returns the List of transformed MessageBatchResponse Objects
  */
-fun getModifiedResponsesFromResponse(
+fun transformBatchResponseToMessageBatchResponse(
         responses: List<Map<String, Any>>,
         messagesMap: Map<String, Message>
-): List<Response> {
+): List<MessageBatchResponse> {
     val newResp = responses.map { resp ->
         val messageId = resp.getStringOrException("id")
         val message = messagesMap.getValue(messageId)
         val batchBody = resp.getMapOrException<String, Any>("body")
         resp + (
                 "body" to
-                        getModifiedBatchBody(
+                        transformMessagesOfMessageBatchResponseBody(
                                 batchBody,
                                 message.teamId,
                                 message.channelId,
@@ -295,22 +297,56 @@ fun getModifiedResponsesFromResponse(
                         )
                 )
     }
-    return newResp.convertValue()
+    return newResp.mapNotNull {
+        it.convertValueOrNull<MessageBatchResponse>()
+    }
 }
 
 /**
- * this function will return the Pair of Message Objects List to Boolean Value
+ * returns the recent messages and boolean value indicating whether to perform next batch request or not
  *  depending on the message whether it is reply or direct Message
  *
- *  @param response Response Object
+ *  @param messageBatchResponse Response Object
  *  @param replies Whether the message is reply or not
- *  @returns the Pair of Message Objects List to Boolean Value
+ *  @returns recent messages and boolean value indicating whether to perform next batch request or not
  */
-fun getMessageAndBoolean(response: Response, replies: Boolean = false): Pair<List<Message>, Boolean> {
-    val messages1 = response.body.value
+fun getMessageAndIsNext(messageBatchResponse: MessageBatchResponse, replies: Boolean = false): Pair<List<Message>, Boolean> {
+    val messages1 = messageBatchResponse.body.value
     return if (replies) {
         val recentMessages = getRecentMessages(messages1)
         recentMessages to (messages1.size == recentMessages.size)
     } else
         messages1 to (messages1.size == 50)
+}
+
+/**
+ * prepends @ for every mention for the message body
+ *
+ * @param messageBody body of the message
+ * @return transformed message body with @ prepended to every mention
+ */
+fun prependMentionsAndExtractBody(messageBody: String): String {
+    val doc = Jsoup.parse(messageBody)
+    doc.getElementsByTag("at")
+            .forEach { it.prepend("@") }
+    return doc.text()
+}
+
+/**
+ * builds batch body using messages for fetching message replies
+ *
+ * @param messages list of messages
+ * @param method a http method type
+ * @return batch body for message replies
+ */
+fun buildBatchBodyForMessageReplies(messages: List<Message>, method: String): List<Map<String, String>> {
+    return messages.map {
+        buildIndividualBatchRequest(
+                it.id,
+                method,
+                Endpoints.getMessageRepliesUsingBatchUrl(
+                        it.teamId, it.channelId, it.id
+                )
+        )
+    }
 }

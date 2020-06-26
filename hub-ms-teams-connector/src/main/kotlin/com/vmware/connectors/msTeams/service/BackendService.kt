@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msTeams.service
 
 import com.vmware.connectors.msTeams.config.Endpoints
@@ -16,9 +21,13 @@ import org.springframework.web.reactive.function.client.body
 import reactor.core.publisher.Mono
 
 /**
- * ConnectorBackendService class
+ * ConnectorBackendService class to communicate with Microsoft Teams backend API for fetching necessary information
+ * and performing the action (reply) on message
+ * and every function in the class requires the following parameters
+ * baseUrl - tenant url
+ * authorization - Microsoft Teams User Bearer Token
  *
- * @property client: WebClient: library to make async http calls
+ * @property client WebClient: library to make async http calls
  */
 @Component
 class BackendService(
@@ -28,14 +37,14 @@ class BackendService(
     private val logger = getLogger()
 
     /**
-     * This function will return the list of team objects
+     * fetches the list of team objects for this user
      *
      * @param authorization is the token needed for authorizing the call
-     * @return list of Team objects
+     * @return list of Team objects for this user
      */
     private suspend fun getTeams(authorization: String, baseUrl: String): List<Team> {
         val url = Endpoints.getTeamsUrl(baseUrl)
-        val response = client
+        return client
                 .get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, authorization)
@@ -44,38 +53,37 @@ class BackendService(
                     logger.error(it) { "error while retrieving teams" }
                 }
                 .awaitBody<Map<String, Any>>()
-        return response
                 .getListOrException<Map<String, Any>>("value")
                 .convertValue()
     }
 
     /**
-     * This function gets the user messages where he is @mentioned
+     * fetches the messages where the user is @mentioned
      *
      * @param authorization : backend token for o365
      * @param baseUrl : graph url
-     * @return List<Message> values
+     * @return List of message objects where user is @mentioned
      */
     suspend fun getMentionedMessages(authorization: String, baseUrl: String): List<Message> {
         val teams = this.getTeams(authorization, baseUrl)
         val teamsMap = teams.map {
             it.id to it
         }.toMap()
-        val teamsBody = getChannelsUsingBatchBody(teams)
-        val idBody = getSingleBatchRequest(
+        val channelsBatchBody = buildBatchBodyForChannels(teams)
+        val userIdBatchBody = buildIndividualBatchRequest(
                 "userId",
                 HttpMethod.GET.name,
                 Endpoints.getIdUsingBatchUrl()
         )
-        val timeZoneBody = getSingleBatchRequest(
+        val timeZoneBatchBody = buildIndividualBatchRequest(
                 "userTimeZone",
                 HttpMethod.GET.name,
                 Endpoints.getTimeZoneUsingBatchUrl()
         )
-        val response = getResponsesFromBatch(
+        val response = getBatchResponses(
                 authorization,
-                teamsBody.plus(idBody)
-                        .plus(timeZoneBody),
+                channelsBatchBody.plus(userIdBatchBody)
+                        .plus(timeZoneBatchBody),
                 baseUrl
         )
         val responses = response.getListOrException<Map<String, Any>>("responses")
@@ -85,24 +93,22 @@ class BackendService(
                 .getStringOrException("id")
         val userTimeZone = responses
                 .find { it["id"] == "userTimeZone" }!!
-                .getMapOrException<String, Any>("body")
+                .getMapOrDefault<String, Any>("body", mapOf("value" to "UTC"))
                 .getStringOrException("value")
-        val channel = getChannelsFromResponse(responses, teamsMap)
-        val idChannelMap = channel.map { it.id to it }
-        val ids = idChannelMap.map { it.second.teamId to it.second.id }
+        val channels = getChannelsFromChannelsBatchResponse(responses, teamsMap)
+        val channelsMap = channels.associateBy { it.id }
+        val teamIdToChannelIdMap = channels.map { it.teamId to it.id }
         val recentMessages = getRecentMessagesFromBatches(
                 authorization,
-                idChannelMap.toMap(),
-                ids,
+                channelsMap,
+                teamIdToChannelIdMap,
                 userTimeZone,
                 baseUrl
         )
-        val messageMap = recentMessages.map {
-            it.id to it
-        }.toMap()
+        val messagesMap = recentMessages.associateBy { it.id }
         val replyMessages = getMessagesReplies(
                 authorization,
-                messageMap,
+                messagesMap,
                 recentMessages,
                 userTimeZone,
                 baseUrl
@@ -111,47 +117,51 @@ class BackendService(
     }
 
     /**
-     * This function filters the recent user messages in batch call where he is @mentioned
+     * fetches recent messages of all channels for which user is part of
      *
-     * @param authorization : backend token for o365
-     * @param baseUrl : graph url
-     * @return List<Message> values
+     * @param authorization the backend token
+     * @param channelMap map with channelId as key and channel as value
+     * @param teamIdToChannelIdMap map with teamId as key and channel as value
+     * @param baseUrl graph url
+     * @param userTimeZone TimeZone of the user
+     * @param messages list of all channel messages that are returned when recursion completes
+     * @return list of recent messages of all channels
      */
     private suspend fun getRecentMessagesFromBatches(
             authorization: String,
-            idChannelMap: Map<String, Channel>,
-            ids: List<Pair<String, String>>,
+            channelMap: Map<String, Channel>,
+            teamIdToChannelIdMap: List<Pair<String, String>>,
             userTimeZone: String,
             baseUrl: String,
             messages: List<Message> = emptyList()
     ): List<Message> {
         return when {
-            ids.isEmpty() -> messages
-            ids.size <= 20 -> {
-                val body = getMessagesUsingBatchesUrlBody(ids, HttpMethod.GET.name)
+            teamIdToChannelIdMap.isEmpty() -> messages
+            teamIdToChannelIdMap.size <= 20 -> {
+                val body = buildBatchBodyForMessages(teamIdToChannelIdMap, HttpMethod.GET.name)
                 messages.plus(
                         getRecentMessagesFromBatch(
                                 body,
                                 authorization,
-                                idChannelMap,
+                                channelMap,
                                 userTimeZone,
                                 baseUrl
                         )
                 )
             }
             else -> {
-                val body = getMessagesUsingBatchesUrlBody(ids.take(20), HttpMethod.GET.name)
+                val body = buildBatchBodyForMessages(teamIdToChannelIdMap.take(20), HttpMethod.GET.name)
                 getRecentMessagesFromBatches(
                         authorization,
-                        idChannelMap,
-                        ids.drop(20),
+                        channelMap,
+                        teamIdToChannelIdMap.drop(20),
                         userTimeZone,
                         baseUrl,
                         messages.plus(
                                 getRecentMessagesFromBatch(
                                         body,
                                         authorization,
-                                        idChannelMap,
+                                        channelMap,
                                         userTimeZone,
                                         baseUrl
                                 )
@@ -162,42 +172,43 @@ class BackendService(
     }
 
     /**
-     * This function filters the recent messages for each batch call where he is @mentioned
+     * fetches the recent messages from given batch body
      *
-     * @param body body for performing batch request
+     * @param batchBody body for performing batch request
      * @param authorization the backend token
-     * @param idChannelMap map with channelId as key and channel as value
+     * @param channelMap map with channelId as key and channel as value
      * @param baseUrl graph url
      * @param userTimeZone TimeZone of the user
-     * @param messages list of messages
+     * @param messages list of all messages that are returned when recursion completes
      * @param messagesMap map with messageId as key and message as value
      * @param replies boolean value indicating whether it is for replies or not
-     * @return List<Message> values
+     * @return recent messages of channels present in batch body if replies is false,
+     *          else recent message replies of messages present in batch body
      */
     private suspend fun getRecentMessagesFromBatch(
-            body: List<Map<String, String>>,
+            batchBody: List<Map<String, String>>,
             authorization: String,
-            idChannelMap: Map<String, Channel>,
+            channelMap: Map<String, Channel>,
             userTimeZone: String,
             baseUrl: String,
             messages: List<Message> = emptyList(),
             messagesMap: Map<String, Message> = emptyMap(),
             replies: Boolean = false
     ): List<Message> {
-        return if (body.isEmpty())
+        return if (batchBody.isEmpty())
             messages
         else {
-            val response = getResponseFromBatch(authorization, body, baseUrl)
+            val response = getResponseFromBatch(authorization, batchBody, baseUrl)
             val responses = response.getListOrException<Map<String, Any>>("responses")
             val responseList = if (replies)
-                getModifiedResponsesFromResponse(responses, messagesMap)
+                transformBatchResponseToMessageBatchResponse(responses, messagesMap)
             else
-                getModifiedResponsesFromResponse(responses, idChannelMap, userTimeZone)
-            val (newBody, messageList) = getNewBodyAndRecentMessages(responseList, replies = replies)
+                transformBatchResponseToMessageBatchResponse(responses, channelMap, userTimeZone)
+            val (newBody, messageList) = getNextBatchBodyAndRecentMessages(responseList, replies = replies)
             getRecentMessagesFromBatch(
                     newBody,
                     authorization,
-                    idChannelMap,
+                    channelMap,
                     userTimeZone,
                     baseUrl,
                     messages.plus(messageList),
@@ -208,13 +219,14 @@ class BackendService(
     }
 
     /**
-     * Replies to a message where the user has been @mentioned
+     * Replies to a message
      *
-     * @param message the message to be replied tp
+     * @param message the message to be replied to
      * @param authorization the backend token
      * @param comments the new message to be posted as a reply
      * @param baseUrl the graph url
-     * @return Boolean
+     * @return Boolean true if replying to message is successful,
+     *                 false if fails
      */
     suspend fun replyToTeamsMessage(
             message: Message,
@@ -231,7 +243,7 @@ class BackendService(
         return client
                 .post()
                 .uri(url)
-                .body(Mono.just(getBodyReplyMessage(comments)))
+                .body(Mono.just(getReplyMessageBody(comments)))
                 .header(HttpHeaders.AUTHORIZATION, authorization)
                 .awaitExchangeAndThrowError {
                     logger.error(it) {
@@ -245,41 +257,23 @@ class BackendService(
     /**
      * returns the body for the reply message
      *
-     * @param comments comments is the message to be replied to the message
-     * @return map body for the reply message
+     * @param comments the new message to be posted as a reply
+     * @return body for the reply message
      */
-    private fun getBodyReplyMessage(comments: String): Map<String, Any> {
+    private fun getReplyMessageBody(comments: String): Map<String, Any> {
         return mapOf(
                 "body" to Body(content = comments, contentType = "text")
         )
     }
 
     /**
-     * gets the emaiId from the Vmware user token
-     *
-     * @param token it is the Vmware user token
-     * @return emailId string
-     */
-    fun getUserEmailFromToken(token: String): String? {
-        val pl = token
-                .split(" ")
-                .lastOrNull()
-                ?.split(".")
-                ?.get(1)
-                ?.toBase64DecodedString()
-
-        return pl?.deserialize()
-                ?.getStringOrNull("eml")
-    }
-
-    /**
-     * returns response from batch request
+     * fetches response for a batch request
      *
      * @param authorization  backend token for o365
      * @param baseUrl graph url
      * @param body body for the batch request
      *
-     * @return returns the response
+     * @return the response of batch request
      */
     private suspend fun getResponseFromBatch(
             authorization: String,
@@ -303,11 +297,15 @@ class BackendService(
     }
 
     /**
-     * This function gets the user messages replies where he is @metioned
+     * fetches recent messages of all channels for which user is part of
      *
-     * @param authorization : backend token for o365
-     * @param baseUrl : graph url
-     * @return List<Message> values
+     * @param authorization the backend token
+     * @param messagesMap map with messageId as key and message as value
+     * @param baseUrl graph url
+     * @param userTimeZone TimeZone of the user
+     * @param messages list of messages for which replies to be  obtained
+     * @param totalMessages list of all messages that are returned when recursion completes
+     * @return list of recent messages of all channels
      */
     private suspend fun getMessagesReplies(
             authorization: String,
@@ -320,7 +318,7 @@ class BackendService(
         return when {
             messages.isEmpty() -> totalMessages
             messages.size <= 20 -> {
-                val body = getMessageRepliesUrlBody(messages, "GET")
+                val body = buildBatchBodyForMessageReplies(messages, "GET")
                 totalMessages.plus(
                         getRecentMessagesFromBatch(
                                 body,
@@ -335,7 +333,7 @@ class BackendService(
                 )
             }
             else -> {
-                val body = getMessageRepliesUrlBody(messages.take(20), "GET")
+                val body = buildBatchBodyForMessageReplies(messages.take(20), "GET")
                 getMessagesReplies(
                         authorization,
                         messagesMap,
@@ -360,15 +358,15 @@ class BackendService(
     }
 
     /**
-     * returns response from batch requests
+     * fetches responses of all batch requests
      *
      * @param authorization  backend token for o365
      * @param baseUrl graph url
      * @param body body for the batch request
      *
-     * @return returns the response
+     * @return the responses of all batch requests
      */
-    private suspend fun getResponsesFromBatch(
+    private suspend fun getBatchResponses(
             authorization: String,
             body: List<Map<String, String>>,
             baseUrl: String
@@ -377,7 +375,7 @@ class BackendService(
                 .flatMap  {
             getResponseFromBatch(
                     authorization,
-                    body,
+                    it,
                     baseUrl
             ).getListOrDefault<Map<String, Any>>("responses")
         }
@@ -385,21 +383,3 @@ class BackendService(
     }
 }
 
-/**
- * returns the list of batch requests body that can be used for getting message replies
- *
- * @param messages list of messages
- * @param method a http method type
- * @return list of batch requests body
- */
-fun getMessageRepliesUrlBody(messages: List<Message>, method: String): List<Map<String, String>> {
-    return messages.map {
-        getSingleBatchRequest(
-                it.id,
-                method,
-                Endpoints.getMessageRepliesUsingBatchUrl(
-                        it.teamId, it.channelId, it.id
-                )
-        )
-    }
-}
