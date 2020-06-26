@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msTeams.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -55,10 +60,11 @@ data class Channel(
 /**
  * Message object
  *
- * @property createdDate message created date
- * @property createdDateTime message created date pattern
+ * @property createdDate created date of the message
+ * @property createdDateTime created date of the message in user time zone
  * @property replyId the id to be used for replying the message
  * @property formatter the simple date formatter object
+ * @property createdDateInUserTimeZone is the message created date in user time zone
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Message(
@@ -71,7 +77,7 @@ data class Message(
          * Url of the message in teams
          */
         @JsonProperty("webUrl")
-        val url:String?,
+        val url: String?,
         /**
          * Id of the parent chat message or root chat message of the thread.
          */
@@ -129,10 +135,10 @@ data class Message(
          */
         @JsonProperty("teamId")
         val teamId: String = "",
-        @JsonProperty("channelName")
         /**
          * shows the description of the channel
          */
+        @JsonProperty("channelName")
         val channelName: String = "",
         /**
          * Timezone of the user
@@ -143,17 +149,17 @@ data class Message(
          *  Attached files. Attachments are currently read-only – sending attachments is not supported.
          */
         @JsonProperty("attachments")
-        val attachments: List<ChatMessageAttachment>,
+        val attachments: List<Map<String, Any>>,
         /**
          * shows the description of the team
          */
         @JsonProperty("teamName")
         val teamName: String
 ) {
-        private val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS")
-        val createdDate: Date = formatter.parse(createdDateTime)
-        val dateTime = getDateFormatString(createdDateTime, userTimeZone)
-        val replyId = replyToId ?: id
+    private val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS")
+    val createdDate: Date = formatter.parse(createdDateTime)
+    val createdDateInUserTimeZone = getDateFormatString(createdDateTime, userTimeZone)
+    val replyId = replyToId ?: id
 }
 
 /**
@@ -179,7 +185,7 @@ data class Body(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class IdentitySet(
         /**
-         * Optional. The user associated with this action.
+         * The user associated with this action.
          */
         @JsonProperty("user")
         val user: Identity
@@ -233,108 +239,43 @@ data class ChatMessageMention(
 )
 
 /**
- * Response object
+ * Message Batch Response object
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class Response(
+data class MessageBatchResponse(
         /**
          * id of the response
          */
         @JsonProperty("id")
         val id: String,
         /**
-         * status of the response
-         */
-        @JsonProperty("status")
-        val status: Int,
-        /**
          * body of the response
          */
         @JsonProperty("body")
-        val body: BatchBody
+        val body: MessageBatchBody
 
 )
 
 /**
- * Batch Body Object
+ * Message Batch Body Object
  *
- * @property parsedNextLink it is the parsed next link
+ * @property parsedNextLink next link for retrieving next set of messages parsed,can be used as single batch request Url
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class BatchBody(
+data class MessageBatchBody(
         /**
          * value of the batch body
          */
         @JsonProperty("value")
         val value: List<Message>,
         /**
-         * no of items in batch body
-         */
-        @JsonProperty("@odata.count")
-        val count: Int?,
-        /**
          * next link for retrieving next set of items
          */
         @JsonProperty("@odata.nextLink")
         val nextLink: String? = null
 ) {
-        val parsedNextLink = nextLink?.removePrefix(Endpoints.teamBetaUrl)
+    val parsedNextLink = nextLink?.removePrefix(Endpoints.teamBetaUrl)
 }
-
-/**
- * ChatMessageAttachment Object
- */
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class ChatMessageAttachment(
-        /**
-         * Read-only. Unique id of the attachment.
-         */
-        @JsonProperty("id")
-        val id: String,
-        /**
-         * The media type of the content attachment. It can have the following values:
-        reference: Attachment is a link to another file. Populate the contentURL with the link to the object.
-        file: Raw file attachment. Populate the contenturl field with the base64 encoding of the file in data: format.
-        image/: Image type with the type of the image specified ex: image/png, image/jpeg, image/gif. Populate the contentUrl field with the base64 encoding of the file in data: format.
-        video/: Video type with the format specified. Ex: video/mp4. Populate the contentUrl field with the base64 encoding of the file in data: format.
-        audio/: Audio type with the format specified. Ex: audio/wmw. Populate the contentUrl field with the base64 encoding of the file in data: format.
-        application/card type: Rich card attachment type with the card type specifying the exact card format to use. Set content with the json format of the card. Supported values for card type include:
-        application/vnd.microsoft.card.adaptive: A rich card that can contain any combination of text, speech, images,,buttons, and input fields. Set the content property to,an AdaptiveCard object.
-        application/vnd.microsoft.card.animation: A rich card that plays animation. Set the content property,to an AnimationCardobject.
-        application/vnd.microsoft.card.audio: A rich card that plays audio files. Set the content property,to an AudioCard object.
-        application/vnd.microsoft.card.video: A rich card that plays videos. Set the content property,to a VideoCard object.
-        application/vnd.microsoft.card.hero: A Hero card. Set the content property to a HeroCard object.
-        application/vnd.microsoft.card.thumbnail: A Thumbnail card. Set the content property to a ThumbnailCard object.
-        application/vnd.microsoft.com.card.receipt: A Receipt card. Set the content property to a ReceiptCard object.
-        application/vnd.microsoft.com.card.signin: A user Sign In card. Set the content property to a SignInCard object.
-         */
-        @JsonProperty("contentType")
-        val contentType: String,
-        /**
-         * URL for the content of the attachment. Supported protocols: http, https, file and data.
-         */
-        @JsonProperty("contentUrl")
-        val contentUrl: String?,
-        /**
-         * The content of the attachment.
-         * If the attachment is a rich card, set the property to the rich card object.
-         * This property and contentUrl are mutually exclusive.
-         */
-        @JsonProperty("content")
-        val content: String?,
-        /**
-         * Name of the attachment.
-         */
-        @JsonProperty("name")
-        val name: String?,
-        /**
-         * URL to a thumbnail image that the channel can use if it supports using an alternative, smaller form of content or contentUrl.
-         * For example, if you set contentType to application/word and set contentUrl to the location of the Word document, you might include a thumbnail image that represents the document.
-         * The channel could display the thumbnail image instead of the document. When the user clicks the image, the channel would open the document.
-         */
-        @JsonProperty("thumbnailUrl")
-        val thumbnailUrl: String?
-)
 
 /**
  * MessageInfo object

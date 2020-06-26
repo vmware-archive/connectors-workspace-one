@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msTeams.utils
 
 import com.vmware.connectors.common.payloads.response.Card
@@ -19,23 +24,9 @@ import java.util.*
  *
  * @receiver Map
  * @param key is the Key of the Map
- * @returns value for the given key as String
+ * @returns value for the given key as String or null if the value for the given key is not present
  */
 fun Map<String, *>.getStringOrNull(key: String) = this[key] as? String
-
-/**
- * Extension Function for Map which returns the value for the given key  as String
- * or Default Value if the value for the given key is not present
- *
- * @receiver Map
- * @param key is the key of the Map
- * @param default is the default Map
- * @returns the value for the given key as String
- */
-fun Map<String, *>.getStringOrDefault(
-        key: String,
-        default: String = ""
-) = this.getStringOrNull(key) ?: default
 
 /**
  * Extension Function for Map which returns the value for the given key as String
@@ -53,7 +44,7 @@ fun Map<String, Any?>.getStringOrException(key: String) = this.getStringOrNull(k
  *
  * @receiver Map
  * @param key is the Key of the Map
- * @returns the value for the given key as List
+ * @returns the value for the given key as List or null if the value for the given key  is not present
  */
 fun <E> Map<String, *>.getListOrNull(key: String) = try {
     getListOrException<E>(key)
@@ -78,7 +69,7 @@ fun <E> Map<String, *>.getListOrException(key: String) = JsonParser.convertValue
  * @receiver Map
  * @param key is the Key of the Map
  * @param default is the Default List
- * @returns the value for the given key as List
+ * @returns the value for the given key as List or Default List if the value for the given key is not present
  */
 fun <E> Map<String, *>.getListOrDefault(
         key: String,
@@ -103,7 +94,7 @@ fun <K, V> Map<String, *>.getMapOrException(key: String): Map<K, V> {
  *
  * @receiver Map
  * @param key is the Key of the Map
- * @returns value for the given key as Map
+ * @returns value for the given key as Map or null if the value for the given key is not present
  */
 fun <K, V> Map<String, *>.getMapOrNull(key: String) =
         try {
@@ -119,7 +110,7 @@ fun <K, V> Map<String, *>.getMapOrNull(key: String) =
  * @receiver Map
  * @param key is the Key of the Map
  * @param defaultValue is the Default Map
- * @returns the value for the given key as Map
+ * @returns the value for the given key as Map or Default Map if the value for the given key is not present
  */
 fun <K, V> Map<String, *>.getMapOrDefault(
         key: String,
@@ -141,7 +132,7 @@ fun Cards.addCards(cards: List<Card>): Cards = this.apply { this.cards.addAll(ca
  * Extension function for Resource class which converts current resource to ByteArray
  *
  * @receiver Resource
- * @return ByteArray
+ * @return ByteArray obtained from the given resource
  */
 fun Resource.readAsByteArray(): ByteArray = inputStream
         .use {
@@ -152,7 +143,7 @@ fun Resource.readAsByteArray(): ByteArray = inputStream
  * Extension function for Resource class which converts current resource to string
  *
  * @receiver Resource
- * @return String
+ * @return String obtained from reading the given resource
  */
 fun Resource.readAsString() = String(readAsByteArray())
 
@@ -190,13 +181,7 @@ private suspend fun createResponseException(
                             charset,
                             request
                     )
-                else UnknownHttpStatusCodeException(
-                        response.rawStatusCode(),
-                        response.headers().asHttpHeaders(),
-                        bodyBytes,
-                        charset,
-                        request
-                )
+                else UnknownHttpStatusCodeException(response.rawStatusCode(), response.headers().asHttpHeaders(), bodyBytes, charset, request)
             }
             .awaitFirst()
 }
@@ -209,13 +194,13 @@ private suspend fun createResponseException(
  * @return ClientResponse
  */
 suspend fun WebClient.RequestHeadersSpec<out WebClient.RequestHeadersSpec<*>>.awaitExchangeAndThrowError(
-        onError: ((WebClientResponseException) -> Unit)? = null
+        onError: ((WebClientResponseException) -> Unit)
 ): ClientResponse {
     return awaitExchange()
             .also { response ->
                 if (response.statusCode().isError) {
                     val excp = createResponseException(response)
-                    if (onError != null) onError(excp)
+                    onError(excp)
                     throw excp
                 }
             }
@@ -250,20 +235,25 @@ fun Any.serialize() = JsonParser.serialize(this)
 inline fun <reified T : Any> String.deserialize() = JsonParser.deserialize<T>(this)
 
 /**
- * Extension Function for String which returns the Map
- *
- * @receiver String
- * @returns Map
- */
-fun String.deserialize() = JsonParser.deserialize(this)
-
-/**
- * Extension Function for AnyType to convert the Receiver to the Required Type
+ * Extension Function for Any Type to convert the Receiver to the Required Type
  *
  * @receiver Any Type
  * @returns the Required Type
  */
 inline fun <reified T : Any> Any.convertValue() = JsonParser.convertValue<T>(this)
+
+/**
+ * Extension Function for Any Type to convert the Receiver to the Required Type
+ * or null if it cannot be converted to the required type
+ *
+ * @receiver Any Type
+ * @returns the Required Type or null if receiver cannot be converted to required type
+ */
+inline fun <reified T : Any> Any.convertValueOrNull() = try {
+    JsonParser.convertValue<T>(this)
+}catch (_: Exception) {
+    null
+}
 
 /**
  * Extension Function for String which returns the UUID

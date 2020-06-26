@@ -31,7 +31,7 @@
           {
             "type": "GENERAL",
             "title": "Message",
-            "description": "<div><div><at id=\"0\">Hitesh</at>&nbsp;another reply</div>\n</div> "
+            "description": "@Hitesh another reply "
           },
           {
             "type": "GENERAL",

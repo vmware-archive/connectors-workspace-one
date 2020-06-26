@@ -1,7 +1,12 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msTeams
 
-import org.springframework.boot.SpringApplication.run
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
 
 /**
  * MsGraphTeamsApplication
@@ -14,5 +19,5 @@ open class MsGraphTeamsApplication
  * @return Void
  */
 fun main(args: Array<String>) {
-    run(MsGraphTeamsApplication::class.java, *args)
+    runApplication<MsGraphTeamsApplication>(*args)
 }

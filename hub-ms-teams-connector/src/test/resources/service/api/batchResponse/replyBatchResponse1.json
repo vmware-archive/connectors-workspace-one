@@ -57,7 +57,7 @@
               "conversation": null,
               "user": {
                 "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd",
-                "displayName": "Hemanth Kethe",
+                "displayName": "",
                 "userIdentityType": "aadUser"
               }
             },
@@ -65,7 +65,14 @@
               "contentType": "html",
               "content": "<div><div><at id=\"0\">Hitesh</at> testing reply</div>\n</div>"
             },
-            "attachments": [],
+            "attachments": [
+              {
+                "name" : "google"
+              },
+              {
+                "name" : null
+              }
+            ],
             "mentions": [
               {
                 "id": 0,
@@ -118,7 +125,7 @@
               "conversation": null,
               "user": {
                 "id": "47fc13ad-809c-41bb-9768-8d21f92e9dfd",
-                "displayName": "Hemanth Kethe",
+                "displayName": "",
                 "userIdentityType": "aadUser"
               }
             },
@@ -126,7 +133,14 @@
               "contentType": "html",
               "content": "<div><div><at id=\"0\">Hitesh</at>&nbsp;another reply</div>\n</div>"
             },
-            "attachments": [],
+            "attachments": [
+              {
+                "name" : "google"
+              },
+              {
+                "name" : null
+              }
+            ],
             "mentions": [
               {
                 "id": 0,

@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msTeams.utils
 
 import com.vmware.connectors.common.payloads.response.*
@@ -8,16 +13,15 @@ import org.springframework.http.server.reactive.ServerHttpRequest
 import java.net.URI
 import java.util.*
 
-
-private val logger = getLogger()
-
 /**
  * Prepare Card for a Message
  *
- * @param request: ServerHttpRequest object that is used for creating connector icon url
- * @param routingPrefix: Connector routing url prefix used for preparing action urls
- * @param locale: User locale while preparing cards with internationalized literals.
- * @param cardUtils cardUtils: internal module that is used while preparing cards
+ * @receiver Message Message object
+ * @param request ServerHttpRequest object that is used for creating connector icon url
+ * @param count number of times given user was @mentioned in the channel this message belongs to
+ * @param routingPrefix Connector routing url prefix used for preparing action urls
+ * @param locale User locale while preparing cards with internationalized literals.
+ * @param cardUtils internal module that is used while preparing cards
  * @return List<Card>
  */
 fun Message.toCard(
@@ -28,19 +32,17 @@ fun Message.toCard(
         cardUtils: CardUtils
 ): Card {
     val replyToMessageBuilder = buildReplyToMessageActionBuilder(this, routingPrefix, locale, cardUtils)
-    val dismissMessageBuilder = buildDismissActionBuilder(this, routingPrefix, locale, cardUtils)
+//    val dismissMessageBuilder = buildDismissActionBuilder(this, routingPrefix, locale, cardUtils)
 
-    logger.info { "----------------------------------------" }
-    val paddedMessageBody = body.content + " " + attachments.mapNotNull { it.name }.joinToString(", ")
+    val paddedMessageBody = prependMentionsAndExtractBody(body.content) + " " + attachments.mapNotNull { it.getStringOrNull("name") }.joinToString(", ")
     val cardBodyBuilder = CardBody.Builder()
             .addField(cardUtils.buildGeneralBodyField("by", from.user.displayName, locale))
             .addField(cardUtils.buildGeneralBodyField("channel", channelName, locale))
             .addField(cardUtils.buildGeneralBodyField("message", paddedMessageBody, locale))
             .addField(cardUtils.buildGeneralBodyField("team", teamName, locale))
-            .addField(cardUtils.buildGeneralBodyField("dateTime", dateTime, locale))
+            .addField(cardUtils.buildGeneralBodyField("dateTime", createdDateInUserTimeZone, locale))
 
 
-    logger.info { "cardHeader -> ${cardUtils.cardTextAccessor.getHeader(locale)} , url -> $url" }
     val cardHeader = CardHeader(
             cardUtils.cardTextAccessor.getHeader(locale),
             if (count <= 1) listOf(cardUtils.cardTextAccessor.getMessage("subtitle", locale, teamName))
@@ -58,7 +60,7 @@ fun Message.toCard(
             .setHeader(cardHeader)
             .setBody(cardBodyBuilder.build())
             .addAction(replyToMessageBuilder.build())
-            .addAction(dismissMessageBuilder.build())
+//            .addAction(dismissMessageBuilder.build())
 
     CommonUtils.buildConnectorImageUrl(card, request)
 
@@ -69,9 +71,9 @@ fun Message.toCard(
 /**
  * Reply to message action builder for a Message Card
  *
- * @param message: Message object that is used for creating a reply message.
- * @param routingPrefix: Connector routing url prefix used for preparing action urls
- * @param locale: User locale while preparing cards with internationalized literals.
+ * @param message Message object that is used for creating a reply message.
+ * @param routingPrefix Connector routing url prefix used for preparing action urls
+ * @param locale User locale while preparing cards with internationalized literals.
  * @param cardUtils cardUtils: internal module that is used while preparing cards
  * @return CardAction.Builder
  */
@@ -110,9 +112,9 @@ private fun buildReplyToMessageActionBuilder(
 /**
  * Card Action Dismiss Builder
  *
- * @param message: Message object that the user has been mentioned in.
- * @param routingPrefix: Connector routing url prefix used for preparing action urls
- * @param locale: User locale while preparing cards with internationalized literals.
+ * @param message Message object that the user has been mentioned in.
+ * @param routingPrefix Connector routing url prefix used for preparing action urls
+ * @param locale User locale while preparing cards with internationalized literals.
  * @param cardUtils cardUtils: internal module that is used while preparing cards
  * @return CardAction.Builder
  */

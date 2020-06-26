@@ -1,3 +1,8 @@
+/*
+* Copyright © 2020 VMware, Inc. All Rights Reserved.
+* SPDX-License-Identifier: BSD-2-Clause
+*/
+
 package com.vmware.connectors.msTeams.utils
 
 import com.vmware.connectors.common.payloads.response.CardActionInputField
@@ -9,6 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.util.*
 
+/**
+ * card utils object that is used while preparing cards
+ *
+ * @property cardTextAccessor CardTextAccessor: Internationalization module that is used while preparing cards
+ */
 @Component
 class CardUtils(
         @Autowired val cardTextAccessor: CardTextAccessor
@@ -17,10 +27,10 @@ class CardUtils(
     /**
      * Card Action Input Field Builder
      *
-     * @param id: action user input field id
-     * @param format: action user input field format. Example values are text, textarea, date, etc..
-     * @param labelKey: field literal key
-     * @param locale: User Locale
+     * @param id action user input field id
+     * @param format action user input field format. Example values are text, textarea, date, etc..
+     * @param labelKey field literal key
+     * @param locale User Locale
      * @return CardActionInputField
      */
     fun buildUserInputField(
@@ -40,9 +50,9 @@ class CardUtils(
     /**
      * Builder for CardBodyField
      *
-     * @param titleMessageKey: prefix of field literal key
-     * @param content: field value
-     * @param locale: User locale
+     * @param titleMessageKey prefix of field literal key
+     * @param content field value
+     * @param locale User locale
      * @return CardBodyField
      */
     fun buildGeneralBodyField(
