@@ -1,0 +1,17 @@
+{
+  "image": {
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-dynamics.png"
+  },
+  "actions": {},
+  "object_types": {
+    "card": {
+      "pollable": true,
+      "doc": {
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "endpoint": {
+        "href": "${CONNECTOR_HOST}/cards/requests"
+      }
+    }
+  }
+}

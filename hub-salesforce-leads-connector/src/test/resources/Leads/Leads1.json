@@ -1,0 +1,28 @@
+{
+  "totalSize": 12,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Lead",
+        "url": "/services/data/v47.0/sobjects/Lead/00Q2v00001cZUg5EAG"
+      },
+      "Id": "00Q2v00001cZUg5EAG",
+      "Name": "LN1",
+      "ConvertedAccountId": null,
+      "Status": "Open - Not Contacted",
+      "Owner": {
+        "attributes": {
+          "type": "Name",
+          "url": "/services/data/v47.0/sobjects/User/0052v00000ftWUbAAM"
+        },
+        "Name": "Salesforce Backflipt",
+        "Id": "0052v00000ftWUbAAM"
+      },
+      "Company": "Farmers Coop. of Florida",
+      "Email": null,
+      "Phone": null,
+      "LastModifiedDate": "2096-03-19T12:50:17.000+0000"
+    }
+  ]
+}

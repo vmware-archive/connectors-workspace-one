@@ -1,0 +1,14 @@
+{
+  "total_count": 8,
+  "entries": [
+    {
+      "type": "file",
+      "id": "650920505401",
+      "etag": "2",
+      "extension": "boxnote",
+      "name": "shravani_test.boxnote"
+    }
+  ],
+  "limit": 100,
+  "offset": 0
+}

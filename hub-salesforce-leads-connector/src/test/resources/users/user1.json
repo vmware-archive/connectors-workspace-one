@@ -1,0 +1,48 @@
+{
+  "sub": "https://login.salesforce.com/id/00D2v000002l9p1EAA/0052v00000ftWUbAAM",
+  "user_id": "0052v00000ftWUbAAM",
+  "organization_id": "00D2v000002l9p1EAA",
+  "preferred_username": "salesforce@backflipt.com",
+  "nickname": "salesforce",
+  "name": "Salesforce Backflipt",
+  "email": "salesforce@backflipt.com",
+  "email_verified": true,
+  "given_name": "Salesforce",
+  "family_name": "Backflipt",
+  "zoneinfo": "Asia/Kolkata",
+  "photos": {
+    "picture": "https://backflipt1-dev-ed--c.documentforce.com/profilephoto/005/F",
+    "thumbnail": "https://backflipt1-dev-ed--c.documentforce.com/profilephoto/005/T"
+  },
+  "profile": "https://backflipt1-dev-ed.my.salesforce.com/0052v00000ftWUbAAM",
+  "picture": "https://backflipt1-dev-ed--c.documentforce.com/profilephoto/005/F",
+  "address": {
+    "country": "IN"
+  },
+  "urls": {
+    "enterprise": "https://backflipt1-dev-ed.my.salesforce.com/services/Soap/c/{version}/00D2v000002l9p1",
+    "metadata": "https://backflipt1-dev-ed.my.salesforce.com/services/Soap/m/{version}/00D2v000002l9p1",
+    "partner": "https://backflipt1-dev-ed.my.salesforce.com/services/Soap/u/{version}/00D2v000002l9p1",
+    "rest": "https://backflipt1-dev-ed.my.salesforce.com/services/data/v{version}/",
+    "sobjects": "https://backflipt1-dev-ed.my.salesforce.com/services/data/v{version}/sobjects/",
+    "search": "https://backflipt1-dev-ed.my.salesforce.com/services/data/v{version}/search/",
+    "query": "https://backflipt1-dev-ed.my.salesforce.com/services/data/v{version}/query/",
+    "recent": "https://backflipt1-dev-ed.my.salesforce.com/services/data/v{version}/recent/",
+    "tooling_soap": "https://backflipt1-dev-ed.my.salesforce.com/services/Soap/T/{version}/00D2v000002l9p1",
+    "tooling_rest": "https://backflipt1-dev-ed.my.salesforce.com/services/data/v{version}/tooling/",
+    "profile": "https://backflipt1-dev-ed.my.salesforce.com/0052v00000ftWUbAAM",
+    "feeds": "https://backflipt1-dev-ed.my.salesforce.com/services/data/v{version}/chatter/feeds",
+    "groups": "https://backflipt1-dev-ed.my.salesforce.com/services/data/v{version}/chatter/groups",
+    "users": "https://backflipt1-dev-ed.my.salesforce.com/services/data/v{version}/chatter/users",
+    "feed_items": "https://backflipt1-dev-ed.my.salesforce.com/services/data/v{version}/chatter/feed-items",
+    "feed_elements": "https://backflipt1-dev-ed.my.salesforce.com/services/data/v{version}/chatter/feed-elements",
+    "custom_domain": "https://backflipt1-dev-ed.my.salesforce.com"
+  },
+  "active": true,
+  "user_type": "STANDARD",
+  "language": "en_US",
+  "locale": "en_US",
+  "utcOffset": 19800000,
+  "updated_at": "2020-02-14T10:58:18Z",
+  "is_app_installed": true
+}

@@ -1,0 +1,149 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Concur Travel Approval",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Concur - Travel approval request",
+        "subtitle": [
+          "Request 16 Jan 1"
+        ],
+        "links": {
+          "title": "",
+          "subtitle": [
+            "https://www.concursolutions.com"
+          ]
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Submitted By",
+            "description": "Submitter, Request"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Amount",
+            "description": "141.43 USD"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Purpose",
+            "description": "Industrial Visit"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Start Date",
+            "description": "1/15/2020"
+          },
+          {
+            "type": "GENERAL",
+            "title": "End Date",
+            "description": "1/17/2020"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Request Name",
+            "description": "Request 16 Jan 1"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Submitted On",
+            "description": "1/16/2020 8:46 AM UTC"
+          },
+          {
+            "type": "SECTION",
+            "title": "Air Ticket",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "From",
+                "description": "Hyderabad"
+              },
+              {
+                "type": "GENERAL",
+                "title": "To",
+                "description": "Varanasi"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Depart at",
+                "description": "1/16/2020 7:00 AM UTC"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Expense Type",
+                "description": "Airfare"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Amount",
+                "description": "10000.00 INR"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Approve",
+          "url": {
+            "href": "https://hero/connectors/sap_concur/travelrequest/workflowaction"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "actionType": "APPROVE",
+            "travelRequest": "{\"submitted-by\":\"Submitter, Request\",\"end-date\":\"1\\/17\\/2020\",\"purpose\":\"Industrial Visit\",\"login-id\":\"request.submitter@concur1.onmicrosoft.com\",\"duration\":\"3 days\",\"request-name\":\"Request 16 Jan 1\",\"trip-total\":141.43,\"id\":\"337X\",\"employee-name\":\"Submitter, Request\",\"submit-date\":\"1\\/16\\/2020 8:46 AM UTC\",\"exceptions\":\"\",\"start-date\":\"1\\/15\\/2020\",\"submitter\":[{\"email\":\"request.submitter@concur1.onmicrosoft.com\",\"employee-name\":\"Submitter, Request\",\"submit-date\":\"1\\/16\\/2020 8:46 AM UTC\"}],\"total-amt\":\"141.43 USD\",\"entries-section\":[{\"arrival-date\":\"\",\"pick-up-city\":\"\",\"arrival-city\":\"\",\"drop-off-city\":\"\",\"arrival-location-details\":\"\",\"city\":\"\",\"arrive-at\":\" \",\"expense-type\":\"Airfare\",\"duration\":\"\",\"pick-up-date\":\"\",\"departure-city\":\"\",\"title\":\"Air Ticket\",\"foreign-amt\":\"10000.00 INR\",\"segment-type\":\"Air Ticket\",\"from\":\"Hyderabad\",\"comment\":\"Segment Comment\",\"location-details\":\"\",\"check-in\":\"\",\"departure-location-details\":\"\",\"is-mult-segment\":false,\"exceptions\":\"\",\"drop-off-date\":\"\",\"pick-up-location-details\":\"\",\"drop-off-location-details\":\"\",\"departure-date\":\"\",\"check-out\":\"\",\"depart-at\":\"1\\/16\\/2020 7:00 AM UTC\",\"to\":\"Varanasi\",\"segment-count\":1}],\"workflow-action-url\":\"\"}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Provide your comments here",
+              "format": "text",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Approved",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "ACT_ON_REQUEST"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Send Back",
+          "url": {
+            "href": "https://hero/connectors/sap_concur/travelrequest/workflowaction"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "actionType": "SEND_BACK",
+            "travelRequest": "{\"submitted-by\":\"Submitter, Request\",\"end-date\":\"1\\/17\\/2020\",\"purpose\":\"Industrial Visit\",\"login-id\":\"request.submitter@concur1.onmicrosoft.com\",\"duration\":\"3 days\",\"request-name\":\"Request 16 Jan 1\",\"trip-total\":141.43,\"id\":\"337X\",\"employee-name\":\"Submitter, Request\",\"submit-date\":\"1\\/16\\/2020 8:46 AM UTC\",\"exceptions\":\"\",\"start-date\":\"1\\/15\\/2020\",\"submitter\":[{\"email\":\"request.submitter@concur1.onmicrosoft.com\",\"employee-name\":\"Submitter, Request\",\"submit-date\":\"1\\/16\\/2020 8:46 AM UTC\"}],\"total-amt\":\"141.43 USD\",\"entries-section\":[{\"arrival-date\":\"\",\"pick-up-city\":\"\",\"arrival-city\":\"\",\"drop-off-city\":\"\",\"arrival-location-details\":\"\",\"city\":\"\",\"arrive-at\":\" \",\"expense-type\":\"Airfare\",\"duration\":\"\",\"pick-up-date\":\"\",\"departure-city\":\"\",\"title\":\"Air Ticket\",\"foreign-amt\":\"10000.00 INR\",\"segment-type\":\"Air Ticket\",\"from\":\"Hyderabad\",\"comment\":\"Segment Comment\",\"location-details\":\"\",\"check-in\":\"\",\"departure-location-details\":\"\",\"is-mult-segment\":false,\"exceptions\":\"\",\"drop-off-date\":\"\",\"pick-up-location-details\":\"\",\"drop-off-location-details\":\"\",\"departure-date\":\"\",\"check-out\":\"\",\"depart-at\":\"1\\/16\\/2020 7:00 AM UTC\",\"to\":\"Varanasi\",\"segment-count\":1}],\"workflow-action-url\":\"\"}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Provide your comments here",
+              "format": "text",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Sent Back",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "ACT_ON_REQUEST"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-concur.png"
+      },
+      "backend_id": "337X",
+      "hash": "a05637accc61a49fcaeb3c659ccae6d46ff6e009"
+    }
+  ]
+}

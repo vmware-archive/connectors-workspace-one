@@ -1,0 +1,18 @@
+server:
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  server-header: sap_concur_connector
+  netty:
+    accesslog:
+      enabled: true
+
+management:
+  endpoints:
+    web.base-path: /
+  trace:
+    http:
+      include: REQUEST_HEADERS, RESPONSE_HEADERS, PRINCIPAL, REMOTE_ADDRESS, TIME_TAKEN
+
+logging:
+  config: 'classpath:logback-json.xml'

@@ -1,0 +1,115 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Box Notes Assist",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Box Notes - New mention",
+        "subtitle": [
+          "You have been @mentioned in",
+          "shravani_test.boxnote"
+        ],
+        "links": {
+          "title": "",
+          "subtitle": [
+            "",
+            "https://app.box.com/notes/650920505401"
+          ]
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Comment",
+            "description": "Pavan Babu Testing the Function"
+          },
+          {
+            "type": "GENERAL",
+            "title": "From",
+            "description": "hemanth kethe"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Date",
+            "description": "2100-04-09T16:32:56Z"
+          },
+          {
+            "type": "GENERAL",
+            "title": "File Name",
+            "description": "shravani_test.boxnote"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Notes ID",
+            "description": "650920505401"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Collaborators",
+            "description": "Sravani Bhagavathula, Pavan Babu"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Comment",
+          "url": {
+            "href": "https://hero/connectors/box_notes/notes/313882463/message"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "actionType": "addComment",
+            "document": "{\"updated-at\":\"2100-04-09T16:32:56Z\",\"comments\":\"Pavan Babu\\u00a0Testing the Function\",\"file\":\"shravani_test.boxnote\",\"note-link\":\"https:\\/\\/app.box.com\\/notes\\/650920505401\",\"post-message-url\":\"\\/notes\\/313882463\\/message\",\"updated-by\":\"hemanth kethe\",\"collaborators\":\"Sravani Bhagavathula, Pavan Babu\",\"id\":\"313882463\",\"noteId\":\"650920505401\",\"add-user-url\":\"\\/notes\\/313882463\\/addUser\"}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Enter the Message",
+              "format": "text",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Message Added",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ACT_ON_COMMENT"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Invite collaborator",
+          "url": {
+            "href": "https://hero/connectors/box_notes/notes/313882463/addUser"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "actionType": "addUser",
+            "document": "{\"updated-at\":\"2100-04-09T16:32:56Z\",\"comments\":\"Pavan Babu\\u00a0Testing the Function\",\"file\":\"shravani_test.boxnote\",\"note-link\":\"https:\\/\\/app.box.com\\/notes\\/650920505401\",\"post-message-url\":\"\\/notes\\/313882463\\/message\",\"updated-by\":\"hemanth kethe\",\"collaborators\":\"Sravani Bhagavathula, Pavan Babu\",\"id\":\"313882463\",\"noteId\":\"650920505401\",\"add-user-url\":\"\\/notes\\/313882463\\/addUser\"}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Enter the mail id",
+              "format": "text",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "User Added",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ACT_ON_MESSAGE"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-box-notes.png"
+      },
+      "backend_id": "313882463",
+      "hash": "f3f12d1b8832401523cf156370dace8eda8d1e63"
+    }
+  ]
+}

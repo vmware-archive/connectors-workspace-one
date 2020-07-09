@@ -1,0 +1,42 @@
+{
+  "next_marker": "",
+  "previous_marker": "",
+  "entries": [
+    {
+      "type": "collaboration",
+      "id": "22357653062",
+      "created_by": {
+        "type": "user",
+        "id": "9822286811",
+        "name": "Pavan Babu",
+        "login": "pavan@backflipt.com"
+      },
+      "created_at": "2020-04-09T01:37:36-07:00",
+      "modified_at": "2020-04-09T01:37:36-07:00",
+      "expires_at": null,
+      "status": "accepted",
+      "accessible_by": {
+        "type": "user",
+        "id": "12403266645",
+        "name": "Sravani Bhagavathula",
+        "login": "sravani@backflipt.com"
+      },
+      "invite_email": null,
+      "role": "editor",
+      "acknowledged_at": "2020-04-09T01:37:36-07:00",
+      "item": {
+        "type": "file",
+        "id": "650745915358",
+        "file_version": {
+          "type": "file_version",
+          "id": "689877717032",
+          "sha1": "ee8c294728f61a424eb0f09d676d90206a97dd16"
+        },
+        "sequence_id": "5",
+        "etag": "5",
+        "sha1": "ee8c294728f61a424eb0f09d676d90206a97dd16",
+        "name": "Note 2020-04-09 12.33.31.boxnote"
+      }
+    }
+  ]
+}

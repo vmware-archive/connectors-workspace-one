@@ -1,0 +1,21 @@
+{
+  "@odata.context": "https://xen10.crm.dynamics.com/api/data/v9.0/$metadata#contacts(emailaddress1,yomifullname,contactid,mobilephone,_parentcustomerid_value)",
+  "value": [
+    {
+      "@odata.etag": "W/\"1967238\"",
+      "emailaddress1": null,
+      "yomifullname": "John Smith",
+      "contactid": "e396390b-eacf-e911-a975-000d3a37f8b9",
+      "mobilephone": "1234567890",
+      "_parentcustomerid_value": "310a4ad3-06c3-e911-a82e-000d3a1ee335"
+    },
+    {
+      "@odata.etag": "W/\"1967238\"",
+      "emailaddress1": "tim.kelly@acme.com",
+      "yomifullname": "Tim Kelly",
+      "contactid": "e396390b-eacf-e911-a975-000d3a37f8b8",
+      "mobilephone": "1234567899",
+      "_parentcustomerid_value": "56759b58-2fc3-e911-a82e-000d3a1ee335"
+    }
+  ]
+}

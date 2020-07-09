@@ -1,0 +1,222 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Google Docs Assist",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Google Doc - New mention",
+        "subtitle": [
+          "You have been mentioned in",
+          "This Document is For Comments Testing"
+        ],
+        "links": {
+          "title": "",
+          "subtitle": [
+            "",
+            "https://docs.google.com/document/d/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM/edit?disco=AAAAGZR-2gk"
+          ]
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Comment",
+            "description": "+hemanthkethe10@gmail.com Self-Assigned"
+          },
+          {
+            "type": "GENERAL",
+            "title": "From",
+            "description": "kethe Hemanth"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Date",
+            "description": "2090-04-09T13:58:00.909Z"
+          },
+          {
+            "type": "GENERAL",
+            "title": "File Name",
+            "description": "This Document is For Comments Testing"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Document ID",
+            "description": "13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Collaborators",
+            "description": "Hemanth Kethe, kethe Hemanth"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Reply",
+          "url": {
+            "href": "https://hero/connectors/google_docs/comment/AAAAGZR-2gk/reply"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "document": "{\"updated-at\":\"2090-04-09T13:58:00.909Z\",\"doc-title\":\"This Document is For Comments Testing\",\"doc-link\":\"https:\\/\\/docs.google.com\\/document\\/d\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/edit?disco=AAAAGZR-2gk\",\"updated-by\":\"kethe Hemanth\",\"collaborators\":\"Hemanth Kethe, kethe Hemanth\",\"reply-url\":\"\\/comment\\/AAAAGZR-2gk\\/reply\",\"post-comment-url\":\"\\/doc\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/appendText\",\"id\":\"AAAAGZR-2gk\",\"comment\":\"+hemanthkethe10@gmail.com Self-Assigned\",\"add-user-url\":\"\\/doc\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/addUser\",\"doc-id\":\"13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\",\"comment-id\":\"AAAAGZR-2gk\"}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Enter the Reply Text",
+              "format": "text",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Replied",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ACT_ON_REPLY"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Invite collaborator",
+          "url": {
+            "href": "https://hero/connectors/google_docs/doc/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM/addUser"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "document": "{\"updated-at\":\"2090-04-09T13:58:00.909Z\",\"doc-title\":\"This Document is For Comments Testing\",\"doc-link\":\"https:\\/\\/docs.google.com\\/document\\/d\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/edit?disco=AAAAGZR-2gk\",\"updated-by\":\"kethe Hemanth\",\"collaborators\":\"Hemanth Kethe, kethe Hemanth\",\"reply-url\":\"\\/comment\\/AAAAGZR-2gk\\/reply\",\"post-comment-url\":\"\\/doc\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/appendText\",\"id\":\"AAAAGZR-2gk\",\"comment\":\"+hemanthkethe10@gmail.com Self-Assigned\",\"add-user-url\":\"\\/doc\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/addUser\",\"doc-id\":\"13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\",\"comment-id\":\"AAAAGZR-2gk\"}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Enter the Invitee mail id",
+              "format": "text",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "User Added",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ACT_ON_USER"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-google-docs.png"
+      },
+      "backend_id": "AAAAGZR-2gk",
+      "hash": "c5de26e2576db10e5979b1d4eb5a763e27066d1e"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Google Docs Assist",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Google Doc - New mention",
+        "subtitle": [
+          "You have been mentioned in",
+          "This Document is For Comments Testing"
+        ],
+        "links": {
+          "title": "",
+          "subtitle": [
+            "",
+            "https://docs.google.com/document/d/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM/edit?disco=AAAAJYqATWc"
+          ]
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Comment",
+            "description": "+hemanthkethe10@gmail.com Self Assigned In Replies"
+          },
+          {
+            "type": "GENERAL",
+            "title": "From",
+            "description": "kethe Hemanth"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Date",
+            "description": "2090-04-09T10:01:13.321Z"
+          },
+          {
+            "type": "GENERAL",
+            "title": "File Name",
+            "description": "This Document is For Comments Testing"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Document ID",
+            "description": "13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Collaborators",
+            "description": "Hemanth Kethe, kethe Hemanth"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Reply",
+          "url": {
+            "href": "https://hero/connectors/google_docs/comment/AAAAJYqATWc/reply"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "document": "{\"updated-at\":\"2090-04-09T10:01:13.321Z\",\"doc-title\":\"This Document is For Comments Testing\",\"doc-link\":\"https:\\/\\/docs.google.com\\/document\\/d\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/edit?disco=AAAAJYqATWc\",\"updated-by\":\"kethe Hemanth\",\"collaborators\":\"Hemanth Kethe, kethe Hemanth\",\"reply-url\":\"\\/comment\\/AAAAJYqATWc\\/reply\",\"post-comment-url\":\"\\/doc\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/appendText\",\"id\":\"AAAAJZS-Mas\",\"comment\":\"+hemanthkethe10@gmail.com Self Assigned In Replies\",\"add-user-url\":\"\\/doc\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/addUser\",\"doc-id\":\"13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\",\"comment-id\":\"AAAAJYqATWc\"}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Enter the Reply Text",
+              "format": "text",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Replied",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ACT_ON_REPLY"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Invite collaborator",
+          "url": {
+            "href": "https://hero/connectors/google_docs/doc/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM/addUser"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {
+            "document": "{\"updated-at\":\"2090-04-09T10:01:13.321Z\",\"doc-title\":\"This Document is For Comments Testing\",\"doc-link\":\"https:\\/\\/docs.google.com\\/document\\/d\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/edit?disco=AAAAJYqATWc\",\"updated-by\":\"kethe Hemanth\",\"collaborators\":\"Hemanth Kethe, kethe Hemanth\",\"reply-url\":\"\\/comment\\/AAAAJYqATWc\\/reply\",\"post-comment-url\":\"\\/doc\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/appendText\",\"id\":\"AAAAJZS-Mas\",\"comment\":\"+hemanthkethe10@gmail.com Self Assigned In Replies\",\"add-user-url\":\"\\/doc\\/13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\\/addUser\",\"doc-id\":\"13L7Xr357ISKNocGJKYK2rv3_Y_5aO1PnMszM3Oq4DsM\",\"comment-id\":\"AAAAJYqATWc\"}"
+          },
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Enter the Invitee mail id",
+              "format": "text",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "User Added",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ACT_ON_USER"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-google-docs.png"
+      },
+      "backend_id": "AAAAJZS-Mas",
+      "hash": "f0a8f27f497759d13f6f6f61d48277b763a7ad12"
+    }
+  ]
+}

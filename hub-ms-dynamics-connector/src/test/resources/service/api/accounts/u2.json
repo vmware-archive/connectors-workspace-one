@@ -1,0 +1,4 @@
+{
+  "@odata.context": "https://xenovusinc.crm.dynamics.com/api/data/v9.0/$metadata#accounts(accountid,name,createdon,modifiedon)",
+  "val": []
+}

@@ -1,0 +1,4 @@
+<WorkflowAction xmlns="http://www.concursolutions.com/api/travelrequest/2012/06">
+    <Action>{0}</Action>
+    <Comment>{1}</Comment>
+</WorkflowAction>

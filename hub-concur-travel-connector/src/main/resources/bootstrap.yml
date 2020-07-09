@@ -1,0 +1,3 @@
+spring:
+  application:
+    name: sap_concur_connector

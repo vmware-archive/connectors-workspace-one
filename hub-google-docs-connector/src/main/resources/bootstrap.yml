@@ -1,0 +1,3 @@
+spring:
+  application:
+    name: google_docs_connector
