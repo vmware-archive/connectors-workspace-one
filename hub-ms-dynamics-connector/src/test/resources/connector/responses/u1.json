@@ -1,0 +1,279 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Microsoft Dynamics New Account Assist",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Microsoft Dynamics - New account assigned",
+        "subtitle": [
+          "New account",
+          "for",
+          "Super Account 2"
+        ],
+        "links": {
+          "title": "",
+          "subtitle": [
+            "",
+            "",
+            ""
+          ]
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Account",
+            "description": "Super Account 2"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Contact Person",
+            "description": "John Smith"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Contact Details",
+            "description": "john@acme.com"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Log call",
+          "url": {
+            "href": "https://hero/connectors/ms-dynamics/accounts/310a4ad3-06c3-e911-a82e-000d3a1ee335/schedule_phonecall"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {},
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Subject",
+              "format": "text",
+              "min_length": 1,
+              "max_length": 200
+            }
+          ],
+          "completed_label": "Phone Call Created",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ADD_PHONE_CALL"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Add task",
+          "url": {
+            "href": "https://hero/connectors/ms-dynamics/accounts/310a4ad3-06c3-e911-a82e-000d3a1ee335/create_task"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {},
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Subject",
+              "format": "text",
+              "min_length": 1,
+              "max_length": 200
+            }
+          ],
+          "completed_label": "Task Created",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ADD_TASK"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-dynamics.png"
+      },
+      "backend_id": "310a4ad3-06c3-e911-a82e-000d3a1ee335",
+      "hash": "1def72a02618876393e1f0a1767bbb4584a92715"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Microsoft Dynamics New Account Assist",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Microsoft Dynamics - New account assigned",
+        "subtitle": [
+          "New account",
+          "for",
+          "Osborn"
+        ],
+        "links": {
+          "title": "",
+          "subtitle": [
+            "",
+            "",
+            ""
+          ]
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Account",
+            "description": "Osborn"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Contact Person",
+            "description": "Tim Kelly"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Contact Details",
+            "description": "tim.kelly@acme.com"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Log call",
+          "url": {
+            "href": "https://hero/connectors/ms-dynamics/accounts/56759b58-2fc3-e911-a82e-000d3a1ee335/schedule_phonecall"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {},
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Subject",
+              "format": "text",
+              "min_length": 1,
+              "max_length": 200
+            }
+          ],
+          "completed_label": "Phone Call Created",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ADD_PHONE_CALL"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Add task",
+          "url": {
+            "href": "https://hero/connectors/ms-dynamics/accounts/56759b58-2fc3-e911-a82e-000d3a1ee335/create_task"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {},
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Subject",
+              "format": "text",
+              "min_length": 1,
+              "max_length": 200
+            }
+          ],
+          "completed_label": "Task Created",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ADD_TASK"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-dynamics.png"
+      },
+      "backend_id": "56759b58-2fc3-e911-a82e-000d3a1ee335",
+      "hash": "76c4bd9cc96776b15fdb91be54a463d0ede325f3"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Microsoft Dynamics New Account Assist",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Microsoft Dynamics - New account assigned",
+        "subtitle": [
+          "New account",
+          "for",
+          "Account2"
+        ],
+        "links": {
+          "title": "",
+          "subtitle": [
+            "",
+            "",
+            ""
+          ]
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Account",
+            "description": "Account2"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Log call",
+          "url": {
+            "href": "https://hero/connectors/ms-dynamics/accounts/e5ddc7e7-3fc3-e911-a82e-000d3a1ee335/schedule_phonecall"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {},
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Subject",
+              "format": "text",
+              "min_length": 1,
+              "max_length": 200
+            }
+          ],
+          "completed_label": "Phone Call Created",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ADD_PHONE_CALL"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Add task",
+          "url": {
+            "href": "https://hero/connectors/ms-dynamics/accounts/e5ddc7e7-3fc3-e911-a82e-000d3a1ee335/create_task"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {},
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Subject",
+              "format": "text",
+              "min_length": 1,
+              "max_length": 200
+            }
+          ],
+          "completed_label": "Task Created",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ADD_TASK"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-dynamics.png"
+      },
+      "backend_id": "e5ddc7e7-3fc3-e911-a82e-000d3a1ee335",
+      "hash": "00a9beaf84eaeed717ee7c8365892a5c674ac8d4"
+    }
+  ]
+}

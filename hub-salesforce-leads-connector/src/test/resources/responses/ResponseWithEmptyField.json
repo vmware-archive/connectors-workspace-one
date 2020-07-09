@@ -1,0 +1,112 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Salesforce New Lead Assist",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Salesforce - New lead assigned",
+        "subtitle": [
+          "New lead",
+          "from",
+          "Farmers Coop. of Florida"
+        ],
+        "links": {
+          "title": "",
+          "subtitle": [
+            "https://bfvmw.my.salesforce.com/00Q2v00001cZUg5EAG",
+            "",
+            ""
+          ]
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Email",
+            "description": "bertha@fcof.net"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Phone",
+            "description": "(850) 644-4200"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Company",
+            "description": "Farmers Coop. of Florida"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Status",
+            "description": "Open - Not Contacted"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Owner",
+            "description": "Salesforce Backflipt"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Lead URL",
+            "description": "https://bfvmw.my.salesforce.com/00Q2v00001cZUg5EAG"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Log call",
+          "url": {
+            "href": "https://hero/connectors/sf_leads/leads/00Q2v00001cZUg5EAG/logACall"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {},
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Please Enter Call Details",
+              "format": "text",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Call Logged",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "LOG_A_CALL"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Add task",
+          "url": {
+            "href": "https://hero/connectors/sf_leads/leads/00Q2v00001cZUg5EAG/addTask"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "remove_card_on_completion": true,
+          "request": {},
+          "user_input": [
+            {
+              "id": "comments",
+              "label": "Please Enter Task Subject",
+              "format": "text",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Task added",
+          "allow_repeated": true,
+          "mutually_exclusive_set_id": "ADD_TASK"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-salesforce.png"
+      },
+      "backend_id": "00Q2v00001cZUg5EAG",
+      "hash": "f7682c00994841942b5c04217585f5578b1ed21a74006d4ba5fd71e63cc2a3a3"
+    }
+  ]
+}

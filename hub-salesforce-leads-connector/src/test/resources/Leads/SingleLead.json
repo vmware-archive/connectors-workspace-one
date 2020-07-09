@@ -1,0 +1,22 @@
+{
+  "attributes": {
+    "type": "Lead",
+    "url": "/services/data/v47.0/sobjects/Lead/00Q2v00001cZUg5EAG"
+  },
+  "id": "00Q2v00001cZUg5EAG",
+  "lead-name": "LN1",
+  "ConvertedAccountId": null,
+  "lead-status": "Open - Not Contacted",
+  "Owner": {
+    "attributes": {
+      "type": "Name",
+      "url": "/services/data/v47.0/sobjects/User/0052v00000ftWUbAAM"
+    },
+    "Name": "Salesforce Backflipt",
+    "Id": "0052v00000ftWUbAAM"
+  },
+  "lead-company": "Farmers Coop. of Florida",
+  "lead-mail": "bertha@fcof.net",
+  "lead-phone": "(850) 644-4200",
+  "LastModifiedDate": "2096-03-19T12:50:17.000+0000"
+}

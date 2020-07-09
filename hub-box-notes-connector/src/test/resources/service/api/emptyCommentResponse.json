@@ -1,0 +1,20 @@
+{
+  "total_count": 1,
+  "offset": 0,
+  "limit": 100,
+  "entries": [
+    {
+      "type": "comment",
+      "id": "313882463",
+      "is_reply_comment": false,
+      "message": "Pavan Babu Testing the Function",
+      "created_by": {
+        "type": "user",
+        "id": "12199685793",
+        "name": "hemanth kethe",
+        "login": "hemanthkethe@backflipt.com"
+      },
+      "created_at": "1990-04-09T06:36:48-07:00"
+    }
+  ]
+}

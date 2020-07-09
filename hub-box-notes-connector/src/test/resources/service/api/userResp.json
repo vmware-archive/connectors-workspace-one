@@ -1,0 +1,19 @@
+{
+  "type": "user",
+  "id": "9822286811",
+  "name": "Pavan Babu",
+  "login": "pavan@backflipt.com",
+  "created_at": "2019-08-27T00:10:52-07:00",
+  "modified_at": "2020-04-03T00:55:31-07:00",
+  "language": "en",
+  "timezone": "Asia\/Calcutta",
+  "space_amount": 10737418240,
+  "space_used": 190533941,
+  "max_upload_size": 2147483648,
+  "status": "active",
+  "job_title": "",
+  "phone": "9030066224",
+  "address": "",
+  "avatar_url": "https:\/\/app.box.com\/api\/avatar\/large\/9822286811",
+  "notification_email": []
+}
