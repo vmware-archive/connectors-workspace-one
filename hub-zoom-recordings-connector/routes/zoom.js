@@ -3,7 +3,7 @@
 
 const crypto = require('crypto')
 const moment = require('moment')
-const uuid = require('uuid/v4')
+const { v4: uuid } = require('uuid')
 
 const zoomRest = require('../services/zoom-rest')
 const utility = require('../utils/utility');
