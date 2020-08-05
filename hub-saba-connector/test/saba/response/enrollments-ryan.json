@@ -1,0 +1,44 @@
+{
+  "totalResults": 3,
+  "startIndex": 1,
+  "hasMoreResults": false,
+  "itemsPerPage": 50,
+  "results": [
+    {
+      "delivery_id": {
+        "displayName": "Classroom Training",
+        "id": "eqcat000000000000004"
+      },
+      "Current_Count": null,
+      "offering_action_id": {
+        "id": "ofapr000000002101330",
+        "displayName": "02096150"
+      },
+      "is_no_show": false,
+      "is_walk_in": false,
+      "reg_no": "40913611",
+      "student_id": {
+        "id": "emplo000000000415361",
+        "displayName": "Ryan Bard",
+        "person_no": "363865"
+      },
+      "wlist_on": "2020-07-20T02:12:00.382-0400",
+      "wlist_priority": 5,
+      "Max_Count": null,
+      "offering_temp_id": {
+        "displayName": "R&D Orientation",
+        "id": "cours000000000030552",
+        "course_no": "01011339",
+        "version": null
+      },
+      "elements_to_complete": 0,
+      "class_id": {
+        "id": "class000000000006921",
+        "displayName": "R&D Orientation"
+      },
+      "status": "100",
+      "id": "regdw000000000924527"
+    }
+  ],
+  "facets": []
+}

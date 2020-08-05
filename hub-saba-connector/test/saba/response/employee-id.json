@@ -1,0 +1,13 @@
+{
+  "totalResults": 1,
+  "hasMoreResults": false,
+  "startIndex": 1,
+  "itemsPerPage": 10,
+  "results": [
+    {
+      "id": "emplo000000000016551",
+      "href": "${SABA_API_HOST}/v1/people/emplo000000000016551"
+    }
+  ],
+  "facets": []
+}

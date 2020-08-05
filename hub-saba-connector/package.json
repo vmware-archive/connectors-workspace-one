@@ -1,0 +1,36 @@
+{
+  "name": "hub-saba-connector",
+  "version": "1.0.0",
+  "description": "Saba Notifications",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@stash.air-watch.com:7999/ufo/hub-saba-connector.git"
+  },
+  "keywords": [
+    "Saba"
+  ],
+  "author": "Shree Harsha S <harshas@vmware.com>",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.0",
+    "uuid": "^8.1.0",
+    "sha1": "^1.1.1",
+    "@vmw/mobile-flows-connector-commons": "^1.1.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^7.2.0",
+    "eslint": "^7.1.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1"
+  }
+}

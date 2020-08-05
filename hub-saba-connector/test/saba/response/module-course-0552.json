@@ -1,0 +1,119 @@
+{
+  "securityDomain": {
+    "id": "domin000000000081263",
+    "displayName": "Employee"
+  },
+  "customValues": {
+    "custom0": "gpdoperations@vmware.com",
+    "custom1": "GPD",
+    "custom2": null,
+    "custom3": null,
+    "custom4": null,
+    "custom5": null,
+    "custom6": null
+  },
+  "avail_from": "2017-05-25T00:00:00.000-0400",
+  "vendor_id": null,
+  "notify_before": null,
+  "valid_till": null,
+  "createGroupPolicyVal": false,
+  "image": "https://static-na4.sabacloud.com/assets/s/r17bp710yyqt/spf/skin/wireframe/media/images/CourseClassRoomImage.png",
+  "vendorImageURL": null,
+  "refreshImageFromVendorImageURL": false,
+  "ignoreImageUploadExceptions": true,
+  "video": null,
+  "category": [],
+  "owner": [
+    {
+      "ownerType": "100",
+      "sequence": 1,
+      "hasEdit": false,
+      "hasView": false,
+      "owner": {
+        "id": "emplo000000000107662",
+        "displayName": "Global People Development Operations"
+      },
+      "type": "100",
+      "parent": {
+        "id": "cours000000000030552",
+        "displayName": "R&D Orientation"
+      },
+      "id": "gvern000000000032465"
+    }
+  ],
+  "audienceType": [],
+  "language": [
+    {
+      "language_id": {
+        "id": "lange000000000000001",
+        "displayName": "English"
+      },
+      "str1": "0000000000",
+      "id": "g12rc000000000039375"
+    }
+  ],
+  "required_prerequisites": [],
+  "recommended_prerequisites": [],
+  "tags": [],
+  "type": 0,
+  "hide_classmates": true,
+  "is_sensitive": false,
+  "suppress_score": false,
+  "showRegCustom": true,
+  "showDropCustom": true,
+  "show_web2_0_actions": true,
+  "can_waive": false,
+  "field_of_study": [],
+  "created_on": "2017-05-25T19:48:28.000-0400",
+  "updated_on": "2017-05-25T19:48:28.000-0400",
+  "created_by": "cradhakrishna@vmware.com",
+  "updated_by": "cradhakrishna@vmware.com",
+  "created_id": "emplo000000000008468",
+  "allPrices": [
+    {
+      "displayValue": "0 USD",
+      "amount": 0,
+      "id": "plent000000000021803",
+      "curr_id": {
+        "id": "crncy000000000000167",
+        "displayName": "US Dollars"
+      }
+    }
+  ],
+  "deepLinkUrls": [
+    "https://vmwaredev.sabacloud.com/Saba/Web_spf/NA1TNB0133/common/ledetail/cours000000000030552",
+    "https://vmwaredev.sabacloud.com/Saba/Web_spf/NA1TNB0133/common/ledetail/01011339"
+  ],
+  "consider_completion_outside_recert_window": false,
+  "max_ct": null,
+  "min_ct": null,
+  "waitlist_max": null,
+  "recertwindow_unit": 0,
+  "title": "R&D Orientation",
+  "published": true,
+  "consume_within_cert": false,
+  "subscribed": true,
+  "disc_from": null,
+  "validtill_type": 0,
+  "validtill_frequency": null,
+  "validtill_daymonth": null,
+  "validtill_start_daymonth": null,
+  "avail_web": true,
+  "avail_call_center": true,
+  "validtill_unit": 0,
+  "course_no": "01011339",
+  "training_units": 0,
+  "csr_id": null,
+  "reAssignedTargetDays": null,
+  "test": true,
+  "version": null,
+  "parent_id": null,
+  "recert_window": null,
+  "target_days": 0,
+  "featured": false,
+  "description": "",
+  "status": "INEFFECT",
+  "id": "cours000000000030552",
+  "grace_period": null,
+  "lr_manager_id": null
+}

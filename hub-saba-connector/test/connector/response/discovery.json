@@ -1,0 +1,13 @@
+{
+  "image":{
+    "href":"https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-saba.png"
+  },
+  "object_types":{
+    "card":{
+      "pollable":true,
+      "endpoint":{
+        "href":"https://my-host:3030/abc/api/cards/requests"
+      }
+    }
+  }
+}

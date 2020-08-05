@@ -1,0 +1,146 @@
+{
+  "securityDomain": {
+    "id": "domin000000000081263",
+    "displayName": "Employee"
+  },
+  "customValues": {
+    "custom0": null,
+    "custom1": null,
+    "custom2": null,
+    "custom3": null,
+    "custom4": null
+  },
+  "learningevent_id": "01013964",
+  "vendor_id": null,
+  "notify_before": null,
+  "valid_till": null,
+  "createGroupPolicyVal": false,
+  "paths": [
+    {
+      "learningModules": [
+        {
+          "track_id": "track000000000008490",
+          "learningInterventions": [
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "sequence": 1,
+              "part_id": {
+                "id": "cours000000000032669",
+                "displayName": "VMware vSphere: Install, Configure, Manage [V6.5] "
+              },
+              "is_waiver": false,
+              "id": "edupl000000000020120"
+            },
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "sequence": 2,
+              "part_id": {
+                "id": "cours000000000032689",
+                "displayName": "Assessment for certification vSphere L100"
+              },
+              "is_waiver": false,
+              "id": "edupl000000000020182"
+            }
+          ],
+          "is_reqd": true,
+          "notes": null,
+          "sequence": 1,
+          "reqd_no_of_items": 2,
+          "is_waiver": true,
+          "name": "Module 1",
+          "id": "cegrp000000000010269"
+        }
+      ],
+      "is_path_recalculation_done": false,
+      "isrecertification_track": false,
+      "is_default_path": true,
+      "disc_from": null,
+      "name": "L100",
+      "id": "track000000000008490"
+    },
+    {
+      "learningModules": [
+        {
+          "track_id": "track000000000008491",
+          "learningInterventions": [
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "sequence": 1,
+              "part_id": {
+                "id": "cours000000000032670",
+                "displayName": "L200: Install, Configure, Manage [V6.5] "
+              },
+              "is_waiver": false,
+              "id": "edupl000000000020129"
+            },
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "sequence": 2,
+              "part_id": {
+                "id": "cours000000000032690",
+                "displayName": "Assessment for certification vSphere L200"
+              },
+              "is_waiver": false,
+              "id": "edupl000000000020183"
+            }
+          ],
+          "is_reqd": true,
+          "notes": null,
+          "sequence": 1,
+          "reqd_no_of_items": 2,
+          "is_waiver": true,
+          "name": "Module 1",
+          "id": "cegrp000000000010270"
+        }
+      ],
+      "is_path_recalculation_done": false,
+      "isrecertification_track": false,
+      "is_default_path": false,
+      "disc_from": null,
+      "name": "L200",
+      "id": "track000000000008491"
+    }
+  ],
+  "deepLinkUrls": [
+    "https://saba-cloud.com/Saba/Web_spf/NA1TNB0133/common/learningeventdetail/crtfy000000000967642"
+  ],
+  "keywords": [],
+  "history_lookup_policy": "CheckHistoryUptoExpiredRevoked",
+  "past_credit_days": null,
+  "parent": null,
+  "name": "vSphere L100",
+  "description": "",
+  "avl_from": "2017-12-14T00:00:00.000-0500",
+  "disc_from": null,
+  "target_days": 0,
+  "featured": false,
+  "version": null,
+  "status": "INEFFECT",
+  "group": null,
+  "id": "crtfy000000000967642",
+  "created_on": "2017-12-14T05:34:22.000-0500",
+  "updated_on": "2017-12-18T00:33:17.000-0500",
+  "created_by": "tks@vmware.com",
+  "updated_by": "tks@vmware.com",
+  "reAssignedTargetDays": null,
+  "grace_period": null,
+  "OneClickRegistration": false,
+  "auto_launch": false,
+  "enforce_required_course_reg": false,
+  "enforce_module_seq": false,
+  "enforce_target_date": false,
+  "disp_learner": true,
+  "disp_callcenter": true,
+  "self_register": true,
+  "expiryType": "duration",
+  "isExpiresInMonths": false,
+  "locale": {
+    "id": "local000000000000001",
+    "displayName": "English"
+  },
+  "recertifyDays": 0
+}

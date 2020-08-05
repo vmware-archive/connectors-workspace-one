@@ -1,0 +1,114 @@
+{
+  "totalResults": 3,
+  "startIndex": 1,
+  "hasMoreResults": false,
+  "itemsPerPage": 50,
+  "results": [
+    {
+      "delivery_id": {
+        "displayName": "Self-Paced Training",
+        "id": "eqcat000000000000005"
+      },
+      "reg_no": "0040959960",
+      "student_id": {
+        "id": "emplo000000000016551",
+        "displayName": "Shree Harsha S",
+        "person_no": "329462"
+      },
+      "wlist_on": "2020-07-17T09:51:10.065-0400",
+      "wlist_priority": 5,
+      "Max_Count": null,
+      "Current_Count": null,
+      "offering_action_id": {
+        "id": "ofapr000000002149935",
+        "displayName": "0002142638"
+      },
+      "is_no_show": false,
+      "is_walk_in": false,
+      "offering_temp_id": {
+        "displayName": "Introduction to the VMware Brand",
+        "id": "cours000000000035631",
+        "course_no": "01017455",
+        "version": null
+      },
+      "elements_to_complete": 0,
+      "class_id": {
+        "id": "dowbt000000000017995",
+        "displayName": "Introduction to the VMware Brand"
+      },
+      "status": "100",
+      "id": "regdw000000000974516"
+    },
+    {
+      "delivery_id": {
+        "displayName": "Assessment",
+        "id": "eqcat000000000003190"
+      },
+      "reg_no": "0040962195",
+      "student_id": {
+        "id": "emplo000000000016551",
+        "displayName": "Shree Harsha S",
+        "person_no": "329462"
+      },
+      "wlist_on": "2020-07-17T09:49:11.535-0400",
+      "wlist_priority": 5,
+      "Max_Count": null,
+      "Current_Count": null,
+      "offering_action_id": {
+        "id": "ofapr000000002152329",
+        "displayName": "0002144835"
+      },
+      "is_no_show": false,
+      "is_walk_in": false,
+      "offering_temp_id": {
+        "displayName": "Python Programming Quiz",
+        "id": "cours000000000007197",
+        "course_no": "ASMT71596",
+        "version": null
+      },
+      "elements_to_complete": 0,
+      "class_id": {
+        "id": "dowbt000000000008049",
+        "displayName": "Python Programming Quiz"
+      },
+      "status": "100",
+      "id": "regdw000000000976949"
+    },
+    {
+      "delivery_id": {
+        "displayName": "Self-Paced Training",
+        "id": "eqcat000000000000005"
+      },
+      "Max_Count": null,
+      "Current_Count": null,
+      "reg_no": "0040962213",
+      "student_id": {
+        "id": "emplo000000000016551",
+        "displayName": "Shree Harsha S",
+        "person_no": "329462"
+      },
+      "wlist_on": "2020-07-17T09:55:36.113-0400",
+      "wlist_priority": 5,
+      "offering_action_id": {
+        "id": "ofapr000000002152345",
+        "displayName": "0002144854"
+      },
+      "is_no_show": false,
+      "is_walk_in": false,
+      "offering_temp_id": {
+        "displayName": "2017 Workplace Harassment (US Version)",
+        "id": "cours000000000027148",
+        "course_no": "01007363",
+        "version": null
+      },
+      "elements_to_complete": 0,
+      "class_id": {
+        "id": "dowbt000000000011910",
+        "displayName": "2017 Workplace Harassment (US Version)"
+      },
+      "status": "100",
+      "id": "regdw000000000976963"
+    }
+  ],
+  "facets": []
+}
