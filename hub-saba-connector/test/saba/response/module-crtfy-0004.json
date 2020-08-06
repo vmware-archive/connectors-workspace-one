@@ -1,0 +1,146 @@
+{
+  "securityDomain": {
+    "id": "domin000000000101240",
+    "displayName": "LRN Support"
+  },
+  "customValues": {
+    "custom0": null,
+    "custom1": "nbenson@vmware.com",
+    "custom2": "Marketing",
+    "custom3": null,
+    "custom4": null
+  },
+  "learningevent_id": "01016022",
+  "vendor_id": null,
+  "notify_before": 130,
+  "valid_till": null,
+  "createGroupPolicyVal": false,
+  "paths": [
+    {
+      "learningModules": [
+        {
+          "track_id": "track000000000009416",
+          "learningInterventions": [
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "is_waiver": false,
+              "part_id": {
+                "id": "cours000000000035631",
+                "displayName": "Introduction to the VMware Brand"
+              },
+              "sequence": 1,
+              "id": "edupl000000000022042"
+            },
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "is_waiver": false,
+              "part_id": {
+                "id": "cours000000000034491",
+                "displayName": "Branding Logo, Graphics and Layouts"
+              },
+              "sequence": 2,
+              "id": "edupl000000000021563"
+            },
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "is_waiver": false,
+              "part_id": {
+                "id": "cours000000000034490",
+                "displayName": "Naming VMware Products and Services"
+              },
+              "sequence": 3,
+              "id": "edupl000000000021562"
+            },
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "is_waiver": false,
+              "part_id": {
+                "id": "cours000000000034492",
+                "displayName": "Branding Photos, Icons and Illustrations"
+              },
+              "sequence": 4,
+              "id": "edupl000000000021564"
+            },
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "is_waiver": false,
+              "part_id": {
+                "id": "cours000000000035630",
+                "displayName": "Branding PPT, Email and Docs"
+              },
+              "sequence": 5,
+              "id": "edupl000000000022041"
+            },
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "is_waiver": false,
+              "part_id": {
+                "id": "cours000000000034489",
+                "displayName": "Branding Voice and Tone"
+              },
+              "sequence": 6,
+              "id": "edupl000000000021561"
+            }
+          ],
+          "notes": null,
+          "is_reqd": true,
+          "reqd_no_of_items": 6,
+          "is_waiver": true,
+          "sequence": 1,
+          "name": "Track 1",
+          "id": "cegrp000000000011373"
+        }
+      ],
+      "is_default_path": true,
+      "is_path_recalculation_done": false,
+      "isrecertification_track": false,
+      "disc_from": null,
+      "name": "Manage and Express the Brand",
+      "id": "track000000000009416"
+    }
+  ],
+  "deepLinkUrls": [
+    "https://saba-cloud.com/Saba/Web_spf/NA1TNB0133/common/learningeventdetail/crtfy000000000970004"
+  ],
+  "keywords": [],
+  "history_lookup_policy": "CheckHistoryUptoExpiredRevoked",
+  "past_credit_days": null,
+  "parent": null,
+  "name": "The VMware Brand for Marketers",
+  "description": "<b>Take in order. Score 80%+.</b>",
+  "avl_from": "2019-01-16T00:00:00.000-0500",
+  "disc_from": null,
+  "target_days": 0,
+  "featured": false,
+  "version": null,
+  "status": "INEFFECT",
+  "group": null,
+  "id": "crtfy000000000970004",
+  "created_on": "2019-01-16T00:38:12.000-0500",
+  "updated_on": "2019-09-26T05:42:20.000-0400",
+  "created_by": "tks@vmware.com",
+  "updated_by": "vmoutam@vmware.com",
+  "reAssignedTargetDays": null,
+  "grace_period": null,
+  "OneClickRegistration": false,
+  "auto_launch": false,
+  "enforce_required_course_reg": false,
+  "enforce_module_seq": false,
+  "enforce_target_date": false,
+  "disp_learner": false,
+  "disp_callcenter": false,
+  "self_register": true,
+  "expiryType": "duration",
+  "isExpiresInMonths": false,
+  "locale": {
+    "id": "local000000000000001",
+    "displayName": "English"
+  },
+  "recertifyDays": 0
+}

@@ -1,0 +1,303 @@
+{
+  "totalResults": 2,
+  "hasMoreResults": false,
+  "startIndex": 1,
+  "itemsPerPage": 10,
+  "results": [
+    {
+      "percentcompleted": 0,
+      "requirers": [
+        {
+          "source": {
+            "sourceType": "InternalPerson",
+            "activitySourceType": {
+              "sourceType": 0,
+              "listId": "sysli000000000003037",
+              "key": "0",
+              "displayName": "Person"
+            },
+            "displayName": "David Shaw",
+            "id": "emplo000000000025731",
+            "locale": {
+              "id": "local000000000000001",
+              "displayName": "English"
+            }
+          },
+          "assignee": {
+            "sourceType": "InternalPerson",
+            "activitySourceType": {
+              "sourceType": 0,
+              "listId": "sysli000000000003037",
+              "key": "0",
+              "displayName": "Person"
+            },
+            "displayName": "Shree Harsha S",
+            "id": "emplo000000000016551",
+            "locale": {
+              "id": "local000000000000001",
+              "displayName": "English"
+            }
+          },
+          "assignedOn": 1587545867000,
+          "id": "certh000000003749902",
+          "learningEvent": {
+            "id": "crtfy000000000970004",
+            "displayName": "The VMware Brand for Marketers"
+          },
+          "targetDate": 1593489600000,
+          "assignment": {
+            "id": "stuce000000000011483",
+            "displayName": null
+          },
+          "activityContext": null,
+          "listIds": null,
+          "jobTypeId": null,
+          "auditReason": null,
+          "required": true,
+          "actions": null
+        }
+      ],
+      "basicdetail": {
+        "createdOn": 1587545867000,
+        "updatedOn": 1587545868000,
+        "createdBy": "SHAWD@VMWARE.COM",
+        "updatedBy": "SHAWD@VMWARE.COM",
+        "person": {
+          "sourceType": "InternalPerson",
+          "activitySourceType": {
+            "sourceType": 0,
+            "listId": "sysli000000000003037",
+            "key": "0",
+            "displayName": "Person"
+          },
+          "displayName": "Shree Harsha S",
+          "id": "emplo000000000016551",
+          "locale": {
+            "id": "local000000000000001",
+            "displayName": "English"
+          }
+        },
+        "gracePeriod": null,
+        "gracePeriodEndsOnDate": null,
+        "reassign": true,
+        "inRecertification": false,
+        "profileElementType": "InternalCert",
+        "recertificationType": [],
+        "is_Reassigned": 0,
+        "prev_expired_on": null,
+        "considerComplOutsideRecert": false,
+        "type": "CERTIFICATION",
+        "path": {
+          "id": "track000000000009416",
+          "displayName": "Manage and Express the Brand"
+        },
+        "status": {
+          "intStatus": 400,
+          "description": "Assigned",
+          "key": "400",
+          "displayName": "Assigned"
+        },
+        "id": "stuce000000000011483",
+        "startedOn": null,
+        "targetDate": 1593489600000,
+        "assignedOnDate": 1587545867000,
+        "acquiredOn": null,
+        "assignee": {
+          "sourceType": "InternalPerson",
+          "activitySourceType": {
+            "sourceType": 0,
+            "listId": "sysli000000000003037",
+            "key": "0",
+            "displayName": "Person"
+          },
+          "displayName": "Shree Harsha S",
+          "id": "emplo000000000016551",
+          "locale": {
+            "id": "local000000000000001",
+            "displayName": "English"
+          }
+        },
+        "heldCertNo": "0000299016",
+        "owner": {
+          "sourceType": "InternalPerson",
+          "activitySourceType": {
+            "sourceType": 0,
+            "listId": "sysli000000000003037",
+            "key": "0",
+            "displayName": "Person"
+          },
+          "displayName": "Shree Harsha S",
+          "id": "emplo000000000016551",
+          "locale": {
+            "id": "local000000000000001",
+            "displayName": "English"
+          }
+        },
+        "expired_on": null,
+        "revoked_on": null,
+        "certification_id": {
+          "id": "crtfy000000000970004",
+          "displayName": "The VMware Brand for Marketers"
+        },
+        "need_recert_ot": false,
+        "need_recert_eq": false,
+        "need_recert": false,
+        "recert_window_starts_on": null,
+        "assigneeAdditionalDetails": {
+          "person_no": "329462",
+          "username": "HARSHAS@VMWARE.COM"
+        },
+        "need_recert_cert": false
+      },
+      "isgranted": null
+    },
+    {
+      "percentcompleted": 0,
+      "requirers": [
+        {
+          "source": {
+            "sourceType": "InternalPerson",
+            "activitySourceType": {
+              "sourceType": 0,
+              "listId": "sysli000000000003037",
+              "key": "0",
+              "displayName": "Person"
+            },
+            "displayName": "David Shaw",
+            "id": "emplo000000000025731",
+            "locale": {
+              "id": "local000000000000001",
+              "displayName": "English"
+            }
+          },
+          "assignee": {
+            "sourceType": "InternalPerson",
+            "activitySourceType": {
+              "sourceType": 0,
+              "listId": "sysli000000000003037",
+              "key": "0",
+              "displayName": "Person"
+            },
+            "displayName": "Shree Harsha S",
+            "id": "emplo000000000016551",
+            "locale": {
+              "id": "local000000000000001",
+              "displayName": "English"
+            }
+          },
+          "assignedOn": 1587545869000,
+          "id": "certh000000003749908",
+          "learningEvent": {
+            "id": "crtfy000000000967642",
+            "displayName": "vSphere L100"
+          },
+          "targetDate": 1594440000000,
+          "assignment": {
+            "id": "stuce000000000011489",
+            "displayName": null
+          },
+          "activityContext": null,
+          "listIds": null,
+          "jobTypeId": null,
+          "auditReason": null,
+          "required": true,
+          "actions": null
+        }
+      ],
+      "basicdetail": {
+        "createdOn": 1587545869000,
+        "updatedOn": 1587545869000,
+        "createdBy": "SHAWD@VMWARE.COM",
+        "updatedBy": "SHAWD@VMWARE.COM",
+        "reassign": true,
+        "gracePeriod": null,
+        "gracePeriodEndsOnDate": null,
+        "inRecertification": false,
+        "profileElementType": "InternalCert",
+        "person": {
+          "sourceType": "InternalPerson",
+          "activitySourceType": {
+            "sourceType": 0,
+            "listId": "sysli000000000003037",
+            "key": "0",
+            "displayName": "Person"
+          },
+          "displayName": "Shree Harsha S",
+          "id": "emplo000000000016551",
+          "locale": {
+            "id": "local000000000000001",
+            "displayName": "English"
+          }
+        },
+        "recertificationType": [],
+        "is_Reassigned": 0,
+        "prev_expired_on": null,
+        "considerComplOutsideRecert": false,
+        "path": {
+          "id": "track000000000008490",
+          "displayName": "L100"
+        },
+        "status": {
+          "intStatus": 400,
+          "description": "Assigned",
+          "key": "400",
+          "displayName": "Assigned"
+        },
+        "type": "CERTIFICATION",
+        "id": "stuce000000000011489",
+        "targetDate": 1594440000000,
+        "assignedOnDate": 1587545869000,
+        "acquiredOn": null,
+        "assignee": {
+          "sourceType": "InternalPerson",
+          "activitySourceType": {
+            "sourceType": 0,
+            "listId": "sysli000000000003037",
+            "key": "0",
+            "displayName": "Person"
+          },
+          "displayName": "Shree Harsha S",
+          "id": "emplo000000000016551",
+          "locale": {
+            "id": "local000000000000001",
+            "displayName": "English"
+          }
+        },
+        "startedOn": null,
+        "heldCertNo": "0000299022",
+        "owner": {
+          "sourceType": "InternalPerson",
+          "activitySourceType": {
+            "sourceType": 0,
+            "listId": "sysli000000000003037",
+            "key": "0",
+            "displayName": "Person"
+          },
+          "displayName": "Shree Harsha S",
+          "id": "emplo000000000016551",
+          "locale": {
+            "id": "local000000000000001",
+            "displayName": "English"
+          }
+        },
+        "certification_id": {
+          "id": "crtfy000000000967642",
+          "displayName": "vSphere L100"
+        },
+        "need_recert_ot": false,
+        "need_recert_eq": false,
+        "expired_on": null,
+        "revoked_on": null,
+        "need_recert": false,
+        "recert_window_starts_on": null,
+        "assigneeAdditionalDetails": {
+          "person_no": "329462",
+          "username": "HARSHAS@VMWARE.COM"
+        },
+        "need_recert_cert": false
+      },
+      "isgranted": null
+    }
+  ],
+  "facets": []
+}

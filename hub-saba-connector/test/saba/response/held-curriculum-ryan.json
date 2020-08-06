@@ -1,0 +1,127 @@
+{
+  "totalResults": 1,
+  "hasMoreResults": false,
+  "startIndex": 1,
+  "itemsPerPage": 10,
+  "results": [
+    {
+      "percentcompleted": 0,
+      "requirers": [
+        {
+          "source": {
+            "sourceType": "InternalPerson",
+            "activitySourceType": {
+              "sourceType": 0,
+              "listId": "sysli000000000003037",
+              "key": "0",
+              "displayName": "Person"
+            },
+            "displayName": "David Shaw",
+            "id": "emplo000000000025731",
+            "locale": {
+              "id": "local000000000000001",
+              "displayName": "English"
+            }
+          },
+          "assignee": {
+            "sourceType": "InternalPerson",
+            "activitySourceType": {
+              "sourceType": 0,
+              "listId": "sysli000000000003037",
+              "key": "0",
+              "displayName": "Person"
+            },
+            "displayName": "Ryan Bard",
+            "id": "emplo000000000415361",
+            "locale": {
+              "id": "local000000000000001",
+              "displayName": "English"
+            }
+          },
+          "assignedOn": 1587546100000,
+          "id": "currh000000003749920",
+          "learningEvent": {
+            "id": "curra000000000005167",
+            "displayName": "Ethics and Compliance - Workplace Harassment (US non California)"
+          },
+          "targetDate": 1590138100000,
+          "assignment": {
+            "id": "stcur000000000391892",
+            "displayName": null
+          },
+          "activityContext": null,
+          "listIds": null,
+          "jobTypeId": null,
+          "auditReason": null,
+          "required": true,
+          "actions": null
+        }
+      ],
+      "basicdetail": {
+        "createdOn": 1587546100000,
+        "updatedOn": 1587546100000,
+        "createdBy": "SHAWD@VMWARE.COM",
+        "updatedBy": "SHAWD@VMWARE.COM",
+        "revokedOn": null,
+        "curriculum": {
+          "id": "curra000000000005167",
+          "displayName": "Ethics and Compliance - Workplace Harassment (US non California)"
+        },
+        "type": "CURRICULUM",
+        "path": {
+          "id": "track000000000005670",
+          "displayName": "Ethics and Compliance -  Workplace Harassment (US non Califonia)"
+        },
+        "status": {
+          "intStatus": 600,
+          "description": "Overdue",
+          "displayName": "Overdue"
+        },
+        "acquiredOn": null,
+        "assignee": {
+          "sourceType": "InternalPerson",
+          "activitySourceType": {
+            "sourceType": 0,
+            "listId": "sysli000000000003037",
+            "key": "0",
+            "displayName": "Person"
+          },
+          "displayName": "Ryan Bard",
+          "id": "emplo000000000415361",
+          "locale": {
+            "id": "local000000000000001",
+            "displayName": "English"
+          }
+        },
+        "targetDate": 1590138100000,
+        "assignedOnDate": 1587546100000,
+        "startedOn": null,
+        "heldCertNo": "0000299034",
+        "owner": {
+          "sourceType": "InternalPerson",
+          "activitySourceType": {
+            "sourceType": 0,
+            "listId": "sysli000000000003037",
+            "key": "0",
+            "displayName": "Person"
+          },
+          "displayName": "Ryan Bard",
+          "id": "emplo000000000415361",
+          "locale": {
+            "id": "local000000000000001",
+            "displayName": "English"
+          }
+        },
+        "id": "stcur000000000391892",
+        "need_recert": false,
+        "recert_window_starts_on": null,
+        "assigneeAdditionalDetails": {
+          "person_no": "329462",
+          "username": "JBARD@VMWARE.COM"
+        }
+      },
+      "isgranted": null
+    }
+  ],
+  "facets": []
+}

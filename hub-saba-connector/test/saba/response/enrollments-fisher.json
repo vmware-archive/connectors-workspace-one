@@ -1,0 +1,44 @@
+{
+  "totalResults": 1,
+  "startIndex": 1,
+  "hasMoreResults": false,
+  "itemsPerPage": 50,
+  "results": [
+    {
+      "delivery_id": {
+        "displayName": "Assessment",
+        "id": "eqcat000000000003190"
+      },
+      "reg_no": "0040962195",
+      "student_id": {
+        "id": "emplo000000000016552",
+        "displayName": "Jonathan Fisher",
+        "person_no": "329462"
+      },
+      "wlist_on": "2020-07-17T09:49:11.535-0400",
+      "wlist_priority": 5,
+      "Max_Count": null,
+      "Current_Count": null,
+      "offering_action_id": {
+        "id": "ofapr000000002152329",
+        "displayName": "0002144835"
+      },
+      "is_no_show": false,
+      "is_walk_in": false,
+      "offering_temp_id": {
+        "displayName": "Python Programming Quiz",
+        "id": "cours000000000007197",
+        "course_no": "ASMT71596",
+        "version": null
+      },
+      "elements_to_complete": 0,
+      "class_id": {
+        "id": "dowbt000000000008049",
+        "displayName": "Python Programming Quiz"
+      },
+      "status": "100",
+      "id": "regdw000000000976950"
+    }
+  ],
+  "facets": []
+}

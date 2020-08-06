@@ -1,0 +1,102 @@
+{
+  "securityDomain": {
+    "id": "domin000000000083203",
+    "displayName": "Compliance"
+  },
+  "customValues": {
+    "custom0": null,
+    "custom1": null,
+    "custom2": "Ethics and Compliance"
+  },
+  "learningevent_id": "01005348",
+  "vendor_id": null,
+  "createGroupPolicyVal": false,
+  "paths": [
+    {
+      "learningModules": [
+        {
+          "track_id": "track000000000005670",
+          "learningInterventions": [
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "sequence": 1,
+              "part_id": {
+                "id": "cours000000000027148",
+                "displayName": "2017 Workplace Harassment (US Version)"
+              },
+              "is_waiver": false,
+              "id": "edupl000000000013041"
+            }
+          ],
+          "is_reqd": true,
+          "notes": null,
+          "sequence": 1,
+          "reqd_no_of_items": 1,
+          "is_waiver": true,
+          "name": "Prevention of Workplace Harassment Non CA (US Version)",
+          "id": "cegrp000000000006431"
+        },
+        {
+          "track_id": "track000000000005671",
+          "learningInterventions": [
+            {
+              "owner_id": null,
+              "is_reqd": false,
+              "sequence": 1,
+              "part_id": {
+                "id": "cours000000000027149",
+                "displayName": "2017 Workplace Harassment Part 2"
+              },
+              "is_waiver": false,
+              "id": "edupl000000000013042"
+            }
+          ],
+          "is_reqd": true,
+          "notes": null,
+          "sequence": 1,
+          "reqd_no_of_items": 1,
+          "is_waiver": true,
+          "name": "Prevention of Workplace Harassment Part 2",
+          "id": "cegrp000000000006432"
+        }
+      ],
+      "is_path_recalculation_done": false,
+      "isrecertification_track": false,
+      "is_default_path": true,
+      "disc_from": null,
+      "name": "Ethics and Compliance -  Workplace Harassment (US non Califonia)",
+      "id": "track000000000005670"
+    }
+  ],
+  "deepLinkUrls": [
+    "https://saba-cloud.com/Saba/Web_spf/NA1TNB0133/common/learningeventdetail/curra000000000005167"
+  ],
+  "keywords": [],
+  "name": "Ethics and Compliance - Workplace Harassment (US non California)",
+  "description": "Ethics and Compliance - New Hire/New Manager - Workplace Harassment (US non Califonia)",
+  "avl_from": "2016-10-27T00:00:00.000-0400",
+  "disc_from": null,
+  "target_days": 30,
+  "featured": false,
+  "version": null,
+  "status": "INEFFECT",
+  "group": null,
+  "id": "curra000000000005167",
+  "OneClickRegistration": false,
+  "auto_launch": false,
+  "enforce_required_course_reg": false,
+  "enforce_module_seq": false,
+  "enforce_target_date": false,
+  "disp_learner": true,
+  "disp_callcenter": true,
+  "self_register": true,
+  "updated_on": "2017-07-11T09:17:18.000-0400",
+  "created_on": "2016-10-27T11:53:33.000-0400",
+  "updated_by": "ghulmani@vmware.com",
+  "locale": {
+    "id": "local000000000000001",
+    "displayName": "English"
+  },
+  "created_by": "veenitak@vmware.com"
+}

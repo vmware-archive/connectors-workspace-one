@@ -1,0 +1,121 @@
+{
+  "objects": [
+    {
+      "id":"00000000-0000-0000-0000-000000000000",
+      "backend_id":"curra000000000005167",
+      "hash":"2f66f0898eed1aeda233fba353a70bbc777d408c",
+      "header":{
+        "title":"Saba - New learning available"
+      },
+      "image": {
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-saba.png"
+      },
+      "body":{
+        "fields":[
+          {
+            "type":"GENERAL",
+            "title":"Curriculum Name",
+            "description":"Ethics and Compliance - Workplace Harassment (US non California)"
+          },
+          {
+            "type":"GENERAL",
+            "title":"Progress",
+            "description":"Overdue"
+          },
+          {
+            "type":"GENERAL",
+            "title":"Due date",
+            "description":"2020-05-22"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Path Options",
+            "description": "Ethics and Compliance -  Workplace Harassment (US non Califonia)"
+          },
+          {
+            "type": "SECTION",
+            "title": "Prevention of Workplace Harassment Non CA (US Version)",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Course",
+                "description": "2017 Workplace Harassment (US Version)"
+              }
+            ]
+          },
+          {
+            "type": "SECTION",
+            "title": "Prevention of Workplace Harassment Part 2",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Course",
+                "description": "2017 Workplace Harassment Part 2"
+              }
+            ]
+          }
+        ]
+      },
+      "actions":[
+        {
+          "id":"00000000-0000-0000-0000-000000000000",
+          "action_key":"OPEN_IN",
+          "label":"Open learning",
+          "completed_label":"Open learning",
+          "type":"GET",
+          "primary":true,
+          "remove_card_on_completion":false,
+          "allow_repeated":true,
+          "url":{
+            "href":"https://saba-cloud.com/Saba/Web_spf/NA1TNB0133/common/learningeventdetail/curra000000000005167"
+          }
+        }
+      ]
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "backend_id": "regdw000000000924527",
+      "hash": "caae531a5e2464f9c0d441684f5689b92bee2622",
+      "image": {
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-saba.png"
+      },
+      "header": {
+        "title": "Saba - New learning available"
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Course Name",
+            "description": "R&D Orientation"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Progress",
+            "description": "In Progress"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Due date",
+            "description": "---"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_key": "OPEN_IN",
+          "allow_repeated": true,
+          "completed_label": "Open learning",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Open learning",
+          "primary": true,
+          "remove_card_on_completion": false,
+          "type": "GET",
+          "url": {
+            "href": "https://vmwaredev.sabacloud.com/Saba/Web_spf/NA1TNB0133/common/ledetail/cours000000000030552"
+          }
+        }
+      ]
+    }
+  ]
+}

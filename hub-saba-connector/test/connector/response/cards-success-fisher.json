@@ -1,0 +1,49 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "backend_id": "regdw000000000976950",
+      "hash": "1c6dfe963e45b29c671675d75dbd96f674390414",
+      "image": {
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-saba.png"
+      },
+      "header": {
+        "title": "Saba - New learning available"
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Course Name",
+            "description": "Python Programming Quiz"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Progress",
+            "description": "In Progress"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Due date",
+            "description": "---"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_key": "OPEN_IN",
+          "allow_repeated": true,
+          "completed_label": "Open learning",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Open learning",
+          "primary": true,
+          "remove_card_on_completion": false,
+          "type": "GET",
+          "url": {
+            "href": "https://vmwaredev.sabacloud.com/Saba/Web_spf/NA1TNB0133/common/ledetail/cours000000000007197"
+          }
+        }
+      ]
+    }
+  ]
+}

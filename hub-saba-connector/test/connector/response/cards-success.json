@@ -1,0 +1,257 @@
+{
+  "objects":[
+    {
+      "id":"00000000-0000-0000-0000-000000000000",
+      "backend_id":"curra000000000005167",
+      "hash":"2f66f0898eed1aeda233fba353a70bbc777d408c",
+      "header":{
+        "title":"Saba - New learning available"
+      },
+      "image": {
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-saba.png"
+      },
+      "body":{
+        "fields":[
+          {
+            "type":"GENERAL",
+            "title":"Curriculum Name",
+            "description":"Ethics and Compliance - Workplace Harassment (US non California)"
+          },
+          {
+            "type":"GENERAL",
+            "title":"Progress",
+            "description":"Overdue"
+          },
+          {
+            "type":"GENERAL",
+            "title":"Due date",
+            "description":"2020-05-22"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Path Options",
+            "description": "Ethics and Compliance -  Workplace Harassment (US non Califonia)"
+          },
+          {
+            "type": "SECTION",
+            "title": "Prevention of Workplace Harassment Non CA (US Version)",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Course",
+                "description": "2017 Workplace Harassment (US Version)"
+              }
+            ]
+          },
+          {
+            "type": "SECTION",
+            "title": "Prevention of Workplace Harassment Part 2",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Course",
+                "description": "2017 Workplace Harassment Part 2"
+              }
+            ]
+          }
+        ]
+      },
+      "actions":[
+        {
+          "id":"00000000-0000-0000-0000-000000000000",
+          "action_key":"OPEN_IN",
+          "label":"Open learning",
+          "completed_label":"Open learning",
+          "type":"GET",
+          "primary":true,
+          "remove_card_on_completion":false,
+          "allow_repeated":true,
+          "url":{
+            "href":"https://saba-cloud.com/Saba/Web_spf/NA1TNB0133/common/learningeventdetail/curra000000000005167"
+          }
+        }
+      ]
+    },
+    {
+      "id":"00000000-0000-0000-0000-000000000000",
+      "backend_id":"crtfy000000000970004",
+      "hash":"b65333c8f26973a6aabd0576d8aa5a3484d363ce",
+      "header":{
+        "title":"Saba - New learning available"
+      },
+      "image": {
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-saba.png"
+      },
+      "body":{
+        "fields":[
+          {
+            "type": "GENERAL",
+            "title": "Accreditation Name",
+            "description": "The VMware Brand for Marketers"
+          },
+          {
+            "type":"GENERAL",
+            "title":"Progress",
+            "description":"Assigned"
+          },
+          {
+            "type":"GENERAL",
+            "title":"Due date",
+            "description":"2020-06-30"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Path Options",
+            "description": "Manage and Express the Brand"
+          },
+          {
+            "type": "SECTION",
+            "title": "Track 1",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Course",
+                "description": "Introduction to the VMware Brand"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Course",
+                "description": "Branding Logo, Graphics and Layouts"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Course",
+                "description": "Naming VMware Products and Services"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Course",
+                "description": "Branding Photos, Icons and Illustrations"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Course",
+                "description": "Branding PPT, Email and Docs"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Course",
+                "description": "Branding Voice and Tone"
+              }
+            ]
+          }
+        ]
+      },
+      "actions":[
+        {
+          "id":"00000000-0000-0000-0000-000000000000",
+          "action_key":"OPEN_IN",
+          "label":"Open learning",
+          "completed_label":"Open learning",
+          "type":"GET",
+          "primary":true,
+          "remove_card_on_completion":false,
+          "allow_repeated":true,
+          "url":{
+            "href":"https://saba-cloud.com/Saba/Web_spf/NA1TNB0133/common/learningeventdetail/crtfy000000000970004"
+          }
+        }
+      ]
+    },
+    {
+      "id":"00000000-0000-0000-0000-000000000000",
+      "backend_id":"crtfy000000000967642",
+      "hash":"e3915dc59bc6306132dbd501dcecb0727d65307f",
+      "header":{
+        "title":"Saba - New learning available"
+      },
+      "image": {
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-saba.png"
+      },
+      "body":{
+        "fields":[
+          {
+            "type": "GENERAL",
+            "title": "Accreditation Name",
+            "description": "vSphere L100"
+          },
+          {
+            "type":"GENERAL",
+            "title":"Progress",
+            "description":"Assigned"
+          },
+          {
+            "type":"GENERAL",
+            "title":"Due date",
+            "description":"2020-07-11"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Path Options",
+            "description": "L100, L200"
+          }
+        ]
+      },
+      "actions":[
+        {
+          "id":"00000000-0000-0000-0000-000000000000",
+          "action_key":"OPEN_IN",
+          "label":"Open learning",
+          "completed_label":"Open learning",
+          "type":"GET",
+          "primary":true,
+          "remove_card_on_completion":false,
+          "allow_repeated":true,
+          "url":{
+            "href":"https://saba-cloud.com/Saba/Web_spf/NA1TNB0133/common/learningeventdetail/crtfy000000000967642"
+          }
+        }
+      ]
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "backend_id": "regdw000000000976949",
+      "hash": "ac56d12982739130b6978fb03dd15f7fa3f38751",
+      "image": {
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-saba.png"
+      },
+      "header": {
+        "title": "Saba - New learning available"
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Course Name",
+            "description": "Python Programming Quiz"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Progress",
+            "description": "In Progress"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Due date",
+            "description": "---"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "action_key": "OPEN_IN",
+          "allow_repeated": true,
+          "completed_label": "Open learning",
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Open learning",
+          "primary": true,
+          "remove_card_on_completion": false,
+          "type": "GET",
+          "url": {
+            "href": "https://vmwaredev.sabacloud.com/Saba/Web_spf/NA1TNB0133/common/ledetail/cours000000000007197"
+          }
+        }
+      ]
+    }
+  ]
+}
