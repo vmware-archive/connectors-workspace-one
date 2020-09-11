@@ -1,0 +1,16 @@
+{
+  "image": {
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-adobe-sign.png"
+  },
+  "object_types":{
+    "card":{
+      "doc": {
+        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
+      },
+      "pollable":true,
+      "endpoint":{
+        "href":"https://my-host:3030/abc/api/cards/requests"
+      }
+    }
+  }
+}

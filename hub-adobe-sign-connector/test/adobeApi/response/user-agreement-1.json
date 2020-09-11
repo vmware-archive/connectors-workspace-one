@@ -1,0 +1,31 @@
+{
+  "id": "CBJCHBCAABAAtikxNLycMSwFYZUQbINIRqfMvOR_IMCV",
+  "name": "[DEMO USE ONLY] [DEMO USE ONLY] BasicTemplete",
+  "type": "AGREEMENT",
+  "message": "Please review and complete [DEMO USE ONLY] BasicTemplete.",
+  "participantSetsInfo": [
+    {
+      "memberInfos": [
+        {
+          "email": "bgurrala@vmware.com",
+          "securityOption": {
+            "authenticationMethod": "NONE"
+          }
+        }
+      ],
+      "role": "SIGNER",
+      "order": 1
+    }
+  ],
+  "senderEmail": "ansoni@vmware.com",
+  "createdDate": "2020-08-10T07:14:28Z",
+  "lastEventDate": "2020-08-10T12:11:35Z",
+  "signatureType": "ESIGN",
+  "expirationTime": "2020-08-16T07:14:26Z",
+  "locale": "en_US",
+  "status": "OUT_FOR_SIGNATURE",
+  "documentVisibilityEnabled": false,
+  "hasFormFieldData": false,
+  "hasSignerIdentityReport": false,
+  "documentRetentionApplied": false
+}

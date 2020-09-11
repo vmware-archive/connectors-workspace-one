@@ -1,0 +1,30 @@
+{
+  "id": "CBJCHBCAABAAR3IGlblssyTZtKqMS1o3cCnCzFJQY6XD",
+  "name": "[DEMO USE ONLY] [DEMO USE ONLY] BasicTemplete",
+  "type": "AGREEMENT",
+  "message": "file 1",
+  "participantSetsInfo": [
+    {
+      "memberInfos": [
+        {
+          "email": "bvandana@vmware.com",
+          "securityOption": {
+            "authenticationMethod": "NONE"
+          }
+        }
+      ],
+      "role": "SIGNER",
+      "order": 1
+    }
+  ],
+  "senderEmail": "ansoni@vmware.com",
+  "createdDate": "2020-08-13T07:31:29Z",
+  "lastEventDate": "2020-08-13T07:31:31Z",
+  "signatureType": "ESIGN",
+  "locale": "en_US",
+  "status": "OUT_FOR_SIGNATURE",
+  "documentVisibilityEnabled": false,
+  "hasFormFieldData": false,
+  "hasSignerIdentityReport": false,
+  "documentRetentionApplied": false
+}
