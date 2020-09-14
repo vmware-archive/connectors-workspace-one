@@ -1,0 +1,32 @@
+{
+  "name": "hub-adobe-sign-connector",
+  "version": "1.0.0",
+  "description": "Adobe Sign connector for e-signature notification",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://stash.air-watch.com/scm/ufo/hub-adobe-sign-connector.git"
+  },
+  "keywords": [
+    "Adobe sign"
+  ],
+  "author": "Anshu soni <ansoni@vmware.com>",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "@vmw/mobile-flows-connector-commons": "^1.4.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "node-fetch": "^2.6.0",
+    "underscore": "^1.10.2",
+    "sha1": "^1.1.1",
+    "uuid": "^8.2.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^7.2.0"
+  }
+}

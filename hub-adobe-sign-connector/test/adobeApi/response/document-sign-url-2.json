@@ -1,0 +1,12 @@
+{
+  "signingUrlSetInfos": [
+    {
+      "signingUrls": [
+        {
+          "email": "bvandana@vmware.com",
+          "esignUrl": "https://secure.in1.echosign.com/public/apiesign?pid=CBFCIBAA3AAABLblqZhBgCoYRFBgr4IJP-w_JFOWyKZlAUfDyNLlI-9TPSRQnAmOJgjWoToRdYe60cGXSmCk%2A&client_id=CBJCHBCAABAAIoq_x0KWAwTS8VETOLc_fbdMjHEGKxxU"
+        }
+      ]
+    }
+  ]
+}

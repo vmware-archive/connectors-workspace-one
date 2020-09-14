@@ -1,0 +1,36 @@
+{
+  "participantSets": [
+    {
+      "memberInfos": [
+        {
+          "id": "CBJCHBCAABAASE3sYzYYureBz5VyCDuLmZIOAgyh0YUa",
+          "email": "bvandana@vmware.com",
+          "self": false,
+          "securityOption": {
+            "authenticationMethod": "NONE"
+          },
+          "name": "Bhanu Prakash vandana",
+          "company": "Vmware",
+          "status": "ACTIVE",
+          "createdDate": "2020-08-13T07:31:47Z",
+          "userId": "CBJCHBCAABAA8nVs5pOQDfBRUbliQ79efrSgn1q5y62V"
+        }
+      ],
+      "id": "CBJCHBCAABAA68paVnzA0W_UBusSxWGg675kEIOTM4OI",
+      "role": "SIGNER",
+      "status": "WAITING_FOR_MY_SIGNATURE",
+      "order": 1
+    }
+  ],
+  "senderInfo": {
+    "participantId": "CBJCHBCAABAA1uYF8DZijiXif5_OwpzeW4iSUhJyS-lc",
+    "email": "ansoni@vmware.com",
+    "company": "Vmware",
+    "name": "Anshu soni",
+    "self": true,
+    "hidden": false,
+    "status": "WAITING_FOR_OTHERS",
+    "createdDate": "2020-08-13T07:31:47Z",
+    "userId": "CBJCHBCAABAAMUQbn9NCHRjDY1IfdQBVjuOu-JRKTSBr"
+  }
+}

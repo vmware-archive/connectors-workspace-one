@@ -1,0 +1,25 @@
+{
+  "userAgreementList": [
+    {
+      "id": "CBJCHBCAABAAQywRf8q54CQhPleqGreqGPhPMjpcMXIH",
+      "type": "AGREEMENT",
+      "name": "[DEMO USE ONLY] Test Agreement",
+      "displayDate": "2020-07-21T19:51:51Z",
+      "displayParticipantSetInfos": [
+        {
+          "displayUserSetMemberInfos": [
+            {
+              "fullName": "test",
+              "email": "karnsa@vmware.com"
+            }
+          ]
+        }
+      ],
+      "latestVersionId": "3AAABLblqZhBozN1Psz9voDnwWazzGbGwwnqZlJCVLmQBMuj0DccWesoqfPSm9YhNua27jKWQah1ZCVCEITVdhBD3DpFWL0fY",
+      "status": "SIGNED",
+      "esign": true,
+      "hidden": false
+    }
+  ],
+  "page": {}
+}
