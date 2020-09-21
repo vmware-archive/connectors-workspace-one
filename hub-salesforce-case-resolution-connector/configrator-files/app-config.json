@@ -1,0 +1,9 @@
+{
+	"id": "com.bhadra.microapp.js.sfdc.case.resolution",
+	"name": "SFDC Case Resolution - JS Build",
+	"description": "Retrieve and Act upon Assigned Cases",
+	"author": "Hithesh",
+	"host": "vmware",
+	"location": "/home/ubuntu/js-connectors/VMware-SFDC-Case-Resolution-Connecgor",
+	"logoUrl": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-salesforce.png"
+}

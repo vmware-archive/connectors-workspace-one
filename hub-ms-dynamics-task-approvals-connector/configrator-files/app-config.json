@@ -1,0 +1,9 @@
+{
+	"id": "com.bhadra.microapp.js.ms.dynamics.task.approvals",
+	"name": "Ms Dynamics Task Approvals- JS Build",
+	"description": "Retrieve and Act upon Assigned Tasks",
+	"author": "Hithesh",
+	"host": "vmware",
+	"location": "/home/ubuntu/js-connectors/VMware-MS-Dynamics-Tasks-Connector",
+	"logoUrl": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-dynamics.png"
+}

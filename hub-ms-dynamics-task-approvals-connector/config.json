@@ -1,0 +1,107 @@
+{
+  "backend_id": ":backend_id",
+  "card_hash": ":card_hash",
+  "header": {
+    "title": "Microsoft Dynamics - Task assigned",
+    "subtitle": [],
+    "links": {
+      "title": "",
+      "subtitle": []
+    }
+  },
+  "image": {
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-dynamics.png"
+  },
+  "body": [
+    [
+      ":task-title",
+      "Task Title"
+    ],
+    [
+      ":task-description",
+      "Description"
+    ],
+    [
+      ":regarding",
+      "Regarding"
+    ],
+    [
+      ":task-status",
+      "Status"
+    ],
+    [
+      ":task-priority",
+      "Priority"
+    ],
+    [
+      ":task-due",
+      "Due Date"
+    ],
+    [
+      ":assignee",
+      "Assigned To"
+    ],
+    [
+      ":task-id",
+      "ID"
+    ]
+  ],
+  "actions": [
+    {
+      "label": "Complete",
+      "completed_label": "Completed",
+      "action_key": "DIRECT",
+      "primary": true,
+      "url": "/completeTask",
+      "http_type": "POST",
+      "allow_repeated": false,
+      "remove_card_on_completion": true,
+      "mutually_exclusive_set_id": "ACT_ON_ACTION",
+      "request_params": {
+        "taskId": ":task-id"
+      }
+    },
+    {
+      "label": "Cancel Task",
+      "completed_label": "Cancelled",
+      "action_key": "DIRECT",
+      "primary": false,
+      "url": "/cancelTask",
+      "http_type": "POST",
+      "allow_repeated": false,
+      "mutually_exclusive_set_id": "ACT_ON_ACTION",
+      "request_params": {
+        "taskId": ":task-id"
+      }
+    }
+  ],
+  "all-actions": [
+    {
+      "label": "Complete",
+      "completed_label": "Completed",
+      "action_key": "DIRECT",
+      "primary": true,
+      "url": "/completeTask",
+      "http_type": "POST",
+      "allow_repeated": false,
+      "remove_card_on_completion": true,
+      "mutually_exclusive_set_id": "ACT_ON_ACTION",
+      "request_params": {
+        "taskId": ":task-id"
+      }
+    },
+    {
+      "label": "Cancel",
+      "completed_label": "Cancelled",
+      "action_key": "DIRECT",
+      "primary": false,
+      "url": "/cancelTask",
+      "http_type": "POST",
+      "allow_repeated": false,
+      "mutually_exclusive_set_id": "ACT_ON_ACTION",
+      "request_params": {
+        "taskId": ":task-id"
+      }
+    }
+  ]
+}

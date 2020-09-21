@@ -1,0 +1,20 @@
+[ {
+  ":backend_id": "cGF2YW5AYmFja2ZsaXB0LmNvbS0yNzk4NjI0NDQ2",
+  ":deal-link": "https://app.hubspot.com/contacts/8247786/deal/2798624446",
+  ":deal-id": "2798624446",
+  ":deal-name": "100k Opportunity with Acme",
+  ":deal-close-date": "2020-08-31T08:12:50.611Z",
+  ":deal-owner-id": "50103167",
+  ":deal-source-id": "pavan@backflipt.com",
+  ":deal-last-contacted": "2020-08-14T08:13:43.295Z",
+  ":deal-stage": "Qualified To Buy",
+  ":deal-created-date": "2020-08-14T08:13:30.550Z",
+  ":days-to-close": "17",
+  ":deal-type": "Existing Business",
+  ":deal-contact-email": "tim.kelly@acme-customer.com",
+  ":deal-contact-phone": "555-444-1122",
+  ":deal-contact-name": "Tim Kelly",
+  ":deal-company": "Acme-Customer",
+  ":deal-amount": "$ 100000",
+  ":deal-all-contacts": "tim.kelly@acme-customer.com"
+}]

@@ -1,0 +1,9 @@
+{
+	"id": "com.bhadra.microapp.js.zendesk",
+	"name": "Zendesk Ticket Resolution - JS Build",
+	"description": "Retrieve and Act upon approvals for Zendesk tickets",
+	"author": "Rajeev",
+	"host": "vmware",
+	"location": "/home/ubuntu/js-connectors/VMware-Zendesk-Ticket-Resolution-Connector",
+	"logoUrl": "https://zendesk-vmware.xeninc.us/images/connector.png"
+}

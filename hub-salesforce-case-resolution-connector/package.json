@@ -1,0 +1,51 @@
+{
+  "name": "hub-sfdc-case-resolution-connector",
+  "version": "1.0.0",
+  "description": "Retrieve and act upon approvals for SFDC Cases",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "mkdir dist && babel src -s -d dist",
+    "verify": "npm run lint && npm run test",
+    "test": "nyc mocha --recursive",
+    "lint": "eslint *.js src/**/**.js test/**/**.js",
+    "dev": "npm run verify && MF_JWT_PUB_KEY_URI=https://prod.hero.vmwservices.com/security/public-key  PORT=3000 node index.js"
+  },
+  "keywords": [
+    "mobileflows",
+    "connectors",
+    "common"
+  ],
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jasmine": "^2.10.1",
+    "eslint-plugin-node": "^9.2.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "mocha": "^6.2.3",
+    "sinon": "^9.0.0",
+    "sinon-chai": "^3.5.0"
+  },
+  "dependencies": {
+    "atob": "^2.1.2",
+    "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
+    "btoa": "^1.2.1",
+    "chai": "^4.2.0",
+    "@vmw/mobile-flows-connector-commons": "^1.4.0",
+    "connector-explang": "0.0.3",
+    "dotenv": "^7.0.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.25.3",
+    "nock": "^12.0.3",
+    "nyc": "^15.1.0",
+    "path": "^0.12.7",
+    "ramda": "^0.27.0",
+    "url-join": "^4.0.1",
+    "uuid": "^3.4.0"
+  }
+}

@@ -1,0 +1,29 @@
+[
+	{
+		":backend_id": "dmljdG9yQGJhY2tmbGlwdC5jb20tMTIyLTIwMjAtMDYtMDlUMTY6MTc6MzNa",
+		":ticket_type": "problem",
+		":ticket_description": "The current laptop has slowed down significantly affecting my productivity. Request an immediate replacement.",
+		":ticket_subject": "Laptop replacement",
+		":ticket_priority": "high",
+		":ticket_status": "open",
+		":ticket_raw_subject": "Laptop replacement",
+		":channel": "web",
+		":ticket_id": 122,
+		":ticket_requester": "demouser@backflipt.com",
+		":ticket_submitter": "victor@backflipt.com",
+		":ticket_tags": "Need resolution",
+		":ticket_assignee": "victor@backflipt.com",
+		":ticket_group": "Sales",
+		":comments-section": [
+			{
+				":subject": "Sure. The order has been placed and will be available in couple of weeks."
+			}
+        ],
+        ":attachments-section":[
+            {
+                ":att_name": "Sample Document.docx",
+                ":att-link": "https://backflipt.zendesk.com/attachments/token/E0wciAcWHJ7upC02VVnIxWf1a/?name=Sample+Document.docx"
+            }
+        ]
+	}
+]
