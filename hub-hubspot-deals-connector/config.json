@@ -1,0 +1,161 @@
+{
+   "backend_id": ":backend_id",
+   "card_hash": ":card_hash",
+   "header": {
+     "title": "HubSpot - New deal assigned",
+     "subtitle": [
+       ":deal-id"
+     ],
+     "links": {
+       "title": "",
+       "subtitle": [
+         ":deal-link"
+       ]
+     }
+   },
+   "image": {
+     "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-hubspot.png"
+   },
+   "body": [
+     [
+       ":deal-name",
+       "Title"
+     ],
+     [
+       ":deal-close-date",
+       "Close Date"
+     ],
+     [
+       ":deal-stage",
+       "Stage"
+     ],
+     [
+       ":deal-contact-email",
+       "Contact Email"
+     ],
+     [
+      ":deal-contact-phone",
+      "Contact Phone"
+    ],
+    [
+      ":deal-contact-name",
+      "Contact Name"
+    ],
+    [
+      ":deal-company",
+      "Company"
+    ],
+     [
+       ":deal-amount",
+       "Amount"
+     ],
+     [
+       ":deal-source-id",
+       "Deal Owner"
+     ],
+     [
+       ":deal-last-contacted",
+       "Last Contacted"
+     ],
+     [
+       ":deal-type",
+       "Deal Type"
+     ]
+   ],
+   "actions": [
+     {
+       "label": "Add Note",
+       "completed_label": "Comment Posted",
+       "action_key": "USER_INPUT",
+       "primary": true,
+       "url": "/addNotes",
+       "http_type": "POST",
+       "allow_repeated": true,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_set_id": "ACT_ON_COMMENT",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments",
+         "min_length": 5,
+         "max_length": 1000
+       },
+       "request_params": {
+         "actionType":"NOTE",
+         "dealId":":deal-id",
+         "ownerId":":deal-owner-id",
+         "sourceId":":deal-source-id"
+       }
+     },
+     {
+      "label": "Log a Call",
+      "completed_label": "Call Logged",
+      "action_key": "USER_INPUT",
+      "primary": true,
+      "url": "/logAcall",
+      "http_type": "POST",
+      "allow_repeated": true,
+      "remove_card_on_completion": true,
+      "mutually_exclusive_set_id": "ACT_ON_CALL",
+      "user_input_field": {
+        "id": "comments",
+        "water_mark": "Add your comments",
+        "min_length": 5,
+        "max_length": 1000
+      },
+      "request_params": {
+        "actionType":"CALL",
+        "dealId":":deal-id",
+        "ownerId":":deal-owner-id",
+        "sourceId":":deal-source-id"
+      }
+    }
+   ],
+   "all-actions": [
+    {
+      "label": "Add Comment",
+      "completed_label": "Comment Posted",
+      "action_key": "USER_INPUT",
+      "primary": true,
+      "url": "/addNotes",
+      "http_type": "POST",
+      "allow_repeated": true,
+      "remove_card_on_completion": true,
+      "mutually_exclusive_set_id": "ACT_ON_COMMENT",
+      "user_input_field": {
+        "id": "comments",
+        "water_mark": "Add your comments",
+        "min_length": 5,
+        "max_length": 1000
+      },
+      "request_params": {
+        "actionType":"NOTE",
+        "dealId":":deal-id",
+        "ownerId":":deal-owner-id",
+        "sourceId":":deal-source-id"
+      }
+    },
+    {
+     "label": "Log Call",
+     "completed_label": "Call Logged",
+     "action_key": "USER_INPUT",
+     "primary": true,
+     "url": "/logAcall",
+     "http_type": "POST",
+     "allow_repeated": true,
+     "remove_card_on_completion": true,
+     "mutually_exclusive_set_id": "ACT_ON_CALL",
+     "user_input_field": {
+       "id": "comments",
+       "water_mark": "Add your comments",
+       "min_length": 5,
+       "max_length": 1000
+     },
+     "request_params": {
+       "actionType":"CALL",
+       "dealId":":deal-id",
+       "ownerId":":deal-owner-id",
+       "sourceId":":deal-source-id"
+     }
+   }
+   ]
+ }

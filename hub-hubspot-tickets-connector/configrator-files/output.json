@@ -1,0 +1,20 @@
+[
+  {
+   ":backend_id": "cGF2YW5AYmFja2ZsaXB0LmNvbS0xODM1MzQ0Mjg=",
+   ":ticket-link": "https://app.hubspot.com/contacts/8247786/ticket/183534428",
+   ":ticket-id": "183534428",
+   ":ticket-name": "Product Installation Issue",
+   ":ticket-description": "Installation steps are not clear!",
+   ":ticket-owner-id": "50103167",
+   ":ticket-source-id": "pavan@backflipt.com",
+   ":ticket-status": "New",
+   ":ticket-priority": "Medium",
+   ":ticket-created-date": "2020-08-20T08:10:32.669Z",
+   ":ticket-source-type": "Email",
+   ":ticket-contact-email": "tim.kelly@acme-customer.com",
+   ":ticket-contact-phone": "555-444-1122",
+   ":ticket-contact-name": "Tim Kelly",
+   ":ticket-company": "Acme-Customer",
+   ":ticket-all-contacts": "tim.kelly@acme-customer.com, david@intel-inc.com"
+  }
+ ]

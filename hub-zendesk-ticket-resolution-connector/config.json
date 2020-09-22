@@ -1,0 +1,189 @@
+{
+   "backend_id": ":backend_id",
+    "card_hash": ":card_hash",
+   "header": {
+     "title": "Zendesk - Ticket resolution request",
+     "subtitle": [
+       ":ticket_id"
+     ],
+     "links": {
+       "title": "",
+       "subtitle": [
+         ""
+       ]
+     }
+   },
+   "image": {
+     "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-zendesk.png"
+   },
+   "body": [
+     [
+       ":ticket_submitter",
+       "Submitted By"
+     ],
+     [
+      ":ticket_subject",
+      "Subject"
+     ],
+     [
+       ":ticket_description",
+       "Description"
+     ],
+     [
+       ":ticket_type",
+       "Type"
+     ],
+     [
+       ":ticket_priority",
+       "Priority"
+     ],
+     [
+       ":ticket_status",
+       "Status"
+     ],
+     [
+       ":ticket_assignee",
+       "Assigned To"
+     ],
+     [
+       ":ticket_requester",
+       "Requested By"
+     ],
+     [
+       ":ticket_group",
+       "Group"
+     ],
+     [
+       ":ticket_tags",
+       "Tags"
+     ],
+     [
+       ":comments-section",
+       "Comments",
+       [
+         [
+           [
+             ":subject",
+             "Subject"
+           ]
+         ],
+         []
+       ]
+     ],
+     [
+       ":attachments-section",
+       "Attachments",
+       [
+         [
+           [
+             ":att-link",
+             [
+               "Link",
+               "URL",
+               ":att_name"
+             ]
+           ]
+         ],
+         []
+       ]
+     ]
+   ],
+   "actions": [
+     {
+       "label": "Solve",
+       "completed_label": "Solved",
+       "action_key": "USER_INPUT",
+       "primary": true,
+       "url": "/updateTicketStatus",
+       "http_type": "POST",
+       "allow_repeated": true,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_id": "SOLVED",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments"
+       },
+       "request_params": {
+         "ticketId": ":ticket_id",
+         "actionType": "solved"
+       }
+     },
+     {
+       "label": "Mark as Pending",
+       "completed_label": "Pending",
+       "action_key": "USER_INPUT",
+       "primary": false,
+       "url": "/updateTicketStatus",
+       "http_type": "POST",
+       "allow_repeated": true,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_id": "PENDING",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments"
+       },
+       "request_params": {
+         "ticketId": ":ticket_id",
+         "actionType": "pending"
+       }
+     }
+   ],
+   "all-actions": [
+     {
+       "label": "Pending",
+       "completed_label": "Pending",
+       "action_key": "USER_INPUT",
+       "primary": true,
+       "url": "/updateTicketStatus",
+       "http_type": "POST",
+       "allow_repeated": true,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_set_id": "PENDING",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments"
+       },
+       "request_params": {
+         "ticketId": ":ticket_id",
+         "actionType": "pending"
+       }
+     },
+     {
+       "label": "Solved",
+       "completed_label": "Solved",
+       "action_key": "USER_INPUT",
+       "primary": true,
+       "url": "/updateTicketStatus",
+       "http_type": "POST",
+       "allow_repeated": true,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_set_id": "SOLVED",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments"
+       },
+       "request_params": {
+         "ticketId": ":ticket_id",
+         "actionType": "solved"
+       }
+     },
+     {
+       "label": "Add comment",
+       "completed_label": "Add comment",
+       "action_key": "USER_INPUT",
+       "primary": true,
+       "url": "/addTicketComment",
+       "http_type": "POST",
+       "allow_repeated": true,
+       "remove_card_on_completion": false,
+       "mutually_exclusive_set_id": "COMMENTS",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments"
+       },
+       "request_params": {
+         "ticketId": ":ticket_id"
+       }
+     }
+   ]
+ }

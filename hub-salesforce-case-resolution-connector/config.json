@@ -1,0 +1,146 @@
+{
+   "backend_id": ":backend_id",
+   "card_hash": ":card_hash",
+   "header": {
+     "title": "Salesforce - New case assigned",
+     "subtitle": [
+       ":case-num"
+     ],
+     "links": {
+       "title": "",
+       "subtitle": [
+         ":case-link"
+       ]
+     }
+   },
+   "image": {
+     "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-salesforce.png"
+   },
+   "body": [
+     [
+       ":subject",
+       "Subject"
+     ],
+     [
+       ":type",
+       "Type"
+     ],
+     [
+       ":account",
+       "Account"
+     ],
+     [
+       ":description",
+       "Description"
+     ],
+     [
+       ":priority",
+       "Priority"
+     ],
+     [
+       ":status",
+       "Status"
+     ],
+     [
+       ":contact",
+       "Contact"
+     ],
+     [
+       ":reason",
+       "Reason"
+     ],
+     [
+       ":date",
+       "Created Date"
+     ]
+   ],
+   "actions": [
+     {
+       "label": "Add Comment",
+       "completed_label": "Comment Posted",
+       "action_key": "USER_INPUT",
+       "primary": true,
+       "url": "/postComment",
+       "http_type": "POST",
+       "allow_repeated": true,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_set_id": "ACT_ON_COMMENT",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments",
+         "min_length": 5,
+         "max_length": 1000
+       },
+       "request_params": {
+         "caseId": ":case-id"
+       }
+     },
+     {
+       "label": "Close Case",
+       "completed_label": "Closed",
+       "action_key": "DIRECT",
+       "primary": false,
+       "url": "/closeAction",
+       "http_type": "POST",
+       "allow_repeated": false,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_set_id": "ACT_ON_ACTION",
+       "request_params": {
+         "caseId": ":case-id",
+         "actionType": "Closed"
+       }
+     }
+   ],
+   "all-actions": [
+     {
+       "label": "Post A Comment",
+       "completed_label": "Comment Posted",
+       "action_key": "USER_INPUT",
+       "primary": true,
+       "url": "/postAComment",
+       "http_type": "POST",
+       "allow_repeated": true,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_set_id": "ACT_ON_COMMENT",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments",
+         "min_length": 5,
+         "max_length": 1000
+       },
+       "request_params": {
+         "caseId": ":case-id"
+       }
+     },
+     {
+       "label": "On Hold",
+       "completed_label": "Status Changed",
+       "action_key": "DIRECT",
+       "primary": true,
+       "url": "/onHold",
+       "http_type": "POST",
+       "allow_repeated": false,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_set_id": "ACT_ON_ACTION",
+       "request_params": {
+         "caseId": ":case-id",
+         "actionType": "On Hold"
+       }
+     },
+     {
+       "label": "Close",
+       "completed_label": "Closed",
+       "action_key": "DIRECT",
+       "primary": false,
+       "url": "/close",
+       "http_type": "POST",
+       "allow_repeated": false,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_set_id": "ACT_ON_ACTION",
+       "request_params": {
+         "caseId": ":case-id",
+         "actionType": "Closed"
+       }
+     }
+   ]
+ }

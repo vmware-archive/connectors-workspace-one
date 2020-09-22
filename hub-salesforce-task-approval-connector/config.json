@@ -1,0 +1,127 @@
+{
+  "backend_id": ":backend_id",
+  "card_hash": ":card_hash",
+  "header": {
+    "title": "Salesforce - Task assigned",
+    "subtitle": [
+      ":task-id"
+    ],
+    "links": {
+      "title": "",
+      "subtitle": [
+        ":task-link"
+      ]
+    }
+  },
+  "image": {
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-salesforce.png"
+  },
+  "body": [
+    [
+      ":task-subject",
+      "Subject"
+    ],
+    [
+      ":task-due",
+      "Due Date"
+    ],
+    [
+      ":task-account",
+      "Account"
+    ],
+    [
+      ":task-description",
+      "Description"
+    ],
+    [
+      ":task-contact",
+      "Contact Name"
+    ],
+    [
+      ":task-priority",
+      "Priority"
+    ],
+    [
+      ":task-status",
+      "Status"
+    ],
+    [
+      ":assignee",
+      "Assigned To"
+    ]
+  ],
+  "actions": [
+    {
+      "label": "Complete",
+      "completed_label": "Completed",
+      "action_key": "DIRECT",
+      "primary": true,
+      "url": "/completeTask",
+      "http_type": "POST",
+      "allow_repeated": false,
+      "mutually_exclusive_set_id": "ACT_ON_ACTION",
+      "request_params": {
+        "taskId": ":task-id",
+        "actionType": "Completed"
+      }
+    },
+    {
+      "label": "Mark In Progress",
+      "completed_label": "In Progress",
+      "action_key": "DIRECT",
+      "primary": false,
+      "url": "/inProgressTask",
+      "http_type": "POST",
+      "allow_repeated": false,
+      "mutually_exclusive_set_id": "ACT_ON_ACTION",
+      "request_params": {
+        "taskId": ":task-id",
+        "actionType": "In Progress"
+      }
+    }
+  ],
+  "all-actions": [
+    {
+      "label": "In Progress",
+      "completed_label": "In Progress",
+      "action_key": "DIRECT",
+      "primary": false,
+      "url": "/inProgressTask",
+      "http_type": "POST",
+      "allow_repeated": true,
+      "mutually_exclusive_set_id": "ACT_ON_ACTION",
+      "request_params": {
+        "taskId": ":task-id",
+        "actionType": "In Progress"
+      }
+    },
+    {
+      "label": "Complete",
+      "completed_label": "Completed",
+      "action_key": "DIRECT",
+      "primary": false,
+      "url": "/completeTask",
+      "http_type": "POST",
+      "allow_repeated": false,
+      "mutually_exclusive_set_id": "ACT_ON_ACTION",
+      "request_params": {
+        "taskId": ":task-id",
+        "actionType": "Completed"
+      }
+    },
+    {
+      "label": "Deferred",
+      "completed_label": "Deferred",
+      "action_key": "DIRECT",
+      "primary": false,
+      "url": "/deferredTask",
+      "http_type": "POST",
+      "allow_repeated": true,
+      "mutually_exclusive_set_id": "ACT_ON_ACTION",
+      "request_params": {
+        "taskId": ":task-id",
+        "actionType": "Deferred"
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+	"id": "com.bhadra.microapp.js.hubspot.tickets",
+	"name": "Hubspot Tickets - JS Build",
+	"description": "Retrieve and Act upon Assigned Tickets",
+	"author": "Hithesh",
+	"host": "vmware",
+	"location": "/home/ubuntu/js-connectors/VMware-Hubspot-Tickets-Connector",
+	"logoUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%3Fid%3DOIP.yYRBPMlVkwtCXXiM_mjBdgAAAA%26pid%3DApi&f=1"
+}

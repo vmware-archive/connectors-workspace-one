@@ -1,0 +1,9 @@
+{
+	"id": "com.bhadra.microapp.js.ms.dynamics.case.resolution",
+	"name": "Ms Dynamics Case Resolution - JS Build",
+	"description": "Retrieve and Act upon Assigned Cases",
+	"author": "Hithesh",
+	"host": "vmware",
+	"location": "/home/ubuntu/js-connectors/VMware-MS-Dynamics-Case-Resolution",
+	"logoUrl": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-dynamics.png"
+}

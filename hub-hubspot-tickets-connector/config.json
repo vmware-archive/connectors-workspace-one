@@ -1,0 +1,191 @@
+{
+   "backend_id": ":backend_id",
+   "card_hash": ":card_hash",
+   "header": {
+     "title": "HubSpot - New Ticket assigned",
+     "subtitle": [
+       ":ticket-id"
+     ],
+     "links": {
+       "title": "",
+       "subtitle": [
+         ":ticket-link"
+       ]
+     }
+   },
+   "image": {
+     "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-hubspot.png"
+   },
+   "body": [
+     [
+       ":ticket-name",
+       "Ticket Name"
+     ],
+     [
+      ":ticket-description",
+      "Ticket Description"
+     ],
+     [
+       ":ticket-status",
+       "Status"
+     ],
+     [
+       ":ticket-priority",
+       "Priority"
+     ],
+     [
+      ":ticket-company",
+      "Company"
+     ],
+     [
+      ":ticket-contact-name",
+      "Contact Name"
+     ],
+     [
+       ":ticket-contact-email",
+       "Contact Email"
+     ],
+     [
+      ":ticket-contact-phone",
+      "Contact Phone"
+     ],
+     [
+      ":ticket-source-type",
+      "Source Type"
+     ],
+     [
+       ":ticket-source-id",
+       "Ticket Owner"
+     ],
+     [
+       ":ticket-created-date",
+       "Created At"
+     ]
+   ],
+   "actions": [
+     {
+       "label": "Add Note",
+       "completed_label": "Notes Added",
+       "action_key": "USER_INPUT",
+       "primary": true,
+       "url": "/addNotes",
+       "http_type": "POST",
+       "allow_repeated": true,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_set_id": "ACT_ON_COMMENT",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments",
+         "min_length": 1,
+         "max_length": 1000
+       },
+       "request_params": {
+         "actionType":"NOTE",
+         "ticketId":":ticket-id",
+         "ownerId":":ticket-owner-id",
+         "sourceId":":ticket-source-id"
+       }
+     },
+     {
+      "label": "Log a Call",
+      "completed_label": "Call Logged",
+      "action_key": "USER_INPUT",
+      "primary": true,
+      "url": "/logAcall",
+      "http_type": "POST",
+      "allow_repeated": true,
+      "remove_card_on_completion": true,
+      "mutually_exclusive_set_id": "ACT_ON_CALL",
+      "user_input_field": {
+        "id": "comments",
+        "water_mark": "Add your comments",
+        "min_length": 1,
+        "max_length": 1000
+      },
+      "request_params": {
+        "actionType":"CALL",
+        "ticketId":":ticket-id",
+        "ownerId":":ticket-owner-id",
+        "sourceId":":ticket-source-id"
+      }
+    },
+    {
+      "label": "Close",
+      "completed_label": "Closed",
+      "action_key": "DIRECT",
+      "primary": false,
+      "url": "/closed",
+      "http_type": "POST",
+      "allow_repeated": true,
+      "remove_card_on_completion": true,
+      "mutually_exclusive_set_id": "ACT_ON_STATUS",
+      "request_params": {
+        "actionType":"4",
+        "ticketId":":ticket-id"
+      }
+    }
+   ],
+   "all-actions": [
+    {
+      "label": "Add Note",
+      "completed_label": "Notes Added",
+      "action_key": "USER_INPUT",
+      "primary": true,
+      "url": "/addNotes",
+      "http_type": "POST",
+      "allow_repeated": true,
+      "remove_card_on_completion": true,
+      "mutually_exclusive_set_id": "ACT_ON_COMMENT",
+      "user_input_field": {
+        "id": "comments",
+        "water_mark": "Add your comments",
+        "min_length": 5,
+        "max_length": 1000
+      },
+      "request_params": {
+        "actionType":"NOTE",
+        "ticketId":":ticket-id",
+        "ownerId":":ticket-owner-id",
+        "sourceId":":ticket-source-id"
+      }
+    },
+    {
+     "label": "Log a Call",
+     "completed_label": "Call Logged",
+     "action_key": "USER_INPUT",
+     "primary": true,
+     "url": "/logAcall",
+     "http_type": "POST",
+     "allow_repeated": true,
+     "remove_card_on_completion": true,
+     "mutually_exclusive_set_id": "ACT_ON_CALL",
+     "user_input_field": {
+       "id": "comments",
+       "water_mark": "Add your comments",
+       "min_length": 5,
+       "max_length": 1000
+     },
+     "request_params": {
+       "actionType":"CALL",
+       "ticketId":":ticket-id",
+       "ownerId":":ticket-owner-id",
+       "sourceId":":ticket-source-id"
+     }
+   },
+   {
+     "label": "Close",
+     "completed_label": "Closed",
+     "action_key": "DIRECT",
+     "primary": false,
+     "url": "/closed",
+     "http_type": "POST",
+     "allow_repeated": false,
+     "remove_card_on_completion": true,
+     "mutually_exclusive_set_id": "ACT_ON_STATUS",
+     "request_params": {
+       "actionType":"4",
+       "ticketId":":ticket-id"
+     }
+   }
+  ]
+ }
