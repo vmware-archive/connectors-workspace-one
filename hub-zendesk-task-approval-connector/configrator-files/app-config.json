@@ -1,0 +1,9 @@
+{
+	"id": "com.bhadra.microapp.js.zendesk.task.approval",
+	"name": "Zendesk Task Approval - JS Build",
+	"description": "Retrieve and Act upon approvals for Zendesk tasks",
+	"author": "Rajeev",
+	"host": "vmware",
+	"location": "/home/ubuntu/js-connectors/VMware-Zendesk-Task-Approval-Connector",
+	"logoUrl": "https://zendesk-task-vmware.xeninc.us/images/connector.png"
+}

@@ -1,0 +1,50 @@
+{
+  "sub": "https://login.salesforce.com/id/00D41000000fHQDEA2/00541000000osYgAAI",
+  "user_id": "00541000000osYgAAI",
+  "organization_id": "00D41000000fHQDEA2",
+  "preferred_username": "jjeff@vmware.com",
+  "nickname": "jjeff",
+  "name": "Jeff Jones",
+  "email": "jjeff@vmware.com",
+  "email_verified": true,
+  "given_name": "Jeff",
+  "family_name": "Jones",
+  "zoneinfo": "America/New_York",
+  "photos": {
+    "picture": "https://herocard-dev-dev-ed--c.na96.content.force.com/profilephoto/005/F",
+    "thumbnail": "https://herocard-dev-dev-ed--c.na96.content.force.com/profilephoto/005/T"
+  },
+  "profile": "https://herocard-dev-dev-ed.my.salesforce.com/00541000000osYgAAI",
+  "picture": "https://herocard-dev-dev-ed--c.na96.content.force.com/profilephoto/005/F",
+  "phone_number": "+1 4044339575",
+  "phone_number_verified": true,
+  "address": {
+    "country": "US"
+  },
+  "urls": {
+    "enterprise": "https://herocard-dev-dev-ed.my.salesforce.com/services/Soap/c/{version}/00D41000000fHQD",
+    "metadata": "https://herocard-dev-dev-ed.my.salesforce.com/services/Soap/m/{version}/00D41000000fHQD",
+    "partner": "https://herocard-dev-dev-ed.my.salesforce.com/services/Soap/u/{version}/00D41000000fHQD",
+    "rest": "https://herocard-dev-dev-ed.my.salesforce.com/services/data/v{version}/",
+    "sobjects": "https://herocard-dev-dev-ed.my.salesforce.com/services/data/v{version}/sobjects/",
+    "search": "https://herocard-dev-dev-ed.my.salesforce.com/services/data/v{version}/search/",
+    "query": "https://herocard-dev-dev-ed.my.salesforce.com/services/data/v{version}/query/",
+    "recent": "https://herocard-dev-dev-ed.my.salesforce.com/services/data/v{version}/recent/",
+    "tooling_soap": "https://herocard-dev-dev-ed.my.salesforce.com/services/Soap/T/{version}/00D41000000fHQD",
+    "tooling_rest": "https://herocard-dev-dev-ed.my.salesforce.com/services/data/v{version}/tooling/",
+    "profile": "https://herocard-dev-dev-ed.my.salesforce.com/00541000000osYgAAI",
+    "feeds": "https://herocard-dev-dev-ed.my.salesforce.com/services/data/v{version}/chatter/feeds",
+    "groups": "https://herocard-dev-dev-ed.my.salesforce.com/services/data/v{version}/chatter/groups",
+    "users": "https://herocard-dev-dev-ed.my.salesforce.com/services/data/v{version}/chatter/users",
+    "feed_items": "https://herocard-dev-dev-ed.my.salesforce.com/services/data/v{version}/chatter/feed-items",
+    "feed_elements": "https://herocard-dev-dev-ed.my.salesforce.com/services/data/v{version}/chatter/feed-elements",
+    "custom_domain": "https://herocard-dev-dev-ed.my.salesforce.com"
+  },
+  "active": true,
+  "user_type": "STANDARD",
+  "language": "en_US",
+  "locale": "en_US",
+  "utcOffset": -18000000,
+  "updated_at": "2020-03-23T15:11:03Z",
+  "is_app_installed": true
+}

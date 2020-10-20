@@ -1,0 +1,26 @@
+{
+  "totalSize": 1,
+  "done": true,
+  "records": [
+    {
+      "attributes": {
+        "type": "Case",
+        "url": "/services/data/v47.0/sobjects/Case/50041000002S22yAAC"
+      },
+      "Id": "50041000002S22yAAC",
+      "OwnerId": "00541000000osYgAAJ",
+      "ContactId": "0034100000AABVQAA5",
+      "AccountId": "00141000007PyDKAA0",
+      "Priority": "Low",
+      "Reason": "Equipment Design",
+      "Origin": "Web",
+      "Subject": "Design issue with mechanical rotor",
+      "Status": "New",
+      "Type": "Mechanical",
+      "CaseNumber": "00001024",
+      "Description": null,
+      "Comments": null,
+      "CreatedDate": "2016-10-24T17:23:42.000+0000"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "hub-ms-dynamics-case-chatbot",
+  "version": "1.0.0",
+  "description": "MS Dynamics connector to MobileFlows For Hub chatbot usecases",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "mkdir dist && babel src -s -d dist",
+    "verify": "npm run lint && npm run test",
+    "test": "nyc --reporter=html --reporter=text  mocha --recursive",
+    "lint": "eslint *.js src/**/**.js test/**/**.js",
+    "dev": "npm run verify && MF_JWT_PUB_KEY_URI=https://prod.hero.vmwservices.com/security/public-key  PORT=3000 node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xenovusinc/VMware-MS-Case-Chatbot-Connector.git"
+  },
+  "keywords": [
+    "chatbot",
+    "mobileflows",
+    "connectors",
+    "common"
+  ],
+  "author": "Backflipt",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "express": "^4.17.1",
+    "request": "^2.88.2",
+    "uuid": "^8.1.0",
+    "axios": "^0.19.2",
+    "dotenv": "^7.0.0",
+    "nyc": "^15.1.0",
+    "path": "^0.12.7",
+    "@vmw/mobile-flows-connector-commons": "^1.4.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^7.2.0"
+  }
+}

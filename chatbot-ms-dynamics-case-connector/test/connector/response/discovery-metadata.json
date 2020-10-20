@@ -1,0 +1,12 @@
+{
+  "image": {
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-dynamics.png"
+  },
+  "object_types": {
+    "botDiscovery": {
+      "endpoint": {
+        "href": "https://my-host:3030/abc/bot/discovery"
+      }
+    }
+  }
+}

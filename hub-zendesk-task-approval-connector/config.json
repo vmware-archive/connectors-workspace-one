@@ -1,0 +1,174 @@
+{
+   "backend_id": ":backend_id",
+   "header": {
+     "title": "Zendesk - Ticket approval request",
+     "subtitle": [
+       ":ticket_id"
+     ],
+     "links": {
+       "title": "",
+       "subtitle": [
+         ""
+       ]
+     }
+   },
+   "image": {
+     "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-zendesk.png"
+   },
+   "body": [
+     [
+       ":ticket_subject",
+       "Subject"
+     ],
+     [
+       ":ticket_submitter",
+       "Submitted By"
+     ],
+     [
+       ":ticket_description",
+       "Description"
+     ],
+     [
+       ":ticket_due_date",
+       "Due Date"
+     ],
+     [
+       ":ticket_type",
+       "Type"
+     ],
+     [
+       ":ticket_priority",
+       "Priority"
+     ],
+     [
+       ":ticket_status",
+       "Status"
+     ],
+     [
+       ":ticket_assignee",
+       "Assigned To"
+     ],
+     [
+       ":ticket_requester",
+       "Requested By"
+     ],
+     [
+       ":ticket_group",
+       "Group"
+     ],
+     [
+       ":ticket_tags",
+       "Tags"
+     ],
+     [
+       ":comments-section",
+       "Comments",
+       [
+         [
+           [
+             ":subject",
+             "Subject"
+           ]
+         ],
+         []
+       ]
+     ],
+     [
+       ":attachments-section",
+       "Attachments",
+       [
+         [
+           [
+             ":att-link",
+             [
+               "Link",
+               "URL",
+               ":att_name"
+             ]
+           ]
+         ],
+         []
+       ]
+     ]
+   ],
+   "actions": [
+     {
+       "label": "Approve",
+       "completed_label": "Approved",
+       "action_key": "USER_INPUT",
+       "primary": true,
+       "url": "/approve",
+       "http_type": "POST",
+       "allow_repeated": false,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_id": "APPROVE",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments"
+       },
+       "request_params": {
+         "ticketId": ":ticket_id",
+         "actionType": "solved"
+       }
+     },
+     {
+       "label": "Decline",
+       "completed_label": "Declined",
+       "action_key": "USER_INPUT",
+       "primary": false,
+       "url": "/decline",
+       "http_type": "POST",
+       "allow_repeated": false,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_id": "DECLINE",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments"
+       },
+       "request_params": {
+         "ticketId": ":ticket_id",
+         "actionType": "closed"
+       }
+     }
+   ],
+   "all-actions": [
+     {
+       "label": "Approve",
+       "completed_label": "Approved",
+       "action_key": "USER_INPUT",
+       "primary": true,
+       "url": "/approve",
+       "http_type": "POST",
+       "allow_repeated": true,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_id": "APPROVE",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments"
+       },
+       "request_params": {
+         "ticketId": ":ticket_id",
+         "actionType": "solved"
+       }
+     },
+     {
+       "label": "Decline",
+       "completed_label": "Declined",
+       "action_key": "USER_INPUT",
+       "primary": true,
+       "url": "/decline",
+       "http_type": "POST",
+       "allow_repeated": true,
+       "remove_card_on_completion": true,
+       "mutually_exclusive_id": "DECLINE",
+       "user_input_field": {
+         "id": "comments",
+         "water_mark": "Add your comments"
+       },
+       "request_params": {
+         "ticketId": ":ticket_id",
+         "actionType": "closed"
+       }
+     }
+   ]
+ }
