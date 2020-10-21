@@ -1,0 +1,30 @@
+[
+	{
+		":backend_id": "dmljdG9yQGJhY2tmbGlwdC5jb20tMTIyLTIwMjAtMDYtMDlUMTY6MTc6MzNa",
+		":ticket_type": "task",
+		":ticket_description": "Requesting approval for submitting RFP",
+		":ticket_subject": "RFP Approval",
+		":ticket_priority": "high",
+		":ticket_status": "open",
+		":ticket_raw_subject": "Task Subject.",
+		":channel": "web",
+		":ticket_id": 122,
+		":ticket_requester": "demouser@backflipt.com",
+		":ticket_submitter": "victor@backflipt.com",
+		":ticket_due_date": "2020-06-12T09:20:03Z",
+		":ticket_tags": "need_approval",
+		":ticket_assignee": "victor@backflipt.com",
+		":ticket_group": "Finance",
+		":comments-section": [
+			{
+				":subject": "Here are some additional information to review"
+			}
+        ],
+        ":attachments-section":[
+            {
+                ":att_name": "Sample Document.docx",
+                ":att-link": "https://backflipt.zendesk.com/attachments/token/E0wciAcWHJ7upC02VVnIxWf1a/?name=Sample+Document.docx"
+            }
+        ]
+	}
+]

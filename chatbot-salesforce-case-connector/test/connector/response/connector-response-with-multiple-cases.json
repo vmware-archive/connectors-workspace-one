@@ -1,0 +1,76 @@
+{
+  "objects": [
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Here are the top cases I found:",
+        "workflowId": "vmw_LIST_SFDC_PENDING_CASES",
+        "workflowStep": "Complete",
+        "type": "text"
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Design issue with mechanical rotor",
+        "subtitle": "50041000002S22yAAC",
+        "description": null,
+        "shortDescription": "Mechanical",
+        "url": {
+          "href": "http://localhost:4000/50041000002S22yAAC"
+        },
+        "image": {
+          "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-salesforce.png"
+        },
+        "workflowId": "vmw_LIST_SFDC_PENDING_CASES",
+        "workflowStep": "Complete",
+        "type": "status"
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Seeking guidance on electrical wiring installation for GC5060",
+        "subtitle": "50041000002S22cAAC",
+        "description": null,
+        "shortDescription": "Electrical",
+        "url": {
+          "href": "http://localhost:4000/50041000002S22cAAC"
+        },
+        "image": {
+          "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-salesforce.png"
+        },
+        "workflowId": "vmw_LIST_SFDC_PENDING_CASES",
+        "workflowStep": "Complete",
+        "type": "status"
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Maintenance guidelines for generator unclear",
+        "subtitle": "50041000002S22qAAC",
+        "description": null,
+        "shortDescription": "Other",
+        "url": {
+          "href": "http://localhost:4000/50041000002S22qAAC"
+        },
+        "image": {
+          "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-salesforce.png"
+        },
+        "workflowId": "vmw_LIST_SFDC_PENDING_CASES",
+        "workflowStep": "Complete",
+        "type": "status"
+      }
+    },
+    {
+      "itemDetails": {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "title": "Did you find what you’re looking for? If not, you can view more cases here: https://herocard-dev-dev-ed.my.salesforce.com/",
+        "workflowId": "vmw_LIST_SFDC_PENDING_CASES",
+        "workflowStep": "Complete",
+        "type": "text"
+      }
+    }
+  ]
+}

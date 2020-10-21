@@ -1,0 +1,6 @@
+{
+  "@odata.context": "https://vmwdynamics.crm8.dynamics.com/api/data/v9.0/$metadata#Microsoft.Dynamics.CRM.WhoAmIResponse",
+  "BusinessUnitId": "2232c6d2-10f0-ea11-a815-000d3a0a715f",
+  "UserId": "322cbdd8-1e99-4259-b2a6-d0b7d51e525c",
+  "OrganizationId": "4700b56f-40ef-4353-8fe8-40f405659c58"
+}

@@ -1,0 +1,11 @@
+{
+  "objects": [
+    {
+      "itemDetails": {
+        "title": "I’m sorry. I could not find any cases related to that search. You can view more cases here: https://vmwdynamics.crm8.dynamics.com/",
+        "description": "Please try again with different search",
+        "type": "text"
+      }
+    }
+  ]
+}
