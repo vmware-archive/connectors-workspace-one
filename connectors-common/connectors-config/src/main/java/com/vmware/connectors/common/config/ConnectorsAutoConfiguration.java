@@ -7,7 +7,12 @@ package com.vmware.connectors.common.config;
 
 import com.vmware.connectors.common.json.JsonDocumentDecoder;
 import com.vmware.connectors.common.utils.CardTextAccessor;
-import com.vmware.connectors.common.web.*;
+import com.vmware.connectors.common.utils.ConnectorTextAccessor;
+import com.vmware.connectors.common.web.ConnectorRootController;
+import com.vmware.connectors.common.web.ExceptionHandlers;
+import com.vmware.connectors.common.web.FormWebFilter;
+import com.vmware.connectors.common.web.SecurityContextWebFilter;
+import com.vmware.connectors.common.web.ServerHeaderWebFilter;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,6 +76,11 @@ public class ConnectorsAutoConfiguration {
     @Bean
     public CardTextAccessor cardTextAccessor(MessageSource messageSource) {
         return new CardTextAccessor(messageSource);
+    }
+
+    @Bean
+    public ConnectorTextAccessor connectorTextAccessor(MessageSource messageSource) {
+        return new ConnectorTextAccessor(messageSource);
     }
 
     @Bean

@@ -9,6 +9,10 @@ import org.springframework.context.MessageSource;
 
 import java.util.Locale;
 
+@Deprecated
+/**
+ * @deprecated, replaced by ConnectorTextAccessor class.
+ */
 public class CardTextAccessor extends TextAccessorBase {
 
     public CardTextAccessor(MessageSource messageSource) {

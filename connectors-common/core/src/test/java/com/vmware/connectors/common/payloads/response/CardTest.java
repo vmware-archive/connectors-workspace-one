@@ -9,7 +9,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.vmware.connectors.common.utils.JsonUtils;
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assertions;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,8 +19,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -28,7 +33,11 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -45,7 +54,14 @@ public class CardTest {
     private UUID uuid = UUID.fromString("628a6d06-1925-404b-b241-ff21b273c4ab");
 
     private ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
-
+    private static final URI ANOTHER_TEST_HREF =
+            UriComponentsBuilder.fromUriString("https://impl.dummyserver1.com").build().toUri();
+    private static final String ANOTHER_TEXT = "Open In dummy Server1";
+    private static final OpenInLink OPEN_IN_LINK_1 = JsonUtils.convertFromJsonFile("open_in_link.json", OpenInLink.class);
+    private static final OpenInLink OPEN_IN_LINK_2 = OpenInLink.builder()
+            .href(ANOTHER_TEST_HREF)
+            .text(ANOTHER_TEXT)
+            .build();
 
     @Test
     void testSimpleRoundTrip() throws Exception {
@@ -150,6 +166,16 @@ public class CardTest {
         JSONAssert.assertEquals(jsonFromBuilder, jsonFromJson, true);
     }
 
+   @Test
+   public void testCardLinks() throws Exception {
+       mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+       String originalJson = fromFile("simple.json");
+       Card card = stringToCard(originalJson);
+       Assertions.assertThat(card.getLinks()).hasSize(1);
+       Assertions.assertThat(card.getLinks().get(0).getHref()).isEqualTo(OPEN_IN_LINK_1.getHref());
+       Assertions.assertThat(card.getLinks().get(0).getText()).isEqualTo(OPEN_IN_LINK_1.getText());
+   }
+
     @Test
     void testCardBodyBuilder() throws IOException, JSONException {
         CardBody.Builder builder = new CardBody.Builder();
@@ -252,6 +278,175 @@ public class CardTest {
         JSONAssert.assertEquals(jsonFromBuilder, jsonFromJson, true);
     }
 
+    @Test
+    void testSticky() throws IOException {
+        OffsetDateTime stickyDate = OffsetDateTime.of(2020, 12, 31, 23, 59, 59, 0, ZoneOffset.UTC);
+
+        Card cardFromBuilder = new Card.Builder()
+                .setBody("unit test card body")
+                .setId(uuid)
+                .setCreationDate(creationDate)
+                .setSticky(new Sticky(
+                        stickyDate,
+                        "foo"
+                ))
+                .setHash("test-hash")
+                .build();
+
+        String jsonFromBuilder = mapper.writeValueAsString(cardFromBuilder);
+
+        assertThat(jsonFromBuilder, containsString("\"body\""));
+        assertThat(jsonFromBuilder, containsString("\"unit test card body\""));
+        assertThat(jsonFromBuilder, containsString("\"sticky\""));
+        assertThat(jsonFromBuilder, containsString("\"until\""));
+        // TODO - The unit tests don't seem to be handling this correctly
+//        assertThat(jsonFromBuilder, containsString("\"2020-12-31T23:59:59.000Z\""));
+        assertThat(jsonFromBuilder, containsString("\"type\""));
+        assertThat(jsonFromBuilder, containsString("\"foo\""));
+
+        Card cardFromJson = mapper.readValue(fromFile("sticky.json"), Card.class);
+        assertThat(cardFromJson.getSticky().getType(), is(equalTo("foobar")));
+        assertThat(cardFromJson.getSticky().getUntil(), is(equalTo(stickyDate)));
+    }
+
+    @Test
+    void testActionContentTypeJson() throws IOException {
+        Card cardFromBuilder = new Card.Builder()
+                .setBody("unit test card body")
+                .setId(uuid)
+                .setCreationDate(creationDate)
+                .addAction(
+                        new CardAction.Builder()
+                                .setActionKey(CardActionKey.DIRECT)
+                                .setLabel("foo")
+                                .setType(HttpMethod.POST)
+                                .setContentType(MediaType.APPLICATION_JSON)
+                                .build()
+                )
+                .setHash("test-hash")
+                .build();
+
+        String jsonFromBuilder = mapper.writeValueAsString(cardFromBuilder);
+
+        assertThat(jsonFromBuilder, containsString("\"body\""));
+        assertThat(jsonFromBuilder, containsString("\"unit test card body\""));
+        assertThat(jsonFromBuilder, containsString("\"actions\""));
+        assertThat(jsonFromBuilder, containsString("\"content_type\""));
+        assertThat(jsonFromBuilder, containsString("\"application/json\""));
+
+        Card cardFromJson = mapper.readValue(fromFile("action-content-type.json"), Card.class);
+        assertThat(cardFromJson.getActions().get(0).getContentType(), is(equalTo("application/json")));
+    }
+
+    @Test
+    void testActionContentTypeCustom() throws IOException {
+        Card cardFromBuilder = new Card.Builder()
+                .setBody("unit test card body")
+                .setId(uuid)
+                .setCreationDate(creationDate)
+                .addAction(
+                        new CardAction.Builder()
+                                .setActionKey(CardActionKey.DIRECT)
+                                .setLabel("foo")
+                                .setType(HttpMethod.POST)
+                                .setContentType("foo/bar")
+                                .build()
+                )
+                .setHash("test-hash")
+                .build();
+
+        String jsonFromBuilder = mapper.writeValueAsString(cardFromBuilder);
+
+        assertThat(jsonFromBuilder, containsString("\"body\""));
+        assertThat(jsonFromBuilder, containsString("\"unit test card body\""));
+        assertThat(jsonFromBuilder, containsString("\"actions\""));
+        assertThat(jsonFromBuilder, containsString("\"content_type\""));
+        assertThat(jsonFromBuilder, containsString("\"foo/bar\""));
+    }
+
+    @Test
+    void testActionUserInputDisplayContent() throws IOException {
+        Card cardFromBuilder = new Card.Builder()
+                .setBody("unit test card body")
+                .setId(uuid)
+                .setCreationDate(creationDate)
+                .addAction(
+                        new CardAction.Builder()
+                                .setActionKey(CardActionKey.USER_INPUT)
+                                .setLabel("foo")
+                                .setType(HttpMethod.POST)
+                                .addUserInputField(
+                                        new CardActionInputField.Builder()
+                                                .setId("foo")
+                                                .setLabel("bar")
+                                                .setDisplayContent("baz")
+                                                .build()
+                                )
+                                .build()
+                )
+                .setHash("test-hash")
+                .build();
+
+        String jsonFromBuilder = mapper.writeValueAsString(cardFromBuilder);
+
+        assertThat(jsonFromBuilder, containsString("\"body\""));
+        assertThat(jsonFromBuilder, containsString("\"unit test card body\""));
+        assertThat(jsonFromBuilder, containsString("\"actions\""));
+        assertThat(jsonFromBuilder, containsString("\"user_input\""));
+        assertThat(jsonFromBuilder, containsString("\"display_content\""));
+        assertThat(jsonFromBuilder, containsString("\"baz\""));
+
+        Card cardFromJson = mapper.readValue(fromFile("action-input-display-content.json"), Card.class);
+        assertThat(cardFromJson.getActions().get(0).getUserInput().get(0).getDisplayContent(), is(equalTo("baz")));
+    }
+
+    @Test
+    void testBannerJson() throws IOException {
+        Card cardFromBuilder = new Card.Builder()
+                .setBody("unit test card body")
+                .setId(uuid)
+                .setCreationDate(creationDate)
+                .setBanner(new CardBanner(List.of(
+                        new BannerItem(BannerItem.Type.VIDEO, "video-href", "video-title", "video-description"),
+                        new BannerItem(BannerItem.Type.IMAGE, "image-href", null, "image-description")
+                )))
+                .setHash("test-hash")
+                .build();
+
+        String jsonFromBuilder = mapper.writeValueAsString(cardFromBuilder);
+
+        assertThat(jsonFromBuilder, containsString("\"body\""));
+        assertThat(jsonFromBuilder, containsString("\"unit test card body\""));
+        assertThat(jsonFromBuilder, containsString("\"banner\""));
+        assertThat(jsonFromBuilder, containsString("\"items\""));
+        assertThat(jsonFromBuilder, containsString("\"type\""));
+        assertThat(jsonFromBuilder, containsString("\"href\""));
+        assertThat(jsonFromBuilder, containsString("\"title\""));
+        assertThat(jsonFromBuilder, containsString("\"description\""));
+
+        assertThat(jsonFromBuilder, containsString("\"video\""));
+        assertThat(jsonFromBuilder, containsString("\"video-href\""));
+        assertThat(jsonFromBuilder, containsString("\"video-title\""));
+        assertThat(jsonFromBuilder, containsString("\"video-description\""));
+
+        assertThat(jsonFromBuilder, containsString("\"image\""));
+        assertThat(jsonFromBuilder, containsString("\"image-href\""));
+        assertThat(jsonFromBuilder, not(containsString("null")));
+        assertThat(jsonFromBuilder, containsString("\"image-description\""));
+
+        Card cardFromJson = mapper.readValue(fromFile("banner.json"), Card.class);
+
+        assertThat(cardFromJson.getBanner().getItems().get(0).getType(), is(equalTo(BannerItem.Type.VIDEO)));
+        assertThat(cardFromJson.getBanner().getItems().get(0).getHref(), is(equalTo("https://www.abcd.com/video.stream")));
+        assertThat(cardFromJson.getBanner().getItems().get(0).getDescription(), is(equalTo("This is a description for a video type banner item")));
+        assertThat(cardFromJson.getBanner().getItems().get(0).getTitle(), is(equalTo("Streaming video")));
+
+        assertThat(cardFromJson.getBanner().getItems().get(1).getType(), is(equalTo(BannerItem.Type.IMAGE)));
+        assertThat(cardFromJson.getBanner().getItems().get(1).getHref(), is(equalTo("https://www.adsad.com/abc.png")));
+        assertThat(cardFromJson.getBanner().getItems().get(1).getDescription(), is(equalTo("This is a description for an image type banner item")));
+        assertThat(cardFromJson.getBanner().getItems().get(1).getTitle(), is(nullValue()));
+    }
+
     private Card stringToCard(String json) throws IOException {
         return mapper.readValue(json, Card.class);
     }
@@ -296,6 +491,8 @@ public class CardTest {
             OffsetDateTime ed1, OffsetDateTime ed2,
             List<String> a1, List<String> a2,
             List<String> tags1, List<String> tags2,
+            List<OpenInLink> links1, List<OpenInLink> links2,
+            Sticky s1, Sticky s2,
             boolean shouldBeEqual
     ) {
         var c1 = new Card.Builder()
@@ -306,9 +503,11 @@ public class CardTest {
                 .setImageUrl(image1)
                 .setImportance(importance1)
                 .setId(id1)
+                .setSticky(s1)
                 .setCreationDate(cd1)
                 .setExpirationDate(ed1);
         a1.forEach(a -> c1.addAction(new CardAction.Builder().setLabel(a).build()));
+        links1.forEach(openInLink1 -> c1.addLinks(openInLink1));
         tags1.forEach(c1::addTag);
 
         var c2 = new Card.Builder()
@@ -319,9 +518,11 @@ public class CardTest {
                 .setImageUrl(image2)
                 .setImportance(importance2)
                 .setId(id2)
+                .setSticky(s2)
                 .setCreationDate(cd2)
                 .setExpirationDate(ed2);
         a2.forEach(a -> c2.addAction(new CardAction.Builder().setLabel(a).build()));
+        links2.forEach(openInLink2 -> c2.addLinks(openInLink2));
         tags2.forEach(c2::addTag);
 
         if (shouldBeEqual) {
@@ -338,86 +539,150 @@ public class CardTest {
         var d2 = OffsetDateTime.now().minusDays(1);
         var xd = OffsetDateTime.now();
         return Stream.of(
-                // 1-5
+                // 1-6
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of(), List.of(), List.of(), List.of(), true),
+                        id1, id1, d1, d1, d2, d2, List.of(), List.of(), List.of(), List.of(), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        new Sticky(d1, "s1"), new Sticky(d1, "s1"), true),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), true),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1, OPEN_IN_LINK_2), List.of(OPEN_IN_LINK_1, OPEN_IN_LINK_2),
+                        new Sticky(d1, null), new Sticky(d1, null), true),
+                Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1, OPEN_IN_LINK_2), List.of(OPEN_IN_LINK_1, OPEN_IN_LINK_2),
+                        null, null, true),
                 // the id (uuid) doesn't affect the hash
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        xid, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), true),
+                        xid, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_2), List.of(OPEN_IN_LINK_2),
+                        null, null, true),
                 // the creation date doesn't affect the hash
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, xd, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), true),
+                        id1, id1, xd, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, true),
                 // the expiration date doesn't affect the hash
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, xd, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), true),
+                        id1, id1, d1, d1, xd, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, true),
 
-                // 6-15, simple differences
+                // 7-20, simple differences
                 Arguments.of("X", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "X", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "X", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "X", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "X", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", -1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("X", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("X", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "X"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "X"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("X", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("X", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "X"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c", "X"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
+                Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
+                        id1, id1, d1, d1, d2, d2, List.of(), List.of(), List.of(), List.of(), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        new Sticky(d1, "s1"), new Sticky(d1, "s2"), false),
+                Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
+                        id1, id1, d1, d1, d2, d2, List.of(), List.of(), List.of(), List.of(), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        new Sticky(d1, "s1"), new Sticky(d2, "s1"), false),
+                Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
+                        id1, id1, d1, d1, d2, d2, List.of(), List.of(), List.of(), List.of(), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, new Sticky(d1, "s1"), false),
+                Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
+                        id1, id1, d1, d1, d2, d2, List.of(), List.of(), List.of(), List.of(), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        new Sticky(d1, "s1"), null, false),
 
                 // tricky differences
 
-                // 16-19, make sure it doesn't fully rely on List's toString
+                // 21-24, make sure it doesn't fully rely on List's toString
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a,b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a,b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a, b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a, b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c,d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c,d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c, d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c, d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
 
-                // 20-29, make sure it doesn't fully rely on separators
+                // 25-34, make sure it doesn't fully rely on separators
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a|b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a|b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a | b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a | b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c|d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c|d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c | d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c | d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a;b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a;b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a; b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a; b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c;d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c;d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c; d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c; d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a ", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a ", "b"), List.of("a", "b"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c ", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c ", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
 
-                // 30-31, make sure it doesn't rely on space separator and trimming the input
+                // 35-36, make sure it doesn't rely on space separator and trimming the input
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a  b", "", "c"), List.of("a", "", "b  c"), List.of("c", "d"), List.of("c", "d"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a  b", "", "c"), List.of("a", "", "b  c"), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c  d", "", "e"), List.of("c", "", "d  e"), false),
+                        id1, id1, d1, d1, d2, d2, List.of("a", "b"), List.of("a", "b"), List.of("c  d", "", "e"), List.of("c", "", "d  e"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
 
-                // 32, make sure it handles different size empty content
+                // 37, make sure it handles different size empty content
                 Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
-                        id1, id1, d1, d1, d2, d2, List.of("", ""), List.of("", "", ""), List.of("c", "d"), List.of("c", "d"), false)
+                        id1, id1, d1, d1, d2, d2, List.of("", ""), List.of("", "", ""), List.of("c", "d"), List.of("c", "d"), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
+
+                // 38-42, test arguments for openInlink
+                Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
+                        id1, id1, d1, d1, d2, d2, List.of(), List.of(), List.of(), List.of(), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_1),
+                        null, null, true),
+                Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
+                        id1, id1, d1, d1, d2, d2, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
+                        null, null, true),
+                Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
+                        id1, id1, d1, d1, d2, d2, List.of(), List.of(), List.of(), List.of(), List.of(OPEN_IN_LINK_1), List.of(OPEN_IN_LINK_2),
+                        null, null, false),
+                Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
+                        id1, id1, d1, d1, d2, d2, List.of(), List.of(), List.of(), List.of(), List.of(OPEN_IN_LINK_1, OPEN_IN_LINK_2), List.of(OPEN_IN_LINK_1),
+                        null, null, false),
+                Arguments.of("n1", "n1", "t1", "t1", "h1", "h1", "b1", "b1", "image1", "image1", 1, 1,
+                        id1, id1, d1, d1, d2, d2, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(OPEN_IN_LINK_1),
+                        null, null, false)
         );
     }
 

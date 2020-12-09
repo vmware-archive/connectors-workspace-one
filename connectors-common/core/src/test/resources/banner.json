@@ -1,0 +1,24 @@
+{
+  "id": "628a6d06-1925-404b-b241-ff21b273c4ab",
+  "creation_date":"2017-03-03T14:28:17.656+05:30",
+  "banner": {
+    "items": [
+      {
+        "type": "video",
+        "href": "https://www.abcd.com/video.stream",
+        "title": "Streaming video",
+        "description": "This is a description for a video type banner item"
+      },
+      {
+        "type": "image",
+        "href": "https://www.adsad.com/abc.png",
+        "description": "This is a description for an image type banner item"
+      }
+    ]
+  },
+  "body": {
+    "description": "Darkness comes, shrouded in extra darkness, shoved in even more darkness. It's a darkness turducken."
+  },
+  "actions": [],
+  "hash": "test-hash"
+}

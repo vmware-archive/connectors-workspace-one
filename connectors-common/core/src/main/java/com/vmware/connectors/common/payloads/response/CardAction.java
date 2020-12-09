@@ -11,6 +11,7 @@ import com.vmware.connectors.common.utils.HashUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -45,6 +46,9 @@ public class CardAction {
 
     @JsonProperty("type")
     private HttpMethod type;
+
+    @JsonProperty("content_type")
+    private String contentType;
 
     @JsonProperty("action_key")
     private String actionKey;
@@ -122,6 +126,16 @@ public class CardAction {
      */
     public HttpMethod getType() {
         return type;
+    }
+
+    /**
+     * Get the Content-Type that will be used to call the web service
+     * specified by <code>getUrl()</code>.
+     *
+     * @return The Content-Type to be used in the call to the web service
+     */
+    public String getContentType() {
+        return contentType;
     }
 
     /**
@@ -296,6 +310,30 @@ public class CardAction {
         }
 
         /**
+         * Set the Content-Type of the {@link CardAction} under construction. Defaults to null which tells the
+         * client to use application/x-www-form-urlencoded.
+         *
+         * @param contentType the content-type for the client to use for the {@link CardAction}
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setContentType(String contentType) {
+            action.contentType = contentType;
+            return this;
+        }
+
+        /**
+         * Set the Content-Type of the {@link CardAction} under construction. Defaults to null which tells the
+         * client to use application/x-www-form-urlencoded.
+         *
+         * @param contentType the content-type for the client to use for the {@link CardAction}
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setContentType(MediaType contentType) {
+            action.contentType = contentType.toString();
+            return this;
+        }
+
+        /**
          * Set a key for the {@link CardAction} under construction, to be used by the client in rendering the Card.
          *
          * @param key the {@link CardAction}'s key
@@ -419,6 +457,7 @@ public class CardAction {
                 "label: ", this.label,
                 "url: ", url,
                 "type: ", this.type.name(),
+                "content_type: ", this.contentType,
                 "action_key: ", this.actionKey,
                 "remove_card_on_completion: ", this.removeCardOnCompletion,
                 "request: ", HashUtil.hashMap(this.request),
