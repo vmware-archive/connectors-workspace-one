@@ -12,7 +12,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
@@ -33,6 +39,9 @@ public class Card {
     @JsonProperty("name")
     private String name;
 
+    @JsonProperty("sticky")
+    private Sticky sticky;
+
     @JsonProperty("creation_date")
     private OffsetDateTime creationDate;
 
@@ -50,6 +59,9 @@ public class Card {
 
     @JsonProperty("header")
     private CardHeader header;
+
+    @JsonProperty("banner")
+    private CardBanner banner;
 
     @JsonProperty("body")
     private CardBody body;
@@ -69,12 +81,16 @@ public class Card {
     @JsonProperty("hash")
     private String hash;
 
+    @JsonProperty("links")
+    private final List<OpenInLink> links;
+
     // Don't instantiate directly -- use a Card.Builder
     private Card() {
         this.actions = new ArrayList<>();
         this.id = UUID.randomUUID();
         this.creationDate = OffsetDateTime.now();
         this.tags = new HashSet<>();
+        this.links = new ArrayList<>();
     }
 
     /**
@@ -84,6 +100,16 @@ public class Card {
      */
     public UUID getId() {
         return id;
+    }
+
+    /**
+     * Get the Card's sticky object.  The notification client can use this to
+     * know how long to keep the notification pinned to the top.
+     *
+     * @return The Card's sticky object
+     */
+    public Sticky getSticky() {
+        return sticky;
     }
 
     /**
@@ -159,6 +185,15 @@ public class Card {
     }
 
     /**
+     * Get the banner of the card, which can contain a title, href, etc..
+     *
+     * @return The card's CardBanner
+     */
+    public CardBanner getBanner() {
+        return banner;
+    }
+
+    /**
      * Get the body of the card, which can contain descriptive text, a timestamp, and some number of fields.
      *
      * @return The card's CardBody
@@ -177,6 +212,18 @@ public class Card {
     @JsonInclude(NON_EMPTY)
     public List<CardAction> getActions() {
         return Collections.unmodifiableList(actions);
+    }
+
+    /**
+     * Returns a List of links to take user to the associated Resources, in the order in which they were added.
+     * This List is <i>unmodifiable</i> - its contents cannot be changed once the Card is created.
+     * Use Card.Builder.addLinks() to populate the Card's bodyFields.
+     *
+     * @return An unmodifiable List of the links of this Card
+     */
+    @JsonInclude(NON_EMPTY)
+    public List<OpenInLink> getLinks() {
+        return List.copyOf(links);
     }
 
     /**
@@ -202,7 +249,7 @@ public class Card {
     }
 
     /**
-     * Return SHA-1 of the concatenated result of card name, header, body, and action.
+     * Return the card's hash value.
      *
      * @return hash value
      */
@@ -254,6 +301,17 @@ public class Card {
          */
         public Builder setName(String name) {
             card.name = name;
+            return this;
+        }
+
+        /**
+         * Get the sticky object of the Card under construction
+         *
+         * @param sticky the Card's sticky object
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setSticky(Sticky sticky) {
+            card.sticky = sticky;
             return this;
         }
 
@@ -350,6 +408,17 @@ public class Card {
         }
 
         /**
+         * Set the banner of the Card under construction.
+         *
+         * @param banner The card's banner
+         * @return this Builder instance, for method chaining
+         */
+        public Builder setBanner(CardBanner banner) {
+            card.banner = banner;
+            return this;
+        }
+
+        /**
          * Set the body of the Card under construction.
          *
          * @param somebody body to be added to the Card
@@ -391,6 +460,18 @@ public class Card {
         }
 
         /**
+         * Add an openInLink to the Card under construction.
+         * openInLink are kept in the order in which they are added.
+         *
+         * @param openInLink the new openInLink to be added to the Card
+         * @return this Builder instance, for method chaining
+         */
+        public Builder addLinks(OpenInLink openInLink) {
+            card.links.add(openInLink);
+            return this;
+        }
+
+        /**
          * Add a tag to the Card under construction.
          *
          * @param tag the new tag to be added to the Card
@@ -413,9 +494,9 @@ public class Card {
         }
 
         /**
-         * Set SHA-1 of card fields.
+         * Set card's hash.
          *
-         * @param hash SHA-1 of card header, body, and action fields.
+         * @param hash the hash of the relevant card data.
          * @return this Builder instance, for method chaining
          */
         public Builder setHash(String hash) {
@@ -440,6 +521,7 @@ public class Card {
             return completedCard;
         }
 
+        @SuppressWarnings("PMD")
         public String computeHash() {
             final String templateUrl = card.template == null ? null : card.template.getHref();
             final String imageUrl = card.image == null ? null : card.image.getHref();
@@ -450,21 +532,28 @@ public class Card {
                         actionHashList.add(cardAction == null ? StringUtils.SPACE : cardAction.hash())
                 );
             }
+            final List<String> linksHashList = new ArrayList<>();
+            card.links.forEach(openInLink -> linksHashList.add(openInLink.hash()));
 
             final List<String> tagList = CollectionUtils.isEmpty(card.tags) ? Collections.EMPTY_LIST : new ArrayList<>(card.tags);
             final String headerHash = card.header == null ? null : card.header.hash();
+            final String bannerHash = card.banner == null ? null : card.banner.hash();
             final String bodyHash = card.body == null ? null : card.body.hash();
+            final String stickyHash = card.sticky == null ? null : card.sticky.hash();
 
             return HashUtil.hash(
+                    "sticky: ", stickyHash,
                     "name: ", card.name,
                     "backend_id: ", card.backendId,
                     "template: ", templateUrl,
                     "header: ", headerHash,
+                    "banner: ", bannerHash,
                     "body: ", bodyHash,
                     "actions: ", HashUtil.hashList(actionHashList),
                     "image: ", imageUrl,
                     "importance: ", card.importance,
-                    "tags: ", HashUtil.hashList(tagList)
+                    "tags: ", HashUtil.hashList(tagList),
+                    "links: ", HashUtil.hashList(linksHashList)
             );
         }
     }

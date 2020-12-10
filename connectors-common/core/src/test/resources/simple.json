@@ -4,6 +4,12 @@
   "creation_date":"2017-03-03T08:58:17.656Z",
   "expiration_date":"2017-05-03T08:58:17.656Z",
   "importance": 1,
+  "links": [
+    {
+      "href": "https://impl.dummyserver.com",
+      "text": "Open In dummy Server"
+    }
+  ],
   "template": {
     "href": "/connectors/salesforce/templates/generic.hbs"
   },

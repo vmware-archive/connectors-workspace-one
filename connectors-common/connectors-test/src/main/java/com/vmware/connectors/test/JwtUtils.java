@@ -41,16 +41,25 @@ public final class JwtUtils {
         return createConnectorToken(Instant.now().plus(5, HOURS), audience);
     }
 
-    public String createConnectorToken(Instant expiry, String audience) throws IOException, GeneralSecurityException {
+    public String createConnectorTokenForPreHire(String audience, boolean isPreHire) throws IOException, GeneralSecurityException {
+        return createConnectorTokenForPreHire(Instant.now().plus(5, HOURS), audience, isPreHire);
+    }
+
+    public String createConnectorTokenForPreHire(Instant expiry, String audience, boolean isPreHire) throws IOException, GeneralSecurityException {
 
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
                 .claim("prn", "fred@acme")
                 .claim("eml", "admin@acme.com")
+                .claim("pre_hire", isPreHire)
                 .audience(audience)
                 .expirationTime(Date.from(expiry))
                 .issueTime(Date.from(Instant.now()))
                 .build();
 
+        return signJwtToken(claims);
+    }
+
+    private String signJwtToken(JWTClaimsSet claims) throws IOException, GeneralSecurityException {
         SignedJWT signedJWT = new SignedJWT(
                 new JWSHeader.Builder(JWSAlgorithm.RS256)
                         .type(JWT)
@@ -64,6 +73,19 @@ public final class JwtUtils {
         } catch (JOSEException e) {
             throw new AssertionError("Could not sign JWT", e);
         }
+    }
+
+    public String createConnectorToken(Instant expiry, String audience) throws IOException, GeneralSecurityException {
+
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .claim("prn", "fred@acme")
+                .claim("eml", "admin@acme.com")
+                .audience(audience)
+                .expirationTime(Date.from(expiry))
+                .issueTime(Date.from(Instant.now()))
+                .build();
+
+        return signJwtToken(claims);
     }
 
     private PrivateKey getSigner() throws IOException, GeneralSecurityException {

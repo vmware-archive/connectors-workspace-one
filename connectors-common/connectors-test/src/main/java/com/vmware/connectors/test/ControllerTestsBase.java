@@ -185,11 +185,24 @@ public class ControllerTestsBase {
     protected void headers(HttpHeaders headers, String uri) {
         try {
             String token = jwt.createConnectorToken("https://my-connector" + uri);
-            headers.add(AUTHORIZATION, bearer(token));
-            headers(headers);
+            addTokenToAuthHeader(headers, token);
         } catch (IOException | GeneralSecurityException e) {
             throw new AssertionError(e);
         }
+    }
+
+    protected void preHireHeaders(HttpHeaders headers, String uri, boolean isPreHire) {
+        try {
+            String token = jwt.createConnectorTokenForPreHire("https://my-connector" + uri, isPreHire);
+            addTokenToAuthHeader(headers, token);
+        } catch (GeneralSecurityException | IOException ex) {
+            throw new AssertionError(ex);
+        }
+    }
+
+    private void addTokenToAuthHeader(HttpHeaders headers, String token) {
+        headers.add(AUTHORIZATION, bearer(token));
+        headers(headers);
     }
 
     protected static void headers(HttpHeaders headers) {

@@ -32,6 +32,10 @@ public class CardActionInputField {
     @JsonProperty("label")
     private String label;
 
+    @JsonProperty("display_content")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String displayContent;
+
     @JsonProperty("format")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String format;
@@ -69,6 +73,15 @@ public class CardActionInputField {
      */
     public String getLabel() {
         return label;
+    }
+
+    /**
+     * Get the field's display content, which will be displayed to the user to describe the expected content of the field.
+     *
+     * @return The field's display content
+     */
+    public String getDisplayContent() {
+        return displayContent;
     }
 
     /**
@@ -168,6 +181,17 @@ public class CardActionInputField {
         }
 
         /**
+         * Set the display content for the field under construction.
+         *
+         * @param displayContent The field's display content
+         * @return This Builder instance, for method chaining
+         */
+        public Builder setDisplayContent(String displayContent) {
+            inputField.displayContent = displayContent;
+            return this;
+        }
+
+        /**
          * Set the format of the field under construction.
          *
          * @param format The field's format
@@ -249,6 +273,7 @@ public class CardActionInputField {
         return HashUtil.hash(
                 "id: ", this.id,
                 "label: ", this.label,
+                "display_content: ", this.displayContent,
                 "format: ", this.format,
                 "options: ", HashUtil.hashMap(this.options),
                 "minLength: ", this.minLength,
