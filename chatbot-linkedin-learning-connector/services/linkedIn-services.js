@@ -12,7 +12,7 @@ const rp = require('request-promise')
  */
 const getUserTopPicks = async (res) => {
   const options = {
-    uri: getLinkedinURI(res.locals.baseUrl),
+    uri: getLinkedinURI(res.locals.backendBaseUrl),
     method: 'GET',
     json: true,
     qs: {
@@ -24,8 +24,8 @@ const getUserTopPicks = async (res) => {
       'assetFilteringCriteria.locales[1].country': 'US'
     },
     headers: {
-      authorization: res.locals.connectorAuthorization,
-      'x-request-id': res.locals.xReqId
+      authorization: res.locals.backendAuthorization,
+      'x-request-id': res.locals.xRequestId
     }
   }
 
@@ -39,7 +39,7 @@ const getUserTopPicks = async (res) => {
  */
 const getNewCourses = async (res) => {
   const options = {
-    uri: getLinkedinURI(res.locals.baseUrl),
+    uri: getLinkedinURI(res.locals.backendBaseUrl),
     method: 'GET',
     json: true,
     qs: {
@@ -52,8 +52,8 @@ const getNewCourses = async (res) => {
       'assetFilteringCriteria.locales[1].country': 'US'
     },
     headers: {
-      authorization: res.locals.connectorAuthorization,
-      'x-request-id': res.locals.xReqId
+      authorization: res.locals.backendAuthorization,
+      'x-request-id': res.locals.xRequestId
     }
 
   }
@@ -68,7 +68,7 @@ const getNewCourses = async (res) => {
  */
 const geKeywordSearch = async (res, keyword) => {
   const options = {
-    uri: getLinkedinURI(res.locals.baseUrl),
+    uri: getLinkedinURI(res.locals.backendBaseUrl),
     method: 'GET',
     json: true,
     qs: {
@@ -80,8 +80,8 @@ const geKeywordSearch = async (res, keyword) => {
       'assetFilteringCriteria.locales[1].country': 'US'
     },
     headers: {
-      authorization: res.locals.connectorAuthorization,
-      'x-request-id': res.locals.xReqId
+      authorization: res.locals.backendAuthorization,
+      'x-request-id': res.locals.xRequestId
     }
   }
   return rp(options)

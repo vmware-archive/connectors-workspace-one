@@ -2,7 +2,7 @@
 const botObjects = require('../utils/bot-objects')
 
 const linkedInService = require('../services/linkedIn-services')
-const { log, logReq } = require('../utils/log')
+const mfCommons = require('@vmw/mobile-flows-connector-commons')
 
 const workflowId = require('../utils/workflow-ids')
 const { v4: uuid } = require('uuid')
@@ -77,7 +77,7 @@ const optionsCatalog = async (req, res) => {
  * @param res - Response object
  */
 const userTopPicks = async (req, res) => {
-  logReq(res, 'Sending user top pick course request')
+  mfCommons.logReq(res, 'Sending user top pick course request')
   try {
     const results = await linkedInService.getUserTopPicks(res)
     const courseObjects = botObjects.forBotObjects(results, workflowId.userTopPicks)
@@ -88,7 +88,7 @@ const userTopPicks = async (req, res) => {
 }
 
 const newCourses = async (req, res) => {
-  logReq(res, 'Sending new course request')
+  mfCommons.logReq(res, 'Sending new course request')
   try {
     const results = await linkedInService.getNewCourses(res)
     const courseObjects = botObjects.forBotObjects(results, workflowId.newCourses)
@@ -104,7 +104,7 @@ const newCourses = async (req, res) => {
  * @param res - Response object
  */
 const keywordSearch = async (req, res) => {
-  logReq(res, 'Sending keyword search request')
+  mfCommons.logReq(res, 'Sending keyword search request')
   const keyword = req.body.description || ''
   try {
     const results = await linkedInService.geKeywordSearch(res, keyword)
@@ -123,7 +123,7 @@ const keywordSearch = async (req, res) => {
  */
 const handleLinkedInError = (res, error, message = 'LinkedIn Learning API failed.') => {
   const logMsg = message + ' error: ' + error
-  logReq(res, logMsg)
+  mfCommons.logReq(res, logMsg)
 
   if (error.statusCode === 401) {
     return res

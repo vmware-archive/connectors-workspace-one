@@ -4,9 +4,10 @@
 */
 
 'use strict'
+const mfCommons = require('@vmw/mobile-flows-connector-commons')
 
 exports.root = function (req, res) {
-  const baseUrl = urlPrefix(req)
+  const baseUrl = mfCommons.getConnectorBaseUrl(req)
   const discovery = {
     image: {
       href: 'https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-linkedin-learning.png'
@@ -20,21 +21,4 @@ exports.root = function (req, res) {
     }
   }
   return res.json(discovery)
-}
-
-function urlPrefix (req) {
-  const proto = req.header('x-forwarded-proto') || 'http'
-  const host = req.header('x-forwarded-host')
-  const port = req.header('x-forwarded-port')
-  const path = req.header('x-forwarded-prefix') || ''
-
-  if (host && port) {
-    return `${proto}://${host}:${port}${path}`
-  }
-
-  if (host && !port) {
-    return `${proto}://${host}${path}`
-  }
-
-  return `${proto}://${req.headers.host}${path}`
 }

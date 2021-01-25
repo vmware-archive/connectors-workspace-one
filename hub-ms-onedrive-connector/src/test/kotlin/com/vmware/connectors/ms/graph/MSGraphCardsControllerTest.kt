@@ -25,8 +25,8 @@ import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.MediaType.IMAGE_PNG_VALUE
 import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.match.MockRestRequestMatchers
-import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
-import org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest
+import org.springframework.test.web.client.response.MockRestResponseCreators
+import org.springframework.test.web.client.response.MockRestResponseCreators.*
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.util.LinkedMultiValueMap
@@ -82,6 +82,85 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
             @Value("classpath:service/api/relevantPeopleResponses/u1.json")
             relevantPeopleResponses: Resource,
             @Value("classpath:connector/responses/u1.json")
+            response: Resource
+    ) {
+
+        mockBackend.expect(MockRestRequestMatchers.requestTo(startsWith(
+                Endpoints.getAccessRequestMailsUrl("", "")
+                        .replaceAfter("\$filter", "")
+        )))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, authorization))
+                .andRespond(withSuccess(mailResponses.readAsString(), APPLICATION_JSON))
+
+        mockBackend.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(Endpoints.getUserTimeZoneUrl("")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, authorization))
+                .andRespond(withSuccess(userTimeZone.readAsString(), APPLICATION_JSON))
+
+        val siteHostName = "backflipt-my.sharepoint.com"
+        val sitePath = "/personal/pavan_backflipt_com"
+
+        mockBackend.expect(MockRestRequestMatchers.requestTo(Endpoints.getSiteIdCallUrl("", siteHostName, sitePath)))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, authorization))
+                .andRespond(withSuccess(siteUrlResponses.readAsString(), APPLICATION_JSON))
+
+        val siteId = "backflipt-my.sharepoint.com,3b4fbdfd-a6c1-4b4e-a5a1-ba26e2e81243,7849a5b3-019f-4bc7-a407-65f41107c481"
+        val filePath = "/Backflipt%20Discover%20Canned%20Demo%20Documents/Arista%207000%20series%20-%2072/7368X4-Series-QA.pdf"
+
+        mockBackend.expect(MockRestRequestMatchers.requestTo(Endpoints.getFileIdFromFilePathUrl("", siteId, filePath)))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, authorization))
+                .andRespond(withSuccess(fileUrlResponses.readAsString(), APPLICATION_JSON))
+
+
+        mockBackend.expect(MockRestRequestMatchers.requestTo(startsWith(
+                Endpoints.getRelevantPeopleWithNameUrl("", "")
+                        .replaceAfter("\$search", "")
+        )))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, authorization))
+                .andRespond(withSuccess(relevantPeopleResponses.readAsString(), APPLICATION_JSON))
+
+        val jsonResponse = response.readAsString()
+
+        val uri = "/cards/requests"
+
+        val data = webClient.post()
+                .uri(uri)
+                .header(AUTHORIZATION, getAuthorizationToken(uri))
+                .header(X_AUTH_HEADER, authorization)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(ROUTING_PREFIX, ROUTING_PREFIX_URL)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .returnResult<String>()
+                .responseBody
+                .collect(Collectors.joining())
+                .map(JsonNormalizer::forCards)
+                .block()
+                ?.replace(Regex("http://localhost:\\d+/"), "/")
+
+        assertThat<String>(data, sameJSONAs(jsonResponse))
+    }
+
+    @Test
+    fun testCardsRequestsForCardsWithProtectedRequestMails(
+            @Value("classpath:service/api/mailResponses/u7.json")
+            mailResponses: Resource,
+            @Value("classpath:service/api/userTimeZone/u1.json")
+            userTimeZone: Resource,
+            @Value("classpath:service/api/siteUrlResponses/u1.json")
+            siteUrlResponses: Resource,
+            @Value("classpath:service/api/fileUrlResponses/u1.json")
+            fileUrlResponses: Resource,
+            @Value("classpath:service/api/relevantPeopleResponses/u1.json")
+            relevantPeopleResponses: Resource,
+            @Value("classpath:connector/responses/u4.json")
             response: Resource
     ) {
 
@@ -304,7 +383,7 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
     }
 
     @Test
-    fun testCardsRequestsWithEmptyCards(
+    fun testCardsRequestsWithEmptyCardsAndNoTimeZoneConfiguration(
             @Value("classpath:service/api/mailResponses/u1.json")
             mailResponses: Resource,
             @Value("classpath:service/api/userTimeZone/u2.json")
@@ -332,7 +411,7 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
         mockBackend.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(Endpoints.getUserTimeZoneUrl("")))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                 .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, authorization))
-                .andRespond(withSuccess(userTimeZone.readAsString(), APPLICATION_JSON))
+                .andRespond(MockRestResponseCreators.withNoContent())
 
         val siteHostName = "backflipt-my.sharepoint.com"
         val sitePath = "/personal/pavan_backflipt_com"
@@ -822,6 +901,98 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
                 .body(BodyInserters.fromFormData(formData))
                 .exchange()
                 .expectStatus().isCreated
+    }
+
+    @Test
+    fun testAuthFailForGettingRequestMails(
+            @Value("classpath:connector/responses/invalid_connector_token.json")
+            response: Resource,
+            @Value("classpath:service/api/userTimeZone/u1.json")
+            userTimeZone: Resource
+    ) {
+
+        mockBackend.expect(MockRestRequestMatchers.requestTo(startsWith(
+                Endpoints.getAccessRequestMailsUrl("", "")
+                        .replaceAfter("\$filter", "")
+        )))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, authorization))
+                .andRespond(withUnauthorizedRequest())
+
+        mockBackend.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(Endpoints.getUserTimeZoneUrl("")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, authorization))
+                .andRespond(withSuccess(userTimeZone.readAsString(), APPLICATION_JSON))
+
+        val jsonResponse = response.readAsString()
+
+        val uri = "/cards/requests"
+
+        webClient.post()
+                .uri(uri)
+                .header(AUTHORIZATION, getAuthorizationToken(uri))
+                .header(X_AUTH_HEADER, authorization)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(ROUTING_PREFIX, ROUTING_PREFIX_URL)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isBadRequest
+                .expectHeader().valueEquals("x-backend-status", "401")
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+                .expectBody().json(jsonResponse)
+    }
+
+    @Test
+    fun testAuthFailForGettingSiteIdFromSitePath(
+            @Value("classpath:service/api/mailResponses/u1.json")
+            mailResponses: Resource,
+            @Value("classpath:connector/responses/invalid_connector_token.json")
+            response: Resource,
+            @Value("classpath:service/api/userTimeZone/u1.json")
+            userTimeZone: Resource
+    ) {
+
+        mockBackend.expect(MockRestRequestMatchers.requestTo(startsWith(
+                Endpoints.getAccessRequestMailsUrl("", "")
+                        .replaceAfter("\$filter", "")
+        )))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, authorization))
+                .andRespond(withSuccess(mailResponses.readAsString(), APPLICATION_JSON))
+
+        mockBackend.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(Endpoints.getUserTimeZoneUrl("")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, authorization))
+                .andRespond(withSuccess(userTimeZone.readAsString(), APPLICATION_JSON))
+
+        val siteHostName = "backflipt-my.sharepoint.com"
+        val sitePath = "/personal/pavan_backflipt_com"
+
+        mockBackend.expect(MockRestRequestMatchers.requestTo(Endpoints.getSiteIdCallUrl("", siteHostName, sitePath)))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(AUTHORIZATION, authorization))
+                .andRespond(withUnauthorizedRequest())
+
+        val jsonResponse = response.readAsString()
+
+        val uri = "/cards/requests"
+
+        webClient.post()
+                .uri(uri)
+                .header(AUTHORIZATION, getAuthorizationToken(uri))
+                .header(X_AUTH_HEADER, authorization)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(ROUTING_PREFIX, ROUTING_PREFIX_URL)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isBadRequest
+                .expectHeader().valueEquals("x-backend-status", "401")
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+                .expectBody().json(jsonResponse)
     }
 
     @Test

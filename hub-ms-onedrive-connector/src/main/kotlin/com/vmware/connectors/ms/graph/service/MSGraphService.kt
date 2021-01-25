@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.*
@@ -71,7 +72,9 @@ class MSGraphService(
                 .get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchange()
+                .awaitExchangeAndThrowError {
+                    logger.error(it) { "Error While Getting RequestAccess Mails Url:$url" }
+                }
                 .awaitBody<Map<String, Any>>()
                 .getListOrNull<Map<String, Any>>("value")
                 ?.convertValue()
@@ -126,7 +129,9 @@ class MSGraphService(
                 .get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchange()
+                .awaitExchangeAndThrowError {
+                    logger.error(it) { "Error while fetching siteId from Site path $siteHostName $sitePath" }
+                }
                 .awaitBody<Map<String, Any>>()
                 .getStringOrNull("id")
     }
@@ -260,7 +265,7 @@ class MSGraphService(
                 .get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchange()
+                .awaitExchangeAndThrowError()
                 .awaitBodyOrNull()
     }
 
@@ -329,15 +334,18 @@ class MSGraphService(
             baseUrl: String
     ): String? {
         val url = Endpoints.getUserTimeZoneUrl(baseUrl)
-        return client
+        val status = client
                 .get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, authorization)
                 .awaitExchangeAndThrowError {
                     logger.error(it) { "error while getting user's timeZone -> $url" }
                 }
-                .awaitBody<Map<String, Any>>()
-                .getStringOrNull("value")
+        return if (status.statusCode() == HttpStatus.NO_CONTENT)
+            null
+        else
+            status.awaitBody<Map<String, Any>>()
+                    .getStringOrNull("value")
     }
 
     /**
@@ -360,7 +368,7 @@ class MSGraphService(
             accessRequestMailSubjectRegex.matches(email.subject) ||
                     directAccessRequestMailSubjectRegex.matches(email.subject)
         }
-        logger.info { "rejected mails by subject-> ${emails.minus(requestAccessMails).map { it.id + it.subject}}" }
+        logger.info { "rejected mails by subject-> ${emails.minus(requestAccessMails).map { it.id + it.subject }}" }
         return requestAccessMails
                 .mapNotNull { email ->
                     try {
@@ -373,7 +381,7 @@ class MSGraphService(
                             // Get File Info
                             val entireFileUrl = doc.select("a[href]").map { it.attr("href") }.last()
                             val fileUrl = getUrlWithoutParameters(entireFileUrl)
-                            val siteParamsQry =  getSharePointParams(fileUrl)
+                            val siteParamsQry = getSharePointParams(fileUrl)
                             val siteParams = if (siteParamsQry != null) {
                                 siteParamsQry
                             } else {
@@ -421,7 +429,7 @@ class MSGraphService(
                                             val requestedFor = emailReg.find(body)?.groupValues?.get(1)
                                             if (requestedFor == null) {
                                                 val matchedPeople = getRelevantPeopleForUser(authorization, baseUrl, requestedForName)
-                                                logger.info {"matchedPeople -> $matchedPeople" }
+                                                logger.info { "matchedPeople -> $matchedPeople" }
                                                 findCorrectPersonAmongRelevants(matchedPeople, requestedForName)
                                                         ?: findCorrectPersonAmongUsers(
                                                                 getAllUsers(authorization, baseUrl),
@@ -554,7 +562,7 @@ class MSGraphService(
                 .get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, authorization)
-                .awaitExchange()
+                .awaitExchangeAndThrowError()
                 .awaitBody()
     }
 }

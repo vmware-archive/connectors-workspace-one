@@ -146,7 +146,7 @@
         }
       ],
       "image": {
-        "href": "/images/connector.png"
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-planner.png"
       },
       "backend_id": "00000000-0000-0000-0000-000000000000",
       "hash": "00000000-0000-0000-0000-000000000000"

@@ -101,7 +101,7 @@
         }
       ],
       "image": {
-        "href": "/images/connector.png"
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-onedrive.png"
       },
       "hash": "a536465d-8624-30af-b189-33324df51187"
     }

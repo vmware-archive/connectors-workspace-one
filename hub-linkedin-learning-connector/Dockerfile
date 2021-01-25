@@ -5,6 +5,8 @@ WORKDIR /usr/src/app
 COPY package.json .
 COPY package-lock.json .
 
+ARG NPM_CONFIG_REGISTRY=https://registry.npmjs.org/
+
 RUN npm install
 
 COPY . .

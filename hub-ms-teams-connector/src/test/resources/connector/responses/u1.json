@@ -68,7 +68,7 @@
         }
       ],
       "image": {
-        "href": "/images/connector.png"
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-teams.png"
       },
       "hash": "b033f51c-c9eb-3e42-9273-631b1b59b990"
     }

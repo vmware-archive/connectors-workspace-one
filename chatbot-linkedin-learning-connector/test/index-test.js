@@ -8,8 +8,9 @@ const { expect } = require('chai')
 const testUtils = require('./test-utils')
 
 const baseUrl = 'http://localhost:3000'
-const mockMobileFlows = require('./mock-mf-server')
+const mfCommons = require('@vmw/mobile-flows-connector-commons')
 const mockLinkedin = require('./mock-linkedin')
+const MF_SERVER_PORT = 5000
 
 function callDiscovery () {
   const options = {
@@ -43,10 +44,10 @@ describe('Chatbot LinkedIn Learning connector tests', () => {
 
   before(() => {
     if (!server) {
-      mockMobileFlows.start()
+      mfCommons.mockMfServer.start(MF_SERVER_PORT)
       mockLinkedin.start()
 
-      process.env.MF_JWT_PUB_KEY_URI = testUtils.MF_JWT_PUB_KEY_URI
+      process.env.MF_JWT_PUB_KEY_URI = `http://localhost:${MF_SERVER_PORT}/security/public-key`
       try {
         delete require.cache[require.resolve('../index')]
         server = require('../index')
@@ -60,7 +61,7 @@ describe('Chatbot LinkedIn Learning connector tests', () => {
   after(done => {
     if (server) {
       server.close(() => {
-        mockMobileFlows.stop(() => {
+        mfCommons.mockMfServer.stop(() => {
           mockLinkedin.stop(() => {
             done()
           })
@@ -237,7 +238,10 @@ describe('Chatbot LinkedIn Learning connector tests', () => {
   })
 
   const userTopPicks = (username, shouldIncludeBaseURL, shouldIncludeConnectorAuth) => {
-    const mfToken = mockMobileFlows.getMfTokenFor(username, 'https://my-host:3030/abc/bot/actions/new-courses')
+    const mfToken = mfCommons.mockMfServer.getMfToken({
+      username: username,
+      audience: 'https://my-host:3030/abc/bot/actions/top-picks'
+    })
     const options = {
       method: 'GET',
       uri: `${testUtils.CONNECTOR_URL}/bot/actions/top-picks`,
@@ -254,7 +258,10 @@ describe('Chatbot LinkedIn Learning connector tests', () => {
   }
 
   const newCourses = (username, shouldIncludeBaseURL, shouldIncludeConnectorAuth) => {
-    const mfToken = mockMobileFlows.getMfTokenFor(username, 'https://my-host:3030/abc/bot/actions/new-courses')
+    const mfToken = mfCommons.mockMfServer.getMfToken({
+      username: username,
+      audience: 'https://my-host:3030/abc/bot/actions/new-courses'
+    })
     const options = {
       method: 'GET',
       uri: `${testUtils.CONNECTOR_URL}/bot/actions/new-courses`,
@@ -271,7 +278,10 @@ describe('Chatbot LinkedIn Learning connector tests', () => {
     return rp(options)
   }
   const keywordSeacrch = (username, shouldIncludeBaseURL, shouldIncludeConnectorAuth) => {
-    const mfToken = mockMobileFlows.getMfTokenFor(username, 'https://my-host:3030/abc/bot/actions/new-courses')
+    const mfToken = mfCommons.mockMfServer.getMfToken({
+      username: username,
+      audience: 'https://my-host:3030/abc/bot/actions/keyword-search'
+    })
     const options = {
       method: 'POST',
       uri: `${testUtils.CONNECTOR_URL}/bot/actions/keyword-search`,

@@ -1,24 +1,16 @@
-FROM node:11
+FROM node:12
 
-# Create app directory
-WORKDIR /connectors/jira_service_desk
+WORKDIR /usr/src/app
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+COPY package.json .
+COPY package-lock.json .
 
-# Expose the port on Container
-EXPOSE 8080
-
-# Set the PORT env variable
-ENV PORT 8080
+ARG NPM_CONFIG_REGISTRY=https://registry.npmjs.org/
 
 RUN npm install
-# If you are building your code for production
-# RUN npm install --only=production
 
-# Bundle app source
 COPY . .
+
+EXPOSE 3000
 
 CMD [ "npm", "start" ]

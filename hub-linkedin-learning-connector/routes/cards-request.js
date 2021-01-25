@@ -2,7 +2,7 @@
 const cardObjects = require('../utils/card-objects')
 
 const linkedInService = require('../services/linkedIn-services')
-const { logReq } = require('../utils/log')
+const mfCommons = require('@vmw/mobile-flows-connector-commons')
 
 /**
  * Show linkedin option catalog to user
@@ -11,7 +11,7 @@ const { logReq } = require('../utils/log')
  * This is not final yet, working with PM to finalize these flows
  */
 const newCourses = async (req, res) => {
-  logReq(res, 'Sending new course request')
+  mfCommons.logReq(res, 'Sending new course request')
   try {
     const results = await linkedInService.getNewCourses(res)
     const courseObjects = cardObjects.forCardObjects(results)
@@ -29,7 +29,7 @@ const newCourses = async (req, res) => {
  */
 const handleLinkedInError = (res, error, message = 'LinkedIn Learning API failed.') => {
   const logMsg = message + ' error: ' + error
-  logReq(res, logMsg)
+  mfCommons.logReq(res, logMsg)
 
   if (error.statusCode === 401) {
     return res

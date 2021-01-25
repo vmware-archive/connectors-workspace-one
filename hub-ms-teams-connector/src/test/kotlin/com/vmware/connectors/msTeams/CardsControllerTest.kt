@@ -137,6 +137,29 @@ class CardsControllerTest : ControllerTestsBase() {
     }
 
     @Test
+    fun `Test Success For replyToMessage With NullInput`(
+            @Value("classpath:service/api/messages/message1.json")
+            message: Resource
+    ) {
+        val formData = LinkedMultiValueMap<String, String>()
+        formData.add("comments", null)
+        formData.add("actionType", "replyToMessage")
+        formData.add("message", message.readAsString())
+
+        val uri = "/messages/$messageId/reply"
+
+        webClient.post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationToken(uri))
+                .header(X_AUTH_HEADER, authorization)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .body(BodyInserters.fromFormData(formData))
+                .exchange()
+                .expectStatus().isOk
+    }
+
+    @Test
     fun `Test Success For Dismiss`(
             @Value("classpath:service/api/messages/message1.json")
             message: Resource
@@ -320,6 +343,44 @@ class CardsControllerTest : ControllerTestsBase() {
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
 
         Assert.assertThat<String>(data, SameJSONAs.sameJSONAs(jsonResponse))
+    }
+
+    @Test
+    fun `Test Auth Fail While Batch Request`(
+            @Value("classpath:connector/responses/invalid_connector_token.json")
+            response: Resource,
+            @Value("classpath:service/api/teams/teams1.json")
+            team: Resource
+    ) {
+        mockBackend.expect(MockRestRequestMatchers.requestTo(Endpoints.getTeamsUrl("")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, authorization))
+                .andRespond(MockRestResponseCreators.withSuccess(team.readAsString(), MediaType.APPLICATION_JSON))
+
+        mockBackend.expect(MockRestRequestMatchers.requestTo(Endpoints.getBatchUrl("")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
+                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, authorization))
+                .andExpect(MockRestRequestMatchers.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(MockRestResponseCreators.withUnauthorizedRequest())
+
+        val jsonResponse = response.readAsString()
+
+        val uri = "/cards/requests"
+
+        webClient.post()
+                .uri(uri)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationToken(uri))
+                .header(X_AUTH_HEADER, authorization)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(ROUTING_PREFIX, ROUTING_PREFIX_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isBadRequest
+                .expectHeader().valueEquals("x-backend-status", "401")
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+                .expectBody().json(jsonResponse)
     }
 
     @Test

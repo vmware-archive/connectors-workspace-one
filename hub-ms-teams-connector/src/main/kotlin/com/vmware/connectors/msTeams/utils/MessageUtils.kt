@@ -60,9 +60,7 @@ fun Message.toCard(
             .setHeader(cardHeader)
             .setBody(cardBodyBuilder.build())
             .addAction(replyToMessageBuilder.build())
-//            .addAction(dismissMessageBuilder.build())
-
-    CommonUtils.buildConnectorImageUrl(card, request)
+    card.setImageUrl("https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-teams.png")
 
     return card.build()
 }
@@ -106,39 +104,5 @@ private fun buildReplyToMessageActionBuilder(
             .addUserInputField(commentsUserInputField)
             .addRequestParam("message", finalMessage.serialize())
             .addRequestParam("actionType", "replyToMessage")
-
-}
-
-/**
- * Card Action Dismiss Builder
- *
- * @param message Message object that the user has been mentioned in.
- * @param routingPrefix Connector routing url prefix used for preparing action urls
- * @param locale User locale while preparing cards with internationalized literals.
- * @param cardUtils cardUtils: internal module that is used while preparing cards
- * @return CardAction.Builder
- */
-private fun buildDismissActionBuilder(message: Message, routingPrefix: String, locale: Locale?, cardUtils: CardUtils): CardAction.Builder {
-
-    val actionBuilder = CardAction.Builder()
-
-    val actionLink = """/messages/${message.id}/dismiss"""
-
-    val actionUrl = URI(routingPrefix + actionLink).normalize().toString()
-    val finalMessage = JsonParser.convertValue<Map<String, Any>>(message).minus("createdDate")
-
-
-    return actionBuilder
-            .setLabel(cardUtils.cardTextAccessor.getActionLabel("actions.dismiss", locale))
-            .setCompletedLabel(cardUtils.cardTextAccessor.getActionCompletedLabel("actions.dismiss", locale))
-            .setActionKey(CardActionKey.DIRECT)
-            .setUrl(actionUrl)
-            .setType(HttpMethod.POST)
-            .setAllowRepeated(false)
-            .setMutuallyExclusiveSetId("ACT_ON_MESSAGE")
-            .setRemoveCardOnCompletion(true)
-            .addRequestParam("message", finalMessage.serialize())
-            .addRequestParam("actionType", "dismiss")
-
 }
 
