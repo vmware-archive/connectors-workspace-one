@@ -11,19 +11,14 @@ import com.vmware.connectors.msPlanner.config.Endpoints.getNewConversationThread
 import com.vmware.connectors.msPlanner.config.Endpoints.replyToTaskUrl
 import com.vmware.connectors.msPlanner.config.FORMATTER
 import com.vmware.connectors.msPlanner.config.MAX_DUE_DAYS
-import com.vmware.connectors.msPlanner.dto.Days
-import com.vmware.connectors.msPlanner.dto.Task
-import com.vmware.connectors.msPlanner.dto.TaskDetails
-import com.vmware.connectors.msPlanner.dto.TaskMetaInfo
+import com.vmware.connectors.msPlanner.dto.*
 import com.vmware.connectors.msPlanner.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBody
-import org.springframework.web.reactive.function.client.awaitExchange
-import org.springframework.web.reactive.function.client.body
+import org.springframework.web.reactive.function.client.*
 import reactor.core.publisher.Mono
 import java.util.*
 
@@ -58,7 +53,7 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
                     .get()
                     .uri(Endpoints.getUserIdUrl(baseUrl))
                     .header(HttpHeaders.AUTHORIZATION, authorization)
-                    .awaitExchange()
+                    .awaitExchangeAndThrowError()
                     .awaitBody<Map<String, Any>>()
                     .getStringOrDefault("id")
         }
@@ -81,13 +76,18 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
     ): String? {
         val url = Endpoints.getUserTimeZoneUrl(baseUrl)
         val response = measureTimeMillisPair {
-            client
+            val status = client
                     .get()
                     .uri(url)
                     .header(HttpHeaders.AUTHORIZATION, authorization)
-                    .awaitExchange()
-                    .awaitBody<Map<String, Any>>()
-                    .getStringOrException("value")
+                    .awaitExchangeAndThrowError {
+                        logger.error(it) { "Error While Fetching Time Zone For User $currentUser" }
+                    }
+            if (status.statusCode() == HttpStatus.NO_CONTENT)
+                null
+            else
+                status.awaitBody<Map<String, Any>>()
+                        .getStringOrNull("value")
         }
         logger.debug { "Time Taken For getUserTimeZone for $currentUser-->${response.second}" }
         return response.first
@@ -106,9 +106,10 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
             currentUser: String?
     ): List<String> {
         val response = measureTimeMillisPair {
+            val url = getGroupIdsUrl(baseUrl)
             client
                     .post()
-                    .uri(getGroupIdsUrl(baseUrl))
+                    .uri(url)
                     .header(HttpHeaders.AUTHORIZATION, authorization)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .body(
@@ -118,7 +119,9 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
                                     )
                             )
                     )
-                    .awaitExchange()
+                    .awaitExchangeAndThrowError {
+                        logger.error(it) { "Error While Fetching GroupIds For User $currentUser Url:$url" }
+                    }
                     .awaitBody<Map<String, Any>>()
         }
         logger.debug { "Time Taken to getGroupIds for $currentUser--->${response.second}" }
@@ -284,7 +287,7 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
                                     )
                             )
                     )
-                    .awaitExchange()
+                    .awaitExchangeAndThrowError()
                     .awaitBody<Map<String, Any>>()
         }
         val responses = response.first.getListOrException<Map<String, Any>>("responses")
@@ -430,7 +433,9 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
                     .header(HttpHeaders.IF_MATCH, eTag)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .body(Mono.just(body))
-                    .awaitExchange()
+                    .awaitExchangeAndThrowError {
+                        logger.error(it) { "Error while Updating the Task Url:$url Task Object:${task.serialize()}" }
+                    }
         }
         logger.debug { "time taken to update Task---->${response.second}" }
         return response.first
@@ -461,7 +466,9 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
                     .header(HttpHeaders.AUTHORIZATION, authorization)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .body(Mono.just(buildAddCommentsToTaskBody(message)))
-                    .awaitExchange()
+                    .awaitExchangeAndThrowError {
+                        logger.error(it) { "Error while Adding Comment to the Task Url:$url Task Object:${task.serialize()}" }
+                    }
                     .statusCode()
                     .is2xxSuccessful
         } else {
@@ -498,7 +505,7 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
                     .header(HttpHeaders.AUTHORIZATION, authorization)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .body(Mono.just(buildConversationThreadBody(taskName, comment)))
-                    .awaitExchange()
+                    .awaitExchangeAndThrowError()
                     .awaitBody<Map<String, Any>>()
                     .getListOrException<Map<String, Any>>("threads").first()
                     .getStringOrException("id")
@@ -526,7 +533,7 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
             client.get()
                     .uri(url)
                     .header(HttpHeaders.AUTHORIZATION, authorization)
-                    .awaitExchange()
+                    .awaitExchangeAndThrowError()
                     .awaitBody<Map<String, Any>>()
                     .plus(mapOf("groupId" to groupId))
         }
@@ -568,7 +575,7 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
                     .get()
                     .uri(Endpoints.getTaskDetailsUrl(baseUrl, task.id))
                     .header(HttpHeaders.AUTHORIZATION, authorization)
-                    .awaitExchange()
+                    .awaitExchangeAndThrowError()
                     .awaitBody<TaskDetails>()
         }
         logger.debug { "time taken for moreTaskDetails for $currentUser --->${response.second}" }
@@ -595,7 +602,7 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
                         .get()
                         .uri(url)
                         .header(HttpHeaders.AUTHORIZATION, authorization)
-                        .awaitExchange()
+                        .awaitExchangeAndThrowError()
                         .awaitBody<Map<String, Any>>()
                         .getListOrException<Map<String, Any>>("value")
                         .map { value ->
@@ -635,7 +642,7 @@ class MsPlannerBackendService(@Autowired private val client: WebClient) {
                     .get()
                     .uri(url)
                     .header(HttpHeaders.AUTHORIZATION, authorization)
-                    .awaitExchange()
+                    .awaitExchangeAndThrowError()
                     .awaitBody<Map<String, Any>>()
                     .getMapOrException<String, String>("categoryDescriptions")
         }

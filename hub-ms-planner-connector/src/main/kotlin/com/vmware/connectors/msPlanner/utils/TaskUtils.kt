@@ -110,9 +110,8 @@ suspend fun Task.buildUserCard(
             .setBody(cardBodyBuilder.build())
             .addAction(markTaskCompleteBuilder.build())
             .addAction(addCommentBuilder.build())
-//            .addAction(dismissTaskBuilder.build())
 
-    CommonUtils.buildConnectorImageUrl(card, request)
+    card.setImageUrl("https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-planner.png");
 
     return card.build()
 }

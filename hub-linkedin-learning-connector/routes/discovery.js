@@ -5,9 +5,10 @@
 
 'use strict'
 const utils = require('../utils/utility')
+const mfCommons = require('@vmw/mobile-flows-connector-commons')
 
 exports.root = async (req, res) => {
-  const baseUrl = utils.urlPrefix(req)
+  const baseUrl = mfCommons.getConnectorBaseUrl(req)
   const discovery = {
     image: {
       href: utils.LINKEDIN_LOGO_PATH

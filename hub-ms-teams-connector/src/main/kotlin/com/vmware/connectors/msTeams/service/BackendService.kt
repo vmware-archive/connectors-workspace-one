@@ -247,7 +247,7 @@ class BackendService(
                 .header(HttpHeaders.AUTHORIZATION, authorization)
                 .awaitExchangeAndThrowError {
                     logger.error(it) {
-                        "Error while replying to a message for user -> with $authorization"
+                        "Error while replying to a message  Url:$url"
                     }
                 }
                 .statusCode()
@@ -291,7 +291,7 @@ class BackendService(
                         )
                 )
                 .awaitExchangeAndThrowError {
-                    logger.error(it) { "Error while fetching response from batch for user ->  with $authorization" }
+                    logger.error(it) { "Error while fetching response from batch BatchBody:$body" }
                 }
                 .awaitBody()
     }
@@ -372,13 +372,13 @@ class BackendService(
             baseUrl: String
     ): Map<String, Any> {
         val responses = body.chunked(20)
-                .flatMap  {
-            getResponseFromBatch(
-                    authorization,
-                    it,
-                    baseUrl
-            ).getListOrDefault<Map<String, Any>>("responses")
-        }
+                .flatMap {
+                    getResponseFromBatch(
+                            authorization,
+                            it,
+                            baseUrl
+                    ).getListOrDefault<Map<String, Any>>("responses")
+                }
         return mapOf("responses" to responses)
     }
 }

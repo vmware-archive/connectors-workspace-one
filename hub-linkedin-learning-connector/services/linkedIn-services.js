@@ -14,7 +14,7 @@ const getNewCourses = async (res) => {
   const previousDate = new Date()
   previousDate.setDate(previousDate.getDate() - 3) // need to decide how many previous date we want
   const options = {
-    uri: getLinkedinURI(res.locals.baseUrl),
+    uri: getLinkedinURI(res.locals.backendBaseUrl),
     method: 'GET',
     json: true,
     qs: {
@@ -27,8 +27,8 @@ const getNewCourses = async (res) => {
       'assetFilteringCriteria.locales[1].country': 'US'
     },
     headers: {
-      authorization: res.locals.connectorAuthorization,
-      'x-request-id': res.locals.xReqId
+      authorization: res.locals.backendAuthorization,
+      'x-request-id': res.locals.xRequestId
     }
   }
   return rp(options)

@@ -5,27 +5,26 @@
 
 'use strict'
 
-const { log } = require('./utils/log')
-
 const express = require('express')
 const discovery = require('./routes/discovery')
 const botDiscovery = require('./routes/bot-discovery')
-
 const utility = require('./utils/utility')
 const botActions = require('./routes/bot-actions')
-
-const connectorAuth = require('./utils/connector-auth')
-const mfRouting = require('./utils/mf-routing')
+const mfCommons = require('@vmw/mobile-flows-connector-commons')
 const app = express()
-
-app.use('/*', utility.handleXRequestId)
-app.use('/bot/*', connectorAuth.validate, mfRouting.addContextPath, utility.validateReqHeaders)
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
 
-app.get('/health', (req, res) => res.json({status: 'UP'}))
+const publicKeyUrl = process.env.MF_JWT_PUB_KEY_URI
+if (!publicKeyUrl) {
+  throw Error('Please provide Mobile Flows public key URL at MF_JWT_PUB_KEY_URI')
+}
+
+app.use('/*', mfCommons.handleXRequestId)
+app.use('/bot/*', mfCommons.validateAuth(publicKeyUrl), mfCommons.readBackendHeaders, mfCommons.mfRouting.addContextPath, utility.validateReqHeaders)
+app.get('/health', (req, res) => res.json({ status: 'UP' }))
 
 app.get('/', discovery.root)
 
@@ -46,13 +45,6 @@ app.post('/bot/actions/keyword-search', botActions.keywordSearch)
 
 const port = process.env.PORT || 3000
 
-try {
-  utility.initConnector()
-} catch (e) {
-  log('Unable to initialize the connector. \n' + e.message)
-  process.exit(1)
-}
-
 module.exports = app.listen(port, function () {
-  log(`Connector listening on port ${port}.`)
+  mfCommons.log(`Connector listening on port ${port}.`)
 })

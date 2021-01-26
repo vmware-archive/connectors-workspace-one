@@ -145,13 +145,15 @@ private suspend fun createResponseException(
  * @param onError: callback function which will be called if there is any error during http call
  * @return ClientResponse
  */
-suspend fun WebClient.RequestHeadersSpec<out WebClient.RequestHeadersSpec<*>>.awaitExchangeAndThrowError(onError: ((WebClientResponseException) -> Unit)): ClientResponse {
+suspend fun WebClient.RequestHeadersSpec<out WebClient.RequestHeadersSpec<*>>.awaitExchangeAndThrowError(
+        onError: ((WebClientResponseException) -> Unit)? = null
+): ClientResponse {
     return awaitExchange()
             .also { response ->
                 if (response.statusCode().isError) {
-                    val exp = createResponseException(response)
-                    onError(exp)
-                    throw exp
+                    val excp = createResponseException(response)
+                    if (onError != null) onError(excp)
+                    throw excp
                 }
             }
 }

@@ -18,6 +18,7 @@
   "author": "Bilal Dar <bdar@vmware.com>",
   "license": "BSD-2-Clause",
   "dependencies": {
+    "@vmw/mobile-flows-connector-commons": "^1.4.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "request": "^2.88.2",

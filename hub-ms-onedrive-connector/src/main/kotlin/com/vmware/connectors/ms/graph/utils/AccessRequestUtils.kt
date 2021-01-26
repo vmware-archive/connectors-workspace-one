@@ -65,7 +65,6 @@ fun AccessRequest.toCard(
                     listOf(resource.url)
             )
     )
-
     logger.info { "card header setup" }
 
     val card = Card.Builder()
@@ -77,8 +76,7 @@ fun AccessRequest.toCard(
             .addAction(approveForReadActionBuilder.build())
             .addAction(approveForWriteActionBuilder.build())
             .addAction(declineActionBuilder.build())
-
-    CommonUtils.buildConnectorImageUrl(card, request)
+    card.setImageUrl("https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-onedrive.png");
 
     return card.build()
 }

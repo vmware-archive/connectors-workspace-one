@@ -12,7 +12,6 @@ import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider
 import com.vmware.connectors.msPlanner.config.Endpoints
 import com.vmware.connectors.msPlanner.config.MESSAGE_ROUTING_PREFIX
 import com.vmware.connectors.msPlanner.dto.Task
-import com.vmware.connectors.msPlanner.service.MsPlannerBackendService
 import com.vmware.connectors.msPlanner.utils.*
 import com.vmware.connectors.test.ControllerTestsBase
 import com.vmware.connectors.test.JsonNormalizer
@@ -35,7 +34,6 @@ import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MimeTypeUtils
 import org.springframework.web.reactive.function.BodyInserters
-import org.springframework.web.reactive.function.client.WebClient
 import uk.co.datumedge.hamcrest.json.SameJSONAs
 import java.util.stream.Collectors
 
@@ -295,7 +293,7 @@ class CardsControllerTest : ControllerTestsBase() {
     }
 
     @Test
-    fun `Test Success For Empty Cards Request`(
+    fun `Test Success For Empty Cards Request And No TimeZone Configured`(
             @Value("classpath:service/user/user.json")
             user: Resource,
             @Value("classpath:service/groupResponses/groups1.json")
@@ -325,7 +323,7 @@ class CardsControllerTest : ControllerTestsBase() {
         mockBackend.expect(MockRestRequestMatchers.requestTo(Endpoints.getUserTimeZoneUrl("")))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                 .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, authorization))
-                .andRespond(MockRestResponseCreators.withSuccess(timezone.readAsString(), MediaType.APPLICATION_JSON))
+                .andRespond(MockRestResponseCreators.withNoContent())
 
         mockBackend.expect(MockRestRequestMatchers.requestTo(Endpoints.getGroupIdsUrl("")))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
@@ -682,6 +680,87 @@ class CardsControllerTest : ControllerTestsBase() {
         val data = getCardsResponse()
 
         Assert.assertThat<String>(data, SameJSONAs.sameJSONAs(jsonResponse))
+    }
+
+    @Test
+    fun `Test Auth Fail For Getting UserTimeZone`(
+            @Value("classpath:connector/responses/invalid_connector_token.json")
+            response: Resource,
+            @Value("classpath:service/user/user.json")
+            user: Resource
+    ) {
+        mockBackend.expect(MockRestRequestMatchers.requestTo(Endpoints.getUserIdUrl("")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, authorization))
+                .andRespond(MockRestResponseCreators.withSuccess(user.readAsString(), MediaType.APPLICATION_JSON))
+
+        mockBackend.expect(MockRestRequestMatchers.requestTo(Endpoints.getUserTimeZoneUrl("")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, authorization))
+                .andRespond(MockRestResponseCreators.withUnauthorizedRequest())
+
+        val jsonResponse = response.readAsString()
+
+        val uri = "/cards/requests"
+
+        webClient.post()
+                .uri(uri)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationToken(uri))
+                .header(X_AUTH_HEADER, authorization)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(MESSAGE_ROUTING_PREFIX, ROUTING_PREFIX_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isBadRequest
+                .expectHeader().valueEquals("x-backend-status", "401")
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+                .expectBody().json(jsonResponse)
+    }
+
+    @Test
+    fun `Test Auth Fail For Getting UserGroupIds`(
+            @Value("classpath:connector/responses/invalid_connector_token.json")
+            response: Resource,
+            @Value("classpath:service/user/user.json")
+            user: Resource,
+            @Value("classpath:service/user/timezone.json")
+            timezone: Resource
+    ) {
+        mockBackend.expect(ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo(Endpoints.getUserIdUrl("")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, authorization))
+                .andRespond(MockRestResponseCreators.withSuccess(user.readAsString(), MediaType.APPLICATION_JSON))
+
+        mockBackend.expect(MockRestRequestMatchers.requestTo(Endpoints.getUserTimeZoneUrl("")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, authorization))
+                .andRespond(MockRestResponseCreators.withSuccess(timezone.readAsString(), MediaType.APPLICATION_JSON))
+
+        mockBackend.expect(MockRestRequestMatchers.requestTo(Endpoints.getGroupIdsUrl("")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
+                .andExpect(MockRestRequestMatchers.header(HttpHeaders.AUTHORIZATION, authorization))
+                .andRespond(MockRestResponseCreators.withUnauthorizedRequest())
+
+        val jsonResponse = response.readAsString()
+
+        val uri = "/cards/requests"
+
+        webClient.post()
+                .uri(uri)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationToken(uri))
+                .header(X_AUTH_HEADER, authorization)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(MESSAGE_ROUTING_PREFIX, ROUTING_PREFIX_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isBadRequest
+                .expectHeader().valueEquals("x-backend-status", "401")
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+                .expectBody().json(jsonResponse)
     }
 
     @Test
