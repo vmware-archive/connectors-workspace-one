@@ -30,13 +30,13 @@
     "sinon-chai": "^3.5.0"
   },
   "dependencies": {
+    "@vmw/mobile-flows-connector-commons": "^1.4.0",
     "atob": "^2.1.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "btoa": "^1.2.1",
     "chai": "^4.2.0",
     "connector-explang": "0.0.3",
-    "@vmw/mobile-flows-connector-commons": "^1.4.0",
     "dotenv": "^7.0.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
