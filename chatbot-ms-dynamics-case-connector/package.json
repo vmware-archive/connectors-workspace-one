@@ -24,14 +24,14 @@
   "author": "Backflipt",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "express": "^4.17.1",
-    "request": "^2.88.2",
-    "uuid": "^8.1.0",
-    "axios": "^0.19.2",
+    "@vmw/mobile-flows-connector-commons": "^1.4.0",
+    "axios": "^0.21.1",
     "dotenv": "^7.0.0",
+    "express": "^4.17.1",
     "nyc": "^15.1.0",
     "path": "^0.12.7",
-    "@vmw/mobile-flows-connector-commons": "^1.4.0"
+    "request": "^2.88.2",
+    "uuid": "^8.1.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
