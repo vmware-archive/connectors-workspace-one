@@ -1,10 +1,14 @@
+/*
+ * Copyright © 2020 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
 
 'use strict'
 
-const utility = require('../utils/utility');
+const mfCommons = require('@vmw/mobile-flows-connector-commons')
 
 const root = (req, res) => {
-  const baseUrl = utility.derivedBaseUrl(req)
+  const baseUrl = mfCommons.getConnectorBaseUrl(req)
   const discovery = {
     image: {
       href: 'https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-zoom.png'

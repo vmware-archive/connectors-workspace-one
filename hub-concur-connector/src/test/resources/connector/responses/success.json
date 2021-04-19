@@ -13,7 +13,7 @@
           "request": {},
           "type": "POST",
           "url": {
-            "href": "https://hero/connectors/concur/api/expense/1D3BD2E14D144508B05F/approve"
+            "href": "https://hero/connectors/concur/card/api/expense/1D3BD2E14D144508B05F/approve"
           },
           "user_input": [
             {
@@ -33,7 +33,7 @@
           "request": {},
           "type": "POST",
           "url": {
-            "href": "https://hero/connectors/concur/api/expense/1D3BD2E14D144508B05F/decline"
+            "href": "https://hero/connectors/concur/card/api/expense/1D3BD2E14D144508B05F/decline"
           },
           "user_input": [
             {
@@ -93,7 +93,7 @@
               {
                 "type": "GENERAL",
                 "title": "Amount",
-                "description": "India, Rupee 23,340.21"
+                "description": "INR 23,340.21"
               }
             ]
           },
@@ -103,10 +103,10 @@
             "items": [
               {
                 "type": "ATTACHMENT_URL",
-                "attachment_name": "1D3BD2E14D144508B05F",
+                "attachment_name": "All Receipts",
                 "title": "Click here to download the attachment",
                 "attachment_content_type": "application/pdf",
-                "attachment_url": "https://hero/connectors/concur/api/expense/report/1D3BD2E14D144508B05F/attachment",
+                "attachment_url": "https://hero/connectors/concur/card/api/expense/report/1D3BD2E14D144508B05F/attachment",
                 "attachment_method": "GET"
               }
             ]
@@ -141,7 +141,7 @@
           "request": {},
           "type": "POST",
           "url": {
-            "href": "https://hero/connectors/concur/api/expense/683105624FD74A1B9C13/approve"
+            "href": "https://hero/connectors/concur/card/api/expense/683105624FD74A1B9C13/approve"
           },
           "user_input": [
             {
@@ -161,7 +161,7 @@
           "request": {},
           "type": "POST",
           "url": {
-            "href": "https://hero/connectors/concur/api/expense/683105624FD74A1B9C13/decline"
+            "href": "https://hero/connectors/concur/card/api/expense/683105624FD74A1B9C13/decline"
           },
           "user_input": [
             {
@@ -221,7 +221,7 @@
               {
                 "type": "GENERAL",
                 "title": "Amount",
-                "description": "India, Rupee 17,464.66"
+                "description": "INR 17,464.66"
               }
             ]
           },
@@ -257,7 +257,7 @@
               {
                 "type": "GENERAL",
                 "title": "Amount",
-                "description": "India, Rupee 158,374"
+                "description": "INR 158,374"
               }
             ]
           },
@@ -293,7 +293,7 @@
               {
                 "type": "GENERAL",
                 "title": "Amount",
-                "description": "India, Rupee 3,000"
+                "description": "INR 3,000"
               }
             ]
           },
@@ -303,10 +303,10 @@
             "items": [
               {
                 "type": "ATTACHMENT_URL",
-                "attachment_name": "683105624FD74A1B9C13",
+                "attachment_name": "All Receipts",
                 "title": "Click here to download the attachment",
                 "attachment_content_type": "application/pdf",
-                "attachment_url": "https://hero/connectors/concur/api/expense/report/683105624FD74A1B9C13/attachment",
+                "attachment_url": "https://hero/connectors/concur/card/api/expense/report/683105624FD74A1B9C13/attachment",
                 "attachment_method": "GET"
               }
             ]
@@ -341,7 +341,7 @@
           "request": {},
           "type": "POST",
           "url": {
-            "href": "https://hero/connectors/concur/api/expense/A77D016732974B5F8E23/approve"
+            "href": "https://hero/connectors/concur/card/api/expense/A77D016732974B5F8E23/approve"
           },
           "user_input": [
             {
@@ -361,7 +361,7 @@
           "request": {},
           "type": "POST",
           "url": {
-            "href": "https://hero/connectors/concur/api/expense/A77D016732974B5F8E23/decline"
+            "href": "https://hero/connectors/concur/card/api/expense/A77D016732974B5F8E23/decline"
           },
           "user_input": [
             {
@@ -421,7 +421,7 @@
               {
                 "type": "GENERAL",
                 "title": "Amount",
-                "description": "India, Rupee 17,464.66"
+                "description": "INR 17,464.66"
               }
             ]
           },
@@ -457,7 +457,7 @@
               {
                 "type": "GENERAL",
                 "title": "Amount",
-                "description": "India, Rupee 158,374"
+                "description": "INR 158,374"
               }
             ]
           },
@@ -493,7 +493,7 @@
               {
                 "type": "GENERAL",
                 "title": "Amount",
-                "description": "India, Rupee 8,000"
+                "description": "INR 8,000"
               }
             ]
           },
@@ -503,10 +503,10 @@
             "items": [
               {
                 "type": "ATTACHMENT_URL",
-                "attachment_name": "A77D016732974B5F8E23",
+                "attachment_name": "All Receipts",
                 "title": "Click here to download the attachment",
                 "attachment_content_type": "application/pdf",
-                "attachment_url": "https://hero/connectors/concur/api/expense/report/A77D016732974B5F8E23/attachment",
+                "attachment_url": "https://hero/connectors/concur/card/api/expense/report/A77D016732974B5F8E23/attachment",
                 "attachment_method": "GET"
               }
             ]

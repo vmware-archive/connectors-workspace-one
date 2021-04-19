@@ -109,6 +109,19 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
         return spec.exchange();
     }
 
+    WebTestClient.ResponseSpec cardsRequestMissingBaseUrl() {
+        String uri = "/cards/requests";
+        WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
+                .uri(uri)
+                .header(X_AUTH_HEADER, "")
+                .header("x-routing-prefix", "https://hero/connectors/coupa/")
+                .headers(headers -> headers(headers, uri))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+
+        return spec.exchange();
+    }
+
     void fetchAttachment(String authHeader) throws IOException {
         byte[] result = getAttachment(authHeader)
                 .expectStatus().isOk()
@@ -306,7 +319,7 @@ class HubCoupaControllerTestBase extends ControllerTestsBase {
     }
 
     ResponseActions mockAttachment(String serviceCredential) {
-        return mockBackend.expect(requestTo("/api/users/15882/attachments/2701685"))
+        return mockBackend.expect(requestTo("/api/requisitions/182964/attachments/2701685"))
                 .andExpect(method(GET))
                 .andExpect(header(ACCEPT, APPLICATION_JSON_VALUE))
                 .andExpect(header(AUTHORIZATION_HEADER_NAME, serviceCredential));

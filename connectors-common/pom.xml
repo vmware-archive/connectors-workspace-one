@@ -6,13 +6,13 @@
 
     <groupId>com.vmware.card-connectors</groupId>
     <artifactId>common</artifactId>
-    <version>2.9-SNAPSHOT</version>
+    <version>2.9.3</version>
     <packaging>pom</packaging>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.3.RELEASE</version>
+        <version>2.3.9.RELEASE</version>
     </parent>
 
     <modules>
@@ -24,16 +24,17 @@
 
     <properties>
         <nexus.staging.skip>false</nexus.staging.skip>
-        <okhttp.version>3.14.2</okhttp.version>
+        <okhttp.version>4.9.0</okhttp.version>
         <pmd.version>6.13.0</pmd.version>
-        <commons-codec.version>1.12</commons-codec.version>
+        <commons-codec.version>1.15</commons-codec.version>
         <logback-jackson.version>0.1.5</logback-jackson.version>
-        <spring-security-jwt.version>1.0.10.RELEASE</spring-security-jwt.version>
-        <commons-io.version>2.6</commons-io.version>
-        <guava.version>27.0.1-jre</guava.version>
+        <spring-security-jwt.version>1.1.1.RELEASE</spring-security-jwt.version>
+        <spring.boot.version>2.4.4</spring.boot.version>
+        <commons-io.version>2.8.0</commons-io.version>
+        <guava.version>30.1.1-jre</guava.version>
         <hamcrest-json.version>0.2</hamcrest-json.version>
         <json-schema-validator.version>2.9.0</json-schema-validator.version>
-        <reactor-test.version>3.2.9.RELEASE</reactor-test.version>
+        <reactor-test.version>3.4.4</reactor-test.version>
     </properties>
 
     <!-- Need to correct the SCM url's after pushing code to github-->
@@ -181,6 +182,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-validation</artifactId>
+                <version>${spring.boot.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

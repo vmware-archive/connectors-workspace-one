@@ -1,4 +1,3 @@
 # Contributing to Hub Coupa Connector
-
-For contributing guidelines refer [CONTRIBUTING.md](https://github.com/vmware/connectors-workspace-one/blob/master/CONTRIBUTING.md).
-
+# Documentation page link will be updated soon
+Please refer to the Connectors Documentation page. 

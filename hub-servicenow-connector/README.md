@@ -11,6 +11,3 @@ For a detailed, language-neutral, specification for how to develop connectors, p
 ## License
 
 Workspace One Hub ServiceNow Connector is available under the [BSD 2 license](https://github.com/vmware/connectors-workspace-one/blob/master/LICENSE.txt)
-
-For generic details on how to build, install, and configure connectors, please see the [README](https://github.com/vmware/connectors-workspace-one/blob/master/README.md) at the root of this repository.
-

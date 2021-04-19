@@ -1,0 +1,14 @@
+{
+  "title": "FAILED",
+  "error_message": "FAILED TO DO THE ACTION. IF YOU HAVE THE PROMPT SETTINGS TURNED ON IN Concur, THEN TRY DISABLING IT FROM YOUR EXPENSE PREFERENCES.",
+  "actions": [
+    {
+      "label": "OPEN EXPENSE PREFERENCES",
+      "primary": true,
+      "remove_card_on_completion": false,
+      "url": {
+        "href": "${concur_host}expense/profile/ExpensePreference.asp"
+      }
+    }
+  ]
+}

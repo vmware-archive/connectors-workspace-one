@@ -68,6 +68,7 @@ public class HubCoupaController {
     private static final String USER_NOT_FOUND = "User with email id [%s] is not found.";
     private static final String INVALID_USER_ACTION = "User with email id [%s] is not authorized to approve/reject the expense report with approvable id [%s].";
 
+    private static final String ATTACHMENT_TYPE_FILE = "AttachmentFile";
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
     private final String apiKey;
@@ -245,7 +246,7 @@ public class HubCoupaController {
     ) {
         final CardBody.Builder cardBodyBuilder = new CardBody.Builder()
                 .addField(makeGeneralField(locale, "hub.coupa.requester", getRequestorName(requestDetails)))
-                .addField(makeGeneralField(locale, "hub.coupa.expenseAmount", getFormattedAmount(requestDetails.getMobileTotal())))
+                .addField(makeGeneralField(locale, "hub.coupa.expenseAmount", getFormattedAmount(requestDetails.getCurrency().getCode(), requestDetails.getMobileTotal())))
                 .addField(makeGeneralField(locale, "hub.coupa.cost.center", requestDetails.getRequestorCostCenter()))
                 .addField(makeGeneralField(locale, "hub.coupa.requestDescription", requestDetails.getRequisitionDescription()))
                 .addField(makeGeneralField(locale, "hub.coupa.justification", requestDetails.getJustification()));
@@ -275,8 +276,8 @@ public class HubCoupaController {
         final List<CardBodyFieldItem> items = new ArrayList<>();
 
         addItem("hub.coupa.item.quantity", lineDetails.getQuantity(), locale, items);
-        addItem("hub.coupa.unit.price", lineDetails.getUnitPrice(), locale, items);
-        addItem("hub.coupa.total.price", lineDetails.getTotal(), locale, items);
+        addItem("hub.coupa.unit.price", getFormattedAmount(requisitionDetails.getCurrency().getCode(), lineDetails.getUnitPrice()), locale, items);
+        addItem("hub.coupa.total.price", getFormattedAmount(requisitionDetails.getCurrency().getCode(),lineDetails.getTotal()), locale, items);
         addItem("hub.coupa.commodity", lineDetails.getCommodity().getName(), locale, items);
         addItem("hub.coupa.supplier.part.number", lineDetails.getSupplier().getCompanyCode(), locale, items);
 
@@ -306,8 +307,13 @@ public class HubCoupaController {
 
         final String approvableId = requisitionDetails.getApprovals().iterator().next().getApprovableId();
         for (Attachment attachment: requisitionDetails.getAttachments()) {
-            CardBodyFieldItem fieldItem = buildAttachmentItem(attachment, requisitionDetails.getId(), routingPrefix, userId, approvableId, locale);
-            attachmentField.addItem(fieldItem);
+            // APF-3045: We only support AttachmentFile
+            // remove this check after handling other types
+            if (ATTACHMENT_TYPE_FILE.equalsIgnoreCase(attachment.getType())) {
+                CardBodyFieldItem fieldItem = buildAttachmentItem(attachment, requisitionDetails.getId(), routingPrefix, userId, approvableId, locale);
+                attachmentField.addItem(fieldItem);
+            }
+
         }
 
         builder.addField(attachmentField.build());
@@ -320,6 +326,11 @@ public class HubCoupaController {
                                                   final String approvableId,
                                                   final Locale locale) {
         final String fileName = StringUtils.substringAfterLast(attachment.getFile(), "/");
+
+        if (fileName == null) {
+            logger.error("No fileName found for attachment: file={}, reportId={}, userId={}, approvableId={} ", attachment.getFile(), reportId, userId, approvableId);
+        }
+
         final String contentType = getContentType(fileName, reportId, attachment.getId());
 
         return new CardBodyFieldItem.Builder()
@@ -418,7 +429,7 @@ public class HubCoupaController {
         return requestedBy.getFirstName() + " " + requestedBy.getLastName();
     }
 
-    private static String getFormattedAmount(String amount) {
+    private static String getFormattedAmount(String currencyCode, String amount) {
         if (StringUtils.isBlank(amount)) {
             return amount;
         }
@@ -426,7 +437,7 @@ public class HubCoupaController {
         BigDecimal amt = new BigDecimal(amount);
         DecimalFormat formatter = new DecimalFormat("#,###.00");
 
-        return formatter.format(amt);
+        return currencyCode + " " + formatter.format(amt);
     }
 
     private CardAction makeApprovalAction(
@@ -606,7 +617,7 @@ public class HubCoupaController {
         final String authHeader = getAuthHeader(connectorAuth);
         return validateUserAttachmentInfo(baseUrl, authHeader, userEmail, userId, approvableId, attachmentId)
                 .switchIfEmpty(Mono.error(new UserException(String.format(UNAUTHORIZED_ATTACHMENT_ACCESS, userId, attachmentId))))
-                .then(getAttachment(authHeader, getAttachmentURI(baseUrl, userId, attachmentId)))
+                .then(getAttachment(authHeader, getAttachmentURI(baseUrl, approvableId, attachmentId)))
                 .map(clientResponse -> handleClientResponse(clientResponse, fileName));
     }
 
@@ -668,13 +679,13 @@ public class HubCoupaController {
     }
 
     private URI getAttachmentURI(final String baseUrl,
-                                 final String userId,
+                                 final String approvableId,
                                  final String attachmentId) {
         return UriComponentsBuilder.fromUriString(baseUrl)
-                .path("/api/users/{user_id}/attachments/{attachment_id}")
+                .path("/api/requisitions/{approvable_id}/attachments/{attachment_id}")
                 .buildAndExpand(
                         Map.of(
-                                "user_id", userId,
+                                "approvable_id", approvableId,
                                 "attachment_id", attachmentId
                         )
                 )

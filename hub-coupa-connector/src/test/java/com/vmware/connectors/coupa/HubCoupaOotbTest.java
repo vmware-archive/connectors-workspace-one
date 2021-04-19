@@ -35,6 +35,13 @@ class HubCoupaOotbTest extends HubCoupaControllerTestBase {
     }
 
     @Test
+    public void testMissingBaseUrlRequestHeader() throws IOException {
+        cardsRequestMissingBaseUrl()
+                .expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.message").isEqualTo("Missing request header 'X-Connector-Base-Url' for method parameter of type String");
+    }
+
+    @Test
     void testApproveRequest() throws Exception {
         mockUserDetails(CALLER_SERVICE_CREDS);
         mockApproveActionsWithComment(CALLER_SERVICE_CREDS);

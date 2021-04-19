@@ -3,6 +3,8 @@ server:
      enabled: true
      mime-types: application/json,application/xml,text/html,text/xml,text/plain
   server-header: hub-concur-connector
+  error:
+    include-message: always
 
 connector:
   hasTestAuth: true
@@ -10,7 +12,3 @@ connector:
 management:
   endpoints:
     web.base-path: /
-
-# If the tenant belongs to EU region, then we have to change the oauth instance url.
-concur:
-  oauth-instance-url: https://us-impl.api.concursolutions.com

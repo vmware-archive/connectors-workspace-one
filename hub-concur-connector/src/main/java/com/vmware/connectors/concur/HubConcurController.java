@@ -13,8 +13,8 @@ import com.vmware.connectors.common.utils.CardTextAccessor;
 import com.vmware.connectors.concur.domain.*;
 import com.vmware.connectors.concur.exception.AttachmentURLNotFoundException;
 import com.vmware.connectors.concur.exception.ExpenseReportNotFoundException;
-import com.vmware.connectors.concur.exception.InvalidServiceAccountCredentialException;
 import com.vmware.connectors.concur.exception.UserNotFoundException;
+import com.vmware.connectors.concur.exception.WorkFlowActionFailureException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -24,18 +24,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
@@ -61,45 +56,28 @@ import static org.springframework.http.MediaType.*;
 public class HubConcurController {
 
     private static final Logger logger = LoggerFactory.getLogger(HubConcurController.class);
-
     private static final String X_BASE_URL_HEADER = "X-Connector-Base-Url";
-
     private static final String COMMENT_KEY = "comment";
     private static final String REASON_KEY = "reason";
-
     private static final String APPROVE = "APPROVE";
     private static final String REJECT = "Send Back to Employee";
-
+    private static final String WORKFLOW_ACTION_FAILURE_STATUS = "FAILURE";
     private static final String CONNECTOR_AUTH = "X-Connector-Authorization";
-
-    private static final String CLIENT_ID = "client_id";
-    private static final String CLIENT_SECRET = "client_secret";
-    private static final String USERNAME = "username";
-    private static final String PASSWORD = "password";
-    private static final String GRANT_TYPE = "grant_type";
-    private static final String BEARER = "Bearer ";
     private static final String CONTENT_DISPOSITION_FORMAT = "attachment; filename=\"%s.pdf\"";
-    private static final int AUTH_VALUES_COUNT = 4;
 
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
     private final Resource concurRequestTemplate;
-    private final String serviceAccountAuthHeader;
-    private final String oauthTokenUrl;
 
     @Autowired
     public HubConcurController(
             WebClient rest,
             CardTextAccessor cardTextAccessor,
-            @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate,
-            @Value("${concur.service-account-auth-header:}") String serviceAccountAuthHeader,
-            @Value("${concur.oauth-instance-url}") String oauthTokenUrl
+            @Value("classpath:static/templates/concur-request-template.xml") Resource concurRequestTemplate
     ) {
         this.rest = rest;
         this.cardTextAccessor = cardTextAccessor;
         this.concurRequestTemplate = concurRequestTemplate;
-        this.serviceAccountAuthHeader = serviceAccountAuthHeader;
-        this.oauthTokenUrl = oauthTokenUrl;
     }
 
     @PostMapping(
@@ -111,100 +89,14 @@ public class HubConcurController {
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader("X-Routing-Prefix") String routingPrefix,
-            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
+            @RequestHeader(name = CONNECTOR_AUTH) String connectorAuth,
             Locale locale
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("getCards called: baseUrl={}, routingPrefix={}, userEmail={}", baseUrl, routingPrefix, userEmail);
 
-        if (isServiceAccountCredentialEmpty(connectorAuth)) {
-            return Mono.just(ResponseEntity.badRequest().build());
-        }
-
-        return getAuthHeader(connectorAuth)
-                .flatMap(authHeader -> fetchCards(baseUrl, locale, routingPrefix, userEmail, authHeader)
-                        .map(ResponseEntity::ok));
-    }
-
-    private Mono<String> getAuthHeader(final String auth) {
-        final String connectorAuth = getServiceAccountCredential(auth);
-        final String[] authValues = connectorAuth.split(":");
-
-        // Service account credential format - username:password:client-id:client-secret
-        if (authValues.length != AUTH_VALUES_COUNT) {
-            throw new InvalidServiceAccountCredentialException("Service account credential is invalid.");
-        }
-
-        final String username = authValues[0];
-        final String password = authValues[1];
-        final String clientId = authValues[2];
-        final String clientSecret = authValues[3];
-
-        final MultiValueMap<String, String> body = getBody(username, password, clientId, clientSecret);
-
-        return rest.post()
-                .uri(UriComponentsBuilder.fromUriString(oauthTokenUrl).path("/oauth2/v0/token").toUriString())
-                .header(ACCEPT, APPLICATION_JSON_VALUE)
-                .body(BodyInserters.fromFormData(body))
-                .retrieve()
-                .bodyToMono(JsonDocument.class)
-                .map(jsonDocument -> BEARER + jsonDocument.read("$.access_token"))
-                .onErrorMap(WebClientResponseException.class, this::handleForbiddenException);
-    }
-
-    public Throwable handleForbiddenException(WebClientResponseException e) {
-        // Concur returns 403 when the auth params are invalid. We have to convert the exception to return BAD REQUEST(400) with X-Backend-Status as 401.
-        if (HttpStatus.FORBIDDEN.equals(e.getStatusCode())) {
-            final HttpHeaders headers = copyHeaders(e.getHeaders().toSingleValueMap());
-            headers.set(BACKEND_STATUS, String.valueOf(UNAUTHORIZED.value()));
-
-            return new WebClientResponseException(
-                    e.getMessage() == null ? e.getClass().getName() : e.getMessage(),
-                    UNAUTHORIZED.value(),
-                    e.getStatusText(),
-                    headers,
-                    e.getResponseBodyAsByteArray(),
-                    StandardCharset.UTF_8);
-        }
-        return e;
-    }
-
-    private HttpHeaders copyHeaders(final Map<String, String> headerMap) {
-        final HttpHeaders headers = new HttpHeaders();
-        headerMap.forEach(headers::add);
-        return headers;
-    }
-
-    private MultiValueMap<String, String> getBody(final String username,
-                                                  final String password,
-                                                  final String clientId,
-                                                  final String clientSecret) {
-        final MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-
-        body.put(CLIENT_ID, List.of(clientId));
-        body.put(CLIENT_SECRET, List.of(clientSecret));
-        body.put(USERNAME, List.of(username));
-        body.put(PASSWORD, List.of(password));
-        body.put(GRANT_TYPE, List.of(PASSWORD));
-
-        return body;
-    }
-
-    private boolean isServiceAccountCredentialEmpty(final String connectorAuth) {
-        if (StringUtils.isBlank(this.serviceAccountAuthHeader) && StringUtils.isBlank(connectorAuth)) {
-            logger.debug("X-Connector-Authorization should not be empty if service credentials are not present in the config file");
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private String getServiceAccountCredential(final String connectorAuth) {
-        if (StringUtils.isBlank(this.serviceAccountAuthHeader)) {
-            return connectorAuth;
-        } else {
-            return this.serviceAccountAuthHeader;
-        }
+        return fetchCards(baseUrl, locale, routingPrefix, userEmail, connectorAuth)
+                .map(ResponseEntity::ok);
     }
 
     private Mono<Cards> fetchCards(
@@ -336,13 +228,15 @@ public class HubConcurController {
                 .map(entry -> new CardBodyField.Builder()
                         .setType(CardBodyFieldType.SECTION)
                         .setTitle(cardTextAccessor.getMessage("hub.concur.business.purpose", locale, entry.getBusinessPurpose()))
-                        .addItems(buildItems(locale, entry))
+                        .addItems(buildItems(locale, entry, report.getCurrencyCode()))
                         .build()
                 )
                 .collect(Collectors.toList());
     }
 
-    private List<CardBodyFieldItem> buildItems(final Locale locale, final ExpenseEntriesVO expenseEntry) {
+    private List<CardBodyFieldItem> buildItems(Locale locale,
+                                               ExpenseEntriesVO expenseEntry,
+                                               String creatorReimbursementCurrency) {
         final List<CardBodyFieldItem> items = new ArrayList<>();
 
         addItem("hub.concur.expense.type.name", expenseEntry.getExpenseTypeName(), locale, items);
@@ -350,8 +244,10 @@ public class HubConcurController {
         addItem("hub.concur.vendor.name", expenseEntry.getVendorDescription(), locale, items);
         addItem("hub.concur.city.of.purchase", expenseEntry.getLocationName(), locale, items);
         addItem("hub.concur.payment.type", expenseEntry.getPaymentTypeCode(), locale, items);
-        addItem("hub.concur.amount", formatCurrency(expenseEntry.getPostedAmount(),
-                locale, expenseEntry.getTransactionCurrencyName()), locale, items);
+        addItem("hub.concur.amount",
+                formatCurrency(expenseEntry.getPostedAmount(), locale, creatorReimbursementCurrency),
+                locale,
+                items);
 
         final List<String> attendeesList = expenseEntry.getAttendeesList();
         if (!CollectionUtils.isEmpty(attendeesList)) {
@@ -442,7 +338,7 @@ public class HubConcurController {
                 .setTitle(cardTextAccessor.getMessage("hub.concur.attachment", locale))
                 .setType(CardBodyFieldType.SECTION)
                 .addItem(new CardBodyFieldItem.Builder()
-                        .setAttachmentName(reportID)
+                        .setAttachmentName(cardTextAccessor.getMessage("hub.concur.attachmentName", locale))
                         .setTitle(cardTextAccessor.getMessage("hub.concur.report.image.url", locale))
                         .setAttachmentMethod(HttpMethod.GET)
 
@@ -476,38 +372,35 @@ public class HubConcurController {
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Mono<ResponseEntity<String>> approveRequest(
+    public Mono<ResponseEntity<Void>> approveRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
-            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
+            @RequestHeader(name = CONNECTOR_AUTH) String connectorAuth,
             @PathVariable("id") String id,
-            @Valid CommentForm form
+            @Valid CommentForm form,
+            Locale locale
     ) {
-        logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, form.getComment());
-
-        if (isServiceAccountCredentialEmpty(connectorAuth)) {
-            return Mono.just(ResponseEntity.badRequest().build());
-        }
-
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return getAuthHeader(connectorAuth)
-                .flatMap(authHeader -> makeConcurRequest(form.getComment(), baseUrl, APPROVE, id, userEmail, authHeader)
-                        .map(ResponseEntity::ok));
+        logger.debug("approveRequest called: baseUrl={}, id={}, email={} comment={}", baseUrl, id, userEmail, form.getComment());
+
+        return doWorkFlowAction(form.getComment(), baseUrl, APPROVE, id, userEmail, connectorAuth, locale)
+                        .map(ResponseEntity::ok);
     }
 
-    private Mono<String> makeConcurRequest(
+    private Mono<Void> doWorkFlowAction(
             String reason,
             String baseUrl,
             String action,
             String reportId,
             String userEmail,
-            String connectorAuth
+            String connectorAuth,
+            Locale locale
     ) {
         String concurRequestTemplate = getConcurRequestTemplate(reason, action);
 
         return fetchLoginIdFromUserEmail(userEmail, baseUrl, connectorAuth)
                 .switchIfEmpty(Mono.error(new UserNotFoundException("User with email " + userEmail + " is not found.")))
-                .flatMapMany(loginId -> validateUser(baseUrl, reportId, loginId, connectorAuth))
+                .flatMapMany(loginId -> validateReportAgainstCallingUser(baseUrl, reportId, loginId, connectorAuth, locale))
                 .flatMap(ignored -> fetchRequestData(baseUrl, reportId, connectorAuth))
                 .map(ExpenseReportResponse::getWorkflowActionURL)
                 .flatMap(
@@ -517,11 +410,37 @@ public class HubConcurController {
                                         .header(AUTHORIZATION, connectorAuth)
                                         .contentType(APPLICATION_XML)
                                         .accept(APPLICATION_JSON)
-                                        .syncBody(concurRequestTemplate)
+                                        .bodyValue(concurRequestTemplate)
                                         .retrieve()
-                                        .bodyToMono(String.class)
-                )
-                .next();
+                                        .bodyToMono(JsonDocument.class))
+                .doOnNext(response -> this.validateWorkflowResponseStatus(response, userEmail, baseUrl, locale))
+                .then();
+    }
+
+    private void validateWorkflowResponseStatus(JsonDocument response, String userEmail, String baseUrl, Locale locale) {
+        if (WORKFLOW_ACTION_FAILURE_STATUS.equals(response.read("$.Status"))) {
+            logger.debug("Action failure response from Concur: {}, for user: {}", response.toString(), userEmail);
+
+            String expensePrefUrl = UriComponentsBuilder
+                    .fromUriString(baseUrl)
+                    .replacePath("/expense/profile/ExpensePreference.asp").build()
+                    .toUriString();
+            ActionFailureResponse.OpenInAction action = new ActionFailureResponse.OpenInAction.Builder()
+                    .setLabel(cardTextAccessor.getMessage("hub.concur.failedAction.action.label", locale))
+                    .setPrimary(true)
+                    .setRemoveCardOnCompletion(false)
+                    .setUrl(expensePrefUrl)
+                    .build();
+
+            ActionFailureResponse actionFailureResponse = new ActionFailureResponse.Builder()
+                    .setTitle(cardTextAccessor.getMessage("hub.concur.failedAction.title", locale))
+                    .setErrorMessage(cardTextAccessor.getMessage("hub.concur.failedAction.errorMessage", locale))
+                    .addAction(action)
+                    .build();
+
+            throw new WorkFlowActionFailureException(
+                    "Failed to execute workflow action for: " + userEmail + ", " + response.read("$.Message"), actionFailureResponse);
+        }
     }
 
     private String getConcurRequestTemplate(
@@ -537,17 +456,46 @@ public class HubConcurController {
         }
     }
 
-    private Mono<?> validateUser(
+    /*
+     * On actions or attachment retrieval we need to make sure that
+     * report id is actually associated with the calling user.
+     */
+    private Mono<?> validateReportAgainstCallingUser(
             String baseUrl,
             String reportId,
             String loginID,
-            String connectorAuth
+            String connectorAuth,
+            Locale locale
     ) {
         return fetchAllApprovals(baseUrl, loginID, connectorAuth)
                 .filter(expense -> expense.getId().equals(reportId))
                 .filter(expense -> expense.getApproverLoginID().equals(loginID))
                 .next()
-                .switchIfEmpty(Mono.error(new ExpenseReportNotFoundException("Report ID " + reportId + " is not found.")));
+                .switchIfEmpty(Mono.defer(() -> toReportNotFoundError(reportId, loginID, baseUrl, locale)));
+
+    }
+
+    private Mono<? extends PendingApprovalsVO> toReportNotFoundError(String reportId, String loginID, String baseUrl, Locale locale) {
+        logger.debug("The report: {} is not found or is not associated with user: {}", reportId, loginID);
+
+        String pendingApprovalsUrl = UriComponentsBuilder
+                .fromUriString(baseUrl)
+                .replacePath("/approvalsportal.asp").build()
+                .toUriString();
+
+        ActionFailureResponse.OpenInAction action = new ActionFailureResponse.OpenInAction.Builder()
+                .setLabel(cardTextAccessor.getMessage("hub.concur.failedAction.reportNotFound.action.label", locale))
+                .setPrimary(true)
+                .setRemoveCardOnCompletion(true)
+                .setUrl(pendingApprovalsUrl)
+                .build();
+
+        ActionFailureResponse actionFailureResponse = new ActionFailureResponse.Builder()
+                .setTitle(cardTextAccessor.getMessage("hub.concur.failedAction.reportNotFound.title", locale))
+                .setErrorMessage(cardTextAccessor.getMessage("hub.concur.failedAction.reportNotFound.errorMessage", locale))
+                .addAction(action)
+                .build();
+        return Mono.error(new ExpenseReportNotFoundException("Report ID " + reportId + " is not found.", actionFailureResponse));
     }
 
     @PostMapping(
@@ -555,23 +503,18 @@ public class HubConcurController {
             consumes = APPLICATION_FORM_URLENCODED_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    public Mono<ResponseEntity<String>> declineRequest(
+    public Mono<ResponseEntity<Void>> declineRequest(
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
-            @RequestHeader(name = CONNECTOR_AUTH, required = false) String connectorAuth,
+            @RequestHeader(name = CONNECTOR_AUTH) String connectorAuth,
             @PathVariable("id") String id,
-            @Valid DeclineForm form
+            @Valid DeclineForm form,
+            Locale locale
     ) {
-        logger.debug("declineRequest called: baseUrl={}, id={}, reason={}", baseUrl, id, form.getReason());
-
-        if (isServiceAccountCredentialEmpty(connectorAuth)) {
-            return Mono.just(ResponseEntity.badRequest().build());
-        }
-
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        return getAuthHeader(connectorAuth)
-                .flatMap(authHeader -> makeConcurRequest(form.getReason(), baseUrl, REJECT, id, userEmail, authHeader)
-                        .map(ResponseEntity::ok));
+        logger.debug("declineRequest called: baseUrl={}, id={}, email={}, reason={}", baseUrl, id, userEmail, form.getReason());
+        return doWorkFlowAction(form.getReason(), baseUrl, REJECT, id, userEmail, connectorAuth, locale)
+                .map(ResponseEntity::ok);
     }
 
     @GetMapping(
@@ -581,18 +524,19 @@ public class HubConcurController {
             @RequestHeader(AUTHORIZATION) String authorization,
             @RequestHeader(X_BASE_URL_HEADER) String baseUrl,
             @RequestHeader(CONNECTOR_AUTH) String connectorAuth,
-            @PathVariable("id") String reportId
+            @PathVariable("id") String reportId,
+            Locale locale
     ) {
+
         final String userEmail = AuthUtil.extractUserEmail(authorization);
         logger.debug("fetchAttachment called: baseUrl={}, userEmail={}, reportId={}", baseUrl, userEmail, reportId);
 
-        return getAuthHeader(connectorAuth)
-                .flatMap(authHeader -> fetchLoginIdFromUserEmail(userEmail, baseUrl, authHeader)
+        return  fetchLoginIdFromUserEmail(userEmail, baseUrl, connectorAuth)
                         .switchIfEmpty(Mono.error(new UserNotFoundException("User with email " + userEmail + " is not found.")))
-                        .flatMap(loginID -> validateUser(baseUrl, reportId, loginID, authHeader))
-                        .then(fetchRequestData(baseUrl, reportId, authHeader))
-                        .flatMap(expenseReportResponse -> getAttachment(expenseReportResponse, authHeader))
-                        .map(clientResponse -> handleClientResponse(clientResponse, reportId)));
+                        .flatMap(loginID -> validateReportAgainstCallingUser(baseUrl, reportId, loginID, connectorAuth, locale))
+                        .then(fetchRequestData(baseUrl, reportId, connectorAuth))
+                        .flatMap(expenseReportResponse -> getAttachment(expenseReportResponse, connectorAuth))
+                        .map(clientResponse -> handleClientResponse(clientResponse, locale));
     }
 
     private Mono<ClientResponse> getAttachment(ExpenseReportResponse report, String connectorAuth) {
@@ -606,11 +550,12 @@ public class HubConcurController {
                 .exchange();
     }
 
-    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(final ClientResponse response, final String reportId) {
+    private ResponseEntity<Flux<DataBuffer>> handleClientResponse(final ClientResponse response, Locale locale) {
         if (response.statusCode().is2xxSuccessful()) {
             return ResponseEntity.ok()
                     .contentType(response.headers().contentType().orElse(APPLICATION_PDF))
-                    .header(CONTENT_DISPOSITION, String.format(CONTENT_DISPOSITION_FORMAT, reportId))
+                    .header(CONTENT_DISPOSITION,
+                            String.format(CONTENT_DISPOSITION_FORMAT, cardTextAccessor.getMessage("hub.concur.attachmentName", locale)))
                     .body(response.bodyToFlux(DataBuffer.class));
 
         }
@@ -655,16 +600,17 @@ public class HubConcurController {
     @ExceptionHandler(ExpenseReportNotFoundException.class)
     @ResponseStatus(NOT_FOUND)
     @ResponseBody
-    public Map<String, String> handleExpenseReportNotFoundException(ExpenseReportNotFoundException e) {
-        return errorOf(e);
+    public ActionFailureResponse handleExpenseReportNotFoundException(ExpenseReportNotFoundException e) {
+        logger.debug(e.getMessage());
+        return e.getActionFailureResponse();
     }
 
-    @ExceptionHandler(InvalidServiceAccountCredentialException.class)
+    @ExceptionHandler(WorkFlowActionFailureException.class)
+    @ResponseStatus(BAD_REQUEST)
     @ResponseBody
-    public ResponseEntity<Map<String, String>> handleInvalidServiceAccountCredentialException(InvalidServiceAccountCredentialException e) {
-        return ResponseEntity.status(BAD_REQUEST)
-                .header(BACKEND_STATUS, Integer.toString(UNAUTHORIZED.value()))
-                .body(errorOf(e));
+    public ActionFailureResponse handleWorkFlowActionFailureException(WorkFlowActionFailureException e) {
+        logger.debug(e.getMessage());
+        return e.getActionFailureResponse();
     }
 
     private Map<String, String> errorOf(Exception e) {

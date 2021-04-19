@@ -1,0 +1,168 @@
+{
+  "objects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Concur",
+      "creation_date": "1970-01-01T00:00:00Z",
+      "header": {
+        "title": "Shree report 9",
+        "links": {
+          "title": "${CONCUR_BASE_URL}approvalsportal.asp"
+        }
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Report name",
+            "description": "Shree report 9"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Requested By",
+            "description": "Ajmera, Rahul"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Total Amount",
+            "description": "INR 75,500"
+          },
+          {
+            "type": "SECTION",
+            "title": "purpose 9 internet",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Expense Type",
+                "description": "Internet"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Transaction Date",
+                "description": "1970-01-01T00:00:00Z"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Vendor Name",
+                "description": "vendor 9"
+              },
+              {
+                "type": "GENERAL",
+                "title": "City of Purchase",
+                "description": "Atlanta"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Payment Type",
+                "description": "CASH"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Amount",
+                "description": "INR 75,000"
+              }
+            ]
+          },
+          {
+            "type": "SECTION",
+            "title": "purpose 9 cellphone",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Expense Type",
+                "description": "Cell Phone"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Transaction Date",
+                "description": "1970-01-01T00:00:00Z"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Vendor Name",
+                "description": "vendor 9 cellphone"
+              },
+              {
+                "type": "GENERAL",
+                "title": "City of Purchase",
+                "description": "Bangalore"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Payment Type",
+                "description": "CASH"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Amount",
+                "description": "INR 500"
+              }
+            ]
+          },
+          {
+            "type": "SECTION",
+            "title": "Attachment",
+            "items": [
+              {
+                "type": "ATTACHMENT_URL",
+                "title": "Click here to download the attachment",
+                "attachment_name": "All Receipts",
+                "attachment_content_type": "application/pdf",
+                "attachment_url": "https://hero/connectors/concur/card/api/expense/report/43B451635CF24B39A670/attachment",
+                "attachment_method": "GET"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "primary": true,
+          "label": "Approve",
+          "url": {
+            "href": "https://hero/connectors/concur/card/api/expense/43B451635CF24B39A670/approve"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "comment",
+              "label": "Comment",
+              "format": "textarea"
+            }
+          ],
+          "completed_label": "Approved",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        },
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "label": "Decline",
+          "url": {
+            "href": "https://hero/connectors/concur/card/api/expense/43B451635CF24B39A670/decline"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {},
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "format": "textarea"
+            }
+          ],
+          "completed_label": "Declined",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        }
+      ],
+      "image": {
+        "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-concur.png"
+      },
+      "backend_id": "43B451635CF24B39A670",
+      "hash": "test-hash"
+    }
+  ]
+}

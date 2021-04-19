@@ -63,6 +63,8 @@ public class HubServiceNowController {
 
     private static final int MAX_APPROVAL_RESULTS = 50;
 
+    private static final int EXPECTED_USERS_AGAINST_EMAIL = 1;
+
     private final WebClient rest;
     private final CardTextAccessor cardTextAccessor;
 
@@ -124,13 +126,6 @@ public class HubServiceNowController {
                         .fromUriString(baseUrl)
                         .path("/api/now/table/{userTableName}")
                         .queryParam(SNOW_SYS_PARAM_FIELDS, joinFields(SysUser.Fields.SYS_ID))
-                        .queryParam(SNOW_SYS_PARAM_LIMIT, 1)
-                        /*
-                         * TODO - This is flawed.  It turns out that emails do
-                         * not have to uniquely identify users in ServiceNow.
-                         * I am able to create 2 different sys_user records
-                         * that have the same email.
-                         */
                         .queryParam(SysUser.Fields.EMAIL.toString(), email)
                         .buildAndExpand(
                                 Map.of(
@@ -143,10 +138,15 @@ public class HubServiceNowController {
                 .retrieve()
                 .bodyToMono(JsonDocument.class)
                 .flatMap(Reactive.wrapFlatMapper(userInfoResponse -> {
-                    String userSysId = userInfoResponse.read("$.result[0]." + SysUser.Fields.SYS_ID);
-                    if (userSysId == null) {
-                        logger.warn("sys_id for {} not found in {}, returning empty cards", email, baseUrl);
+                    int userCount = userInfoResponse.read("$.result.length()");
+                    if (EXPECTED_USERS_AGAINST_EMAIL != userCount) {
+                        // For a normal connector working, we expect only 1 user against an email id.
+                        // Note - Technically there can be multiple user records with same email ids in ServiceNow.
+                        logger.warn("Found {} sys_ids for {} in {}. Returning empty cards", userCount, email, baseUrl);
+                        return Mono.empty();
                     }
+                    String userSysId = userInfoResponse.read("$.result[0]." + SysUser.Fields.SYS_ID);
+
                     return Mono.justOrEmpty(userSysId);
                 }));
     }

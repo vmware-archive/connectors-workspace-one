@@ -1,4 +1,3 @@
 # Contributing to Hub Salesforce Connector
-
-For contributing guidelines refer [CONTRIBUTING.md](https://github.com/vmware/connectors-workspace-one/blob/master/CONTRIBUTING.md).
-
+# Documentation page link will be updated soon
+Please refer to the Hub Salesforce Connector Documentation page. 

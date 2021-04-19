@@ -1,0 +1,14 @@
+{
+  "title": "FAILED",
+  "error_message": "THE REPORT NO MORE EXISTS IN YOUR PENDING ITEMS",
+  "actions": [
+    {
+      "label": "OPEN Concur",
+      "primary": true,
+      "remove_card_on_completion": true,
+      "url": {
+        "href": "${concur_host}approvalsportal.asp"
+      }
+    }
+  ]
+}
