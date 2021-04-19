@@ -1,3 +1,14 @@
 {
-  "error": "Report ID 1D3BD2E14D144508B05F is not found."
+  "title": "Action Unsuccessful",
+  "error_message": "The report is no longer pending or available.",
+  "actions": [
+    {
+      "label": "Open Concur",
+      "primary": true,
+      "remove_card_on_completion": true,
+      "url": {
+        "href": "${concur_host}approvalsportal.asp"
+      }
+    }
+  ]
 }

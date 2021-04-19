@@ -1,6 +1,6 @@
 {
   "name": "hub-ms-dynamics-case-chatbot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MS Dynamics connector to MobileFlows For Hub chatbot usecases",
   "main": "index.js",
   "scripts": {
@@ -24,17 +24,17 @@
   "author": "Backflipt",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "@vmw/mobile-flows-connector-commons": "^1.4.0",
+    "@vmw/mobile-flows-connector-commons": "^1.4.4",
     "axios": "^0.21.1",
-    "dotenv": "^7.0.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "nyc": "^15.1.0",
     "path": "^0.12.7",
     "request": "^2.88.2",
-    "uuid": "^8.1.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^7.2.0"
+    "chai": "^4.3.4",
+    "mocha": "^8.3.2"
   }
 }

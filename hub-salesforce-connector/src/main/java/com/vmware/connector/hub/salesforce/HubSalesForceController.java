@@ -159,7 +159,7 @@ public class HubSalesForceController {
                 .uri(fromUriString(baseUrl).path(workflowPath).build().toUri())
                 .header(AUTHORIZATION, connectorAuth)
                 .contentType(APPLICATION_JSON)
-                .syncBody(requests)
+                .bodyValue(requests)
                 .retrieve()
                 .bodyToMono(Void.class);
     }
@@ -186,7 +186,7 @@ public class HubSalesForceController {
                 .uri(fromUriString(baseUrl).path(workflowPath).build().toUri())
                 .header(AUTHORIZATION, connectorAuth)
                 .contentType(APPLICATION_JSON)
-                .syncBody(requests)
+                .bodyValue(requests)
                 .retrieve()
                 .bodyToMono(Void.class);
     }

@@ -23,6 +23,9 @@ public class Attachment {
     @JsonProperty("file")
     private String file;
 
+    @JsonProperty("file-url")
+    private String fileUrl;
+
     public String getId() {
         return id;
     }
@@ -48,7 +51,7 @@ public class Attachment {
     }
 
     public String getFile() {
-        return file;
+        return file == null ? fileUrl : file;
     }
 
     public void setFile(String file) {

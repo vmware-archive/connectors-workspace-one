@@ -141,12 +141,16 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
     @Test
     void testRequestCardsAuthHeaderMissing() throws Exception {
         requestCards(null, "valid/cards/card.json")
-                .expectStatus().isBadRequest();
+                .expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.message").isEqualTo("Missing request header 'X-Connector-Authorization' for method parameter of type String");;
     }
 
+    /*
+    * This might happen when someone manually gets a token via the fallback url.
+    */
     @Test
     void testRequestCardsEmailNotFoundInServiceNow() throws Exception {
-        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&sysparm_limit=1&email=admin@acme.com"))
+        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&email=admin@acme.com"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/user-not-found.json"), APPLICATION_JSON));
@@ -154,8 +158,8 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
         requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json")
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(fromFile("/servicenow/responses/success/cards/email-not-found.json"));
-     }
+                .expectBody().json(fromFile("/servicenow/responses/success/cards/empty-objects.json"));
+    }
 
     @DisplayName("Card request success cases")
     @ParameterizedTest(name = "{index} ==> Language=''{0}''")
@@ -178,7 +182,7 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
     }
 
     private void trainServiceNowForCards() throws Exception {
-        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&sysparm_limit=1&email=admin@acme.com"))
+        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&email=admin@acme.com"))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/user.json"), APPLICATION_JSON));
@@ -218,6 +222,19 @@ class HubServiceNowControllerTest extends ControllerTestsBase {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/servicenow/fake/requested-items-3.json"), APPLICATION_JSON));
     }
+
+    @Test
+    void testRequestCardsMultipleUsersPerEmail() throws Exception {
+        mockBackend.expect(requestTo("/api/now/table/sys_user?sysparm_fields=sys_id&email=admin@acme.com"))
+                .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(fromFile("/servicenow/fake/multiple-users-found.json"), APPLICATION_JSON));
+
+        requestCards(SNOW_AUTH_TOKEN, "valid/cards/card.json")
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .expectBody().json(fromFile("/servicenow/responses/success/cards/empty-objects.json"));
+     }
 
     /////////////////////////////
     // Approve Action

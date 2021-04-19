@@ -13,16 +13,29 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.7.RELEASE</version>
+        <version>2.3.3.RELEASE</version>
     </parent>
 
     <properties>
-        <com.vmware.card-connectors.version>2.7</com.vmware.card-connectors.version>
+        <com.vmware.card-connectors.version>2.9.2</com.vmware.card-connectors.version>
         <connector.name>hub-salesforce</connector.name>
         <docker.javaImage>openjdk:11-jre</docker.javaImage>
         <nexus.staging.skip>false</nexus.staging.skip>
         <okhttp.version>3.14.2</okhttp.version>
         <pmd.version>6.13.0</pmd.version>
+        <guava.version>30.1.1-jre</guava.version>
+        <projectreactor.version>3.4.4</projectreactor.version>
+        <jayway.validator.version>2.9.0</jayway.validator.version>
+        <hamcrest-json.version>0.2</hamcrest-json.version>
+        <fge.schema-validator.version>2.2.6</fge.schema-validator.version>
+        <fge.schema-core.version>1.2.5</fge.schema-core.version>
+        <commons-io.version>2.8.0</commons-io.version>
+        <xmlunit.version>1.6</xmlunit.version>
+        <spring-plugin.version>2.0.0.RELEASE</spring-plugin.version>
+        <commons-codec.version>1.15</commons-codec.version>
+        <jaxb-core.version>2.3.0.1</jaxb-core.version>
+        <logback-jackson.version>0.1.5</logback-jackson.version>
+        <spring-security-jwt.version>1.0.10.RELEASE</spring-security-jwt.version>
     </properties>
 
     <!-- Need to correct the SCM url's after pushing code to github-->
@@ -44,20 +57,24 @@
 
         <dependencies>
             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-validation</artifactId>
+            </dependency>
+            <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.12</version>
+                <version>${commons-codec.version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback.contrib</groupId>
                 <artifactId>logback-jackson</artifactId>
-                <version>0.1.5</version>
+                <version>${logback-jackson.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback.contrib</groupId>
                 <artifactId>logback-json-classic</artifactId>
-                <version>0.1.5</version>
+                <version>${logback-jackson.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
@@ -78,7 +95,7 @@
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
-                <version>2.3.0.1</version>
+                <version>${jaxb-core.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -87,7 +104,7 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-jwt</artifactId>
-                <version>1.0.10.RELEASE</version>
+                <version>${spring-security-jwt.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -126,11 +143,12 @@
             <dependency>
                 <groupId>org.springframework.plugin</groupId>
                 <artifactId>spring-plugin-core</artifactId>
+                <version>${spring-plugin.version}</version>
             </dependency>
             <dependency>
                 <groupId>xmlunit</groupId>
                 <artifactId>xmlunit</artifactId>
-                <version>1.6</version>
+                <version>${xmlunit.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -141,27 +159,26 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.6</version>
+                <version>${commons-io.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>27.0.1-jre</version>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.fge</groupId>
                 <artifactId>json-schema-core</artifactId>
-                <version>1.2.5</version>
+                <version>${fge.schema-core.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.fge</groupId>
                 <artifactId>json-schema-validator</artifactId>
-                <version>2.2.6</version>
+                <version>${fge.schema-validator.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
@@ -176,18 +193,18 @@
             <dependency>
                 <groupId>uk.co.datumedge</groupId>
                 <artifactId>hamcrest-json</artifactId>
-                <version>0.2</version>
+                <version>${hamcrest-json.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jayway.restassured</groupId>
                 <artifactId>json-schema-validator</artifactId>
-                <version>2.9.0</version>
+                <version>${jayway.validator.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>io.projectreactor</groupId>
                 <artifactId>reactor-test</artifactId>
-                <version>3.2.9.RELEASE</version>
+                <version>${projectreactor.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -229,7 +246,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-enforcer-plugin</artifactId>

@@ -85,7 +85,7 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("X-Connector-Authorization", "Bearer abc")
-                .syncBody(fromFile("request.json"))
+                .bodyValue(fromFile("request.json"))
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody().jsonPath("$.message").isEqualTo("Missing request header 'X-Connector-Base-Url' for method parameter of type String");
@@ -212,7 +212,7 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
                 .header("x-routing-prefix", "https://hero/connectors/salesforce/")
                 .headers(headers -> headers(headers, uri))
-                .syncBody(fromFile(filePath));
+                .bodyValue(fromFile(filePath));
     }
 
     private ResponseActions expectSalesforceRequest(final String sql) {

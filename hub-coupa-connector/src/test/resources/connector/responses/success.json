@@ -20,7 +20,7 @@
                     {
                         "type": "GENERAL",
                         "title": "Total Price",
-                        "description": "43,840.00"
+                        "description": "INR 43,840.00"
                     },
                     {
                         "type": "GENERAL",
@@ -39,12 +39,12 @@
                             {
                                 "type": "GENERAL",
                                 "title": "Unit Price",
-                                "description": "43840.00"
+                                "description": "INR 43,840.00"
                             },
                             {
                                 "type": "GENERAL",
                                 "title": "Total Price",
-                                "description": "43840.00"
+                                "description": "INR 43,840.00"
                             },
                             {
                                 "type": "GENERAL",

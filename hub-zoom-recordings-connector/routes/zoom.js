@@ -1,33 +1,36 @@
+/*
+ * Copyright © 2020 VMware, Inc. All Rights Reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
 
 'use strict'
 
 const crypto = require('crypto')
 const moment = require('moment')
 const { v4: uuid } = require('uuid')
+const mfCommons = require('@vmw/mobile-flows-connector-commons')
 
 const zoomRest = require('../services/zoom-rest')
-const utility = require('../utils/utility');
-const { log, logReq } = require('../utils/log')
 
 const handleCards = async (req, res) => {
-  if (!res.locals.baseUrl) {
+  if (!res.locals.backendBaseUrl) {
     return res.status(400).send({ message: 'The x-connector-base-url is required' })
   }
 
-  if (!res.locals.connectorAuthorization) {
+  if (!res.locals.backendAuthorization) {
     return res.status(400).send({ message: 'The x-connector-authorization is required' })
   }
 
-  logReq(res, 'Sending Zoom recordings request')
+  mfCommons.logReq(res, 'Sending Zoom recordings request')
 
   try {
     const recordings = await zoomRest.getMyRecordings(res)
+      .then(response => response.meetings)
 
     const cardArray = []
-    const baseUrl = utility.derivedBaseUrl(req)
 
     recordings.forEach(recording => {
-      const card = makeCardFromMeetingRecording(req, recording, baseUrl)
+      const card = makeCardFromMeetingRecording(req, recording)
       cardArray.push(card)
     })
 
@@ -43,15 +46,15 @@ const handleCards = async (req, res) => {
     }
 
     return res.status(status)
-    .header('X-Backend-Status', backendStatus)
-    .json({ method: 'handleCards', error: error.message || 'Unknown error' })
+      .header('X-Backend-Status', backendStatus)
+      .json({ method: 'handleCards', error: error.message || 'Unknown error' })
   }
 }
 
-const makeCardFromMeetingRecording = (req, recording, baseUrl) => {
+const makeCardFromMeetingRecording = (req, recording) => {
   const sha256 = crypto.createHash('sha256').update(recording.uuid, 'utf8')
 
-  const responseCard = {
+  return {
     id: uuid(),
     backend_id: `${recording.id}`,
     hash: sha256.digest('base64'),
@@ -59,24 +62,24 @@ const makeCardFromMeetingRecording = (req, recording, baseUrl) => {
       href: 'https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-zoom.png'
     },
     header: {
-      title: 'Cloud Recording Now Available',
+      title: 'Cloud Recording Now Available'
     },
     body: {
       fields: [
         {
           type: 'GENERAL',
           title: 'Topic',
-          description: `${recording.topic}`,
+          description: `${recording.topic}`
         },
         {
           type: 'GENERAL',
           title: 'Date',
-          description: moment(`${recording.start_time}`).format('MMM DD, YYYY LT'),
+          description: moment(`${recording.start_time}`).format('MMM DD, YYYY LT')
         },
         {
           type: 'GENERAL',
           title: 'Link to share',
-          description: `${recording.share_url}`,
+          description: `${recording.share_url}`
         }
       ]
     },
@@ -91,10 +94,8 @@ const makeCardFromMeetingRecording = (req, recording, baseUrl) => {
       url: {
         href: `${recording.share_url}`
       }
-    }],
+    }]
   }
-
-  return responseCard
 }
 
 module.exports = {

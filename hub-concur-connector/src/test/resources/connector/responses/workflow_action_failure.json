@@ -1,0 +1,14 @@
+{
+  "title": "Action Unsuccessful",
+  "error_message": "Please disable Prompt setting 'for an approver when an expense report is submitted' in your Concur settings: Profile > Expense Preferences > Prompt.",
+  "actions": [
+    {
+      "label": "Open Expense Preferences",
+      "primary": true,
+      "remove_card_on_completion": false,
+      "url": {
+        "href": "${concur_host}expense/profile/ExpensePreference.asp"
+      }
+    }
+  ]
+}
