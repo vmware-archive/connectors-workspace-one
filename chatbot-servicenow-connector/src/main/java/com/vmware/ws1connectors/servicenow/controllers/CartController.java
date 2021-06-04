@@ -8,13 +8,17 @@ package com.vmware.ws1connectors.servicenow.controllers;
 
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.utils.AuthUtil;
+import com.vmware.connectors.common.utils.ConnectorTextAccessor;
 import com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants;
+import com.vmware.ws1connectors.servicenow.domain.BotAction;
 import com.vmware.ws1connectors.servicenow.domain.BotItem;
 import com.vmware.ws1connectors.servicenow.domain.BotObjects;
 import com.vmware.ws1connectors.servicenow.exception.CatalogReadException;
 import com.vmware.ws1connectors.servicenow.forms.AddToCartForm;
 import com.vmware.ws1connectors.servicenow.forms.ViewTaskForm;
 import com.vmware.ws1connectors.servicenow.service.impl.CartService;
+import com.vmware.ws1connectors.servicenow.utils.BotActionBuilder;
+import com.vmware.ws1connectors.servicenow.utils.BotObjectBuilderUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -36,6 +40,11 @@ import java.util.Map;
 
 import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.AUTH_HEADER;
 import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.BASE_URL_HEADER;
+import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.CART_CHECKOUT_CONFIRMATION;
+import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.CHECKOUT_URL;
+import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.OBJECTS;
+import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.UI_TYPE_CONFIRMATION;
+import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.VIEW_TASK_TYPE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
@@ -43,9 +52,25 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class CartController extends BaseController {
 
     private static final String JSON_PATH_REQUEST_NUMBER = "$.result.request_number";
-    @Autowired private CartService cartService;
-    @Autowired private WebClient rest;
-    @Autowired private SNowBotController sNowBotController;
+    private static final String CHECK_CONFIRMATION = "checkout.confirmationRequest";
+    private final CartService cartService;
+    private final WebClient rest;
+    private final TaskController taskController;
+    private final BotActionBuilder botActionBuilder;
+    private final ConnectorTextAccessor connectorTextAccessor;
+
+    @Autowired public CartController(CartService cartService,
+                                     WebClient webClient,
+                                     TaskController taskController,
+                                     ConnectorTextAccessor connectorTextAccessor) {
+        super();
+
+        this.cartService = cartService;
+        this.rest = webClient;
+        this.taskController = taskController;
+        this.connectorTextAccessor = connectorTextAccessor;
+        this.botActionBuilder = new BotActionBuilder(connectorTextAccessor);
+    }
 
     @PutMapping(
             path = ServiceNowConstants.CART_API_URL,
@@ -72,6 +97,22 @@ public class CartController extends BaseController {
     }
 
     @PostMapping(
+            path = ServiceNowConstants.CONFIRM_CHECKOUT_URL
+    )
+    public BotObjects confirmCheckout(
+            @RequestHeader(AUTHORIZATION) String mfToken,
+            @RequestHeader(BASE_URL_HEADER) String baseUrl,
+            @RequestHeader(ServiceNowConstants.ROUTING_PREFIX_TEMPLATE) String routingPrefixTemplate,
+            Locale locale) {
+        LOGGER.trace("confirm checkout cart for user={}, baseUrl={}", AuthUtil.extractUserEmail(mfToken), baseUrl);
+
+        String routingPrefix = routingPrefixTemplate.replace(ServiceNowConstants.INSERT_OBJECT_TYPE, ServiceNowConstants.OBJECT_TYPE_BOT_DISCOVERY);
+        BotAction confirmAction = botActionBuilder.confirmCartCheckout(routingPrefix, locale, CHECKOUT_URL);
+
+        return BotObjectBuilderUtils.confirmationObject(connectorTextAccessor, botActionBuilder, CHECK_CONFIRMATION, routingPrefix, locale, confirmAction);
+    }
+
+    @PostMapping(
             path = ServiceNowConstants.CHECKOUT_URL
     )
     public Mono<Map<String, List<Map<String, BotItem>>>> checkout(
@@ -82,7 +123,26 @@ public class CartController extends BaseController {
         String userEmail = AuthUtil.extractUserEmail(mfToken);
         LOGGER.trace("checkout cart for user={}, baseUrl={}", userEmail, baseUrl);
         URI baseUri = UriComponentsBuilder.fromUriString(baseUrl).build().toUri();
-        // If Bot needs cart subtotal, include that by making an extra call to SNow.
+
+        return callCheckout(auth, baseUri)
+                .map(doc -> doc.<String>read(JSON_PATH_REQUEST_NUMBER))
+                .doOnSuccess(ticketID -> LOGGER.info("Ticket created {}", ticketID))
+                .onErrorMap(CatalogReadException::new)
+                .map(this::getViewTaskForm)
+                .flatMap(viewTaskForm -> taskController.getTasks(mfToken, auth, baseUrl, viewTaskForm, locale)
+                        .map(objectsMap -> {
+                            List<Map<String, BotItem>> taskItemList = objectsMap.get(OBJECTS);
+                            taskItemList.add(Map.of(ServiceNowConstants.ITEM_DETAILS,
+                                    new BotItem.Builder()
+                                            .setTitle(connectorTextAccessor.getTitle(CART_CHECKOUT_CONFIRMATION, locale, viewTaskForm.getNumber()))
+                                            .setType(UI_TYPE_CONFIRMATION)
+                                            .build()));
+                            return objectsMap;
+                        })
+                );
+    }
+
+    private Mono<JsonDocument> callCheckout(@RequestHeader(AUTH_HEADER) String auth, URI baseUri) {
         return rest.post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme(baseUri.getScheme())
@@ -93,14 +153,11 @@ public class CartController extends BaseController {
                 )
                 .header(AUTHORIZATION, auth)
                 .retrieve()
-                .bodyToMono(JsonDocument.class)
-                .map(doc -> doc.<String>read(JSON_PATH_REQUEST_NUMBER))
-                .doOnSuccess(no -> LOGGER.debug("Ticket created {}", no))
-                .doOnError(throwable -> {
-                    throw new CatalogReadException(throwable.getMessage());
-                })
-                .map(ViewTaskForm::new)
-                .flatMap(viewTaskForm -> sNowBotController.getTasks(mfToken, auth, baseUrl, viewTaskForm, locale));
+                .bodyToMono(JsonDocument.class);
+    }
+
+    private ViewTaskForm getViewTaskForm(String requestNumber) {
+        return ViewTaskForm.builder().number(requestNumber).type(VIEW_TASK_TYPE).build();
     }
 
     @DeleteMapping(

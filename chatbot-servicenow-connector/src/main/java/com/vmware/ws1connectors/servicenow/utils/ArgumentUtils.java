@@ -20,10 +20,10 @@ public final class ArgumentUtils {
     private static final String VALIDATOR_MSG = "Cannot be Null or blank: ";
 
     public static void checkArgumentNotBlank(String value, String name) {
-        checkArgument(!Strings.isNullOrEmpty(value), new StringBuilder(VALIDATOR_MSG).append(name).toString());
+        checkArgument(!Strings.isNullOrEmpty(value), VALIDATOR_MSG + name);
     }
 
     public static void checkArgumentNotNull(Object value, String name) {
-        checkArgument(Objects.nonNull(value), new StringBuilder(VALIDATOR_MSG).append(name).toString());
+        checkArgument(Objects.nonNull(value), VALIDATOR_MSG + name);
     }
 }

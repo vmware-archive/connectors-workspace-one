@@ -9,33 +9,35 @@
     <version>2.6-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.3.RELEASE</version>
+    </parent>
+
     <properties>
         <connector.name>chatbot-servicenow</connector.name>
-        <spring.boot.version>2.2.6.RELEASE</spring.boot.version>
-        <spring.boot.stater.security.version>2.3.0.RELEASE</spring.boot.stater.security.version>
-        <spring.security.oauth.version>5.3.2.RELEASE</spring.security.oauth.version>
-        <spring.framework.version>5.2.5.RELEASE</spring.framework.version>
-        <spring.security.jwt.version>1.1.0.RELEASE</spring.security.jwt.version>
+        <spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
         <nimbus.jose.version>8.10</nimbus.jose.version>
-        <jackson.version>2.10.3</jackson.version>
+        <jackson.version>2.12.3</jackson.version>
         <nexus.staging.skip>false</nexus.staging.skip>
         <logback-jackson.verison>0.1.5</logback-jackson.verison>
         <logback-json-classic.version>0.1.5</logback-json-classic.version>
-        <mobileflows.connector.version>2.8.1</mobileflows.connector.version>
+        <mobileflows.connector.version>2.9.3</mobileflows.connector.version>
         <commons-io.version>2.6</commons-io.version>
         <hamcrest-json.version>0.2</hamcrest-json.version>
         <jayway-json-schema-validator.version>2.9.0</jayway-json-schema-validator.version>
         <reactor-test.version>3.3.3.RELEASE</reactor-test.version>
         <lombok.version>1.18.12</lombok.version>
-        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-        <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
-        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
+        <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-        <maven-jxr-plugin.version>3.0.0</maven-jxr-plugin.version>
+        <maven-jxr-plugin.version>3.1.1</maven-jxr-plugin.version>
         <maven-assembly-plugin.version>3.2.0</maven-assembly-plugin.version>
-        <docker.plugin.version>0.33.0</docker.plugin.version>
-        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+        <docker.plugin.version>0.36.0</docker.plugin.version>
+        <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+        <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
         <java.version>11</java.version>
@@ -45,15 +47,16 @@
         <checkstyle.sevntu.version>1.37.0</checkstyle.sevntu.version>
         <pmd.plugin.version>3.13.0</pmd.plugin.version>
         <pmd.version>6.22.0</pmd.version>
-        <commons.text.version>1.8</commons.text.version>
-        <json.junit.version>2.14.0</json.junit.version>
+        <commons.text.version>1.9</commons.text.version>
+        <json.junit.version>2.26.0</json.junit.version>
         <jsoup.version>1.13.1</jsoup.version>
-        <jacoco.plugin.version>0.8.5</jacoco.plugin.version>
-        <spotbugs.version>3.1.12.2</spotbugs.version>
-        <spotbugs.annotations.version>4.0.1</spotbugs.annotations.version>
+        <jacoco.plugin.version>0.8.7</jacoco.plugin.version>
+        <spotbugs.version>4.2.3</spotbugs.version>
+        <spotbugs.annotations.version>4.2.3</spotbugs.annotations.version>
         <owasp.dependency.check.version>5.2.4</owasp.dependency.check.version>
-        <context.path>servicenow-connector</context.path>
         <docker.javaImage>openjdk:11-jre</docker.javaImage>
+        <logback.classic.version>1.2.3</logback.classic.version>
+        <logback.contrib.version>0.1.5</logback.contrib.version>
     </properties>
 
     <name>Workspace One Chatbot ServiceNow Connector</name>
@@ -77,27 +80,22 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-reactor-netty</artifactId>
-            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-            <version>${spring.boot.stater.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-jose</artifactId>
-            <version>${spring.security.oauth.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-resource-server</artifactId>
-            <version>${spring.security.oauth.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -107,7 +105,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -164,28 +161,36 @@
             <version>${json.junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.classic.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-json-core</artifactId>
+            <version>${logback.contrib.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-json-classic</artifactId>
+            <version>${logback.contrib.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-jackson</artifactId>
+            <version>${logback.contrib.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>${nimbus.jose.version}</version>
+        </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.nimbusds</groupId>
-                <artifactId>nimbus-jose-jwt</artifactId>
-                <version>${nimbus.jose.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-expression</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <build>
         <pluginManagement>
             <plugins>
@@ -285,7 +290,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.boot.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -494,7 +498,7 @@
                                                 <interval>20s</interval>
                                                 <timeout>5s</timeout>
                                                 <retries>6</retries>
-                                                <cmd>curl -f http://localhost:8080/${context.path}/health || exit 1</cmd>
+                                                <cmd>curl -f http://localhost:8080/health || exit 1</cmd>
                                             </healthCheck>
                                             <entryPoint>
                                                 <arg>java</arg>

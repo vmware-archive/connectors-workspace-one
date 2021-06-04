@@ -1,0 +1,186 @@
+{
+  "total": 5,
+  "data": [
+    {
+      "id": "fc844b7a8f6f813f79efb5ffd6115505",
+      "descriptor": "Approval by Manager",
+      "href": "https://workday.com/ccx/api/api/v1/tenant/inboxTasks/fc844b7a8f6f813f79efb5ffd6115505",
+      "stepType": {
+        "descriptor": "Approval",
+        "id": "d8c8920e446c11de98360015c5e6daf6"
+      },
+      "assigned": "2019-11-25T05:32:49.001Z",
+      "subject": {
+        "descriptor": "Ashton Burns",
+        "id": "1a6228638d1401a7e91052d2b14af008",
+        "href": "https://workday.com/ccx/api/api/v1/tenant/workers/1a6228638d1401a7e91052d2b14af008"
+      },
+      "overallProcess": {
+        "descriptor": "Absence Request: Ashton Burns",
+        "id": "fc844b7a8f6f01580738a5ffd6115105",
+        "href": "{MOCK_BACKEND}/timeOffRequest/fc844b7a8f6f01580738a5ffd6115105"
+      },
+      "due": "2019-11-26",
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      }
+    },
+    {
+      "id": "fc844b7a8f6f81861b9f7b58d5114205",
+      "descriptor": "Approval by Manager",
+      "href": "https://workday.com/ccx/api/api/v1/tenant/inboxTasks/fc844b7a8f6f81861b9f7b58d5114205",
+      "stepType": {
+        "descriptor": "Approval",
+        "id": "d8c8920e446c11de98360015c5e6daf6"
+      },
+      "assigned": "2019-11-25T05:02:30.890Z",
+      "subject": {
+        "descriptor": "Ashton Burns",
+        "id": "1a6228638d1401a7e91052d2b14af008",
+        "href": "https://workday.com/ccx/api/api/v1/tenant/workers/1a6228638d1401a7e91052d2b14af008"
+      },
+      "overallProcess": {
+        "descriptor": "Absence Request: Ashton Burns",
+        "id": "fc844b7a8f6f01223ce56358d5113e05",
+        "href": "{MOCK_BACKEND}/timeOffRequest/fc844b7a8f6f01223ce56358d5113e05"
+      },
+      "due": "2019-11-26",
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      }
+    },
+    {
+      "stepType": {
+        "descriptor": "Approval",
+        "id": "d8c8920e446c11de98360015c5e6daf6"
+      },
+      "subject": {
+        "descriptor": "Programmer/Analyst - Professional - Abhishek Anand (356404)",
+        "id": "94af62403b811047851ee8726a57108f"
+      },
+      "overallProcess": {
+        "descriptor": "Title Change: Abhishek Anand (356404)",
+        "id": "0db7bcdda1cd01fbdae2376a4844ab18",
+        "href": "{MOCK_BACKEND}/common/v1/businessTitleChanges/0db7bcdda1cd01fbdae2376a4844ab18"
+      },
+      "descriptor": "Approval by Manager",
+      "id": "0db7bcdda1cd811688e13b6a4844b118",
+      "assigned": "2020-05-07T13:45:44.078Z",
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      },
+      "href": "https://api.workday.com/common/v1/inboxTasks/0db7bcdda1cd811688e13b6a4844b118"
+    },
+    {
+      "stepType": {
+        "descriptor": "Approval",
+        "id": "d8c89128446c11de98360015c5e6daf6"
+      },
+      "subject": {
+        "descriptor": "IT Ops - R&D Tech Ops (Laxmi J (055694) (Inherited))",
+        "id": "3a460ced69f3108bd1ca7f879016888e",
+        "href": "https://api.workday.com/common/v1/supervisoryOrganizations/3a460ced69f3108bd1ca7f879016888e"
+      },
+      "overallProcess": {
+        "descriptor": "Data Change: Divya Vellanki (336213)",
+        "id": "f387bb35571f017af0641c153a486314",
+        "href": "{MOCK_BACKEND}/common/v1/businessProcesses/f387bb35571f017af0641c153a486314"
+      },
+      "descriptor": "Approval by Manager's Manager",
+      "id": "f387bb35571f81be3262cd2c3a488314",
+      "assigned": "2020-05-20T10:09:46.852Z",
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      },
+      "href": "{MOCK_BACKEND}/inboxTasks/f387bb35571f81be3262cd2c3a488314",
+      "initiator": {
+        "descriptor": "Rahul Sahay",
+        "id": "64ceba471c14017b984588ea831e94d6"
+      }
+    },
+    {
+      "stepType": {
+        "descriptor": "Approval",
+        "id": "d8c89128446c11de98360015c5e6daf6"
+      },
+      "subject": {
+        "descriptor": "IT Operations, Application Infrastructure Support (Manoj Warrier (310285))",
+        "id": "a470901f335f4183830d66eb85bbf576",
+        "href": "https://api.workday.com/common/v1/supervisoryOrganizations/a470901f335f4183830d66eb85bbf576"
+      },
+      "overallProcess": {
+        "descriptor": "Transfer: Prachi Agarwal (366451)",
+        "id": "f387bb35571f013c819744b63a489314",
+        "href": "{MOCK_BACKEND}/common/v1/businessProcesses/f387bb35571f013c819744b63a489314"
+      },
+      "descriptor": "Approval by Manager's Manager",
+      "id": "f387bb35571f81b1a6ffa4c93a48aa14",
+      "assigned": "2020-05-20T10:21:00.512Z",
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      },
+      "href": "https://api.workday.com/common/v1/inboxTasks/f387bb35571f81b1a6ffa4c93a48aa14",
+      "initiator": {
+        "descriptor": "Rahul Sahay",
+        "id": "64ceba471c14017b984588ea831e94d6"
+      }
+    },
+    {
+      "id": "4e7de5de24b781fc7ff9a2c0610cf42d",
+      "descriptor": "Review Change Job",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/inboxTasks/4e7de5de24b781fc7ff9a2c0610cf42d",
+      "assigned": "2020-07-09T12:05:48.959Z",
+      "subject": {
+        "descriptor": "WS1 - MANAGER - A (WS1 MANAGER.A (800006))",
+        "id": "3a2cacd498570139e307f7b718016902",
+        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/supervisoryOrganizations/3a2cacd498570139e307f7b718016902"
+      },
+      "overallProcess": {
+        "descriptor": "Data Change: WS1 USER.B (800011)",
+        "id": "4e7de5de24b7011d66c91c9a610cdb2d",
+        "href": "{MOCK_BACKEND}/common/v1/businessProcesses/4e7de5de24b7011d66c91c9a610cdb2d"
+      },
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      },
+      "stepType": {
+        "descriptor": "Action",
+        "id": "d8c89128446c11de98360015c5e6daf6"
+      },
+      "initiator": {
+        "descriptor": "WS1 MANAGER.A",
+        "id": "a6baf9986ad5013d607294716601640c"
+      }
+    },
+    {
+      "id": "318af1942cc0816dfb4120e33e14b90b",
+      "descriptor": "VMware Health and Well-Being Guidelines",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/inboxTasks/318af1942cc0816dfb4120e33e14b90b",
+      "assigned": "2020-08-04T02:56:53.133Z",
+      "subject": {
+        "descriptor": "Onboarding for John Rambo Test (398966)",
+        "id": "318af1942cc001cbcccbf2e23e146f0b",
+        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/businessProcesses/318af1942cc001cbcccbf2e23e146f0b"
+      },
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      },
+      "overallProcess": {
+        "descriptor": "Hire: John Rambo Test (398966)",
+        "id": "318af1942cc001af54978e493e14fa0a",
+        "href": "{MOCK_BACKEND}/common/v1/businessProcesses/318af1942cc001af54978e493e14fa0a"
+      },
+      "stepType": {
+        "descriptor": "Review Documents",
+        "id": "34e6cc1ab24e40409c3e0ced76acad7f"
+      }
+    }
+  ]
+}

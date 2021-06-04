@@ -1,0 +1,95 @@
+{
+  "id": "94233ac3-c858-49e1-80d6-76e2a003ebff",
+  "creation_date": "2020-06-16T15:34:23.669255+05:30",
+  "header": {
+    "title": "Workday - Approval by Manager's Manager"
+  },
+  "body": {
+    "fields": [
+      {
+        "type": "GENERAL",
+        "title": "Status",
+        "description": "Awaiting Action"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Effective Date",
+        "description": "June, 01, 2020"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Initiated On",
+        "description": "May, 20, 2020"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Initiated By",
+        "description": "Rahul Sahay (382449)"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Process",
+        "description": "Data Change: Divya Vellanki (336213)"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "8f8db976-3fe0-4485-90a5-b34526e51ba1",
+      "primary": true,
+      "label": "Approve",
+      "url": {
+        "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/f387bb35571f81be3262cd2c3a488314/approve"
+      },
+      "type": "POST",
+      "action_key": "USER_INPUT",
+      "request": {
+        "tenantName": "vmware_gms"
+      },
+      "user_input": [
+        {
+          "id": "comment",
+          "label": "Comment",
+          "format": "textarea"
+        }
+      ],
+      "completed_label": "Approved",
+      "allow_repeated": false,
+      "mutually_exclusive_set_id": "approval-actions"
+    },
+    {
+      "id": "c33c38f3-2d62-49db-8622-830c2c2acd0c",
+      "label": "Decline",
+      "url": {
+        "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/f387bb35571f81be3262cd2c3a488314/decline"
+      },
+      "type": "POST",
+      "action_key": "USER_INPUT",
+      "request": {
+        "tenantName": "vmware_gms"
+      },
+      "user_input": [
+        {
+          "id": "reason",
+          "label": "Reason",
+          "format": "textarea",
+          "min_length": 1
+        }
+      ],
+      "completed_label": "Declined",
+      "allow_repeated": false,
+      "mutually_exclusive_set_id": "approval-actions"
+    }
+  ],
+  "image": {
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+  },
+  "backend_id": "f387bb35571f81be3262cd2c3a488314",
+  "hash": "241f529141481ddb96d2f684f411781138433104",
+  "links": [
+    {
+      "href": "https://impl.workday.com",
+      "text": "View In Workday"
+    }
+  ]
+}

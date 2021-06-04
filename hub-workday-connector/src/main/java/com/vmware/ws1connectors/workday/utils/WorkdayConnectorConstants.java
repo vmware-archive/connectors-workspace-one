@@ -13,12 +13,9 @@ public class WorkdayConnectorConstants {
     public static final String CONNECTOR_AUTH_HEADER = "X-Connector-Authorization";
     public static final String BASE_URL_HEADER = "X-Connector-Base-Url";
     public static final String ROUTING_PREFIX_HEADER = "X-Routing-Prefix";
-
-    public static final String CONTEXT_PATH_TEMPLATE = "CONTEXT_PATH";
-
     public static final String LOCALE = "Locale";
+    public static final String CARDS_CONFIG = "Cards Config";
     public static final String ROUTING_PREFIX = "Routing Prefix";
-    public static final String REQUEST = "Request";
-
-
+    public static final String TENANT_NAME = "Tenant Name";
+    public static final String TENANT_URL = "Tenant Url";
 }

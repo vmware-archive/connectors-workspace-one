@@ -7,30 +7,32 @@
 package com.vmware.ws1connectors.servicenow.bot.discovery.capabilities;
 
 import com.vmware.connectors.common.payloads.response.Link;
-import com.vmware.ws1connectors.servicenow.constants.WorkflowStep;
-import com.vmware.ws1connectors.servicenow.utils.BotTextAccessor;
+import com.vmware.connectors.common.utils.ConnectorTextAccessor;
 import com.vmware.ws1connectors.servicenow.constants.ServiceNowCategory;
 import com.vmware.ws1connectors.servicenow.constants.WorkflowId;
+import com.vmware.ws1connectors.servicenow.constants.WorkflowStep;
 import com.vmware.ws1connectors.servicenow.domain.BotAction;
 import com.vmware.ws1connectors.servicenow.domain.BotItem;
-import com.vmware.ws1connectors.servicenow.utils.UriBuilderUtils;
 import org.springframework.http.HttpMethod;
 
 import java.util.Locale;
 
-public class OrderTablet implements BotCapability {
-    private final BotTextAccessor botTextAccessor;
-    private final String appContextPath;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-    public OrderTablet(BotTextAccessor botTextAccessor, String appContextPath) {
-        this.botTextAccessor = botTextAccessor;
-        this.appContextPath = appContextPath;
+public class OrderTablet implements BotCapability {
+    private static final String ORDER_TABLET = "orderTablet";
+    private static final String ORDER_TABLET_ACTION = "orderTabletAction";
+    private final ConnectorTextAccessor connectorTextAccessor;
+    private static final String REROUTING_URL_VALIDATE_MSG = "rerouting url can't be null";
+
+    public OrderTablet(ConnectorTextAccessor connectorTextAccessor) {
+        this.connectorTextAccessor = connectorTextAccessor;
     }
 
-    @Override public BotItem describe(String taskType, String routingPrefix, Locale locale) {
+    @Override public BotItem describe(String routingPrefix, Locale locale) {
         return new BotItem.Builder()
-                .setTitle(botTextAccessor.getMessage("orderTablet.title", locale))
-                .setDescription(botTextAccessor.getMessage("orderTablet.description", locale))
+                .setTitle(connectorTextAccessor.getTitle(ORDER_TABLET, locale))
+                .setDescription(connectorTextAccessor.getDescription(ORDER_TABLET, locale))
                 .setWorkflowId(WorkflowId.ORDER_TABLETS.getId())
                 .addAction(getListOfTabletsAction(routingPrefix, locale))
                 .setWorkflowStep(WorkflowStep.COMPLETE)
@@ -38,11 +40,12 @@ public class OrderTablet implements BotCapability {
     }
 
     public BotAction getListOfTabletsAction(String routingPrefix, Locale locale) {
+        checkNotNull(routingPrefix, REROUTING_URL_VALIDATE_MSG);
         return new BotAction.Builder()
-                .setTitle(botTextAccessor.getMessage("orderTabletAction.title", locale))
-                .setDescription(botTextAccessor.getMessage("orderTabletAction.description", locale))
+                .setTitle(connectorTextAccessor.getTitle(ORDER_TABLET_ACTION, locale))
+                .setDescription(connectorTextAccessor.getDescription(ORDER_TABLET_ACTION, locale))
                 .setType(HttpMethod.GET)
-                .setUrl(new Link(UriBuilderUtils.createConnectorContextUrl(routingPrefix, buildActionUrl(ServiceNowCategory.TABLET, appContextPath))))
+                .setUrl(new Link(routingPrefix + buildActionUrl(ServiceNowCategory.TABLET)))
                 .build();
     }
 }

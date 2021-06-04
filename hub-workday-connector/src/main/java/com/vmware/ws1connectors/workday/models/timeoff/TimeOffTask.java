@@ -7,6 +7,7 @@ package com.vmware.ws1connectors.workday.models.timeoff;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.vmware.ws1connectors.workday.models.ApprovalTask;
 import com.vmware.ws1connectors.workday.models.Descriptor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,7 @@ import java.util.List;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TimeOffTask {
+public class TimeOffTask implements ApprovalTask {
     @JsonUnwrapped private Descriptor timeOffTaskDescriptor;
     private String subject;
     private LocalDateTime assignedOn;

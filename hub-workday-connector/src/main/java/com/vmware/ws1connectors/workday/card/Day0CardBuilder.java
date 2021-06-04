@@ -17,15 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.IntStream;
 
 import static com.vmware.ws1connectors.workday.utils.ArgumentUtils.checkArgumentNotBlank;
 import static com.vmware.ws1connectors.workday.utils.ArgumentUtils.checkArgumentNotNull;
-import static com.vmware.ws1connectors.workday.utils.CardConstants.DATE_FORMAT_MMMM_DD_YYYY;
+import static com.vmware.ws1connectors.workday.utils.CardConstants.CARD_HEADER_KEY;
 import static com.vmware.ws1connectors.workday.utils.CardConstants.ONBOARDING_SETUP;
 import static com.vmware.ws1connectors.workday.utils.CardConstants.OPEN_IN_WORKDAY;
 import static com.vmware.ws1connectors.workday.utils.CardConstants.TASK_DUE;
@@ -53,7 +51,7 @@ public class Day0CardBuilder extends BaseCardBuilder {
         checkInboxTaskNotEmpty(inboxTasks);
 
         Card.Builder builder = new Card.Builder()
-                .setHeader(createCardHeader(locale, ONBOARDING_SETUP))
+                .setHeader(createCardHeader(locale, ONBOARDING_SETUP, CARD_HEADER_KEY))
                 .setBody(createCardBody(inboxTasks, locale))
                 .addAction(createCardAction(baseUrl));
         builder.setImageUrl(getImageUrl());
@@ -96,10 +94,6 @@ public class Day0CardBuilder extends BaseCardBuilder {
                             .build();
 
                 }).forEach(cardBodyBuilder::addField);
-    }
-
-    private String convertToString(final LocalDate date, final Locale locale) {
-        return date.format(DateTimeFormatter.ofPattern(DATE_FORMAT_MMMM_DD_YYYY, locale));
     }
 
     private CardAction createCardAction(final String baseUrl) {

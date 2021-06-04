@@ -6,20 +6,22 @@
 
 package com.vmware.ws1connectors.servicenow.forms;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
+
+@Builder
+@Setter
+@Getter
+@AllArgsConstructor
 public class ViewTaskForm {
 
     // Task number is an optional input from user.
     private String number;
 
-    public ViewTaskForm(String number) {
-        this.number = number;
-    }
+    @NotBlank private String type;
 
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
 }

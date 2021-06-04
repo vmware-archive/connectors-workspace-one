@@ -5,6 +5,7 @@
  */
 package com.vmware.ws1connectors.workday.test;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -20,7 +21,9 @@ import java.io.InputStream;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JsonUtils {
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).disable(
+                    DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
 
     public static <T> WorkdayResource<T> convertToWorkdayResourceFromJson(final String jsonData, final Class<T> type) {
         try {

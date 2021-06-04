@@ -17,13 +17,19 @@ public class CardConstants {
     public static final boolean SECONDARY_ACTION = false;
     public static final CardHeaderLinks NO_HEADER_LINKS = null;
     public static final int REASON_MIN_LENGTH = 1;
+    public static final String COMMENT = "comment";
+    public static final String APPROVAL = "Approval";
+    public static final String ACTION = "Action";
 
     public static final String COMMENT_KEY = "comment";
     public static final String REASON_KEY = "reason";
+    public static final String TENANT_NAME = "tenantName";
+    public static final String TENANT_URL = "tenantUrl";
     public static final String TIMEOFF_APPROVE_BUTTON_LABEL_KEY = "timeoff.approve";
     public static final String TIMEOFF_APPROVE_COMMENT_LABEL_KEY = "timeoff.approve.comment";
     public static final String TIMEOFF_DECLINE_BUTTON_LABEL_KEY = "timeoff.decline";
     public static final String TIMEOFF_DECLINE_REASON_LABEL_KEY = "timeoff.decline.reason";
+    public static final String CARD_ACTION_OPEN_IN_LABEL_KEY = "card.action.open.in";
     public static final String CARD_HEADER_KEY = "card.header";
     public static final String TIMEOFF_REQUESTED_BY_KEY = "timeoff.requested.by";
     public static final String TIMEOFF_TOTAL_KEY = "timeoff.total";
@@ -53,4 +59,24 @@ public class CardConstants {
     public static final String TASK_DUE = "task.due";
     public static final String OPEN_IN_WORKDAY = "Open In Workday";
     public static final String DAY0_CARDS_URI = "/cards/day0/requests";
+    public static final String OPEN_IN_LINK_TEXT = "card.open.in.link.text";
+
+    public static final String CURRENT_BUSINESS_TITLE = "businessTitleChange.current.business.title";
+    public static final String PROPOSED_BUSINESS_TITLE = "businessTitleChange.proposed.business.title";
+    public static final String EFFECTIVE = "businessTitleChange.effective.date";
+    public static final String DUE = "businessTitleChange.due.date";
+    public static final String INITIATED = "businessTitleChange.initiated.on";
+    public static final String INITIATOR = "businessTitleChange.initiated.by";
+    public static final String SUBJECT = "businessTitleChange.subject";
+    public static final String BUSINESS_TITLE_CHANGE_CARD_HEADER_KEY = "businessTitleChange.card.header";
+    public static final String BUSINESS_TITLE_CHANGE_PATH = "/businessTitleChanges/";
+
+    public static final String BUSINESS_PROCESS_PATH = "/businessProcesses/";
+    public static final String BUSINESS_PROCESS_CARD_HEADER_KEY = "businessProcess.card.header";
+    public static final String BUSINESS_PROCESSES_EFFECTIVE = "businessProcess.effective.date";
+    public static final String BUSINESS_PROCESSES_DUE = "businessProcess.due.date";
+    public static final String BUSINESS_PROCESSES_INITIATED = "businessProcess.initiated.on";
+    public static final String BUSINESS_PROCESSES_INITIATOR = "businessProcess.initiated.by";
+    public static final String BUSINESS_PROCESSES_PROCESS = "businessProcess.process.descriptor";
+    public static final String BUSINESS_PROCESSES_STATUS = "businessProcess.status.descriptor";
 }

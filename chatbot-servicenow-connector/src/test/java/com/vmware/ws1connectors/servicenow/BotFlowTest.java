@@ -11,7 +11,6 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.vmware.connectors.test.ControllerTestsBase;
-import com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants;
 import com.vmware.ws1connectors.servicenow.utils.ArgumentsStreamBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -20,8 +19,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,12 +33,13 @@ import java.util.stream.Stream;
 
 import static com.vmware.connectors.utils.IgnoredFieldsReplacer.DUMMY_UUID;
 import static com.vmware.connectors.utils.IgnoredFieldsReplacer.UUID_PATTERN;
+import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.URL_PATH_SEPERATOR;
+import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.VIEW_TASK_TYPE;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
@@ -69,11 +67,10 @@ public class BotFlowTest extends ControllerTestsBase {
     private static final String CLEAR_CART_RESP_FILE = "/botflows/connector/response/clear_cart.json";
     private static final String CLEAR_CART_ERR_FILE = "/botflows/servicenow/response/clear_cart_error.json";
     private static final String CLEAR_CART_CONNECTOR_RESP = "/botflows/connector/response/clear_cart_error.json";
-    public static final String BOTFLOWS_SERVICENOW_RESPONSE_LAPTOP_ITEMS_JSON = "/botflows/servicenow/response/laptop_items.json";
-    public static final String BOTFLOWS_CONNECTOR_RESPONSE_LAPTOP_ITEMS_JSON = "/botflows/connector/response/laptop_items.json";
-    public static final String BOTFLOWS_SERVICENOW_RESPONSE_LAPTOP_ITEMS_EMPTY_JSON = "/botflows/servicenow/response/laptop_items_empty.json";
-    public static final String BOTFLOWS_CONNECTOR_RESPONSE_LAPTOP_ITEMS_EMPTY_JSON = "/botflows/connector/response/laptop_items_empty.json";
-    @Autowired ServerProperties serverProperties;
+    private static final String BOTFLOWS_SERVICENOW_RESPONSE_LAPTOP_ITEMS_JSON = "/botflows/servicenow/response/laptop_items.json";
+    private static final String BOTFLOWS_CONNECTOR_RESPONSE_LAPTOP_ITEMS_JSON = "/botflows/connector/response/laptop_items.json";
+    private static final String BOTFLOWS_SERVICENOW_RESPONSE_LAPTOP_ITEMS_EMPTY_JSON = "/botflows/servicenow/response/laptop_items_empty.json";
+    private static final String BOTFLOWS_CONNECTOR_RESPONSE_LAPTOP_ITEMS_EMPTY_JSON = "/botflows/connector/response/laptop_items_empty.json";
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -81,8 +78,7 @@ public class BotFlowTest extends ControllerTestsBase {
             "/api/v1/tasks",
             "/api/v1/cart"})
     void testProtectedObjects(String uri) throws Exception {
-        final String appContextPath = serverProperties.getServlet().getContextPath();
-        testProtectedResource(POST, appContextPath + uri);
+        testProtectedResource(POST, uri);
     }
 
     private static Stream<Arguments> inputsForGetCategoryItems() {
@@ -99,34 +95,32 @@ public class BotFlowTest extends ControllerTestsBase {
             "POST, /api/v1/task/create",
             "POST, /api/v1/checkout"})
     void testProtectedActions(String httpMethod, String uri) throws Exception {
-        final String appContextPath = serverProperties.getServlet().getContextPath();
-        testProtectedResource(HttpMethod.valueOf(httpMethod), appContextPath + uri);
+        testProtectedResource(HttpMethod.valueOf(httpMethod), uri);
     }
 
     @Test void testDiscovery() throws Exception {
-        final String appContextPath = serverProperties.getServlet().getContextPath();
         String xForwardedHost = "https://my-connector";
         // Confirm connector has updated the host placeholder.
         String expectedMetadata = fromFile("/static/discovery/metadata.json")
-                .replace("${CONNECTOR_HOST}", xForwardedHost)
-                .replace("${CONTEXT_PATH}", appContextPath);
+                .replace("${CONNECTOR_HOST}", xForwardedHost);
 
         // Discovery metadata.json is at the connector root.
         webClient.get()
-                .uri(appContextPath + ServiceNowConstants.URL_PATH_SEPERATOR)
+                .uri(URL_PATH_SEPERATOR)
                 .headers(ControllerTestsBase::headers)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
                 .json(expectedMetadata)
                 // Verify object type is 'botDiscovery'.
-                .jsonPath("$.object_types.botDiscovery").exists();
+                .jsonPath("$.object_types.botDiscovery").exists()
+                .jsonPath("$.object_types.botDiscovery.pre_hire_capable").value(is(true))
+                .jsonPath("$.object_types.botDiscovery.post_hire_capable").value(is(true));
     }
 
     @ParameterizedTest
     @MethodSource("inputsForGetCategoryItems")
     public void testGetCategoryItems(String servicenowResponse, String connectorResponse) throws Exception {
-        final String appContextPath = serverProperties.getServlet().getContextPath();
         // Find out the id of the requested Catalog.
         findIdOfCatalog("/api/sn_sc/servicecatalog/catalogs", GET, "/botflows/servicenow/response/catalogs.json");
 
@@ -144,7 +138,7 @@ public class BotFlowTest extends ControllerTestsBase {
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile(servicenowResponse), APPLICATION_JSON));
-        String body = requestObjectsGet(appContextPath + "/api/v1/device_list?device_category=Laptops&limit=10&offset=0", SNOW_AUTH_TOKEN, null)
+        String body = requestObjectsGet("/api/v1/device_list?device_category=Laptops&limit=10&offset=0")
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -153,8 +147,20 @@ public class BotFlowTest extends ControllerTestsBase {
                 .map(json -> json.replaceAll(mockBackend.url("/"), "https://mock-snow.com/"))
                 .block();
 
+        assert body != null;
         assertThatJson(body).when(IGNORING_EXTRA_FIELDS, IGNORING_ARRAY_ORDER)
             .isEqualTo(fromFile(connectorResponse));
+    }
+
+    @Test public void testGetCategoryItemsWithInvalidCategory() throws Exception {
+        String body = requestObjectsGet("/api/v1/device_list?device_category=InvalidCategory&limit=10&offset=0")
+                .expectStatus().isBadRequest()
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(BotFlowTest::normalizeBotObjects)
+                .block();
+        assertThat("objects should be identical", body, sameJSONAs(fromFile("/botflows/connector/response/invalid_category_item.json")).allowingAnyArrayOrdering());
     }
 
     private void findIdOfCatalog(String s, HttpMethod get, String s2) throws IOException {
@@ -165,7 +171,6 @@ public class BotFlowTest extends ControllerTestsBase {
     }
 
     @Test void testOrderADeviceShouldReturnDeviceCategoryList() throws Exception {
-        final String appContextPath = serverProperties.getServlet().getContextPath();
         findIdOfCatalog("/api/sn_sc/servicecatalog/catalogs", GET, "/botflows/servicenow/response/catalogs.json");
 
         // Find out the id of the category requested.
@@ -175,7 +180,7 @@ public class BotFlowTest extends ControllerTestsBase {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/botflows/servicenow/response/service_catalog.json"), APPLICATION_JSON));
 
-        String body = requestObjectsGet(appContextPath + "/api/v1/deviceCategoryList", SNOW_AUTH_TOKEN, null)
+        String body = requestObjectsGet("/api/v1/deviceCategoryList")
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -189,7 +194,8 @@ public class BotFlowTest extends ControllerTestsBase {
 
     @Test void testViewMyTasksAction() throws Exception {
         String userEmailId = "admin@acme.com";
-        final String appContextPath = serverProperties.getServlet().getContextPath();
+        MultiValueMap<String, String> actionFormData = new LinkedMultiValueMap<>();
+        actionFormData.set("type", VIEW_TASK_TYPE);
         mockBackend.expect(requestToUriTemplate(
                 "/api/now/table/task?sysparm_display_value=true&sysparm_limit=5&sysparm_offset=0"
                         + "&opened_by.email={userEmailId}&active=true&sysparm_query=ORDERBYDESCsys_created_on",
@@ -198,7 +204,7 @@ public class BotFlowTest extends ControllerTestsBase {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/botflows/servicenow/response/task_ticket.json"), APPLICATION_JSON));
 
-        String body = performAction(POST, appContextPath + "/api/v1/tasks", SNOW_AUTH_TOKEN, new LinkedMultiValueMap<>())
+        String body = performAction(POST, "/api/v1/tasks", actionFormData)
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -211,7 +217,8 @@ public class BotFlowTest extends ControllerTestsBase {
 
     @Test void testViewMyTasksActionShouldReturnServiceNowUrlWhenMoreThanFiveOpenTickets() throws Exception {
         String userEmailId = "admin@acme.com";
-        final String appContextPath = serverProperties.getServlet().getContextPath();
+        MultiValueMap<String, String> actionFormData = new LinkedMultiValueMap<>();
+        actionFormData.set("type", VIEW_TASK_TYPE);
         mockBackend.expect(requestToUriTemplate(
                 "/api/now/table/task?sysparm_display_value=true&sysparm_limit=5&sysparm_offset=0"
                         + "&opened_by.email={userEmailId}&active=true&sysparm_query=ORDERBYDESCsys_created_on",
@@ -219,7 +226,7 @@ public class BotFlowTest extends ControllerTestsBase {
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/botflows/servicenow/response/task_ticket_more_than_5.json"), APPLICATION_JSON));
-        String body = performAction(POST, appContextPath + "/api/v1/tasks", SNOW_AUTH_TOKEN, new LinkedMultiValueMap<>())
+        String body = performAction(POST, "/api/v1/tasks", actionFormData)
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -231,10 +238,7 @@ public class BotFlowTest extends ControllerTestsBase {
     }
 
     @Test void testBotDiscoveryObject() throws Exception {
-        final String appContextPath = serverProperties.getServlet().getContextPath();
-        String body = requestObjects(appContextPath + "/bot-discovery", SNOW_AUTH_TOKEN,
-                "/botflows/connector/request/bot_discovery_object.json",
-                OBJ_TYPE_BOT_DISCOVERY, null)
+        String body = doPost()
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -246,9 +250,40 @@ public class BotFlowTest extends ControllerTestsBase {
         //TODO : This will taken care as part of https://jira-euc.eng.vmware.com/jira/browse/HW-110258
     }
 
-    @Test void testCreateTaskAction() throws IOException {
+    @Test void testBotDiscoveryWithMissingHeader() throws Exception {
+        webClient.post()
+                .uri("/bot-discovery")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .header(X_BASE_URL_HEADER, mockBackend.url(""))
+                .header(X_AUTH_HEADER, "Bearer " + BotFlowTest.SNOW_AUTH_TOKEN)
+                .headers(headers -> headers(headers, "/bot-discovery"))
+                .bodyValue(fromFile("/botflows/connector/request/bot_discovery_object.json"))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody().jsonPath("$.message").isEqualTo("Missing request header 'x-routing-prefix' for method parameter of type String");
+    }
+
+    @Test void testCreateTaskActionConfirmCreate() throws IOException {
+        String taskType = "SomeRandomTestValue";
+
+        MultiValueMap<String, String> actionFormData = new LinkedMultiValueMap<>();
+        actionFormData.set("type", taskType);
+        actionFormData.set("shortDescription", "My mouse is not working.");
+
+        String body = performAction(POST, "/api/v1/task/confirm_create", actionFormData)
+                .expectStatus().is2xxSuccessful()
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(res -> normalizeBotObjects(res, mockBackend.url("/")))
+                .block();
+
+        assertThat("objects should be identical", body, sameJSONAs(fromFile("/botflows/connector/response/confirm_task_create.json")).allowingAnyArrayOrdering());
+    }
+
+    @Test void testCreateTaskActionConfirm() throws IOException {
         String taskType = "ticket";
-        final String appContextPath = serverProperties.getServlet().getContextPath();
         mockBackend.expect(requestToUriTemplate("/api/now/table/{taskType}", taskType))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(POST))
@@ -264,7 +299,7 @@ public class BotFlowTest extends ControllerTestsBase {
         actionFormData.set("type", taskType);
         actionFormData.set("shortDescription", "My mouse is not working.");
 
-        String body = performAction(POST, appContextPath + "/api/v1/task/create", SNOW_AUTH_TOKEN, actionFormData)
+        String body = performAction(POST, "/api/v1/task/create", actionFormData)
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -275,10 +310,21 @@ public class BotFlowTest extends ControllerTestsBase {
         assertThat("objects should be identical", body, sameJSONAs(fromFile("/botflows/connector/response/create_ticket.json")).allowingAnyArrayOrdering());
     }
 
+    @Test void testOperationDeclined() throws IOException {
+        String body = performAction(POST, "/api/v1/operation/cancel", null)
+                .expectStatus().is2xxSuccessful()
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(res -> normalizeBotObjects(res, mockBackend.url("/")))
+                .block();
+
+        assertThat("objects should be identical", body, sameJSONAs(fromFile("/botflows/connector/response/operation_declined.json")).allowingAnyArrayOrdering());
+    }
+
     @Test void testAddCart() throws IOException {
         String itemId = "2ab7077237153000158bbfc8bcbe5da9"; //Macbook pro.
         Integer itemCount = 1;
-        final String appContextPath = serverProperties.getServlet().getContextPath();
         mockBackend.expect(requestToUriTemplate("/api/sn_sc/servicecatalog/items/{itemId}/add_to_cart", itemId))
                 .andExpect(header(AUTHORIZATION, "Bearer " + SNOW_AUTH_TOKEN))
                 .andExpect(method(POST))
@@ -296,7 +342,7 @@ public class BotFlowTest extends ControllerTestsBase {
         actionFormData.set("itemId", itemId);
         actionFormData.set("itemCount", String.valueOf(itemCount));
 
-        String body = performAction(PUT, appContextPath + "/api/v1/cart", SNOW_AUTH_TOKEN, actionFormData)
+        String body = performAction(PUT, "/api/v1/cart", actionFormData)
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -310,12 +356,11 @@ public class BotFlowTest extends ControllerTestsBase {
 
     @Test void testClearCart() throws IOException {
         expectCartRequest();
-        final String appContextPath = serverProperties.getServlet().getContextPath();
         mockBackend.expect(requestToUriTemplate(CLEAR_CART_URL, CART_ID))
                 .andExpect(header(AUTHORIZATION, BEARER + SNOW_AUTH_TOKEN))
                 .andExpect(method(DELETE))
                 .andRespond(withStatus(HttpStatus.NO_CONTENT));
-        String body = performAction(DELETE, appContextPath + CART_URL_CONNECTOR, SNOW_AUTH_TOKEN, null)
+        String body = performAction(DELETE, CART_URL_CONNECTOR, null)
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -327,14 +372,13 @@ public class BotFlowTest extends ControllerTestsBase {
 
     @Test void testClearCartError() throws IOException {
         expectCartRequest();
-        final String appContextPath = serverProperties.getServlet().getContextPath();
         mockBackend.expect(requestToUriTemplate(CLEAR_CART_URL, CART_ID))
                 .andExpect(header(AUTHORIZATION, BEARER + SNOW_AUTH_TOKEN))
                 .andExpect(method(DELETE))
                 .andRespond(withStatus(HttpStatus.UNAUTHORIZED).contentType(APPLICATION_JSON)
                         .body(fromFile(CLEAR_CART_ERR_FILE)));
         String body =
-                performAction(DELETE, appContextPath + CART_URL_CONNECTOR, SNOW_AUTH_TOKEN, null)
+                performAction(DELETE, CART_URL_CONNECTOR, null)
                         .expectStatus().isUnauthorized()
                         .returnResult(String.class)
                         .getResponseBody()
@@ -344,15 +388,26 @@ public class BotFlowTest extends ControllerTestsBase {
         assertThat("objects should be identical", body, sameJSONAs(fromFile(CLEAR_CART_CONNECTOR_RESP)).allowingAnyArrayOrdering());
     }
 
-    @Test void testCheckout() throws IOException {
-        final String appContextPath = serverProperties.getServlet().getContextPath();
+    @Test void testCheckoutConfirmation() throws IOException {
+        String body = performAction(POST, "/api/v1/confirm_checkout", null)
+                .expectStatus().is2xxSuccessful()
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .map(res -> normalizeBotObjects(res, mockBackend.url("/")))
+                .block();
+
+        assertThat("objects should be identical", body, sameJSONAs(fromFile("/botflows/connector/response/confirm_checkout.json")).allowingAnyArrayOrdering());
+    }
+
+    @Test void testCheckoutConfirmed() throws IOException {
         findIdOfCatalog("/api/sn_sc/servicecatalog/cart/checkout", POST, "/botflows/servicenow/response/checkout.json");
 
         String reqNumber = "REQ0010033"; // Checkout request ticket number.
         // To deliver task object.
         expectTaskReqByNumber("task", reqNumber, "/botflows/servicenow/response/ticket_checkout_request.json");
 
-        String body = performAction(POST, appContextPath + "/api/v1/checkout", SNOW_AUTH_TOKEN, null)
+        String body = performAction(POST, "/api/v1/checkout", null)
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -365,7 +420,8 @@ public class BotFlowTest extends ControllerTestsBase {
 
     @Test void testViewMyTasksActionIftasksAreEmpty() throws Exception {
         String userEmailId = "admin@acme.com";
-        final String appContextPath = serverProperties.getServlet().getContextPath();
+        MultiValueMap<String, String> actionFormData = new LinkedMultiValueMap<>();
+        actionFormData.set("type", VIEW_TASK_TYPE);
         mockBackend.expect(requestToUriTemplate(
                 "/api/now/table/task?sysparm_display_value=true&sysparm_limit=5&sysparm_offset=0"
                         + "&opened_by.email={userEmailId}&active=true&sysparm_query=ORDERBYDESCsys_created_on",
@@ -374,7 +430,7 @@ public class BotFlowTest extends ControllerTestsBase {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(fromFile("/botflows/servicenow/response/task_ticket_if_empty.json"), APPLICATION_JSON));
 
-        String body = performAction(POST, appContextPath + "/api/v1/tasks", SNOW_AUTH_TOKEN, new LinkedMultiValueMap<>())
+        String body = performAction(POST, "/api/v1/tasks", actionFormData)
                 .expectStatus().is2xxSuccessful()
                 .returnResult(String.class)
                 .getResponseBody()
@@ -404,87 +460,55 @@ public class BotFlowTest extends ControllerTestsBase {
     }
 
     private WebTestClient.ResponseSpec performAction(HttpMethod method, String actionPath,
-                                                     String sNowAuthToken, MultiValueMap<String, String> formData) {
+                                                     MultiValueMap<String, String> formData) {
         WebTestClient.RequestBodySpec requestSpec = webClient.method(method)
                 .uri(actionPath)
                 .accept(APPLICATION_JSON)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .header(X_AUTH_HEADER, "Bearer " + sNowAuthToken)
+                .header(X_AUTH_HEADER, "Bearer " + BotFlowTest.SNOW_AUTH_TOKEN)
                 .header("x-routing-template", "https://mf/connectors/abc123/INSERT_OBJECT_TYPE/")
                 .headers(headers -> headers(headers, actionPath));
 
         if (formData != null) {
             requestSpec.contentType(APPLICATION_FORM_URLENCODED)
-                    .syncBody(formData);
+                    .bodyValue(formData);
         }
 
         return requestSpec.exchange();
     }
 
-    private WebTestClient.ResponseSpec requestObjects(String objReqPath, String sNowAuthToken, String requestFile,
-                                                      String objectType, String language) throws Exception {
-        return doPost(
-                objReqPath,
-                APPLICATION_JSON,
-                sNowAuthToken,
-                requestFile,
-                objectType,
-                language
-        );
+    private WebTestClient.ResponseSpec requestObjectsGet(String objReqPath) {
+        return doGet(objReqPath);
     }
 
-    private WebTestClient.ResponseSpec requestObjectsGet(String objReqPath, String sNowAuthToken, String language) throws Exception {
-        return doGet(
-                objReqPath,
-                sNowAuthToken,
-                language
-        );
-    }
-
-    private WebTestClient.ResponseSpec doGet(
-            String path,
-            String authToken,
-            String language
-    ) throws Exception {
+    private WebTestClient.ResponseSpec doGet(String path) {
 
         WebTestClient.RequestHeadersSpec<?> spec = webClient.get()
                 .uri(path)
                 .accept(APPLICATION_JSON)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .header(X_AUTH_HEADER, "Bearer " + authToken)
+                .header(X_AUTH_HEADER, "Bearer " + BotFlowTest.SNOW_AUTH_TOKEN)
                 .header("x-routing-template", "https://mf/connectors/abc123/INSERT_OBJECT_TYPE/")
                 .headers(headers -> headers(headers, path));
-        //.syncBody(fromFile(requestFile));
 
-        if (StringUtils.isNotBlank(language)) {
-            spec = spec.header(ACCEPT_LANGUAGE, language);
-        }
+        StringUtils.isNotBlank(null);
 
         return spec.exchange();
     }
 
-    private WebTestClient.ResponseSpec doPost(
-            String path,
-            MediaType contentType,
-            String authToken,
-            String requestFile,
-            String objectType,
-            String language
-    ) throws Exception {
+    private WebTestClient.ResponseSpec doPost() throws Exception {
 
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
-                .uri(path)
-                .contentType(contentType)
+                .uri("/bot-discovery")
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header(X_BASE_URL_HEADER, mockBackend.url(""))
-                .header(X_AUTH_HEADER, "Bearer " + authToken)
-                .header("x-routing-prefix", String.format("https://mf/connectors/abc123/%s/", objectType))
-                .headers(headers -> headers(headers, path))
-                .syncBody(fromFile(requestFile));
+                .header(X_AUTH_HEADER, "Bearer " + BotFlowTest.SNOW_AUTH_TOKEN)
+                .header("x-routing-prefix", String.format("https://mf/connectors/abc123/%s/", BotFlowTest.OBJ_TYPE_BOT_DISCOVERY))
+                .headers(headers -> headers(headers, "/bot-discovery"))
+                .bodyValue(fromFile("/botflows/connector/request/bot_discovery_object.json"));
 
-        if (StringUtils.isNotBlank(language)) {
-            spec = spec.header(ACCEPT_LANGUAGE, language);
-        }
+        StringUtils.isNotBlank(null);
 
         return spec.exchange();
     }

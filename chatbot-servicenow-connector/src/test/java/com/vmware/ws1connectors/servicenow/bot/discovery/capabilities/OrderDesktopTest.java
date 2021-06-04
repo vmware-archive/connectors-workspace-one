@@ -6,8 +6,8 @@
 
 package com.vmware.ws1connectors.servicenow.bot.discovery.capabilities;
 
+import com.vmware.connectors.common.utils.ConnectorTextAccessor;
 import com.vmware.ws1connectors.servicenow.domain.BotAction;
-import com.vmware.ws1connectors.servicenow.utils.BotTextAccessor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -25,20 +25,18 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class OrderDesktopTest {
 
-    private static final String APP_CONTEXT_PATH = "/servicenow-connector";
     private static final String ROUTING_PREFIX = "https://mf/connectors/abc123/botDiscovery/";
     private static final String BOT_ACTION_TITLE = "View List Of Desktops";
     private static final String BOT_ACTION_DESC = "You can view list of Desktops.";
-    private static final String BOT_ACTION_URL = "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/device_list?device_category=Desktops&limit=10&offset=0";
-    private static final String ORDER_DESKTOP_ACTION_TITLE = "orderDesktopAction.title";
-    private static final String ORDER_DESKTOP_ACTION_DESC = "orderDesktopAction.description";
+    private static final String BOT_ACTION_URL = "https://mf/connectors/abc123/botDiscovery/api/v1/device_list?device_category=Desktops&limit=10&offset=0";
+    private static final String ORDER_DESKTOP_ACTION = "orderDesktopAction";
 
-    @Mock private BotTextAccessor botTextAccessor;
+    @Mock private ConnectorTextAccessor connectorTextAccessor;
 
     @Test public void testGetListOfDesktopsAction() {
         Locale noLocale = null;
         setMocks(noLocale);
-        OrderDesktop orderDesktop = new OrderDesktop(botTextAccessor, APP_CONTEXT_PATH);
+        OrderDesktop orderDesktop = new OrderDesktop(connectorTextAccessor);
         BotAction botAction = orderDesktop.getListOfDesktopsAction(ROUTING_PREFIX, noLocale);
         assertThat(botAction.getTitle()).isEqualTo(BOT_ACTION_TITLE);
         assertThat(botAction.getDescription()).isEqualTo(BOT_ACTION_DESC);
@@ -46,14 +44,14 @@ public class OrderDesktopTest {
     }
 
     private void setMocks(Locale locale) {
-        when(botTextAccessor.getMessage(ORDER_DESKTOP_ACTION_TITLE, locale)).thenReturn(BOT_ACTION_TITLE);
-        when(botTextAccessor.getMessage(ORDER_DESKTOP_ACTION_DESC, locale)).thenReturn(BOT_ACTION_DESC);
+        when(connectorTextAccessor.getTitle(ORDER_DESKTOP_ACTION, locale)).thenReturn(BOT_ACTION_TITLE);
+        when(connectorTextAccessor.getDescription(ORDER_DESKTOP_ACTION, locale)).thenReturn(BOT_ACTION_DESC);
     }
 
     @Test public void testGetListOfDesktopsActionWithRoutingPrefixNull() {
         Locale noLocale = null;
         setMocks(noLocale);
-        OrderDesktop orderDesktop = new OrderDesktop(botTextAccessor, APP_CONTEXT_PATH);
+        OrderDesktop orderDesktop = new OrderDesktop(connectorTextAccessor);
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(() -> orderDesktop.getListOfDesktopsAction(null, noLocale));
     }

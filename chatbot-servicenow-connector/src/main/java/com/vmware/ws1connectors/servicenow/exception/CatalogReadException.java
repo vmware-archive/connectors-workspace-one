@@ -7,10 +7,11 @@
 package com.vmware.ws1connectors.servicenow.exception;
 
 public class CatalogReadException extends RuntimeException {
-
-    private static final long serialVersionUID = -3218161968583058596L;
-
     public CatalogReadException(String message) {
         super(message);
+    }
+
+    public CatalogReadException(Throwable throwable) {
+        super(throwable.getMessage());
     }
 }

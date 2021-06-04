@@ -1,0 +1,49 @@
+{
+  "objects":[
+    {
+      "itemDetails":{
+        "id":"00000000-0000-0000-0000-000000000000",
+        "title":"Sure, I can help you complete your order. Would you like me to proceed and open a ticket for you?",
+        "description":"Sure, I can help you complete your order. Would you like me to proceed and open a ticket for you?",
+        "type":"text",
+        "actions":[
+          {
+            "title":"Yes",
+            "description":"Yes",
+            "type":"POST",
+            "url":{
+              "href":"https://mf/connectors/abc123/botDiscovery/api/v1/checkout"
+            },
+            "payload":{
+
+            },
+            "headers":{
+
+            },
+            "userInput":[
+
+            ]
+          },
+          {
+            "title":"No",
+            "description":"No",
+            "type":"POST",
+            "url":{
+              "href":"https://mf/connectors/abc123/botDiscovery/api/v1/operation/cancel"
+            },
+            "payload":{
+
+            },
+            "headers":{
+
+            },
+            "userInput":[
+
+            ]
+          }
+        ],
+        "workflowStep":"Incomplete"
+      }
+    }
+  ]
+}

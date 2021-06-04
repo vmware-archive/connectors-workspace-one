@@ -18,7 +18,10 @@ import javax.validation.constraints.NotBlank;
 @Setter
 public class DeclineForm {
     private static final String INVALID_REASON_MESSAGE = "Reason should not be empty";
+    private static final String INVALID_TENANT_NAME_MESSAGE = "Tenant Name cannot be empty";
 
     @NotBlank(message = INVALID_REASON_MESSAGE)
     private String reason;
+    @NotBlank(message = INVALID_TENANT_NAME_MESSAGE)
+    private String tenantName;
 }

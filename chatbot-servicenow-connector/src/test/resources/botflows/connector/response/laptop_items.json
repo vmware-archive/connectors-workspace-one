@@ -15,7 +15,7 @@
             "description": "Add this item to my shopping cart.",
             "type": "PUT",
             "url": {
-              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/cart"
             },
             "payload": {
               "itemId": "7e87837237153000158bbfc8bcbe5df6"
@@ -54,7 +54,7 @@
             "description": "Add this item to my shopping cart.",
             "type": "PUT",
             "url": {
-              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/cart"
             },
             "payload": {
               "itemId": "3cecd2350a0a0a6a013a3a35a5e41c07"
@@ -93,7 +93,7 @@
             "description": "Add this item to my shopping cart.",
             "type": "PUT",
             "url": {
-              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/cart"
             },
             "payload": {
               "itemId": "2ab7077237153000158bbfc8bcbe5da9"
@@ -132,7 +132,7 @@
             "description": "Add this item to my shopping cart.",
             "type": "PUT",
             "url": {
-              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/cart"
             },
             "payload": {
               "itemId": "10f110aec611227601fbe1841e7e417c"
@@ -171,7 +171,7 @@
             "description": "Add this item to my shopping cart.",
             "type": "PUT",
             "url": {
-              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/cart"
             },
             "payload": {
               "itemId": "e212a942c0a80165008313c59764eea1"

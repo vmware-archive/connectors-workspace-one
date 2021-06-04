@@ -1,5 +1,6 @@
 {
   "config": {
-    "file_ticket_table_name": "task"
+    "view_ticket_table_name": "task",
+    "create_ticket_table_name": "incident"
   }
 }

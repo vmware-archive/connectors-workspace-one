@@ -10,12 +10,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
+import com.vmware.connectors.common.utils.ConnectorTextAccessor;
 import com.vmware.ws1connectors.servicenow.BotFlowTest;
 import com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants;
 import com.vmware.ws1connectors.servicenow.domain.BotItem;
 import com.vmware.ws1connectors.servicenow.domain.BotObjects;
 import com.vmware.ws1connectors.servicenow.utils.ArgumentsStreamBuilder;
-import com.vmware.ws1connectors.servicenow.utils.BotTextAccessor;
 import com.vmware.ws1connectors.servicenow.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -50,14 +49,11 @@ import static com.vmware.connectors.test.ControllerTestsBase.fromFile;
 import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.CHECKOUT;
 import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.EMPTY_CART;
 import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.ITEM_DETAILS;
-import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.SERVICE_NOW_CONNECTOR_CONTEXT_PATH;
-import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.URL_PATH_SEPERATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -92,9 +88,8 @@ public class CartServiceTest {
     private static final String EMPTY_CART_DESCRIPTION = "Empty everything in the cart.";
     private static final String CHECKOUT_TITLE = "Checkout";
     private static final String CHECKOUT_DESCRIPTION = "Checkout your cart.";
-    private static final String ADD_ANOTHER_TITLE = "add.another.title";
+    private static final String ADD_ANOTHER = "add.another";
     private static final String ADD_ANOTHER_TITLE_MSG = "Add Another";
-    private static final String ADD_ANOTHER_DESCRIPTION = "add.another.description";
     private static final String ADD_ANOTHER_DESCRIPTION_MSG = "Add another item to cart";
     private static final String CART = "cart";
     private static final String CART_TITLE = "I have added Apple MacBook Pro to your cart.";
@@ -115,15 +110,13 @@ public class CartServiceTest {
     @Mock private WebClient.RequestBodyUriSpec requestBodyUriMock;
     @Mock private WebClient.ResponseSpec responseMock;
     @Mock private ExchangeFunction mockExchangeFunc;
-    @Mock private BotTextAccessor botTextAccessor;
+    @Mock private ConnectorTextAccessor connectorTextAccessor;
     @Mock private ClientResponse clientResponse;
-    @Mock ServerProperties mockServerProperties;
 
     @InjectMocks CartService cartService;
 
     @Test public void testAddToCartWhenItemsAreAlreadyThereInCart() {
         Locale locale = null;
-        mockContextPathForServerProperties();
         mockBotAccessor();
         JsonDocument jsonDocument = null;
         URI baseUri = UriComponentsBuilder.fromUriString(BASE_URL_ADD_TO_CART).build().toUri();
@@ -138,28 +131,22 @@ public class CartServiceTest {
     }
 
     private void mockBotAccessor() {
-        when(botTextAccessor.getObjectTitle(eq(CART_ACTION_ITEM), any())).thenReturn(
+        when(connectorTextAccessor.getTitle(eq(CART_ACTION_ITEM), any())).thenReturn(
                 CART_ACTION_ITEM_MSG);
-        when(botTextAccessor.getObjectDescription(eq(CART_ACTION_ITEM), any())).thenReturn(
+        when(connectorTextAccessor.getDescription(eq(CART_ACTION_ITEM), any())).thenReturn(
                 CART_ACTION_ITEM_MSG);
-        when(botTextAccessor.getActionTitle(eq(EMPTY_CART), any())).thenReturn(EMPTY_CART_TITLE);
-        when(botTextAccessor.getActionDescription(eq(EMPTY_CART), any())).thenReturn(EMPTY_CART_DESCRIPTION);
-        when(botTextAccessor.getActionTitle(eq(CHECKOUT), any())).thenReturn(CHECKOUT_TITLE);
-        when(botTextAccessor.getActionDescription(eq(CHECKOUT), any())).thenReturn(CHECKOUT_DESCRIPTION);
-        when(botTextAccessor.getMessage(eq(ADD_ANOTHER_TITLE), any())).thenReturn(ADD_ANOTHER_TITLE_MSG);
-        when(botTextAccessor.getMessage(eq(ADD_ANOTHER_DESCRIPTION), any())).thenReturn(ADD_ANOTHER_DESCRIPTION_MSG);
-        when(botTextAccessor.getObjectTitle(eq(CART), any(), eq(APPLE_MAC_BOOK_PRO))).thenReturn(CART_TITLE);
-        when(botTextAccessor.getObjectTitle(eq(CART), any(), eq(DELL_XPS_13))).thenReturn(CART_TITLE_WHEN_NO_ITEM_IN_CART);
-        when(botTextAccessor.getObjectDescription(eq(CART), any())).thenReturn(CART_DESCRIPTION);
-        when(botTextAccessor.getMessage(eq(CART_DESCRIPTION_EMPTY), any())).thenReturn(EMPTY_CART_DESCRIPTION_MSG);
-        when(botTextAccessor.getActionTitle(eq(CART_PROMPT_MSG), any(), any())).thenReturn(CART_PROMPT_MSG_RESPONSE);
-        when(botTextAccessor.getActionDescription(eq(CART_PROMPT_MSG), any())).thenReturn(CART_PROMPT_MSG_RESPONSE);
-    }
-
-    private void mockContextPathForServerProperties() {
-        final ServerProperties.Servlet mockServlet = mock(ServerProperties.Servlet.class);
-        when(mockServerProperties.getServlet()).thenReturn(mockServlet);
-        when(mockServlet.getContextPath()).thenReturn(URL_PATH_SEPERATOR + SERVICE_NOW_CONNECTOR_CONTEXT_PATH);
+        when(connectorTextAccessor.getTitle(eq(EMPTY_CART), any())).thenReturn(EMPTY_CART_TITLE);
+        when(connectorTextAccessor.getDescription(eq(EMPTY_CART), any())).thenReturn(EMPTY_CART_DESCRIPTION);
+        when(connectorTextAccessor.getTitle(eq(CHECKOUT), any())).thenReturn(CHECKOUT_TITLE);
+        when(connectorTextAccessor.getDescription(eq(CHECKOUT), any())).thenReturn(CHECKOUT_DESCRIPTION);
+        when(connectorTextAccessor.getTitle(eq(ADD_ANOTHER), any())).thenReturn(ADD_ANOTHER_TITLE_MSG);
+        when(connectorTextAccessor.getDescription(eq(ADD_ANOTHER), any())).thenReturn(ADD_ANOTHER_DESCRIPTION_MSG);
+        when(connectorTextAccessor.getTitle(eq(CART), any(), eq(APPLE_MAC_BOOK_PRO))).thenReturn(CART_TITLE);
+        when(connectorTextAccessor.getTitle(eq(CART), any(), eq(DELL_XPS_13))).thenReturn(CART_TITLE_WHEN_NO_ITEM_IN_CART);
+        when(connectorTextAccessor.getDescription(eq(CART), any())).thenReturn(CART_DESCRIPTION);
+        when(connectorTextAccessor.getMessage(eq(CART_DESCRIPTION_EMPTY), any())).thenReturn(EMPTY_CART_DESCRIPTION_MSG);
+        when(connectorTextAccessor.getTitle(eq(CART_PROMPT_MSG), any(), any())).thenReturn(CART_PROMPT_MSG_RESPONSE);
+        when(connectorTextAccessor.getDescription(eq(CART_PROMPT_MSG), any())).thenReturn(CART_PROMPT_MSG_RESPONSE);
     }
 
     private boolean isEquals(final BotObjects botObjects, String botObjectConnectorResponseFile) {
@@ -202,7 +189,7 @@ public class CartServiceTest {
         when(mockRest.post()).thenReturn(requestBodyUriMock);
         when(requestBodyUriMock.uri(any(String.class))).thenReturn(requestBodyMock);
         when(requestBodyMock.header(any(String.class), any(String.class))).thenReturn(requestBodyMock);
-        when(requestBodyMock.syncBody(any(Map.class))).thenReturn(requestHeadersMock);
+        when(requestBodyMock.bodyValue(any(Map.class))).thenReturn(requestHeadersMock);
         when(requestHeadersMock.retrieve()).thenReturn(responseMock);
         when(responseMock.bodyToMono(Void.class)).thenReturn(Mono.empty());
     }
@@ -280,8 +267,8 @@ public class CartServiceTest {
 
     private void setupClearCartMock(Locale locale) throws Exception {
         when(clientResponse.statusCode()).thenReturn(HttpStatus.NO_CONTENT);
-        when(botTextAccessor.getMessage(ServiceNowConstants.EMPTY_CART_SUCCESS_MSG, locale)).thenReturn(CLEAR_CART_SUCCESS_MSG);
-        when(botTextAccessor.getMessage(ServiceNowConstants.EMPTY_CART_SUCCESS_DESC_MSG, locale)).thenReturn(
+        when(connectorTextAccessor.getMessage(ServiceNowConstants.EMPTY_CART_SUCCESS_MSG, locale)).thenReturn(CLEAR_CART_SUCCESS_MSG);
+        when(connectorTextAccessor.getMessage(ServiceNowConstants.EMPTY_CART_SUCCESS_DESC_MSG, locale)).thenReturn(
                 CLEAR_CART_DESC);
         JsonDocument jsonDocument = new JsonDocument(Configuration.defaultConfiguration().jsonProvider().parse(FileUtils.readFileAsString(
                 LOOKUP_CART_RESP)));

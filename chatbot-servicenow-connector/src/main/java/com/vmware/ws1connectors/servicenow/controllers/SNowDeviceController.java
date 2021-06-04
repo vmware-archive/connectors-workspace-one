@@ -6,12 +6,12 @@
 
 package com.vmware.ws1connectors.servicenow.controllers;
 
+import com.vmware.connectors.common.utils.ConnectorTextAccessor;
 import com.vmware.ws1connectors.servicenow.constants.ServiceNowCategory;
 import com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants;
 import com.vmware.ws1connectors.servicenow.domain.BotItem;
 import com.vmware.ws1connectors.servicenow.service.impl.CategoryItemsService;
 import com.vmware.ws1connectors.servicenow.service.impl.DeviceCategoryListService;
-import com.vmware.ws1connectors.servicenow.utils.BotTextAccessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -32,9 +32,16 @@ import java.util.Objects;
 @Slf4j
 public class SNowDeviceController {
 
-    @Autowired DeviceCategoryListService deviceCategoryListService;
-    @Autowired CategoryItemsService categoryItemsService;
-    @Autowired BotTextAccessor botTextAccessor;
+    private static final String INVALID_DEVICE_CATEGORY = "Invalid.device.category";
+    private final DeviceCategoryListService deviceCategoryListService;
+    private final CategoryItemsService categoryItemsService;
+    private final ConnectorTextAccessor connectorTextAccessor;
+
+    @Autowired public SNowDeviceController(DeviceCategoryListService deviceCategoryListService, CategoryItemsService categoryItemsService, ConnectorTextAccessor connectorTextAccessor) {
+        this.deviceCategoryListService = deviceCategoryListService;
+        this.categoryItemsService = categoryItemsService;
+        this.connectorTextAccessor = connectorTextAccessor;
+    }
 
     @GetMapping(path = ServiceNowConstants.DEVICE_CATEGORY_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<Map<String, List<Map<String, BotItem>>>> getDeviceCategory(
@@ -64,8 +71,8 @@ public class SNowDeviceController {
         final ServiceNowCategory categoryEnum = ServiceNowCategory.fromString(deviceCategory);
         if (Objects.isNull(categoryEnum)) {
             return Mono.just(ResponseEntity.badRequest().body(Map.of(ServiceNowConstants.OBJECTS,
-                    List.of(Map.of(ServiceNowConstants.ITEM_DETAILS, new BotItem.Builder().setTitle(botTextAccessor.getMessage("Invalid.device.category.msg", locale))
-                            .setDescription(botTextAccessor.getMessage("Invalid.device.category.desc", locale))
+                    List.of(Map.of(ServiceNowConstants.ITEM_DETAILS, new BotItem.Builder().setTitle(connectorTextAccessor.getTitle(INVALID_DEVICE_CATEGORY, locale))
+                            .setDescription(connectorTextAccessor.getDescription(INVALID_DEVICE_CATEGORY, locale))
                             .build())))));
         }
         String routingPrefix = routingPrefixTemplate.replace(ServiceNowConstants.INSERT_OBJECT_TYPE, ServiceNowConstants.OBJECT_TYPE_BOT_DISCOVERY);

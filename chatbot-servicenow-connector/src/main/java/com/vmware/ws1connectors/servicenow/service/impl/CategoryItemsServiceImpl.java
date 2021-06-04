@@ -7,6 +7,7 @@
 package com.vmware.ws1connectors.servicenow.service.impl;
 
 import com.vmware.connectors.common.payloads.response.Link;
+import com.vmware.connectors.common.utils.ConnectorTextAccessor;
 import com.vmware.ws1connectors.servicenow.catalog.category.api.response.vo.CategoryItem;
 import com.vmware.ws1connectors.servicenow.catalog.category.api.response.vo.CategoryItemsResponse;
 import com.vmware.ws1connectors.servicenow.constants.ServiceNowCategory;
@@ -16,11 +17,9 @@ import com.vmware.ws1connectors.servicenow.domain.BotAction;
 import com.vmware.ws1connectors.servicenow.domain.BotItem;
 import com.vmware.ws1connectors.servicenow.domain.TabularData;
 import com.vmware.ws1connectors.servicenow.domain.TabularDataItem;
-import com.vmware.ws1connectors.servicenow.utils.BotTextAccessor;
 import com.vmware.ws1connectors.servicenow.utils.ResourceUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -43,12 +42,16 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Slf4j
 public class CategoryItemsServiceImpl implements CategoryItemsService {
 
-    public static final String EMPTY_DEVICE_LIST = "empty.device.list";
-    public static final String ADD_ANOTHER = "add.another";
-    @Autowired DeviceCategoryListServiceImpl deviceCategoryListService;
-    @Autowired WebClient restClient;
-    @Autowired BotTextAccessor botTextAccessor;
-    @Autowired ServerProperties serverProperties;
+    private static final String EMPTY_DEVICE_LIST = "empty.device.list";
+    private final DeviceCategoryListServiceImpl deviceCategoryListService;
+    private final WebClient webClient;
+    private final ConnectorTextAccessor connectorTextAccessor;
+
+    @Autowired public CategoryItemsServiceImpl(DeviceCategoryListServiceImpl deviceCategoryListServiceImpl, WebClient webClient, ConnectorTextAccessor connectorTextAccessor) {
+        this.deviceCategoryListService = deviceCategoryListServiceImpl;
+        this.webClient = webClient;
+        this.connectorTextAccessor = connectorTextAccessor;
+    }
 
     @Override public Mono<List<BotItem>> getCategoryItems(ServiceNowCategory categoryEnum, String baseUrl, String auth,
                                                           String limit, String offset, String routingPrefix,
@@ -87,8 +90,8 @@ public class CategoryItemsServiceImpl implements CategoryItemsService {
 
     private BotItem getBotItemIfEmpty(Locale locale) {
         return new BotItem.Builder()
-                .setTitle(botTextAccessor.getObjectTitle(EMPTY_DEVICE_LIST, locale))
-                .setDescription(botTextAccessor.getObjectDescription(EMPTY_DEVICE_LIST, locale))
+                .setTitle(connectorTextAccessor.getTitle(EMPTY_DEVICE_LIST, locale))
+                .setDescription(connectorTextAccessor.getDescription(EMPTY_DEVICE_LIST, locale))
                 .setType(ServiceNowConstants.TEXT)
                 .setWorkflowStep(WorkflowStep.INCOMPLETE)
                 .build();
@@ -117,8 +120,8 @@ public class CategoryItemsServiceImpl implements CategoryItemsService {
 
     private BotAction getAddToCartAction(String itemId, String routingPrefix, Locale locale) {
         return new BotAction.Builder()
-                .setTitle(botTextAccessor.getActionTitle(ServiceNowConstants.ADD_TO_CART, locale))
-                .setDescription(botTextAccessor.getActionDescription(ServiceNowConstants.ADD_TO_CART, locale))
+                .setTitle(connectorTextAccessor.getTitle(ServiceNowConstants.ADD_TO_CART, locale))
+                .setDescription(connectorTextAccessor.getDescription(ServiceNowConstants.ADD_TO_CART, locale))
                 .setType(HttpMethod.PUT)
                 .setRequestParam(ServiceNowConstants.ITEM_ID, itemId)
                 .setRequestHeaders(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -129,7 +132,7 @@ public class CategoryItemsServiceImpl implements CategoryItemsService {
     private Mono<CategoryItemsResponse> getItems(String categoryId, String auth, URI baseUri,
                                                  String limit, String offset) {
         LOGGER.trace("getItems categoryId:{}, baseUrl={}.", categoryId, baseUri);
-        return restClient.get()
+        return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .scheme(baseUri.getScheme())
                         .host(baseUri.getHost())

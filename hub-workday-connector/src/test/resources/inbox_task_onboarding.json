@@ -1,0 +1,25 @@
+{
+  "id": "f598f956fc0881ada227f4f8fe015200",
+  "descriptor": "Onboarding Setup",
+  "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/inboxTasks/f598f956fc0881ada227f4f8fe015200",
+  "due": "2019-06-08",
+  "status": {
+    "descriptor": "Awaiting Action",
+    "id": "d9e4108c446c11de98360015c5e6daf6"
+  },
+  "subject": {
+    "descriptor": "Hire: David Delgado",
+    "id": "f598f956fc080131cd2b20bcfe013500",
+    "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/businessProcesses/f598f956fc080131cd2b20bcfe013500"
+  },
+  "assigned": "2019-06-07T19:59:08.537Z",
+  "stepType": {
+    "descriptor": "Initiation",
+    "id": "d8c892f4446c11de98360015c5e6daf6"
+  },
+  "overallProcess": {
+    "descriptor": "Hire: David Delgado",
+    "id": "f598f956fc080131cd2b20bcfe013500",
+    "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/hire/f598f956fc080131cd2b20bcfe013500"
+  }
+}

@@ -5,12 +5,14 @@
  */
 package com.vmware.ws1connectors.workday.web;
 
+import com.vmware.connectors.common.payloads.request.CardRequest;
 import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.connectors.common.utils.AuthUtil;
 import com.vmware.ws1connectors.workday.services.Day0CardService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -18,6 +20,7 @@ import reactor.core.publisher.Mono;
 import java.util.Locale;
 
 import static com.vmware.ws1connectors.workday.utils.CardConstants.DAY0_CARDS_URI;
+import static com.vmware.ws1connectors.workday.utils.CardConstants.TENANT_NAME;
 import static com.vmware.ws1connectors.workday.utils.WorkdayConnectorConstants.BASE_URL_HEADER;
 import static com.vmware.ws1connectors.workday.utils.WorkdayConnectorConstants.CONNECTOR_AUTH_HEADER;
 import static java.util.Objects.isNull;
@@ -34,11 +37,13 @@ public class Day0CardsController {
     public Mono<Cards> getCards(final Locale requestLocale,
                                 @RequestHeader(AUTHORIZATION) final String authorization,
                                 @RequestHeader(CONNECTOR_AUTH_HEADER) final String connectorAuth,
-                                @RequestHeader(BASE_URL_HEADER) final String baseUrl) {
+                                @RequestHeader(BASE_URL_HEADER) final String baseUrl,
+                                @RequestBody final CardRequest cardRequest) {
         final String userEmail = AuthUtil.extractUserEmail(authorization);
         final Locale endUserLocale = isNull(requestLocale) ? Locale.US : requestLocale;
-        LOGGER.info("Received request to get day0 tasks pending in workday for user with BaseUrl={}, locale={}", baseUrl, endUserLocale);
-        return cardService.getDay0Cards(baseUrl, connectorAuth, userEmail, endUserLocale);
+        final String tenantName = cardRequest.getConfig().get(TENANT_NAME);
+        LOGGER.info("Received request to get day0 tasks pending in workday for user with BaseUrl={},email={}, locale={}", baseUrl, userEmail, endUserLocale);
+        return cardService.getDay0Cards(baseUrl, connectorAuth, tenantName, endUserLocale);
     }
 }
 

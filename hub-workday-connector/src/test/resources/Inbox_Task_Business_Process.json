@@ -1,0 +1,28 @@
+{
+  "stepType": {
+    "descriptor": "Approval",
+    "id": "d8c89128446c11de98360015c5e6daf6"
+  },
+  "subject": {
+    "descriptor": "IT Ops - R&D Tech Ops (Laxmi J (055694) (Inherited))",
+    "id": "3a460ced69f3108bd1ca7f879016888e",
+    "href": "https://api.workday.com/common/v1/supervisoryOrganizations/3a460ced69f3108bd1ca7f879016888e"
+  },
+  "overallProcess": {
+    "descriptor": "Data Change: Divya Vellanki (336213)",
+    "id": "f387bb35571f017af0641c153a486314",
+    "href": "https://api.workday.com/common/v1/businessProcesses/f387bb35571f017af0641c153a486314"
+  },
+  "descriptor": "Approval by Manager's Manager",
+  "id": "f387bb35571f81be3262cd2c3a488314",
+  "assigned": "2020-05-20T10:09:46.852Z",
+  "status": {
+    "descriptor": "Awaiting Action",
+    "id": "d9e4108c446c11de98360015c5e6daf6"
+  },
+  "href": "https://api.workday.com/common/v1/inboxTasks/f387bb35571f81be3262cd2c3a488314",
+  "initiator": {
+    "descriptor": "Rahul Sahay",
+    "id": "64ceba471c14017b984588ea831e94d6"
+  }
+}

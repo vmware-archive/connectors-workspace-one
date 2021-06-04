@@ -42,7 +42,7 @@
             "description": "Empty everything in the cart.",
             "type": "DELETE",
             "url": {
-              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/cart"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/cart"
             },
             "payload": {},
             "headers": {
@@ -55,7 +55,7 @@
             "description": "Checkout your cart.",
             "type": "POST",
             "url": {
-              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/checkout"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/confirm_checkout"
             },
             "payload": {},
             "headers": {
@@ -68,7 +68,7 @@
             "description": "Add another item to cart",
             "type": "GET",
             "url": {
-              "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/deviceCategoryList"
+              "href": "https://mf/connectors/abc123/botDiscovery/api/v1/deviceCategoryList"
             },
             "payload": {},
             "headers": {},

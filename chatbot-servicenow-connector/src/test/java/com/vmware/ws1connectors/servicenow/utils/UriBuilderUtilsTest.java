@@ -46,11 +46,6 @@ public class UriBuilderUtilsTest {
     private static final String EXPECTED_BASE_URL = "http://localhost:54819/api/v1/tasks";
     private static final String EXPECTED_BASE_URL_WITH_PARAMS =
             "http://localhost:54819/api/sn_sc/servicecatalog/items/2ab7077237153000158bbfc8bcbe5da9/add_to_cart";
-    private static final String NO_CONTEXT_PATH = null;
-    private static final String NO_ROUTING_URL = null;
-    private static final String CONTEXT_PATH = "/servicenow-connector";
-    private static final String ROUTING_URL = "https://mf/connectors/abc123/botDiscovery/";
-    private static final String CONNECTOR_CONTEXT_URL = "https://mf/connectors/abc123/botDiscovery/servicenow-connector";
     private static final String BASE_URL_SNOW = "http://localhost:52614/";
     private static final String EXPECTED_TASK_URL = "http://localhost:52614/task.do?sys_id=00909613db113300ea92eb41ca961949";
     private static final String TASK_IMPACT = "3-low";
@@ -77,25 +72,6 @@ public class UriBuilderUtilsTest {
                 .add(BASE_URL, NO_PATH)
                 .add(NO_BASE_URL, PATH)
                 .build();
-    }
-
-    private static Stream<Arguments> invalidInputsForCreateConnectorContextUrl() {
-        return new ArgumentsStreamBuilder()
-                .add(NO_ROUTING_URL, CONTEXT_PATH)
-                .add(ROUTING_URL, NO_CONTEXT_PATH)
-                .add(NO_ROUTING_URL, NO_ROUTING_URL)
-                .build();
-    }
-
-    @ParameterizedTest
-    @MethodSource("invalidInputsForCreateConnectorContextUrl")
-    public void whenCreateContextUrlIsProvidedWithInvalidInputs(final String routingUrl, final String contextPath) {
-        assertThatExceptionOfType(NullPointerException.class)
-                .isThrownBy(() -> UriBuilderUtils.createConnectorContextUrl(routingUrl, contextPath));
-    }
-
-    @Test public void canCreateContextUrlWithValidInputs() {
-        assertThat(UriBuilderUtils.createConnectorContextUrl(ROUTING_URL, CONTEXT_PATH)).isEqualTo(CONNECTOR_CONTEXT_URL);
     }
 
     @Test public void whenUriBuilderProvidedWithNoBuildArgs() {

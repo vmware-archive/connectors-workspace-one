@@ -1,0 +1,112 @@
+{
+  "objects": [
+    {
+      "due_date": "2020-08-17T00:00:00+18:00",
+      "header": {
+        "title": "Workday - Change Benefits for Life Event"
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Status",
+            "description": "Awaiting Action"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Effective Date",
+            "description": "August, 04, 2020"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Due Date",
+            "description": "August, 17, 2020"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Initiated On",
+            "description": "August, 04, 2020"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Initiated By",
+            "description": "Rahul Sahay (382449)"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "primary": true,
+          "label": "View In Workday",
+          "url": {
+            "href": "https://impl.workday.com"
+          },
+          "type": "GET",
+          "action_key": "OPEN_IN",
+          "request": {},
+          "user_input": [],
+          "completed_label": "View In Workday",
+          "allow_repeated": true
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+      },
+      "backend_id": "318af1942cc081715eec40584c14400c"
+    },
+    {
+      "due_date": "2020-08-17T00:00:00+18:00",
+      "header": {
+        "title": "Workday - VMware Health and Well-Being Guidelines"
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Status",
+            "description": "Awaiting Action"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Effective Date",
+            "description": "August, 04, 2020"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Due Date",
+            "description": "August, 17, 2020"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Initiated On",
+            "description": "August, 04, 2020"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Initiated By",
+            "description": "Rahul Sahay (382449)"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "primary": true,
+          "label": "View In Workday",
+          "url": {
+            "href": "https://impl.workday.com"
+          },
+          "type": "GET",
+          "action_key": "OPEN_IN",
+          "request": {},
+          "user_input": [],
+          "completed_label": "View In Workday",
+          "allow_repeated": true
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+      },
+      "backend_id": "318af1942cc0816dfb4120e33e14b90b"
+    }
+  ]
+}

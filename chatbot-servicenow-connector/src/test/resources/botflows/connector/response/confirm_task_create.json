@@ -1,0 +1,50 @@
+{
+  "objects":[
+    {
+      "itemDetails":{
+        "id":"00000000-0000-0000-0000-000000000000",
+        "title":"Thank you for the information. Would you like me to proceed and open a ticket for you?",
+        "description":"Thank you for the information. Would you like me to proceed and open a ticket for you?",
+        "type":"text",
+        "actions":[
+          {
+            "title":"Yes",
+            "description":"Yes",
+            "type":"POST",
+            "url":{
+              "href":"https://mf/connectors/abc123/botDiscovery/api/v1/task/create"
+            },
+            "payload":{
+              "type":"SomeRandomTestValue",
+              "shortDescription":"My mouse is not working."
+            },
+            "headers":{
+              "Content-Type":"application/x-www-form-urlencoded"
+            },
+            "userInput":[
+
+            ]
+          },
+          {
+            "title":"No",
+            "description":"No",
+            "type":"POST",
+            "url":{
+              "href":"https://mf/connectors/abc123/botDiscovery/api/v1/operation/cancel"
+            },
+            "payload":{
+
+            },
+            "headers":{
+
+            },
+            "userInput":[
+
+            ]
+          }
+        ],
+        "workflowStep":"Incomplete"
+      }
+    }
+  ]
+}

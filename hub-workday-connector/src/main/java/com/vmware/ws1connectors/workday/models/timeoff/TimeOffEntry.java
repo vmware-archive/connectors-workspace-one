@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TimeOffEntry {
     @JsonUnwrapped private Descriptor timeOffEntryDescriptor;

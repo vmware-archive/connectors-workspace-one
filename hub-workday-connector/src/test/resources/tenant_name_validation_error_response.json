@@ -1,0 +1,5 @@
+{
+  "errors": {
+    "tenantName": "Tenant Name cannot be empty"
+  }
+}

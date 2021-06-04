@@ -13,9 +13,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.util.Locale;
 
+import static com.vmware.ws1connectors.workday.utils.ApiUrlConstants.COMMUNITY_COMMON_API_V1;
 import static com.vmware.ws1connectors.workday.utils.ApiUrlConstants.INBOX_TASKS_SUMMARY;
 import static com.vmware.ws1connectors.workday.utils.ApiUrlConstants.INBOX_TASKS_VIEW_QUERY_PARAM_NAME;
-import static com.vmware.ws1connectors.workday.utils.ApiUrlConstants.WORKDAY_CONNECTOR_CONTEXT_PATH;
 import static com.vmware.ws1connectors.workday.utils.ApiUrlConstants.WORKERS_INBOX_TASKS_API;
 import static com.vmware.ws1connectors.workday.utils.WorkdayConnectorConstants.ROUTING_PREFIX_HEADER;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
@@ -30,18 +30,25 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 public class ControllerTestUtils extends ControllerTestsBase {
 
     protected static final String BEARER = "Bearer ";
-    protected static final String ROUTING_PREFIX = "https://dev.hero.example.com/connectors/id";
+    protected static final String ROUTING_PREFIX = "https://dev.hero.example.com/connectors/id/";
     protected static final String WORKDAY_AUTH_TOKEN = BEARER + "valid-auth-token";
+    private static final String TENANT_NAME = "vmware_gms";
 
-    private WebTestClient.ResponseSpec doPost(final String path, final String authToken, final String language) {
+    private WebTestClient.ResponseSpec doPost(final String path, final String authToken, final String language, String requestBodyFileName, final boolean isPreHire)
+            throws IOException {
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
                 .uri(path)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header(X_BASE_URL_HEADER, mockBackend.url(StringUtils.EMPTY))
                 .header(ROUTING_PREFIX_HEADER, ROUTING_PREFIX)
-                .headers(headers -> headers(headers, path))
-                .header(ACCEPT_LANGUAGE, Locale.US.toLanguageTag());
+                .header(ACCEPT_LANGUAGE, Locale.US.toLanguageTag())
+                .bodyValue(fromFile(requestBodyFileName));
+        if (isPreHire) {
+            spec.headers(headers -> preHireHeaders(headers, path, true));
+        } else {
+            spec.headers(headers -> headers(headers, path));
+        }
         if (StringUtils.isNotBlank(authToken)) {
             spec = spec.header(X_AUTH_HEADER, authToken);
         }
@@ -51,23 +58,25 @@ public class ControllerTestUtils extends ControllerTestsBase {
         return spec.exchange();
     }
 
-    protected WebTestClient.ResponseSpec requestCards(final String authToken, String path) {
-        return requestCards(authToken, null, path);
+    protected WebTestClient.ResponseSpec requestCards(final String authToken, String path, String requestBodyFileName, final boolean isPreHire)
+            throws IOException {
+        return requestCards(authToken, null, path, requestBodyFileName, isPreHire);
     }
 
     protected void mockWorkdayApiResponse(String workdayApi, String responseFile) throws IOException {
         mockBackend.expect(requestTo(workdayApi))
                 .andExpect(header(AUTHORIZATION, WORKDAY_AUTH_TOKEN))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(fromFile(responseFile), APPLICATION_JSON));
+                .andRespond(withSuccess(fromFile(responseFile).replace("{MOCK_BACKEND}/", mockBackend.url("/")), APPLICATION_JSON));
     }
 
-    private WebTestClient.ResponseSpec requestCards(final String authToken, final String language, final String path) {
-        return doPost(WORKDAY_CONNECTOR_CONTEXT_PATH + path, authToken, language);
+    private WebTestClient.ResponseSpec requestCards(final String authToken, final String language, final String path, String requestBodyFileName, final boolean isPreHire)
+            throws IOException {
+        return doPost(path, authToken, language, requestBodyFileName, isPreHire);
     }
 
     protected String getInboxTasksUri() {
-        return UriComponentsBuilder.fromPath(WORKERS_INBOX_TASKS_API)
+        return UriComponentsBuilder.fromPath(COMMUNITY_COMMON_API_V1 + TENANT_NAME + WORKERS_INBOX_TASKS_API)
                 .queryParam(INBOX_TASKS_VIEW_QUERY_PARAM_NAME, INBOX_TASKS_SUMMARY)
                 .build()
                 .toUriString();

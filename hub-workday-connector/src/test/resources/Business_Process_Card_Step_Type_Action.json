@@ -1,0 +1,57 @@
+{
+  "id": "69ad03fc-7539-431d-9576-223dec47a48b",
+  "creation_date": "2020-07-29T23:24:59.437208+05:30",
+  "header": {
+    "title": "Workday - Review Change Job"
+  },
+  "body": {
+    "fields": [
+      {
+        "type": "GENERAL",
+        "title": "Status",
+        "description": "Awaiting Action"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Effective Date",
+        "description": "July, 17, 2020"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Initiated On",
+        "description": "July, 09, 2020"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Initiated By",
+        "description": "WS1 MANAGER.A (800006)"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Process",
+        "description": "Data Change: WS1 USER.B (800011)"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "63d43dfb-956c-4d5a-9fcc-69dbbaa5de86",
+      "primary": true,
+      "label": "View In Workday",
+      "url": {
+        "href": "https://impl.workday.com"
+      },
+      "type": "GET",
+      "action_key": "OPEN_IN",
+      "request": {},
+      "user_input": [],
+      "completed_label": "View In Workday",
+      "allow_repeated": true
+    }
+  ],
+  "image": {
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+  },
+  "backend_id": "4e7de5de24b781fc7ff9a2c0610cf42d",
+  "hash": "8b180eac9b3ef307908b3d6f7880836ce3439ba1"
+}

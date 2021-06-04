@@ -2,7 +2,7 @@
   "id": "9307c24e-4b6e-483d-aa8a-52c91bfcf85c",
   "creation_date": 1576061228.396266000,
   "header": {
-    "title": "Absence Request: Ashton Burns"
+    "title": "Workday - Absence Request: Ashton Burns"
   },
   "body": {
     "fields": [
@@ -65,11 +65,13 @@
       "primary": true,
       "label": "Approve",
       "url": {
-        "href": "https://dev.hero.example.com/connectors/id/workday-connector/api/v1/timeoff-tasks/fc844b7a8f6f813f79efb5ffd6115505/approve"
+        "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/fc844b7a8f6f813f79efb5ffd6115505/approve"
       },
       "type": "POST",
       "action_key": "USER_INPUT",
-      "request": {},
+      "request": {
+        "tenantName": "vmware_gms"
+      },
       "user_input": [
         {
           "id": "comment",
@@ -85,11 +87,13 @@
       "id": "e4e6de73-0799-4af6-9d1f-ad9943dd66d6",
       "label": "Decline",
       "url": {
-        "href": "https://dev.hero.example.com/connectors/id/workday-connector/api/v1/timeoff-tasks/fc844b7a8f6f813f79efb5ffd6115505/decline"
+        "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/fc844b7a8f6f813f79efb5ffd6115505/decline"
       },
       "type": "POST",
       "action_key": "USER_INPUT",
-      "request": {},
+      "request": {
+        "tenantName": "vmware_gms"
+      },
       "user_input": [
         {
           "id": "reason",
@@ -104,8 +108,14 @@
     }
   ],
   "image": {
-    "href": "https://dev.hero.example.com/workday-connector/images/connector.png"
+    "href": "https://dev.hero.example.com/images/connector.png"
   },
   "backend_id": "fc844b7a8f6f813f79efb5ffd6115505",
-  "hash": "6ce679ceb9480a15a968433d49ba4287229e0fd3"
+  "hash": "6ce679ceb9480a15a968433d49ba4287229e0fd3",
+  "links": [
+    {
+      "href": "https://impl.workday.com",
+      "text": "View In Workday"
+    }
+  ]
 }

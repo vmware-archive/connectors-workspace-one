@@ -2,23 +2,54 @@
   "image": {
     "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
   },
+  "config": {
+    "tenantName": {
+      "default": "",
+      "label": {
+        "en-US": "Tenant Name"
+      },
+      "type": "STRING",
+      "description": {
+        "en-US": "Provide your Workday Tenant Name."
+      },
+      "validators": [
+        {
+          "type": "required",
+          "description": {
+            "en-US": "Workday Tenant Name is required"
+          }
+        }
+      ]
+    },
+    "tenantUrl": {
+      "default": "",
+      "label": {
+        "en-US": "Tenant Url"
+      },
+      "type": "STRING",
+      "description": {
+        "en-US": "Provide the Workday Tenant URL. This should be the link that end-users can click on from the notification card to land on the Workday home page."
+      },
+      "validators": [
+        {
+          "type": "required",
+          "description": {
+            "en-US": "Workday Tenant Url is required"
+          }
+        }
+      ]
+    }
+  },
   "object_types": {
     "card": {
       "doc": {
         "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
       },
       "pollable": true,
+      "pre_hire_capable": true,
+      "post_hire_capable": true,
       "endpoint": {
-        "href": "${CONNECTOR_HOST}${CONTEXT_PATH}/cards/requests"
-      }
-    },
-    "day0-card": {
-      "doc": {
-        "href": "https://github.com/vmware-samples/card-connectors-guide/wiki/Card-Responses"
-      },
-      "pollable": true,
-      "endpoint": {
-        "href": "${CONNECTOR_HOST}${CONTEXT_PATH}/cards/day0/requests"
+        "href": "${CONNECTOR_HOST}/cards/requests"
       }
     }
   }

@@ -14,6 +14,6 @@ public final class ResourceUtils {
     private ResourceUtils() { }
 
     public static Link getAddToCartActionUrl(String routingPrefix) {
-        return new Link(routingPrefix + ServiceNowConstants.SERVICE_NOW_CONNECTOR_CONTEXT_PATH + ServiceNowConstants.URL_PATH_SEPERATOR + ServiceNowConstants.CART_API_URL);
+        return new Link(routingPrefix + ServiceNowConstants.CART_API_URL);
     }
 }

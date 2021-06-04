@@ -7,10 +7,10 @@ package com.vmware.ws1connectors.workday.utils;
 
 import com.vmware.ws1connectors.workday.models.Descriptor;
 import com.vmware.ws1connectors.workday.models.InboxTask;
+import com.vmware.ws1connectors.workday.models.timeoff.TimeOffEntry;
+import com.vmware.ws1connectors.workday.models.timeoff.TimeOffEvent;
 import com.vmware.ws1connectors.workday.models.timeoff.TimeOffItem;
 import com.vmware.ws1connectors.workday.models.timeoff.TimeOffTask;
-import com.vmware.ws1connectors.workday.models.timeoff.TimeOffEvent;
-import com.vmware.ws1connectors.workday.models.timeoff.TimeOffEntry;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +22,7 @@ import java.time.format.TextStyle;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.vmware.ws1connectors.workday.utils.ArgumentUtils.checkArgumentNotNull;
@@ -76,12 +77,15 @@ public final class TimeOffTaskUtils {
     }
 
     private static TimeOffItem convertToTimeOffApprovalItem(final TimeOffEntry timeOffEntry, final Locale locale) {
-        return TimeOffItem.builder()
-            .date(timeOffEntry.getDate())
-            .dayOfWeek(getDayOfWeek(timeOffEntry, locale))
-            .type(timeOffEntry.getTimeOff().getDescriptor())
-            .requestedTimeOffQuantity(timeOffEntry.getUnits())
-            .unitOfTime(timeOffEntry.getUnitOfTime().getDescriptor()).build();
+        final TimeOffItem.Builder timeOffItemBuilder = TimeOffItem.builder()
+                .date(timeOffEntry.getDate())
+                .dayOfWeek(getDayOfWeek(timeOffEntry, locale))
+                .requestedTimeOffQuantity(timeOffEntry.getUnits());
+        Optional.ofNullable(timeOffEntry.getTimeOff())
+                .ifPresent(timeOff -> timeOffItemBuilder.type(timeOff.getDescriptor()));
+        Optional.ofNullable(timeOffEntry.getUnitOfTime())
+                .ifPresent(unit -> timeOffItemBuilder.unitOfTime(unit.getDescriptor()));
+        return timeOffItemBuilder.build();
     }
 
     private static String getDayOfWeek(final TimeOffEntry timeOffEntry, final Locale locale) {
@@ -97,13 +101,12 @@ public final class TimeOffTaskUtils {
             .mapToInt(NumberUtils::toInt)
             .sum();
         final TimeOffEntry timeOffEntry = timeOffEvent.getTimeOffEntries().get(0);
-        final String timeOffDescriptor = timeOffEntry.getTimeOff().getDescriptor();
-        return new StringBuilder(String.valueOf(totalTimeOffDuration))
-            .append(StringUtils.SPACE)
-            .append(timeOffEntry.getUnitOfTime().getDescriptor())
-            .append(HYPHEN)
-            .append(timeOffDescriptor)
-            .toString();
+        final StringBuilder totalTimeOffDurationText = new StringBuilder(String.valueOf(totalTimeOffDuration))
+                .append(StringUtils.SPACE)
+                .append(timeOffEntry.getUnitOfTime().getDescriptor());
+        Optional.ofNullable(timeOffEntry.getTimeOff())
+            .ifPresent(timeOff -> totalTimeOffDurationText.append(HYPHEN).append(timeOff.getDescriptor()));
+        return totalTimeOffDurationText.toString();
     }
 
 }
