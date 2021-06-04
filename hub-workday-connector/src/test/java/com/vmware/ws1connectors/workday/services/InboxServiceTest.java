@@ -7,10 +7,8 @@ package com.vmware.ws1connectors.workday.services;
 
 import com.vmware.ws1connectors.workday.exceptions.InboxTaskException;
 import com.vmware.ws1connectors.workday.models.InboxTask;
-import com.vmware.ws1connectors.workday.models.WorkdayUser;
 import com.vmware.ws1connectors.workday.test.ArgumentsStreamBuilder;
 import com.vmware.ws1connectors.workday.test.FileUtils;
-import com.vmware.ws1connectors.workday.test.JsonUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,9 +26,8 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class InboxServiceTest extends ServiceTestsBase {
-    private static final String NO_USER = null;
+    private static final String EMAIL = "user1@example.com";
 
-    private static final WorkdayUser USER = JsonUtils.convertFromJsonFile("user_info.json", WorkdayUser.class);
     private static final String INBOX_TASKS = FileUtils.readFileAsString("inbox_tasks.json");
 
     @InjectMocks private InboxService inboxService;
@@ -41,24 +38,23 @@ public class InboxServiceTest extends ServiceTestsBase {
 
     private static Stream<Arguments> invalidInputsForGetTasks() {
         return new ArgumentsStreamBuilder()
-            .add(NO_BASE_URL, WORKDAY_TOKEN, USER)
-            .add(BASE_URL, NO_WORKDAY_TOKEN, USER)
-            .add(BASE_URL, WORKDAY_TOKEN, NO_USER)
+            .add(NO_BASE_URL, WORKDAY_TOKEN)
+            .add(BASE_URL, NO_WORKDAY_TOKEN)
             .build();
     }
 
     @ParameterizedTest
     @MethodSource("invalidInputsForGetTasks")
-    public void whenGetTasksProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth, final WorkdayUser user) {
+    public void whenGetTasksProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth) {
         assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> inboxService.getTasks(baseUrl, workdayAuth, user));
+            .isThrownBy(() -> inboxService.getTasks(baseUrl, workdayAuth, EMAIL));
         verifyWorkdayApiNeverInvoked();
     }
 
     @Test public void tasksFoundInTheInbox() {
         mockWorkdayApiResponse(INBOX_TASKS);
 
-        final Flux<InboxTask> inboxTasks = inboxService.getTasks(BASE_URL, WORKDAY_TOKEN, USER);
+        final Flux<InboxTask> inboxTasks = inboxService.getTasks(BASE_URL, WORKDAY_TOKEN, EMAIL);
 
         StepVerifier.create(inboxTasks)
             .expectNextMatches(inboxTask -> isEquals(inboxTask, "inbox_task.json"))
@@ -72,7 +68,7 @@ public class InboxServiceTest extends ServiceTestsBase {
         final String inboxTasksResponse = FileUtils.readFileAsString(inboxTasksResponseFile);
         mockWorkdayApiResponse(inboxTasksResponse);
 
-        final Flux<InboxTask> inboxTasks = inboxService.getTasks(BASE_URL, WORKDAY_TOKEN, USER);
+        final Flux<InboxTask> inboxTasks = inboxService.getTasks(BASE_URL, WORKDAY_TOKEN, EMAIL);
 
         StepVerifier.create(inboxTasks)
             .verifyComplete();
@@ -83,7 +79,7 @@ public class InboxServiceTest extends ServiceTestsBase {
     public void errorOccursWhenGettingTheUser(HttpStatus httpStatus) {
         mockWorkdayApiErrorResponse(httpStatus);
 
-        final Flux<InboxTask> inboxTasks = inboxService.getTasks(BASE_URL, WORKDAY_TOKEN, USER);
+        final Flux<InboxTask> inboxTasks = inboxService.getTasks(BASE_URL, WORKDAY_TOKEN, EMAIL);
 
         StepVerifier.create(inboxTasks)
             .expectError(InboxTaskException.class)

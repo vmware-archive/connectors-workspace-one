@@ -1,0 +1,41 @@
+{
+  "id": "318af1942cc001af54978e493e14fa0a",
+  "inboxTask": {
+    "id": "318af1942cc081715eec40584c14400c",
+    "descriptor": "Change Benefits for Life Event",
+    "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/inboxTasks/318af1942cc081715eec40584c14400c",
+    "status": {
+      "descriptor": "Awaiting Action",
+      "id": "d9e4108c446c11de98360015c5e6daf6"
+    },
+    "stepType": {
+      "descriptor": "Initiation",
+      "id": "d8c892f4446c11de98360015c5e6daf6"
+    },
+    "subject": {
+      "descriptor": "John Rambo Test (398966)",
+      "id": "318af1942cc00149ca86b6d13e14460b",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/workers/318af1942cc00149ca86b6d13e14460b"
+    },
+    "assigned": "2020-08-04T07:03:30.337Z",
+    "overallProcess": {
+      "descriptor": "Hire: John Rambo Test (398966)",
+      "id": "318af1942cc001af54978e493e14fa0a",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/businessProcesses/318af1942cc001af54978e493e14fa0a"
+    }
+  },
+  "descriptor": "Hire: John Rambo Test (398966)",
+  "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/businessProcesses/318af1942cc001af54978e493e14fa0a",
+  "initiator": {
+    "descriptor": "Rahul Sahay (382449)",
+    "id": "32f4795743cc016335ad0cb2490c4abb",
+    "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/workers/32f4795743cc016335ad0cb2490c4abb"
+  },
+  "effective": "2020-08-04",
+  "due": "2020-08-17",
+  "initiated": "2020-08-04T02:45:54.533Z",
+  "subject": {
+    "descriptor": "WS1 - MANAGER - D (WS1 MANAGER.D (800009))",
+    "id": "e4047fadab7f0147ae2726ccdb09a426"
+  }
+}

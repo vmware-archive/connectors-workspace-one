@@ -7,7 +7,6 @@ package com.vmware.ws1connectors.workday.services;
 
 import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.ws1connectors.workday.card.Day0CardBuilder;
-import com.vmware.ws1connectors.workday.exceptions.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,17 +23,14 @@ import static com.vmware.ws1connectors.workday.utils.WorkdayConnectorConstants.L
 @Slf4j
 public class Day0CardService {
     @Autowired InboxService inboxService;
-    @Autowired UserService userService;
     @Autowired Day0CardBuilder cardBuilder;
 
-    public Mono<Cards> getDay0Cards(final String baseUrl, final String authToken, final String email,
+    public Mono<Cards> getDay0Cards(final String baseUrl, final String authToken, final String tenantName,
                                     final Locale locale) {
-        checkBasicConnectorArgumentsNotBlank(baseUrl, authToken, email);
+        checkBasicConnectorArgumentsNotBlank(baseUrl, authToken, tenantName);
         checkArgumentNotNull(locale, LOCALE);
 
-        return userService.getUser(baseUrl, authToken, email)
-                .switchIfEmpty(Mono.error(UserNotFoundException::new))
-                .flatMapMany(user -> inboxService.getTasks(baseUrl, authToken, user))
+        return inboxService.getTasks(baseUrl, authToken, tenantName)
                 .collectList()
                 .filter(inboxTasks -> !CollectionUtils.isEmpty(inboxTasks))
                 .map(inboxTasks -> cardBuilder.createCard(baseUrl, locale, inboxTasks))

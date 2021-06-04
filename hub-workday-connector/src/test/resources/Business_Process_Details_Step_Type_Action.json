@@ -1,0 +1,45 @@
+{
+  "id": "4e7de5de24b7011d66c91c9a610cdb2d",
+  "inboxTask": {
+    "id": "4e7de5de24b781fc7ff9a2c0610cf42d",
+    "descriptor": "Review Change Job",
+    "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/inboxTasks/4e7de5de24b781fc7ff9a2c0610cf42d",
+    "initiator": {
+      "descriptor": "WS1 MANAGER.A",
+      "id": "a6baf9986ad5013d607294716601640c"
+    },
+    "status": {
+      "descriptor": "Awaiting Action",
+      "id": "d9e4108c446c11de98360015c5e6daf6"
+    },
+    "subject": {
+      "descriptor": "WS1 - MANAGER - A (WS1 MANAGER.A (800006))",
+      "id": "3a2cacd498570139e307f7b718016902",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/supervisoryOrganizations/3a2cacd498570139e307f7b718016902"
+    },
+    "stepType": {
+      "descriptor": "Action",
+      "id": "d8c89128446c11de98360015c5e6daf6"
+    },
+    "assigned": "2020-07-09T12:05:48.959Z",
+    "overallProcess": {
+      "descriptor": "Data Change: WS1 USER.B (800011)",
+      "id": "4e7de5de24b7011d66c91c9a610cdb2d",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/businessProcesses/4e7de5de24b7011d66c91c9a610cdb2d"
+    }
+  },
+  "descriptor": "Data Change: WS1 USER.B (800011)",
+  "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/businessProcesses/4e7de5de24b7011d66c91c9a610cdb2d",
+  "initiated": "2020-07-09T12:05:14.205Z",
+  "initiator": {
+    "descriptor": "WS1 MANAGER.A (800006)",
+    "id": "e4047fadab7f012ef2e55fed070a6b32",
+    "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/workers/e4047fadab7f012ef2e55fed070a6b32"
+  },
+  "effective": "2020-07-17",
+  "subject": {
+    "descriptor": "WS1 - MANAGER - A (WS1 MANAGER.A (800006))",
+    "id": "3a2cacd498570139e307f7b718016902",
+    "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/supervisoryOrganizations/3a2cacd498570139e307f7b718016902"
+  }
+}

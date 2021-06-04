@@ -7,6 +7,7 @@
 package com.vmware.ws1connectors.servicenow.service.impl;
 
 import com.vmware.connectors.common.json.JsonDocument;
+import com.vmware.connectors.common.utils.ConnectorTextAccessor;
 import com.vmware.ws1connectors.servicenow.catalog.category.api.response.vo.CatalogCategoryResponse;
 import com.vmware.ws1connectors.servicenow.constants.ServiceNowCategory;
 import com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants;
@@ -14,10 +15,8 @@ import com.vmware.ws1connectors.servicenow.constants.WorkflowStep;
 import com.vmware.ws1connectors.servicenow.domain.BotItem;
 import com.vmware.ws1connectors.servicenow.exception.CatalogReadException;
 import com.vmware.ws1connectors.servicenow.utils.BotActionBuilder;
-import com.vmware.ws1connectors.servicenow.utils.BotTextAccessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -39,9 +38,9 @@ public class DeviceCategoryListServiceImpl implements DeviceCategoryListService 
     private final WebClient restClient;
     private final BotActionBuilder botActionBuilder;
 
-    @Autowired public DeviceCategoryListServiceImpl(WebClient rest, BotTextAccessor botTextAccessor, ServerProperties serverProperties) {
+    @Autowired public DeviceCategoryListServiceImpl(WebClient rest, ConnectorTextAccessor connectorTextAccessor) {
         this.restClient = rest;
-        this.botActionBuilder = new BotActionBuilder(botTextAccessor, serverProperties);
+        this.botActionBuilder = new BotActionBuilder(connectorTextAccessor);
     }
 
     @Override public Mono<List<BotItem>> getDeviceCategories(String catalogTitle, String baseUrl, String auth, String routingPrefix, Locale locale) {

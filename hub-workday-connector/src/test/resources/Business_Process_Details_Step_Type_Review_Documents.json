@@ -1,0 +1,34 @@
+{
+  "id": "318af1942cc001af54978e493e14fa0a",
+  "inbox_task": {
+    "id": "318af1942cc001af54978e493e14fa0a",
+    "descriptor": "Hire: John Rambo Test (398966)",
+    "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/businessProcesses/318af1942cc001af54978e493e14fa0a",
+    "due": "2020-08-17",
+    "effective": "2020-08-04",
+    "subject": {
+      "descriptor": "WS1 - MANAGER - D (WS1 MANAGER.D (800009))",
+      "id": "e4047fadab7f0147ae2726ccdb09a426"
+    },
+    "initiator": {
+      "descriptor": "Rahul Sahay (382449)",
+      "id": "32f4795743cc016335ad0cb2490c4abb",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/workers/32f4795743cc016335ad0cb2490c4abb"
+    },
+    "initiated": "2020-08-04T02:45:54.533Z"
+  },
+  "descriptor": "Hire: John Rambo Test (398966)",
+  "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/businessProcesses/318af1942cc001af54978e493e14fa0a",
+  "due": "2020-08-17",
+  "effective": "2020-08-04",
+  "subject": {
+    "descriptor": "WS1 - MANAGER - D (WS1 MANAGER.D (800009))",
+    "id": "e4047fadab7f0147ae2726ccdb09a426"
+  },
+  "initiator": {
+    "descriptor": "Rahul Sahay (382449)",
+    "id": "32f4795743cc016335ad0cb2490c4abb",
+    "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/workers/32f4795743cc016335ad0cb2490c4abb"
+  },
+  "initiated": "2020-08-04T02:45:54.533Z"
+}

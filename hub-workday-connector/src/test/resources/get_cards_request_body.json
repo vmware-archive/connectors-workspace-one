@@ -1,0 +1,6 @@
+{
+  "config": {
+    "tenantName": "vmware_gms",
+    "tenantUrl": "https://impl.workday.com"
+  }
+}

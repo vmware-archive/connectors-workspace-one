@@ -38,7 +38,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class ExceptionHandlersTest {
-    private static final String URI = "https://example.com/workday-connector/card/request";
+    private static final String URI = "https://example.com/card/request";
     private static final String API_ERROR_MESSAGE = "Workday API failed";
     private static final String TASK_ID = "taskId";
     private static final String TIME_OFF_TASK_NOT_FOUND = "Time off task not found, id: " + TASK_ID;

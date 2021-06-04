@@ -42,7 +42,9 @@ public class TimeOffTaskActionController {
                                                     @RequestHeader(CONNECTOR_AUTH_HEADER) String connectorAuth,
                                                     @Valid ApproveForm form) {
         final String userEmail = AuthUtil.extractUserEmail(authorization);
-        return timeOffTaskService.approveTimeOffTask(baseUrl, connectorAuth, userEmail, inboxTaskId, form.getComment())
+        final String tenantName = form.getTenantName();
+        LOGGER.info("Received request to execute Approve Action in workday for user with email {}. BaseUrl={}, tenantName={}", userEmail, baseUrl, tenantName);
+        return timeOffTaskService.approveTimeOffTask(baseUrl, connectorAuth, tenantName, inboxTaskId, form.getComment())
             .map(descriptor -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
@@ -53,7 +55,9 @@ public class TimeOffTaskActionController {
                                                     @RequestHeader(CONNECTOR_AUTH_HEADER) String connectorAuth,
                                                     @Valid DeclineForm form) {
         final String userEmail = AuthUtil.extractUserEmail(authorization);
-        return timeOffTaskService.declineTimeOffTask(baseUrl, connectorAuth, userEmail, inboxTaskId, form.getReason())
+        final String tenantName = form.getTenantName();
+        LOGGER.info("Received request to execute Deny Action in workday for user with email {}. BaseUrl={}, tenantName={}", userEmail, baseUrl, tenantName);
+        return timeOffTaskService.declineTimeOffTask(baseUrl, connectorAuth, tenantName, inboxTaskId, form.getReason())
             .map(descriptor -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 

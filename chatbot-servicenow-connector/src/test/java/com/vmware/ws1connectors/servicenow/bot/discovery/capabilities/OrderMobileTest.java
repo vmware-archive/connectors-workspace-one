@@ -6,8 +6,8 @@
 
 package com.vmware.ws1connectors.servicenow.bot.discovery.capabilities;
 
+import com.vmware.connectors.common.utils.ConnectorTextAccessor;
 import com.vmware.ws1connectors.servicenow.domain.BotAction;
-import com.vmware.ws1connectors.servicenow.utils.BotTextAccessor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -25,20 +25,18 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class OrderMobileTest {
 
-    private static final String APP_CONTEXT_PATH = "/servicenow-connector";
     private static final String ROUTING_PREFIX = "https://mf/connectors/abc123/botDiscovery/";
     private static final String BOT_ACTION_TITLE = "View List Of Mobile devices";
     private static final String BOT_ACTION_DESC = "You can view list of Mobile devices.";
-    private static final String BOT_ACTION_URL = "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/device_list?device_category=Mobiles&limit=10&offset=0";
-    private static final String ORDER_DESKTOP_ACTION_TITLE = "orderMobileAction.title";
-    private static final String ORDER_DESKTOP_ACTION_DESC = "orderMobileAction.description";
+    private static final String BOT_ACTION_URL = "https://mf/connectors/abc123/botDiscovery/api/v1/device_list?device_category=Mobiles&limit=10&offset=0";
+    private static final String ORDER_MOBILE_ACTION = "orderMobileAction";
 
-    @Mock private BotTextAccessor botTextAccessor;
+    @Mock private ConnectorTextAccessor connectorTextAccessor;
 
     @Test public void testGetListOfMobilesAction() {
         Locale noLocale = null;
         setMocks(noLocale);
-        OrderMobile orderMobile = new OrderMobile(botTextAccessor, APP_CONTEXT_PATH);
+        OrderMobile orderMobile = new OrderMobile(connectorTextAccessor);
         BotAction botAction = orderMobile.getListOfMobilesAction(ROUTING_PREFIX, noLocale);
         assertThat(botAction.getTitle()).isEqualTo(BOT_ACTION_TITLE);
         assertThat(botAction.getDescription()).isEqualTo(BOT_ACTION_DESC);
@@ -46,14 +44,14 @@ public class OrderMobileTest {
     }
 
     private void setMocks(Locale locale) {
-        when(botTextAccessor.getMessage(ORDER_DESKTOP_ACTION_TITLE, locale)).thenReturn(BOT_ACTION_TITLE);
-        when(botTextAccessor.getMessage(ORDER_DESKTOP_ACTION_DESC, locale)).thenReturn(BOT_ACTION_DESC);
+        when(connectorTextAccessor.getTitle(ORDER_MOBILE_ACTION, locale)).thenReturn(BOT_ACTION_TITLE);
+        when(connectorTextAccessor.getDescription(ORDER_MOBILE_ACTION, locale)).thenReturn(BOT_ACTION_DESC);
     }
 
     @Test public void testGetListOfMobilesActionWithRoutingPrefixNull() {
         Locale noLocale = null;
         setMocks(noLocale);
-        OrderMobile orderMobile = new OrderMobile(botTextAccessor, APP_CONTEXT_PATH);
+        OrderMobile orderMobile = new OrderMobile(connectorTextAccessor);
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(() -> orderMobile.getListOfMobilesAction(null, noLocale));
     }

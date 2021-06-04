@@ -1,0 +1,106 @@
+{
+  "id": "cba77cb4-c3b9-42ef-a7be-f6afcfc64da2",
+  "creation_date": "2020-06-03T16:36:18.006983+05:30",
+  "due_date": "2020-05-11T00:00:00+18:00",
+  "header": {
+    "title": "Workday - Title Change: Abhishek Anand (356404)"
+  },
+  "body": {
+    "fields": [
+      {
+        "type": "GENERAL",
+        "title": "Current Business Title",
+        "description": "Applications Developer"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Proposed Business Title",
+        "description": "Applications Developer2"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Subject",
+        "description": "Programmer/Analyst - Professional - Abhishek Anand (356404)"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Effective Date",
+        "description": "May, 07, 2020"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Due Date",
+        "description": "May, 11, 2020"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Initiated On",
+        "description": "May, 07, 2020"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Initiated By",
+        "description": "Rahul Sahay (382449)"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "736dc98b-b959-48b9-b303-57fcdcef34f4",
+      "primary": true,
+      "label": "Approve",
+      "url": {
+        "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/0db7bcdda1cd811688e13b6a4844b118/approve"
+      },
+      "type": "POST",
+      "action_key": "USER_INPUT",
+      "request": {
+        "tenantName": "vmware_gms"
+      },
+      "user_input": [
+        {
+          "id": "comment",
+          "label": "Comment",
+          "format": "textarea"
+        }
+      ],
+      "completed_label": "Approved",
+      "allow_repeated": false,
+      "mutually_exclusive_set_id": "approval-actions"
+    },
+    {
+      "id": "693787cb-9b74-426e-b881-794046d22b17",
+      "label": "Decline",
+      "url": {
+        "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/0db7bcdda1cd811688e13b6a4844b118/decline"
+      },
+      "type": "POST",
+      "action_key": "USER_INPUT",
+      "request": {
+        "tenantName": "vmware_gms"
+      },
+      "user_input": [
+        {
+          "id": "reason",
+          "label": "Reason",
+          "format": "textarea",
+          "min_length": 1
+        }
+      ],
+      "completed_label": "Declined",
+      "allow_repeated": false,
+      "mutually_exclusive_set_id": "approval-actions"
+    }
+  ],
+  "image": {
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+  },
+  "backend_id": "0db7bcdda1cd811688e13b6a4844b118",
+  "hash": "6f3ad221d89848c5f41d1b170010fbf5efbbf956",
+  "links": [
+    {
+      "href": "https://impl.workday.com",
+      "text": "View In Workday"
+    }
+  ]
+}

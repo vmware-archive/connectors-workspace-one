@@ -2,7 +2,7 @@
   "objects": [
     {
       "header": {
-        "title": "Absence Request: Ashton Burns"
+        "title": "Workday - Absence Request: Ashton Burns"
       },
       "body": {
         "fields": [
@@ -64,11 +64,13 @@
           "primary": true,
           "label": "Approve",
           "url": {
-            "href": "https://dev.hero.example.com/connectors/id/workday-connector/api/v1/timeoff-tasks/fc844b7a8f6f813f79efb5ffd6115505/approve"
+            "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/fc844b7a8f6f813f79efb5ffd6115505/approve"
           },
           "type": "POST",
           "action_key": "USER_INPUT",
-          "request": {},
+          "request": {
+            "tenantName": "vmware_gms"
+          },
           "user_input": [
             {
               "id": "comment",
@@ -83,11 +85,13 @@
         {
           "label": "Decline",
           "url": {
-            "href": "https://dev.hero.example.com/connectors/id/workday-connector/api/v1/timeoff-tasks/fc844b7a8f6f813f79efb5ffd6115505/decline"
+            "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/fc844b7a8f6f813f79efb5ffd6115505/decline"
           },
           "type": "POST",
           "action_key": "USER_INPUT",
-          "request": {},
+          "request": {
+            "tenantName": "vmware_gms"
+          },
           "user_input": [
             {
               "id": "reason",
@@ -104,11 +108,17 @@
       "image": {
         "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
       },
-      "backend_id": "fc844b7a8f6f813f79efb5ffd6115505"
+      "backend_id": "fc844b7a8f6f813f79efb5ffd6115505",
+      "links": [
+        {
+          "href": "https://impl.workday.com",
+          "text": "View In Workday"
+        }
+      ]
     },
     {
       "header": {
-        "title": "Absence Request: Ashton Burns"
+        "title": "Workday - Absence Request: Ashton Burns"
       },
       "body": {
         "fields": [
@@ -170,11 +180,13 @@
           "primary": true,
           "label": "Approve",
           "url": {
-            "href": "https://dev.hero.example.com/connectors/id/workday-connector/api/v1/timeoff-tasks/fc844b7a8f6f81861b9f7b58d5114205/approve"
+            "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/fc844b7a8f6f81861b9f7b58d5114205/approve"
           },
           "type": "POST",
           "action_key": "USER_INPUT",
-          "request": {},
+          "request": {
+            "tenantName": "vmware_gms"
+          },
           "user_input": [
             {
               "id": "comment",
@@ -189,11 +201,13 @@
         {
           "label": "Decline",
           "url": {
-            "href": "https://dev.hero.example.com/connectors/id/workday-connector/api/v1/timeoff-tasks/fc844b7a8f6f81861b9f7b58d5114205/decline"
+            "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/fc844b7a8f6f81861b9f7b58d5114205/decline"
           },
           "type": "POST",
           "action_key": "USER_INPUT",
-          "request": {},
+          "request": {
+            "tenantName": "vmware_gms"
+          },
           "user_input": [
             {
               "id": "reason",
@@ -210,7 +224,13 @@
       "image": {
         "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
       },
-      "backend_id": "fc844b7a8f6f81861b9f7b58d5114205"
+      "backend_id": "fc844b7a8f6f81861b9f7b58d5114205",
+      "links": [
+        {
+          "href": "https://impl.workday.com",
+          "text": "View In Workday"
+        }
+      ]
     }
   ]
 }

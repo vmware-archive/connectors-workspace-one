@@ -1,0 +1,53 @@
+{
+  "total": 2,
+  "data": [
+    {
+      "id": "318af1942cc081715eec40584c14400c",
+      "descriptor": "Change Benefits for Life Event",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/inboxTasks/318af1942cc081715eec40584c14400c",
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      },
+      "stepType": {
+        "descriptor": "Initiation",
+        "id": "d8c892f4446c11de98360015c5e6daf6"
+      },
+      "subject": {
+        "descriptor": "John Rambo Test (398966)",
+        "id": "318af1942cc00149ca86b6d13e14460b",
+        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/workers/318af1942cc00149ca86b6d13e14460b"
+      },
+      "assigned": "2020-08-04T07:03:30.337Z",
+      "overallProcess": {
+        "descriptor": "Hire: John Rambo Test (398966)",
+        "id": "318af1942cc001af54978e493e14fa0a",
+        "href": "{MOCK_BACKEND}/common/v1/businessProcesses/318af1942cc001af54978e493e14fa0a"
+      }
+    },
+    {
+      "id": "318af1942cc0816dfb4120e33e14b90b",
+      "descriptor": "VMware Health and Well-Being Guidelines",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/inboxTasks/318af1942cc0816dfb4120e33e14b90b",
+      "status": {
+        "descriptor": "Awaiting Action",
+        "id": "d9e4108c446c11de98360015c5e6daf6"
+      },
+      "stepType": {
+        "descriptor": "Review Documents",
+        "id": "34e6cc1ab24e40409c3e0ced76acad7f"
+      },
+      "subject": {
+        "descriptor": "Onboarding for John Rambo Test (398966)",
+        "id": "318af1942cc001cbcccbf2e23e146f0b",
+        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/businessProcesses/318af1942cc001cbcccbf2e23e146f0b"
+      },
+      "assigned": "2020-08-04T02:56:53.133Z",
+      "overallProcess": {
+        "descriptor": "Hire: John Rambo Test (398966)",
+        "id": "318af1942cc001af76543e493e14fa0a",
+        "href": "{MOCK_BACKEND}/common/v1/businessProcesses/318af1942cc001af76543e493e14fa0a"
+      }
+    }
+  ]
+}

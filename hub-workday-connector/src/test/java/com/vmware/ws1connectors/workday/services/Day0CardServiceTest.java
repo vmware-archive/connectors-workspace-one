@@ -8,9 +8,7 @@ package com.vmware.ws1connectors.workday.services;
 import com.vmware.connectors.common.payloads.response.Card;
 import com.vmware.connectors.common.payloads.response.Cards;
 import com.vmware.ws1connectors.workday.card.Day0CardBuilder;
-import com.vmware.ws1connectors.workday.exceptions.UserNotFoundException;
 import com.vmware.ws1connectors.workday.models.InboxTask;
-import com.vmware.ws1connectors.workday.models.WorkdayUser;
 import com.vmware.ws1connectors.workday.test.ArgumentsStreamBuilder;
 import com.vmware.ws1connectors.workday.test.FileUtils;
 import com.vmware.ws1connectors.workday.test.JsonUtils;
@@ -35,8 +33,6 @@ import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 public class Day0CardServiceTest extends ServiceTestsBase {
 
@@ -46,11 +42,9 @@ public class Day0CardServiceTest extends ServiceTestsBase {
     private static final Locale LOCALE = Locale.ENGLISH;
     private static final String CONNECTOR_AUTH = "connectorAuth";
     private static final String EMAIL = "user1@example.com";
-    private static final WorkdayUser WORKDAY_USER = getUser("user_info.json");
     private static final List<InboxTask> INBOX_TASKS = getInboxTasks("no_time_off_inbox_tasks.json");
 
     @Mock private InboxService mockInboxService;
-    @Mock private UserService mockUserService;
     @Mock private Day0CardBuilder mockDay0CardBuilder;
     @InjectMocks private Day0CardService day0CardService;
 
@@ -67,9 +61,7 @@ public class Day0CardServiceTest extends ServiceTestsBase {
     }
 
     private void mockServices(Card card) {
-        when(mockUserService.getUser(BASE_URL, WORKDAY_TOKEN, EMAIL))
-                .thenReturn(Mono.just(WORKDAY_USER));
-        when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, WORKDAY_USER))
+        when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, EMAIL))
                 .thenReturn(Flux.fromIterable(INBOX_TASKS));
         when(mockDay0CardBuilder.createCard(eq(BASE_URL), eq(LOCALE), any(List.class)))
                 .thenReturn(card);
@@ -85,30 +77,8 @@ public class Day0CardServiceTest extends ServiceTestsBase {
     }
 
     private void mockServicesWithNoInboxTask() {
-        when(mockUserService.getUser(BASE_URL, WORKDAY_TOKEN, EMAIL))
-                .thenReturn(Mono.just(WORKDAY_USER));
-        when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, WORKDAY_USER))
+        when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, EMAIL))
                 .thenReturn(Flux.empty());
-    }
-
-    @Test public void whenNoUserFoundThenReturnsEmptyMono() {
-        mockServicesWithNoUserFound();
-        final Mono<Cards> actualCardsMono =
-                day0CardService.getDay0Cards(BASE_URL, WORKDAY_TOKEN, EMAIL, LOCALE);
-        StepVerifier.create(actualCardsMono)
-                .expectError(UserNotFoundException.class)
-                .verify();
-        verify(mockUserService).getUser(BASE_URL, WORKDAY_TOKEN, EMAIL);
-        verifyGetTasksApiNeverInvoked(BASE_URL, WORKDAY_TOKEN);
-    }
-
-    private void mockServicesWithNoUserFound() {
-        when(mockUserService.getUser(BASE_URL, WORKDAY_TOKEN, EMAIL))
-                .thenReturn(Mono.empty());
-    }
-
-    private Flux<InboxTask> verifyGetTasksApiNeverInvoked(String baseUrl, String workdayAuth) {
-        return verify(mockInboxService, never()).getTasks(eq(baseUrl), eq(workdayAuth), any(WorkdayUser.class));
     }
 
     @Test public void whenCardBuilderThrowsExceptionThenReturnsEmptyMono() {
@@ -121,9 +91,7 @@ public class Day0CardServiceTest extends ServiceTestsBase {
     }
 
     private void mockServicesWithCardBuilderThrowsException() {
-        when(mockUserService.getUser(BASE_URL, WORKDAY_TOKEN, EMAIL))
-                .thenReturn(Mono.just(WORKDAY_USER));
-        when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, WORKDAY_USER))
+        when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, EMAIL))
                 .thenReturn(Flux.fromIterable(INBOX_TASKS));
         when(mockDay0CardBuilder.createCard(eq(BASE_URL), eq(LOCALE), any(List.class)))
                 .thenThrow(RuntimeException.class);
@@ -144,11 +112,6 @@ public class Day0CardServiceTest extends ServiceTestsBase {
                 .add(BASE_URL, NO_LOCALE, CONNECTOR_AUTH, EMAIL)
                 .add(BASE_URL, LOCALE, CONNECTOR_AUTH, NO_EMAIL)
                 .build();
-    }
-
-    private static WorkdayUser getUser(final String userInfoFile) {
-        final String userInfo = FileUtils.readFileAsString(userInfoFile);
-        return convertToWorkdayResourceFromJson(userInfo, WorkdayUser.class).getData().get(0);
     }
 
     private static List<InboxTask> getInboxTasks(final String inboxTasksFile) {

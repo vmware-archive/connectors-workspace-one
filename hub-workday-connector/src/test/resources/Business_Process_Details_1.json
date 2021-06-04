@@ -1,0 +1,46 @@
+{
+  "due": "2020-06-24",
+  "subject": {
+    "descriptor": "IT Operations, Application Infrastructure Support (Manoj Warrier (310285))",
+    "id": "a470901f335f4183830d66eb85bbf576",
+    "href": "https://api.workday.com/common/v1/supervisoryOrganizations/a470901f335f4183830d66eb85bbf576"
+  },
+  "effective": "2020-06-01",
+  "descriptor": "Transfer: Prachi Agarwal (366451)",
+  "inboxTask": {
+    "stepType": {
+      "descriptor": "Approval",
+      "id": "d8c89128446c11de98360015c5e6daf6"
+    },
+    "subject": {
+      "descriptor": "IT Operations, Application Infrastructure Support (Manoj Warrier (310285))",
+      "id": "a470901f335f4183830d66eb85bbf576",
+      "href": "https://api.workday.com/common/v1/supervisoryOrganizations/a470901f335f4183830d66eb85bbf576"
+    },
+    "overallProcess": {
+      "descriptor": "Transfer: Prachi Agarwal (366451)",
+      "id": "f387bb35571f013c819744b63a489314",
+      "href": "https://api.workday.com/common/v1/businessProcesses/f387bb35571f013c819744b63a489314"
+    },
+    "descriptor": "Approval by Manager's Manager",
+    "id": "f387bb35571f81b1a6ffa4c93a48aa14",
+    "assigned": "2020-05-20T10:21:00.512Z",
+    "status": {
+      "descriptor": "Awaiting Action",
+      "id": "d9e4108c446c11de98360015c5e6daf6"
+    },
+    "href": "https://api.workday.com/common/v1/inboxTasks/f387bb35571f81b1a6ffa4c93a48aa14",
+    "initiator": {
+      "descriptor": "Rahul Sahay",
+      "id": "64ceba471c14017b984588ea831e94d6"
+    }
+  },
+  "id": "f387bb35571f013c819744b63a489314",
+  "initiated": "2020-05-20T10:21:00.512Z",
+  "href": "https://api.workday.com/common/v1/businessProcesses/f387bb35571f013c819744b63a489314",
+  "initiator": {
+    "descriptor": "Rahul Sahay (382449)",
+    "id": "32f4795743cc016335ad0cb2490c4abb",
+    "href": "https://api.workday.com/common/v1/workers/32f4795743cc016335ad0cb2490c4abb"
+  }
+}

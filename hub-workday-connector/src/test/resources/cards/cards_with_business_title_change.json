@@ -1,0 +1,337 @@
+{
+  "objects": [
+    {
+      "header": {
+        "title": "Workday - Absence Request: Ashton Burns"
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Start Date",
+            "description": "December, 11, 2019"
+          },
+          {
+            "type": "GENERAL",
+            "title": "End Date",
+            "description": "December, 11, 2019"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Total",
+            "description": "8 Hours-Sick (Hours)"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Requested By",
+            "description": "Ashton Burns"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Assigned On",
+            "description": "November, 25, 2019"
+          },
+          {
+            "type": "SECTION",
+            "title": "Absence Details",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Date",
+                "description": "December, 11, 2019"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Type",
+                "description": "Sick (Hours)"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Day of the Week",
+                "description": "Wednesday"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Total",
+                "description": "8 Hours"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "primary": true,
+          "label": "Approve",
+          "url": {
+            "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/fc844b7a8f6f813f79efb5ffd6115505/approve"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {
+            "tenantName": "vmware_gms"
+          },
+          "user_input": [
+            {
+              "id": "comment",
+              "label": "Comment",
+              "format": "textarea"
+            }
+          ],
+          "completed_label": "Approved",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        },
+        {
+          "label": "Decline",
+          "url": {
+            "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/fc844b7a8f6f813f79efb5ffd6115505/decline"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {
+            "tenantName": "vmware_gms"
+          },
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Declined",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+      },
+      "backend_id": "fc844b7a8f6f813f79efb5ffd6115505",
+      "links": [
+        {
+          "href": "https://impl.workday.com",
+          "text": "View In Workday"
+        }
+      ]
+    },
+    {
+      "header": {
+        "title": "Workday - Absence Request: Ashton Burns"
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Start Date",
+            "description": "December, 03, 2019"
+          },
+          {
+            "type": "GENERAL",
+            "title": "End Date",
+            "description": "December, 03, 2019"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Total",
+            "description": "8 Hours-Sick (Hours)"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Requested By",
+            "description": "Ashton Burns"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Assigned On",
+            "description": "November, 25, 2019"
+          },
+          {
+            "type": "SECTION",
+            "title": "Absence Details",
+            "items": [
+              {
+                "type": "GENERAL",
+                "title": "Date",
+                "description": "December, 03, 2019"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Type",
+                "description": "Sick (Hours)"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Day of the Week",
+                "description": "Tuesday"
+              },
+              {
+                "type": "GENERAL",
+                "title": "Total",
+                "description": "8 Hours"
+              }
+            ]
+          }
+        ]
+      },
+      "actions": [
+        {
+          "primary": true,
+          "label": "Approve",
+          "url": {
+            "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/fc844b7a8f6f81861b9f7b58d5114205/approve"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {
+            "tenantName": "vmware_gms"
+          },
+          "user_input": [
+            {
+              "id": "comment",
+              "label": "Comment",
+              "format": "textarea"
+            }
+          ],
+          "completed_label": "Approved",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        },
+        {
+          "label": "Decline",
+          "url": {
+            "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/fc844b7a8f6f81861b9f7b58d5114205/decline"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {
+            "tenantName": "vmware_gms"
+          },
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Declined",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+      },
+      "backend_id": "fc844b7a8f6f81861b9f7b58d5114205",
+      "links": [
+        {
+          "href": "https://impl.workday.com",
+          "text": "View In Workday"
+        }
+      ]
+    },
+    {
+      "due_date": "2020-05-11T00:00:00+18:00",
+      "header": {
+        "title": "Workday - Title Change: Abhishek Anand (356404)"
+      },
+      "body": {
+        "fields": [
+          {
+            "type": "GENERAL",
+            "title": "Current Business Title",
+            "description": "Applications Developer"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Proposed Business Title",
+            "description": "Applications Developer2"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Subject",
+            "description": "Programmer/Analyst - Professional - Abhishek Anand (356404)"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Effective Date",
+            "description": "May, 07, 2020"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Due Date",
+            "description": "May, 11, 2020"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Initiated On",
+            "description": "May, 07, 2020"
+          },
+          {
+            "type": "GENERAL",
+            "title": "Initiated By",
+            "description": "Rahul Sahay (382449)"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "primary": true,
+          "label": "Approve",
+          "url": {
+            "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/0db7bcdda1cd811688e13b6a4844b118/approve"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {
+            "tenantName": "vmware_gms"
+          },
+          "user_input": [
+            {
+              "id": "comment",
+              "label": "Comment",
+              "format": "textarea"
+            }
+          ],
+          "completed_label": "Approved",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        },
+        {
+          "label": "Decline",
+          "url": {
+            "href": "https://dev.hero.example.com/connectors/id/api/v1/inbox-tasks/0db7bcdda1cd811688e13b6a4844b118/decline"
+          },
+          "type": "POST",
+          "action_key": "USER_INPUT",
+          "request": {
+            "tenantName": "vmware_gms"
+          },
+          "user_input": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "format": "textarea",
+              "min_length": 1
+            }
+          ],
+          "completed_label": "Declined",
+          "allow_repeated": false,
+          "mutually_exclusive_set_id": "approval-actions"
+        }
+      ],
+      "image": {
+        "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+      },
+      "backend_id": "0db7bcdda1cd811688e13b6a4844b118",
+      "links": [
+        {
+          "href": "https://impl.workday.com",
+          "text": "View In Workday"
+        }
+      ]
+    }
+  ]
+}

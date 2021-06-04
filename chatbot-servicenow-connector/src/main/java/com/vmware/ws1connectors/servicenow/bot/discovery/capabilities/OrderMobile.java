@@ -7,30 +7,32 @@
 package com.vmware.ws1connectors.servicenow.bot.discovery.capabilities;
 
 import com.vmware.connectors.common.payloads.response.Link;
-import com.vmware.ws1connectors.servicenow.constants.WorkflowStep;
-import com.vmware.ws1connectors.servicenow.utils.BotTextAccessor;
+import com.vmware.connectors.common.utils.ConnectorTextAccessor;
 import com.vmware.ws1connectors.servicenow.constants.ServiceNowCategory;
 import com.vmware.ws1connectors.servicenow.constants.WorkflowId;
+import com.vmware.ws1connectors.servicenow.constants.WorkflowStep;
 import com.vmware.ws1connectors.servicenow.domain.BotAction;
 import com.vmware.ws1connectors.servicenow.domain.BotItem;
-import com.vmware.ws1connectors.servicenow.utils.UriBuilderUtils;
 import org.springframework.http.HttpMethod;
 
 import java.util.Locale;
 
-public class OrderMobile implements BotCapability {
-    private final BotTextAccessor botTextAccessor;
-    private final String appContextPath;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-    public OrderMobile(BotTextAccessor botTextAccessor, String appContextPath) {
-        this.botTextAccessor = botTextAccessor;
-        this.appContextPath = appContextPath;
+public class OrderMobile implements BotCapability {
+    private static final String ORDER_MOBILE = "orderMobile";
+    private static final String ORDER_MOBILE_ACTION = "orderMobileAction";
+    private final ConnectorTextAccessor connectorTextAccessor;
+    private static final String REROUTING_URL_VALIDATE_MSG = "rerouting url can't be null";
+
+    public OrderMobile(ConnectorTextAccessor connectorTextAccessor) {
+        this.connectorTextAccessor = connectorTextAccessor;
     }
 
-    @Override public BotItem describe(String taskType, String routingPrefix, Locale locale) {
+    @Override public BotItem describe(String routingPrefix, Locale locale) {
         return new BotItem.Builder()
-                .setTitle(botTextAccessor.getMessage("orderMobile.title", locale))
-                .setDescription(botTextAccessor.getMessage("orderMobile.description", locale))
+                .setTitle(connectorTextAccessor.getTitle(ORDER_MOBILE, locale))
+                .setDescription(connectorTextAccessor.getDescription(ORDER_MOBILE, locale))
                 .setWorkflowId(WorkflowId.ORDER_MOBILES.getId())
                 .addAction(getListOfMobilesAction(routingPrefix, locale))
                 .setWorkflowStep(WorkflowStep.COMPLETE)
@@ -38,11 +40,12 @@ public class OrderMobile implements BotCapability {
     }
 
     public BotAction getListOfMobilesAction(String routingPrefix, Locale locale) {
+        checkNotNull(routingPrefix, REROUTING_URL_VALIDATE_MSG);
         return new BotAction.Builder()
-                .setTitle(botTextAccessor.getMessage("orderMobileAction.title", locale))
-                .setDescription(botTextAccessor.getMessage("orderMobileAction.description", locale))
+                .setTitle(connectorTextAccessor.getTitle(ORDER_MOBILE_ACTION, locale))
+                .setDescription(connectorTextAccessor.getDescription(ORDER_MOBILE_ACTION, locale))
                 .setType(HttpMethod.GET)
-                .setUrl(new Link(UriBuilderUtils.createConnectorContextUrl(routingPrefix, buildActionUrl(ServiceNowCategory.MOBILE, appContextPath))))
+                .setUrl(new Link(routingPrefix + buildActionUrl(ServiceNowCategory.MOBILE)))
                 .build();
     }
 }

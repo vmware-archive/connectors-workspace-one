@@ -4,7 +4,7 @@
     {
       "id": "fc844b7a8f6f813f79efb5ffd6115505",
       "descriptor": "Approval by Manager",
-      "href": "https://workday.com/ccx/api/api/v1/tenant/inboxTasks/fc844b7a8f6f813f79efb5ffd6115505",
+      "href": "{MOCK_BACKEND}/inboxTasks/fc844b7a8f6f813f79efb5ffd6115505",
       "stepType": {
         "descriptor": "Approval",
         "id": "d8c8920e446c11de98360015c5e6daf6"
@@ -18,7 +18,7 @@
       "overallProcess": {
         "descriptor": "Absence Request: Ashton Burns",
         "id": "fc844b7a8f6f01580738a5ffd6115105",
-        "href": "https://workday.com/ccx/api/api/v1/tenant/timeOffRequest/fc844b7a8f6f01580738a5ffd6115105"
+        "href": "{MOCK_BACKEND}/timeOffRequest/fc844b7a8f6f01580738a5ffd6115105"
       },
       "due": "2019-11-26",
       "status": {
@@ -29,7 +29,7 @@
     {
       "id": "fc844b7a8f6f81861b9f7b58d5114205",
       "descriptor": "Approval by Manager",
-      "href": "https://workday.com/ccx/api/api/v1/tenant/inboxTasks/fc844b7a8f6f81861b9f7b58d5114205",
+      "href": "{MOCK_BACKEND}/inboxTasks/fc844b7a8f6f81861b9f7b58d5114205",
       "stepType": {
         "descriptor": "Approval",
         "id": "d8c8920e446c11de98360015c5e6daf6"
@@ -43,7 +43,7 @@
       "overallProcess": {
         "descriptor": "Absence Request: Ashton Burns",
         "id": "fc844b7a8f6f01223ce56358d5113e05",
-        "href": "https://workday.com/ccx/api/api/v1/tenant/timeOffRequest/fc844b7a8f6f01223ce56358d5113e05"
+        "href": "{MOCK_BACKEND}/timeOffRequest/fc844b7a8f6f01223ce56358d5113e05"
       },
       "due": "2019-11-26",
       "status": {
@@ -73,7 +73,7 @@
       "overallProcess": {
         "descriptor": "Hire: David Delgado",
         "id": "f598f956fc080131cd2b20bcfe013500",
-        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/businessProcesses/f598f956fc080131cd2b20bcfe013500"
+        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/hire/f598f956fc080131cd2b20bcfe013500"
       }
     },
     {
@@ -98,7 +98,7 @@
       "overallProcess": {
         "descriptor": "Hire: David Delgado - HR Manager",
         "id": "47220ccb95f20193893642acfa018a00",
-        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/businessProcesses/47220ccb95f20193893642acfa018a00"
+        "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware_gms1/hire/47220ccb95f20193893642acfa018a00"
       }
     }
   ]

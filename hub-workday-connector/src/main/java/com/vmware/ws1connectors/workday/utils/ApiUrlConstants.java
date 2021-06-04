@@ -11,11 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings("squid:S1075")
 public final class ApiUrlConstants {
-    public static final String USER_INFO = "/userInfo";
     public static final String INBOX_TASKS_API_PATH = "/inboxTasks";
+    public static final String COMMUNITY_COMMON_API_V1 = "/api/v1/";
+    public static final String BUSINESS_PROCESS_API_V1 = "/businessProcess/v1/";
     public static final String WORKERS_INBOX_TASKS_API = "/workers/me" + INBOX_TASKS_API_PATH;
     public static final String URL_PATH_SEPARATOR = "/";
     public static final String TIME_OFF_REQUEST_API_PATH = "/timeOffRequest/";
+    public static final String APPROVE_EVENT_STEP_PATH = "/eventSteps/{ID}/approve";
+    public static final String DECLINE_EVENT_STEP_PATH = "/eventSteps/{ID}/deny";
 
     public static final String INBOX_TASKS_VIEW_QUERY_PARAM_NAME = "view";
     public static final String INBOX_TASKS_SUMMARY = "inboxTaskSummary";
@@ -24,11 +27,10 @@ public final class ApiUrlConstants {
     public static final String ACTION_TYPE_QUERY_PARAM = "type";
     public static final String INBOX_TASK_ID_PATH_VARIABLE = "id";
 
-    public static final String WORKDAY_CONNECTOR_CONTEXT_PATH = "/workday-connector";
     private static final String API = "api";
     private static final String VERSION_1 = "/v1";
     public static final String CARDS_REQUESTS_API = "/cards/requests";
-    public static final String TIMEOFF_TASKS_API = API + VERSION_1 + "/timeoff-tasks/";
+    public static final String TIMEOFF_TASKS_API = API + VERSION_1 + "/inbox-tasks/";
     private static final String TASK_ID_PATH_PARAM = "{id}";
     public static final String APPROVE_ACTION = "approve";
     public static final String DECLINE_ACTION = "decline";

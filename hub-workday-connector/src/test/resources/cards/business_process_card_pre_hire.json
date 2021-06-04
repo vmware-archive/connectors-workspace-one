@@ -1,0 +1,58 @@
+{
+  "id": "217abbab-2b0c-4acf-ab31-a824629a76ea",
+  "creation_date": "2020-08-17T14:13:15.41972+05:30",
+  "due_date": "2020-08-17T00:00:00+18:00",
+  "header": {
+    "title": "Workday - Change Benefits for Life Event"
+  },
+  "body": {
+    "fields": [
+      {
+        "type": "GENERAL",
+        "title": "Status",
+        "description": "Awaiting Action"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Effective Date",
+        "description": "August, 04, 2020"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Due Date",
+        "description": "August, 17, 2020"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Initiated On",
+        "description": "August, 04, 2020"
+      },
+      {
+        "type": "GENERAL",
+        "title": "Initiated By",
+        "description": "Rahul Sahay (382449)"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "84818100-fee5-4521-bd4e-1885d9890a0d",
+      "primary": true,
+      "label": "View In Workday",
+      "url": {
+        "href": "https://impl.workday.com"
+      },
+      "type": "GET",
+      "action_key": "OPEN_IN",
+      "request": {},
+      "user_input": [],
+      "completed_label": "View In Workday",
+      "allow_repeated": true
+    }
+  ],
+  "image": {
+    "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png"
+  },
+  "backend_id": "318af1942cc081715eec40584c14400c",
+  "hash": "a136b52aa60f36d169a932459e55b83c78b0b5fa"
+}

@@ -8,6 +8,7 @@ package com.vmware.ws1connectors.servicenow.service.impl;
 
 import com.vmware.connectors.common.json.JsonDocument;
 import com.vmware.connectors.common.payloads.request.CardRequest;
+import com.vmware.connectors.common.utils.ConnectorTextAccessor;
 import com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants;
 import com.vmware.ws1connectors.servicenow.constants.WorkflowStep;
 import com.vmware.ws1connectors.servicenow.domain.BotItem;
@@ -15,13 +16,11 @@ import com.vmware.ws1connectors.servicenow.domain.BotObjects;
 import com.vmware.ws1connectors.servicenow.domain.snow.CartItem;
 import com.vmware.ws1connectors.servicenow.utils.BotActionBuilder;
 import com.vmware.ws1connectors.servicenow.utils.BotObjectBuilderUtils;
-import com.vmware.ws1connectors.servicenow.utils.BotTextAccessor;
 import com.vmware.ws1connectors.servicenow.utils.JsonSeralizationUtils;
 import com.vmware.ws1connectors.servicenow.utils.UriBuilderUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -59,13 +58,13 @@ public class CartService {
     private static final String CART_PROMPT_MSG = "cart.prompt.msg";
 
     private final WebClient rest;
-    private final BotTextAccessor botTextAccessor;
+    private final ConnectorTextAccessor connectorTextAccessor;
     private final BotActionBuilder botActionBuilder;
 
-    @Autowired public CartService(WebClient rest, BotTextAccessor botTextAccessor, ServerProperties serverProperties) {
+    @Autowired public CartService(WebClient rest, ConnectorTextAccessor connectorTextAccessor) {
         this.rest = rest;
-        this.botTextAccessor = botTextAccessor;
-        this.botActionBuilder = new BotActionBuilder(botTextAccessor, serverProperties);
+        this.connectorTextAccessor = connectorTextAccessor;
+        this.botActionBuilder = new BotActionBuilder(connectorTextAccessor);
     }
 
     public Mono<BotObjects> addToCart(String itemId, Integer itemQuantity, String auth, URI baseUri, String routingPrefix, Locale locale) {
@@ -73,7 +72,7 @@ public class CartService {
         return rest.post()
                 .uri(UriBuilderUtils.buildUri(baseUri, SNOW_ADD_TO_CART_ENDPOINT, Map.of(ServiceNowConstants.ITEM_ID_STR, itemId)))
                 .header(AUTHORIZATION, auth)
-                .syncBody(Map.of(ServiceNowConstants.SNOW_SYS_PARAM_QUAN, itemQuantity))
+                .bodyValue(Map.of(ServiceNowConstants.SNOW_SYS_PARAM_QUAN, itemQuantity))
                 .retrieve()
                 .bodyToMono(Void.class)
                 .then(this.lookupCart(auth, baseUri.toString(), routingPrefix, locale, getCardRequest(), Optional.of(itemId)));
@@ -136,8 +135,8 @@ public class CartService {
 
     private BotItem buildAddToCartPromptMsg(Locale locale) {
         return new BotItem.Builder()
-                .setTitle(botTextAccessor.getActionTitle(CART_PROMPT_MSG, locale))
-                .setDescription(botTextAccessor.getActionDescription(CART_PROMPT_MSG, locale))
+                .setTitle(connectorTextAccessor.getTitle(CART_PROMPT_MSG, locale))
+                .setDescription(connectorTextAccessor.getDescription(CART_PROMPT_MSG, locale))
                 .setType(TEXT)
                 .setWorkflowStep(WorkflowStep.INCOMPLETE)
                 .build();
@@ -145,17 +144,17 @@ public class CartService {
 
     private BotItem.Builder buildAddToCartItemDetails(String contextId, Locale locale, String shortDescription) {
         return new BotItem.Builder()
-                .setTitle(botTextAccessor.getObjectTitle(ServiceNowConstants.OBJECT_TYPE_CART, locale, shortDescription))
+                .setTitle(connectorTextAccessor.getTitle(ServiceNowConstants.OBJECT_TYPE_CART, locale, shortDescription))
                 .setContextId(contextId)
                 .setType(UI_TYPE_CONFIRMATION)
                 .setWorkflowStep(WorkflowStep.INCOMPLETE)
-                .setDescription(botTextAccessor.getObjectDescription(ServiceNowConstants.OBJECT_TYPE_CART, locale));
+                .setDescription(connectorTextAccessor.getDescription(ServiceNowConstants.OBJECT_TYPE_CART, locale));
     }
 
     private BotItem buildBotItemForAddToCartActions(String routingPrefix, Locale locale) {
         return new BotItem.Builder()
-                .setTitle(botTextAccessor.getObjectTitle(CART_ACTION_ITEM, locale))
-                .setDescription(botTextAccessor.getObjectDescription(CART_ACTION_ITEM, locale))
+                .setTitle(connectorTextAccessor.getTitle(CART_ACTION_ITEM, locale))
+                .setDescription(connectorTextAccessor.getDescription(CART_ACTION_ITEM, locale))
                 .setType(UI_TYPE_TEXT)
                 .setWorkflowStep(WorkflowStep.INCOMPLETE)
                 .addAction(botActionBuilder
@@ -163,7 +162,7 @@ public class CartService {
                                 ServiceNowConstants.CART_API_URL))
                 .addAction(botActionBuilder
                         .getEmptyCartBotAction(routingPrefix, locale, ServiceNowConstants.CHECKOUT, HttpMethod.POST,
-                                ServiceNowConstants.CHECKOUT_URL))
+                                ServiceNowConstants.CONFIRM_CHECKOUT_URL))
                 .addAction(botActionBuilder.getAddAnotherItemCartAction(routingPrefix, locale))
                 .build();
     }
@@ -199,14 +198,14 @@ public class CartService {
             return Mono.just(
                     ResponseEntity
                             .ok().body(BotObjectBuilderUtils.botObjectBuilder(
-                            botTextAccessor.getMessage(ServiceNowConstants.EMPTY_CART_SUCCESS_MSG, locale),
-                            botTextAccessor.getMessage(ServiceNowConstants.EMPTY_CART_SUCCESS_DESC_MSG, locale),
+                            connectorTextAccessor.getMessage(ServiceNowConstants.EMPTY_CART_SUCCESS_MSG, locale),
+                            connectorTextAccessor.getMessage(ServiceNowConstants.EMPTY_CART_SUCCESS_DESC_MSG, locale),
                             WorkflowStep.COMPLETE, UI_TYPE_CONFIRMATION)));
         }
         return sNowResponse.bodyToMono(JsonDocument.class)
                 .map(body -> ResponseEntity.status(sNowResponse.statusCode())
                         .body(BotObjectBuilderUtils.botObjectBuilder(
-                                botTextAccessor.getMessage(ServiceNowConstants.EMPTY_CART_ERROR_MSG, locale),
+                                connectorTextAccessor.getMessage(ServiceNowConstants.EMPTY_CART_ERROR_MSG, locale),
                                 body.read(ServiceNowConstants.ERROR_MSG), WorkflowStep.COMPLETE, UI_TYPE_CONFIRMATION)));
     }
 }

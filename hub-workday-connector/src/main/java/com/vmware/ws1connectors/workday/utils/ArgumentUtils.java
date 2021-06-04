@@ -17,7 +17,7 @@ public class ArgumentUtils {
 
     public static final String WORKDAY_BASE_URL = "Workday Base URL";
     public static final String WORKDAY_ACCESS_TOKEN = "Workday Access Token";
-    public static final String USER_EMAIL = "User Email";
+    public static final String TENANT_NAME = "Workday Tenant Name";
 
     public static void checkArgumentNotBlank(String value, String name) {
         checkArgument(isNotBlank(value), new StringBuilder("Cannot be blank: ").append(name).toString());
@@ -27,10 +27,10 @@ public class ArgumentUtils {
         checkArgument(nonNull(value), new StringBuilder("Cannot be null: ").append(name).toString());
     }
 
-    public static void checkBasicConnectorArgumentsNotBlank(final String baseUrl, final String workdayAccessToken, final String userEmail) {
+    public static void checkBasicConnectorArgumentsNotBlank(final String baseUrl, final String workdayAccessToken, final String tenantName) {
         checkArgumentNotBlank(baseUrl, WORKDAY_BASE_URL);
         checkArgumentNotBlank(workdayAccessToken, WORKDAY_ACCESS_TOKEN);
-        checkArgumentNotBlank(userEmail, USER_EMAIL);
+        checkArgumentNotBlank(tenantName, TENANT_NAME);
     }
 
 }

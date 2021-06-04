@@ -7,11 +7,10 @@ package com.vmware.ws1connectors.workday.web;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 import static com.vmware.ws1connectors.workday.exceptions.ExceptionHandlers.INVALID_CONNECTOR_TOKEN;
-import static com.vmware.ws1connectors.workday.utils.ApiUrlConstants.USER_INFO;
-import static com.vmware.ws1connectors.workday.utils.ApiUrlConstants.WORKDAY_CONNECTOR_CONTEXT_PATH;
 import static com.vmware.ws1connectors.workday.utils.CardConstants.DAY0_CARDS_URI;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
@@ -27,53 +26,42 @@ public class Day0CardsControllerTest extends ControllerTestUtils {
     private static final String UNAUTHORIZED_WORKDAY_AUTH_TOKEN = BEARER + "unauthorized-auth-token";
     private static final String NO_WORKDAY_AUTH_TOKEN = null;
     private static final String ERROR_JSON_PATH = "/error";
-    private static final String USER_NOT_FOUND_ERROR_MSG = "User can not be found";
     private static final String NO_INBOX_TASKS_JSON = "no_results.json";
-    private static final String USER_INFO_JSON = "fred_user_info.json";
     private static final String NO_CARDS_JSON = "cards/no_cards.json";
     private static final String INBOX_TASKS_JSON = "no_time_off_inbox_tasks.json";
     private static final String MOCK_WORKDAY_URL = "http://workday.com";
     private static final String EXPECTED_DAY0_CARDS_JSON = "cards/day0_cards.json";
+    private static final String REQUEST_BODY_FILE_NAME = "get_cards_request_body.json";
 
     @Test public void testCardRequestsApiIsProtected() throws Exception {
-        testProtectedResource(POST, WORKDAY_CONNECTOR_CONTEXT_PATH + DAY0_CARDS_URI);
+        testProtectedResource(POST, DAY0_CARDS_URI);
     }
 
-    @Test public void whenWorkdayAuthTokenIsUnauthorizedThenCardRequestFails() {
+    @Test public void whenWorkdayAuthTokenIsUnauthorizedThenCardRequestFails() throws IOException {
         mockBackend.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
-        requestCards(UNAUTHORIZED_WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI)
+        requestCards(UNAUTHORIZED_WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI, REQUEST_BODY_FILE_NAME, true)
                 .expectStatus().isBadRequest()
                 .expectBody().jsonPath(ERROR_JSON_PATH, INVALID_CONNECTOR_TOKEN);
     }
 
-    @Test public void whenWorkdayAuthTokenIsMissingThenCardRequestFails() {
-        requestCards(NO_WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI)
+    @Test public void whenWorkdayAuthTokenIsMissingThenCardRequestFails() throws IOException {
+        requestCards(NO_WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI, REQUEST_BODY_FILE_NAME, true)
                 .expectStatus().isBadRequest();
     }
 
-    @Test public void whenUserNotFoundThenCardRequestFails() throws Exception {
-        mockWorkdayApiResponse(USER_INFO, NO_INBOX_TASKS_JSON);
-        requestCards(WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI)
-                .expectStatus().isBadRequest()
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().jsonPath(ERROR_JSON_PATH, USER_NOT_FOUND_ERROR_MSG);
-    }
-
     @Test public void whenNoTimeOffTasksFoundThenReturnsEmptyCards() throws Exception {
-        mockWorkdayApiResponse(USER_INFO, USER_INFO_JSON);
         mockWorkdayApiResponse(getInboxTasksUri(), NO_INBOX_TASKS_JSON);
-        requestCards(WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI)
+        requestCards(WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI, REQUEST_BODY_FILE_NAME, true)
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
                 .expectBody().json(fromFile(NO_CARDS_JSON));
     }
 
     @Test public void createDay0CardsReturnsExpectedCards() throws Exception {
-        mockWorkdayApiResponse(USER_INFO, USER_INFO_JSON);
         mockWorkdayApiResponse(getInboxTasksUri(), INBOX_TASKS_JSON);
-        final String actualResponseBody = requestCards(WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI)
+        final String actualResponseBody = requestCards(WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI, REQUEST_BODY_FILE_NAME, true)
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
                 .returnResult(String.class)

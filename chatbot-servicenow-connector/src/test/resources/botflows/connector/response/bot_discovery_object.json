@@ -13,10 +13,10 @@
                 "description": "Create a new ticket",
                 "type": "POST",
                 "url": {
-                  "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/task/create"
+                  "href": "https://mf/connectors/abc123/botDiscovery/api/v1/task/confirm_create"
                 },
                 "payload": {
-                  "type": "task"
+                  "type": "incident"
                 },
                 "headers": {
                   "Content-Type": "application/x-www-form-urlencoded"
@@ -47,9 +47,11 @@
                 "description": "View the status of my open tickets",
                 "type": "POST",
                 "url": {
-                  "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/tasks"
+                  "href": "https://mf/connectors/abc123/botDiscovery/api/v1/tasks"
                 },
-                "payload": {},
+                "payload": {
+                  "type": "task"
+                },
                 "headers": {
                   "Content-Type": "application/x-www-form-urlencoded"
                 },
@@ -71,7 +73,7 @@
                 "description": "You can view device categories.",
                 "type": "GET",
                 "url": {
-                  "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/deviceCategoryList"
+                  "href": "https://mf/connectors/abc123/botDiscovery/api/v1/deviceCategoryList"
                 },
                 "payload": {},
                 "headers": {},
@@ -93,7 +95,7 @@
                 "description": "You can view list of Laptops.",
                 "type": "GET",
                 "url": {
-                  "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/device_list?device_category=Laptops&limit=10&offset=0"
+                  "href": "https://mf/connectors/abc123/botDiscovery/api/v1/device_list?device_category=Laptops&limit=10&offset=0"
                 },
                 "payload": {},
                 "headers": {},
@@ -115,7 +117,7 @@
                 "description": "You can view list of Desktops.",
                 "type": "GET",
                 "url": {
-                  "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/device_list?device_category=Desktops&limit=10&offset=0"
+                  "href": "https://mf/connectors/abc123/botDiscovery/api/v1/device_list?device_category=Desktops&limit=10&offset=0"
                 },
                 "payload": {},
                 "headers": {},
@@ -137,7 +139,7 @@
                 "description": "You can view list of Mobile devices.",
                 "type": "GET",
                 "url": {
-                  "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/device_list?device_category=Mobiles&limit=10&offset=0"
+                  "href": "https://mf/connectors/abc123/botDiscovery/api/v1/device_list?device_category=Mobiles&limit=10&offset=0"
                 },
                 "payload": {},
                 "headers": {},
@@ -159,7 +161,7 @@
                 "description": "You can view list of Tablets.",
                 "type": "GET",
                 "url": {
-                  "href": "https://mf/connectors/abc123/botDiscovery/servicenow-connector/api/v1/device_list?device_category=Tablets&limit=10&offset=0"
+                  "href": "https://mf/connectors/abc123/botDiscovery/api/v1/device_list?device_category=Tablets&limit=10&offset=0"
                 },
                 "payload": {},
                 "headers": {},

@@ -6,12 +6,12 @@ logging:
   pattern:
     level: "<workdayconn> <client_ip: %X{clientIp}> <correlation_id: %X{requestId}> <tenant_id: %X{tenantId}> <user_id: %X{userId}> %5p"
 server:
-  servlet:
-    contextPath: /workday-connector
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain
   server-header: workday-connector
+  error:
+    include-message: always
 
 # Mobile Flows server public key url (you must override this in /etc)
 # examples:

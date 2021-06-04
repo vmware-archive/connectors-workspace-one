@@ -1,0 +1,41 @@
+{
+  "id": "318af1942cc001af54978e493e14fa0a",
+  "inboxTask": {
+    "id": "318af1942cc0816dfb4120e33e14b90b",
+    "descriptor": "VMware Health and Well-Being Guidelines",
+    "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/inboxTasks/318af1942cc0816dfb4120e33e14b90b",
+    "status": {
+      "descriptor": "Awaiting Action",
+      "id": "d9e4108c446c11de98360015c5e6daf6"
+    },
+    "stepType": {
+      "descriptor": "Review Documents",
+      "id": "34e6cc1ab24e40409c3e0ced76acad7f"
+    },
+    "subject": {
+      "descriptor": "Onboarding for John Rambo Test (398966)",
+      "id": "318af1942cc001cbcccbf2e23e146f0b",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/businessProcesses/318af1942cc001cbcccbf2e23e146f0b"
+    },
+    "assigned": "2020-08-04T02:56:53.133Z",
+    "overallProcess": {
+      "descriptor": "Hire: John Rambo Test (398966)",
+      "id": "318af1942cc001af54978e493e14fa0a",
+      "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/businessProcesses/318af1942cc001af54978e493e14fa0a"
+    }
+  },
+  "descriptor": "Hire: John Rambo Test (398966)",
+  "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/businessProcesses/318af1942cc001af54978e493e14fa0a",
+  "initiator": {
+    "descriptor": "Rahul Sahay (382449)",
+    "id": "32f4795743cc016335ad0cb2490c4abb",
+    "href": "https://wd2-impl-services1.workday.com/ccx/api/api/v1/vmware4/workers/32f4795743cc016335ad0cb2490c4abb"
+  },
+  "subject": {
+    "descriptor": "WS1 - MANAGER - D (WS1 MANAGER.D (800009))",
+    "id": "e4047fadab7f0147ae2726ccdb09a426"
+  },
+  "initiated": "2020-08-04T02:45:54.533Z",
+  "effective": "2020-08-04",
+  "due": "2020-08-17"
+}

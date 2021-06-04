@@ -3,14 +3,32 @@
     "href": "https://s3.amazonaws.com/vmw-mf-assets/connector-images/hub-servicenow.png"
   },
   "config": {
-    "file_ticket_table_name": {
+    "viewTicketTableName": {
       "default": "task",
       "label": {
-        "en-US": "Ticket table name"
+        "en-US": "View ticket table name"
       },
       "type": "STRING",
       "description": {
-        "en-US": "Table name for the general ticket filing flow."
+        "en-US": "Table name to view tickets"
+      },
+      "validators": [
+        {
+          "type": "required",
+          "description": {
+            "en-US": "Ticket table name is required"
+          }
+        }
+      ]
+    },
+    "createTicketTableName": {
+      "default": "incident",
+      "label": {
+        "en-US": "Create ticket table name"
+      },
+      "type": "STRING",
+      "description": {
+        "en-US": "Table name for creating tickets"
       },
       "validators": [
         {
@@ -24,8 +42,10 @@
   },
   "object_types": {
     "botDiscovery": {
+      "pre_hire_capable": true,
+      "post_hire_capable": true,
       "endpoint": {
-        "href": "${CONNECTOR_HOST}${CONTEXT_PATH}/bot-discovery"
+        "href": "${CONNECTOR_HOST}/bot-discovery"
       }
     }
   }
