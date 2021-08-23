@@ -6,8 +6,12 @@
 package com.vmware.connector.hub.salesforce;
 
 
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.vmware.connectors.test.ControllerTestsBase;
-import com.vmware.connectors.test.JsonNormalizer;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -192,7 +196,7 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
                 .returnResult(String.class)
                 .getResponseBody()
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block();
         body = body.replaceAll("[a-z0-9]{40,}", "test-hash");
         assertThat(
@@ -225,5 +229,20 @@ class HubSalesForceControllerTest extends ControllerTestsBase {
         return mockBackend.expect(between(0, 1), requestTo(uri))
                 .andExpect(method(GET))
                 .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer abc"));
+    }
+
+    public String normalizeCards(String body) {
+        Configuration configuration = Configuration.builder()
+                .options(Option.SUPPRESS_EXCEPTIONS)
+                .jsonProvider(new JacksonJsonNodeJsonProvider())
+                .build();
+
+        DocumentContext context = JsonPath.using(configuration).parse(body);
+
+        context.set("$.objects[*].id", "00000000-0000-0000-0000-000000000000");
+        context.set("$.objects[*].creation_date", "1970-01-01T00:00:00Z");
+        context.set("$.objects[*].expiration_date", "1970-01-01T00:00:00Z");
+        context.set("$.objects[*].actions[*].id", "00000000-0000-0000-0000-000000000000");
+        return context.jsonString();
     }
 }

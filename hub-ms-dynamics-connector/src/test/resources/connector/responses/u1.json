@@ -93,7 +93,7 @@
         "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-dynamics.png"
       },
       "backend_id": "310a4ad3-06c3-e911-a82e-000d3a1ee335",
-      "hash": "1def72a02618876393e1f0a1767bbb4584a92715"
+      "hash": "c8f732b50b7ca3b1d5fdc60728b67ac14673f1f3"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -188,7 +188,7 @@
         "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-dynamics.png"
       },
       "backend_id": "56759b58-2fc3-e911-a82e-000d3a1ee335",
-      "hash": "76c4bd9cc96776b15fdb91be54a463d0ede325f3"
+      "hash": "626410b33a91929bd90d8aee2b5f3e190e69d11a"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -273,7 +273,7 @@
         "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-ms-dynamics.png"
       },
       "backend_id": "e5ddc7e7-3fc3-e911-a82e-000d3a1ee335",
-      "hash": "00a9beaf84eaeed717ee7c8365892a5c674ac8d4"
+      "hash": "b41365d8172dc2c0aba85340328b19687602f663"
     }
   ]
 }

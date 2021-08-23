@@ -107,7 +107,7 @@
         "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-google-docs.png"
       },
       "backend_id": "AAAAGZR-2gk",
-      "hash": "c5de26e2576db10e5979b1d4eb5a763e27066d1e"
+      "hash": "2c2506a4f2b146fd8d7b7f3e37992b56947a57b9"
     },
     {
       "id": "00000000-0000-0000-0000-000000000000",
@@ -216,7 +216,7 @@
         "href": "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-google-docs.png"
       },
       "backend_id": "AAAAJZS-Mas",
-      "hash": "f0a8f27f497759d13f6f6f61d48277b763a7ad12"
+      "hash": "baa86f986cc5268f9288e3e23276d6d5fd547653"
     }
   ]
 }

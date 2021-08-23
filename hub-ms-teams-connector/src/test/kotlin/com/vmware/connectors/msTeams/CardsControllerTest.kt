@@ -5,11 +5,14 @@
 
 package com.vmware.connectors.msTeams
 
+import com.jayway.jsonpath.Configuration
+import com.jayway.jsonpath.JsonPath
+import com.jayway.jsonpath.Option
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider
 import com.vmware.connectors.msTeams.config.Endpoints
 import com.vmware.connectors.msTeams.config.ROUTING_PREFIX
 import com.vmware.connectors.msTeams.utils.*
 import com.vmware.connectors.test.ControllerTestsBase
-import com.vmware.connectors.test.JsonNormalizer
 import org.junit.Assert
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -268,10 +271,9 @@ class CardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
-        println(data)
         Assert.assertThat<String>(data, SameJSONAs.sameJSONAs(jsonResponse))
     }
 
@@ -338,7 +340,7 @@ class CardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
 
@@ -405,5 +407,18 @@ class CardsControllerTest : ControllerTestsBase() {
         }
         val userNameFromToken = VmwareUtils.getUserEmailFromToken("token s.bnVsbA==")
         Assert.assertEquals(null, userNameFromToken)
+    }
+
+    fun normalizeCards(body: String?): String? {
+        val configuration = Configuration.builder()
+                .options(Option.SUPPRESS_EXCEPTIONS)
+                .jsonProvider(JacksonJsonNodeJsonProvider())
+                .build()
+        val context = JsonPath.using(configuration).parse(body)
+        context.set("$.objects[*].id", "00000000-0000-0000-0000-000000000000")
+        context.set("$.objects[*].creation_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].expiration_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].actions[*].id", "00000000-0000-0000-0000-000000000000")
+        return context.jsonString()
     }
 }

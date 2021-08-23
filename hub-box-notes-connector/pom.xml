@@ -18,12 +18,11 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <connector.name>hub-box-notes</connector.name>
-        <com.vmware.card-connectors.version>2.8.1</com.vmware.card-connectors.version>
-        <kotlin.version>1.3.61</kotlin.version>
+        <com.vmware.card-connectors.version>2.9.5</com.vmware.card-connectors.version>
+        <kotlin.version>1.5.21</kotlin.version>
         <kotlin.coroutines.version>1.3.3</kotlin.coroutines.version>
-        <dokka.version>0.9.18</dokka.version>
-        <junit.version>4.13.1</junit.version>
-        <jacoco.version>0.8.5</jacoco.version>
+        <dokka.version>1.5.0</dokka.version>
+        <jacoco.version>0.8.7</jacoco.version>
         <pmd.plugin.version>3.13.0</pmd.plugin.version>
         <logback.contrib.version>0.1.5</logback.contrib.version>
         <pmd.version>6.21.0</pmd.version>
@@ -31,7 +30,14 @@
         <kotlin.compiler.incremental>false</kotlin.compiler.incremental>
         <nexus.staging.skip>false</nexus.staging.skip>
         <main.class>com.vmware.connectors.boxNotes.ApplicationKt</main.class>
-
+        <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
+        <jakarta.validation-api.version>2.0.2</jakarta.validation-api.version>
+        <explang.version>1.0.13</explang.version>
+        <jsoup.version>1.14.1</jsoup.version>
+        <jackson-module-kotlin.version>2.12.4</jackson-module-kotlin.version>
+        <kotlin-logging.version>1.12.5</kotlin-logging.version>
+        <docker-plugin.version>0.31.0</docker-plugin.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
     </properties>
 
     <name>Workspace One Hub Box Notes Connector</name>
@@ -95,12 +101,12 @@
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
-            <version>2.0.2</version>
+            <version>${jakarta.validation-api.version}</version>
         </dependency>
         <dependency>
             <groupId>com.xenovus</groupId>
             <artifactId>explang</artifactId>
-            <version>1.0.13</version>
+            <version>${explang.version}</version>
         </dependency>
         <dependency>
             <groupId>com.backflipt</groupId>
@@ -152,7 +158,7 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.12.1</version>
+            <version>${jsoup.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -182,20 +188,14 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
-            <version>2.9.7</version>
+            <version>${jackson-module-kotlin.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.microutils</groupId>
             <artifactId>kotlin-logging</artifactId>
-            <version>1.7.4</version>
+            <version>${kotlin-logging.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
@@ -208,13 +208,13 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
-            <version>0.31.0</version>
+            <version>${docker-plugin.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>2.2.3</version>
+            <version>${jaxb-api.version}</version>
         </dependency>
 
         <dependency>
@@ -260,6 +260,14 @@
                     <configuration>
                         <mainClass>${main.class}</mainClass>
                         <layout>ZIP</layout>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>${versions-maven-plugin.version}</version>
+                    <configuration>
+                        <rulesUri>file:///${basedir}/support/dependency-updates-filter.xml</rulesUri>
                     </configuration>
                 </plugin>
                 <plugin>

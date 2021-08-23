@@ -9,6 +9,7 @@ import com.backflipt.commons.*
 import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
+import com.jayway.jsonpath.Option
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider
 import com.vmware.connectors.dynamics.config.DATE_FORMAT_PATTERN
 import com.vmware.connectors.dynamics.config.Endpoints
@@ -112,9 +113,10 @@ class MSDynamicsActionsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
+
         assertThat(actualData, sameJSONAs(expectedResponse))
     }
 
@@ -152,7 +154,7 @@ class MSDynamicsActionsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
         assertThat<String>(actualData, sameJSONAs(expectedResponse))
     }
@@ -569,4 +571,16 @@ class MSDynamicsActionsControllerTest : ControllerTestsBase() {
                 .expectStatus().isCreated
     }
 
+    fun normalizeCards(body: String?): String? {
+        val configuration = Configuration.builder()
+                .options(Option.SUPPRESS_EXCEPTIONS)
+                .jsonProvider(JacksonJsonNodeJsonProvider())
+                .build()
+        val context = JsonPath.using(configuration).parse(body)
+        context.set("$.objects[*].id", "00000000-0000-0000-0000-000000000000")
+        context.set("$.objects[*].creation_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].expiration_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].actions[*].id", "00000000-0000-0000-0000-000000000000")
+        return context.jsonString()
+    }
 }

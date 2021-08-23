@@ -10,6 +10,7 @@ import com.backflipt.commons.serialize
 import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
+import com.jayway.jsonpath.Option
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider
 import com.vmware.connectors.googleDocs.config.Endpoints
 import com.vmware.connectors.googleDocs.config.ROUTING_PREFIX
@@ -111,17 +112,11 @@ class CardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
-        val configuration = Configuration.builder()
-                .jsonProvider(JacksonJsonNodeJsonProvider())
-                .build()
-        val context: DocumentContext = JsonPath.using(configuration).parse(data)
-        val actualData = context.set("$.objects[?(@.backend_id =~ /" + IgnoredFieldsReplacer.UUID_PATTERN + "/)].backend_id", IgnoredFieldsReplacer.DUMMY_UUID)
-                .set("$.objects[?(@.hash =~ /" + IgnoredFieldsReplacer.UUID_PATTERN + "/)].hash", IgnoredFieldsReplacer.DUMMY_UUID)
-                .jsonString()
-        Assert.assertThat(actualData, SameJSONAs.sameJSONAs(expectedResponse))
+
+        Assert.assertThat(data, SameJSONAs.sameJSONAs(expectedResponse))
     }
 
     @Test
@@ -153,7 +148,7 @@ class CardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
         Assert.assertThat<String>(data, SameJSONAs.sameJSONAs(expectedResponse))
@@ -320,5 +315,18 @@ class CardsControllerTest : ControllerTestsBase() {
                 .expectStatus()
                 .isBadRequest
                 .expectHeader().valueEquals("x-backend-status", "401")
+    }
+
+    fun normalizeCards(body: String?): String? {
+        val configuration = Configuration.builder()
+                .options(Option.SUPPRESS_EXCEPTIONS)
+                .jsonProvider(JacksonJsonNodeJsonProvider())
+                .build()
+        val context = JsonPath.using(configuration).parse(body)
+        context.set("$.objects[*].id", "00000000-0000-0000-0000-000000000000")
+        context.set("$.objects[*].creation_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].expiration_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].actions[*].id", "00000000-0000-0000-0000-000000000000")
+        return context.jsonString()
     }
 }
