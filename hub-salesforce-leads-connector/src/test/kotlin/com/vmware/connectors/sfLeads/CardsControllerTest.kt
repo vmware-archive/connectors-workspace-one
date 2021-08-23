@@ -6,19 +6,18 @@
 package com.vmware.connectors.sfLeads
 
 import com.backflipt.commons.getDateTimeMinusHours
-import com.backflipt.commons.readAsByteArray
 import com.backflipt.commons.readAsString
 import com.backflipt.commons.serialize
 import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
+import com.jayway.jsonpath.Option
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider
 import com.vmware.connectors.sfLeads.config.EndpointsAndQueries
 import com.vmware.connectors.sfLeads.config.LEADS_DATE_FORMATTER
 import com.vmware.connectors.sfLeads.config.LEADS_LOOK_SINCE_HOURS
 import com.vmware.connectors.sfLeads.config.ROUTING_PREFIX
 import com.vmware.connectors.test.ControllerTestsBase
-import com.vmware.connectors.test.JsonNormalizer
 import org.hamcrest.Matchers
 import org.junit.Assert
 import org.junit.jupiter.api.Test
@@ -33,10 +32,8 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.client.ExpectedCount
 import org.springframework.test.web.client.match.MockRestRequestMatchers
 import org.springframework.test.web.client.response.MockRestResponseCreators
-import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MimeTypeUtils
 import org.springframework.web.reactive.function.BodyInserters
 import uk.co.datumedge.hamcrest.json.SameJSONAs
 import java.time.Duration
@@ -113,7 +110,7 @@ class CardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
         val configuration = Configuration.builder()
@@ -170,7 +167,7 @@ class CardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
         val configuration = Configuration.builder()
@@ -419,7 +416,7 @@ class CardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
         val configuration = Configuration.builder()
@@ -476,9 +473,22 @@ class CardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
         Assert.assertThat(data, SameJSONAs.sameJSONAs(expectedResponse))
+    }
+
+    fun normalizeCards(body: String?): String? {
+        val configuration = Configuration.builder()
+                .options(Option.SUPPRESS_EXCEPTIONS)
+                .jsonProvider(JacksonJsonNodeJsonProvider())
+                .build()
+        val context = JsonPath.using(configuration).parse(body)
+        context.set("$.objects[*].id", "00000000-0000-0000-0000-000000000000")
+        context.set("$.objects[*].creation_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].expiration_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].actions[*].id", "00000000-0000-0000-0000-000000000000")
+        return context.jsonString()
     }
 }

@@ -79,7 +79,7 @@ class CardsController(
         val channelToMessagesMap = mentionedMessages.groupBy { it.channelId }
         val cards = channelToMessagesMap.flatMap { (_, channelMessages) ->
             val messagesCount = channelMessages.count()
-            val latestMessageInChannel = channelMessages.maxBy { it.createdDate }
+            val latestMessageInChannel = channelMessages.maxByOrNull { it.createdDate }
 
             latestMessageInChannel?.let {
                 listOf(latestMessageInChannel.toCard(request, messagesCount, routingPrefix, locale, cardUtils))

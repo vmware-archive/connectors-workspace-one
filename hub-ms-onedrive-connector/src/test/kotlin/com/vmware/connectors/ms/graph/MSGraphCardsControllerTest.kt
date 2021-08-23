@@ -5,6 +5,10 @@
 
 package com.vmware.connectors.ms.graph
 
+import com.jayway.jsonpath.Configuration
+import com.jayway.jsonpath.JsonPath
+import com.jayway.jsonpath.Option
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider
 import com.vmware.connectors.ms.graph.config.Endpoints
 import com.vmware.connectors.ms.graph.config.ROUTING_PREFIX
 import com.vmware.connectors.ms.graph.utils.*
@@ -141,7 +145,7 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
 
@@ -220,7 +224,7 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
 
@@ -307,7 +311,7 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
 
@@ -375,10 +379,10 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
-
+        println(data)
         assertThat<String>(data, sameJSONAs(jsonResponse))
     }
 
@@ -459,7 +463,7 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
 
         assertThat<String>(data, sameJSONAs(jsonResponse))
@@ -504,7 +508,7 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
 
         assertThat<String>(data, sameJSONAs(jsonResponse))
@@ -549,7 +553,7 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
 
         assertThat<String>(data, sameJSONAs(jsonResponse))
@@ -594,7 +598,7 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
 
         assertThat<String>(data, sameJSONAs(jsonResponse))
@@ -1021,5 +1025,18 @@ class MSGraphCardsControllerTest : ControllerTestsBase() {
         } catch (e: java.lang.Exception) {
             Assert.assertEquals("Unparseable date: 2020-02-25T12:18:10", e.message)
         }
+    }
+
+    fun normalizeCards(body: String?): String? {
+        val configuration = Configuration.builder()
+                .options(Option.SUPPRESS_EXCEPTIONS)
+                .jsonProvider(JacksonJsonNodeJsonProvider())
+                .build()
+        val context = JsonPath.using(configuration).parse(body)
+        context.set("$.objects[*].id", "00000000-0000-0000-0000-000000000000")
+        context.set("$.objects[*].creation_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].expiration_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].actions[*].id", "00000000-0000-0000-0000-000000000000")
+        return context.jsonString()
     }
 }

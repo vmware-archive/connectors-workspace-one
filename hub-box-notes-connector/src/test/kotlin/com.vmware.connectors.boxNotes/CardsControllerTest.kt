@@ -7,15 +7,10 @@ package com.vmware.connectors.boxNotes
 
 import com.backflipt.commons.readAsString
 import com.backflipt.commons.serialize
-import com.jayway.jsonpath.Configuration
-import com.jayway.jsonpath.DocumentContext
-import com.jayway.jsonpath.JsonPath
-import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider
 import com.vmware.connectors.boxNotes.config.Endpoints
 import com.vmware.connectors.boxNotes.config.ROUTING_PREFIX
 import com.vmware.connectors.test.ControllerTestsBase
 import com.vmware.connectors.test.JsonNormalizer
-import com.vmware.connectors.utils.IgnoredFieldsReplacer
 import org.junit.Assert
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest

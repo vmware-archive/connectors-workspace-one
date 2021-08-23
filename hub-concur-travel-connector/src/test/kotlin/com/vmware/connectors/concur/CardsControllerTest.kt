@@ -7,16 +7,14 @@ package com.vmware.connectors.concur
 
 import com.backflipt.commons.readAsString
 import com.jayway.jsonpath.Configuration
-import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
+import com.jayway.jsonpath.Option
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider
 import com.vmware.connectors.concur.config.Endpoints
 import com.vmware.connectors.concur.config.ROUTING_PREFIX
 import com.vmware.connectors.concur.dto.TravelRequestStatus
 import com.vmware.connectors.concur.dto.WorkflowAction
 import com.vmware.connectors.test.ControllerTestsBase
-import com.vmware.connectors.test.JsonNormalizer
-import com.vmware.connectors.utils.IgnoredFieldsReplacer
 import org.junit.Assert
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -239,17 +237,11 @@ class CardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
-        val configuration = Configuration.builder()
-                .jsonProvider(JacksonJsonNodeJsonProvider())
-                .build()
-        val context: DocumentContext = JsonPath.using(configuration).parse(data)
-        val actualData = context
-                .set("$.objects[?(@.hash =~ /" + IgnoredFieldsReplacer.UUID_PATTERN + "/)].hash", IgnoredFieldsReplacer.DUMMY_UUID)
-                .jsonString()
-        Assert.assertThat(actualData, SameJSONAs.sameJSONAs(expectedResponse))
+
+        Assert.assertThat(data, SameJSONAs.sameJSONAs(expectedResponse))
     }
 
     @Test
@@ -293,7 +285,7 @@ class CardsControllerTest : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
         Assert.assertThat<String>(data, SameJSONAs.sameJSONAs(expectedResponse))
@@ -323,5 +315,18 @@ class CardsControllerTest : ControllerTestsBase() {
                 .expectHeader().valueEquals("x-backend-status", "401")
                 .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
                 .expectBody().json(expectedResponse)
+    }
+
+    fun normalizeCards(body: String?): String? {
+        val configuration = Configuration.builder()
+                .options(Option.SUPPRESS_EXCEPTIONS)
+                .jsonProvider(JacksonJsonNodeJsonProvider())
+                .build()
+        val context = JsonPath.using(configuration).parse(body)
+        context.set("$.objects[*].id", "00000000-0000-0000-0000-000000000000")
+        context.set("$.objects[*].creation_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].expiration_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].actions[*].id", "00000000-0000-0000-0000-000000000000")
+        return context.jsonString()
     }
 }
