@@ -49,7 +49,7 @@
         <pmd.version>6.22.0</pmd.version>
         <commons.text.version>1.9</commons.text.version>
         <json.junit.version>2.26.0</json.junit.version>
-        <jsoup.version>1.13.1</jsoup.version>
+        <jsoup.version>1.14.2</jsoup.version>
         <jacoco.plugin.version>0.8.7</jacoco.plugin.version>
         <spotbugs.version>4.2.3</spotbugs.version>
         <spotbugs.annotations.version>4.2.3</spotbugs.annotations.version>
