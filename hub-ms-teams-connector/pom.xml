@@ -32,7 +32,7 @@
         <main.class>com.vmware.connectors.msTeams.ApplicationKt</main.class>
         <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
         <jakarta.validation-api.version>2.0.2</jakarta.validation-api.version>
-        <jsoup.version>1.14.1</jsoup.version>
+        <jsoup.version>1.14.2</jsoup.version>
         <jackson-module-kotlin.version>2.12.4</jackson-module-kotlin.version>
         <kotlin-logging.version>1.7.4</kotlin-logging.version>
         <docker-plugin.version>0.31.0</docker-plugin.version>
