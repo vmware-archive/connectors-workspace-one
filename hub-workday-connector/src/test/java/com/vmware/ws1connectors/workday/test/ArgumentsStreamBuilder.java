@@ -21,7 +21,8 @@ public class ArgumentsStreamBuilder implements Stream.Builder<Arguments> {
         argsList = new ArrayList<>();
     }
 
-    @Override public void accept(Arguments arguments) {
+    @Override
+    public void accept(Arguments arguments) {
         argsList.add(arguments);
     }
 
@@ -37,7 +38,8 @@ public class ArgumentsStreamBuilder implements Stream.Builder<Arguments> {
         return this;
     }
 
-    @Override public Stream<Arguments> build() {
+    @Override
+    public Stream<Arguments> build() {
         return argsList.stream();
     }
 }

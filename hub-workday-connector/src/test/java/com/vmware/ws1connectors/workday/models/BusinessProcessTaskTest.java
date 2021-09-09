@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BusinessProcessTaskTest {
+class BusinessProcessTaskTest {
 
     private static final String ID = "f387bb35571f013c819744b63a489314";
     private static final String DESCRIPTOR = "Transfer: Prachi Agarwal (33232)";
@@ -39,32 +39,40 @@ public class BusinessProcessTaskTest {
         return businessProcessTask;
     }
 
-    @Nested public class TestGetters {
-        @Test public void returnsId() {
+    @Nested
+    class TestGetters {
+        @Test
+        void returnsId() {
             assertThat(businessProcessTask.getId()).isEqualTo(ID);
         }
 
-        @Test public void returnsDescriptor() {
+        @Test
+        void returnsDescriptor() {
             assertThat(businessProcessTask.getDescriptor()).isEqualTo(DESCRIPTOR);
         }
 
-        @Test public void returnsEffective() {
+        @Test
+        void returnsEffective() {
             assertThat(businessProcessTask.getEffective()).isEqualTo(EFFECTIVE);
         }
 
-        @Test public void returnsInitiated() {
+        @Test
+        void returnsInitiated() {
             assertThat(businessProcessTask.getInitiated()).isEqualTo(INITIATED);
         }
 
-        @Test public void returnsDue() {
+        @Test
+        void returnsDue() {
             assertThat(businessProcessTask.getDue()).isEqualTo(DUE);
         }
 
-        @Test public void returnsInboxTask() {
+        @Test
+        void returnsInboxTask() {
             assertThat(businessProcessTask.getInboxTask()).isEqualTo(inboxTask);
         }
 
-        @Test public void returnsSubjectDescriptor() {
+        @Test
+        void returnsSubjectDescriptor() {
             String subjectDescription = "Programmer/Analyst - Professional - Abhishek Anand (356404)";
             assertThat(businessProcessTask.getSubject().getDescriptor()).isEqualTo(subjectDescription);
         }

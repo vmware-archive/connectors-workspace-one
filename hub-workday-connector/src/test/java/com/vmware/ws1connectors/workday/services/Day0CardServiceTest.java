@@ -34,7 +34,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-public class Day0CardServiceTest extends ServiceTestsBase {
+
+class Day0CardServiceTest extends ServiceTestsBase {
 
     private static final String NO_CONNECTOR_AUTH = null;
     private static final String NO_EMAIL = null;
@@ -44,11 +45,15 @@ public class Day0CardServiceTest extends ServiceTestsBase {
     private static final String EMAIL = "user1@example.com";
     private static final List<InboxTask> INBOX_TASKS = getInboxTasks("no_time_off_inbox_tasks.json");
 
-    @Mock private InboxService mockInboxService;
-    @Mock private Day0CardBuilder mockDay0CardBuilder;
-    @InjectMocks private Day0CardService day0CardService;
+    @Mock
+    private InboxService mockInboxService;
+    @Mock
+    private Day0CardBuilder mockDay0CardBuilder;
+    @InjectMocks
+    private Day0CardService day0CardService;
 
-    @Test public void testGetDay0CardsReturnsExpectedCards() {
+    @Test
+    void testGetDay0CardsReturnsExpectedCards() {
         final Card card = JsonUtils.convertFromJsonFile("day0_card.json", Card.class);
         final Cards expectedCards = new Cards();
         expectedCards.getCards().add(card);
@@ -67,7 +72,8 @@ public class Day0CardServiceTest extends ServiceTestsBase {
                 .thenReturn(card);
     }
 
-    @Test public void whenNoInboxTasksPresentThenReturnsEmptyMono() {
+    @Test
+    void whenNoInboxTasksPresentThenReturnsEmptyMono() {
         mockServicesWithNoInboxTask();
         final Mono<Cards> actualCardsMono =
                 day0CardService.getDay0Cards(BASE_URL, WORKDAY_TOKEN, EMAIL, LOCALE);
@@ -81,7 +87,8 @@ public class Day0CardServiceTest extends ServiceTestsBase {
                 .thenReturn(Flux.empty());
     }
 
-    @Test public void whenCardBuilderThrowsExceptionThenReturnsEmptyMono() {
+    @Test
+    void whenCardBuilderThrowsExceptionThenReturnsEmptyMono() {
         mockServicesWithCardBuilderThrowsException();
         final Mono<Cards> actualCardsMono =
                 day0CardService.getDay0Cards(BASE_URL, WORKDAY_TOKEN, EMAIL, LOCALE);
@@ -99,8 +106,8 @@ public class Day0CardServiceTest extends ServiceTestsBase {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForBuildDay0Card")
-    public void whenCreateCardProvidedWithInvalidInputs(final String baseUrl, final Locale locale,
-                                                        final String connectorAuth, final String email) {
+    void whenCreateCardProvidedWithInvalidInputs(final String baseUrl, final Locale locale,
+                                                 final String connectorAuth, final String email) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> day0CardService.getDay0Cards(baseUrl, connectorAuth, email, locale));
     }

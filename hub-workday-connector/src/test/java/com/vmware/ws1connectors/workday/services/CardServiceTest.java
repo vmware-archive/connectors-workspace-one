@@ -42,7 +42,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class CardServiceTest extends ServiceTestsBase {
+class CardServiceTest extends ServiceTestsBase {
     private static final String NO_ROUTING_PREFIX = null;
     private static final String NO_CONNECTOR_AUTH = null;
     private static final Locale NO_LOCALE = null;
@@ -63,84 +63,92 @@ public class CardServiceTest extends ServiceTestsBase {
             .locale(Locale.US)
             .build();
 
-    @InjectMocks private CardService cardService;
-    @Mock private TimeOffTaskService mockTimeOffTaskService;
-    @Mock private TimeOffCardBuilder mockTimeOffCardBuilder;
-    @Mock private CardBuilderFactory mockCardBuilderFactory;
+    @InjectMocks
+    private CardService cardService;
+    @Mock
+    private TimeOffTaskService mockTimeOffTaskService;
+    @Mock
+    private TimeOffCardBuilder mockTimeOffCardBuilder;
+    @Mock
+    private CardBuilderFactory mockCardBuilderFactory;
 
     private static Stream<Arguments> invalidInputsForCreateCard() {
         return new ArgumentsStreamBuilder()
-            .add(RequestInfo.builder().baseUrl(NO_BASE_URL).build())
-            .add(RequestInfo.builder().routingPrefix(NO_ROUTING_PREFIX).build())
-            .add(RequestInfo.builder().connectorAuth(NO_CONNECTOR_AUTH).build())
-            .add(RequestInfo.builder().locale(NO_LOCALE).build())
-            .build();
+                .add(RequestInfo.builder().baseUrl(NO_BASE_URL).build())
+                .add(RequestInfo.builder().routingPrefix(NO_ROUTING_PREFIX).build())
+                .add(RequestInfo.builder().connectorAuth(NO_CONNECTOR_AUTH).build())
+                .add(RequestInfo.builder().locale(NO_LOCALE).build())
+                .build();
     }
 
     @ParameterizedTest
     @NullSource
-    public void whenCreateCardProvidedWithNullInput(final RequestInfo requestInfo) {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> cardService.getNotificationCards(requestInfo));
-    }
-
-    @ParameterizedTest
-    @MethodSource("invalidInputsForCreateCard")
-    public void whenCreateCardProvidedWithInvalidInputs(final RequestInfo requestInfo) {
+    void whenCreateCardProvidedWithNullInput(final RequestInfo requestInfo) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> cardService.getNotificationCards(requestInfo));
     }
 
-    @Test public void canGetCards() {
+    @ParameterizedTest
+    @MethodSource("invalidInputsForCreateCard")
+    void whenCreateCardProvidedWithInvalidInputs(final RequestInfo requestInfo) {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> cardService.getNotificationCards(requestInfo));
+    }
+
+    @Test
+    void canGetCards() {
         when(mockTimeOffTaskService.getApprovalTasks(BASE_URL, CONNECTOR_AUTH, TENANT_NAME, LOCALE))
-            .thenReturn(Flux.just(TIME_OFF_TASK, TIME_OFF_TASK_2));
+                .thenReturn(Flux.just(TIME_OFF_TASK, TIME_OFF_TASK_2));
         when(mockCardBuilderFactory.getCardBuilder(any(ApprovalTask.class))).thenReturn(mockTimeOffCardBuilder);
         final Cards cards = JsonUtils.convertFromJsonFile("cards/cards.json", Cards.class);
         when(mockTimeOffCardBuilder.createCard(any(TimeOffTask.class), any(RequestInfo.class)))
-            .thenReturn(cards.getCards().get(0), cards.getCards().get(1));
+                .thenReturn(cards.getCards().get(0), cards.getCards().get(1));
         Mono<Cards> actualCardsMono = cardService.getNotificationCards(REQUEST_INFO);
         StepVerifier.create(actualCardsMono)
-            .consumeNextWith(
-                actualCards -> assertThatJson(actualCards).when(IGNORING_EXTRA_FIELDS, IGNORING_ARRAY_ORDER)
-                    .isEqualTo(cards))
-            .verifyComplete();
+                .consumeNextWith(
+                        actualCards -> assertThatJson(actualCards).when(IGNORING_EXTRA_FIELDS, IGNORING_ARRAY_ORDER)
+                                .isEqualTo(cards))
+                .verifyComplete();
     }
 
-    @Test public void canGetEmptyCardsWhenNoTimeTaskFound() {
+    @Test
+    void canGetEmptyCardsWhenNoTimeTaskFound() {
         when(mockTimeOffTaskService.getApprovalTasks(BASE_URL, CONNECTOR_AUTH, TENANT_NAME, LOCALE))
-            .thenReturn(Flux.empty());
+                .thenReturn(Flux.empty());
         Mono<Cards> actualCardsMono = cardService.getNotificationCards(REQUEST_INFO);
         StepVerifier.create(actualCardsMono)
-            .expectNextMatches(actualCards -> actualCards.getCards().isEmpty())
-            .verifyComplete();
+                .expectNextMatches(actualCards -> actualCards.getCards().isEmpty())
+                .verifyComplete();
         verify(mockTimeOffCardBuilder, never()).createCard(any(TimeOffTask.class), any(RequestInfo.class));
     }
 
-    @Test public void cannotGetCardsWhenGetTimeOffTasksErrorsOut() {
+    @Test
+    void cannotGetCardsWhenGetTimeOffTasksErrorsOut() {
         when(mockTimeOffTaskService.getApprovalTasks(BASE_URL, CONNECTOR_AUTH, TENANT_NAME, LOCALE))
-            .thenReturn(Flux.error(() -> new TimeOffTaskException("Workday API fails", HttpStatus.INTERNAL_SERVER_ERROR)));
+                .thenReturn(Flux.error(() -> new TimeOffTaskException("Workday API fails", HttpStatus.INTERNAL_SERVER_ERROR)));
         Mono<Cards> actualCardsMono = cardService.getNotificationCards(REQUEST_INFO);
         StepVerifier.create(actualCardsMono)
-            .expectError(TimeOffTaskException.class)
-            .verify(DURATION_2_SECONDS);
+                .expectError(TimeOffTaskException.class)
+                .verify(DURATION_2_SECONDS);
     }
 
-    @Test public void canGetCardsWhenCardCreationFailsForSomeOfTimeOffTasks() {
+    @Test
+    void canGetCardsWhenCardCreationFailsForSomeOfTimeOffTasks() {
         when(mockTimeOffTaskService.getApprovalTasks(BASE_URL, CONNECTOR_AUTH, TENANT_NAME, LOCALE))
-            .thenReturn(Flux.just(TIME_OFF_TASK, TIME_OFF_TASK_2));
+                .thenReturn(Flux.just(TIME_OFF_TASK, TIME_OFF_TASK_2));
         when(mockCardBuilderFactory.getCardBuilder(any(ApprovalTask.class))).thenReturn(mockTimeOffCardBuilder);
         final Card card = JsonUtils.convertFromJsonFile("card.json", Card.class);
         when(mockTimeOffCardBuilder.createCard(any(TimeOffTask.class), any(RequestInfo.class)))
-            .thenReturn(card)
-            .thenThrow(RuntimeException.class);
+                .thenReturn(card)
+                .thenThrow(RuntimeException.class);
         Mono<Cards> actualCardsMono = cardService.getNotificationCards(REQUEST_INFO);
         StepVerifier.create(actualCardsMono)
-            .consumeNextWith(
-                actualCards -> {
-                    assertThat(actualCards.getCards()).hasSize(1);
-                    assertThat(actualCards.getCards()).containsExactly(card);
-                })
-            .verifyComplete();
+                .consumeNextWith(
+                        actualCards -> {
+                            assertThat(actualCards.getCards()).hasSize(1);
+                            assertThat(actualCards.getCards()).containsExactly(card);
+                        })
+                .verifyComplete();
     }
 
 }

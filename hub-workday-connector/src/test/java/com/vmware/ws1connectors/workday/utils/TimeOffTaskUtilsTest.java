@@ -21,7 +21,7 @@ import static com.vmware.ws1connectors.workday.test.JsonUtils.convertFromJsonFil
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class TimeOffTaskUtilsTest {
+class TimeOffTaskUtilsTest {
     private static final InboxTask NO_INBOX_TASK = null;
     private static final TimeOffEvent NO_TIME_OFF_EVENT = null;
     private static final Locale NO_LOCALE = null;
@@ -39,12 +39,12 @@ public class TimeOffTaskUtilsTest {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForTimeOffTaskCreation")
-    public void whenInvalidInputsProvidedForCreateTimeOffTask(final InboxTask inboxTask, final TimeOffEvent timeOffEvent, final Locale locale) {
+    void whenInvalidInputsProvidedForCreateTimeOffTask(final InboxTask inboxTask, final TimeOffEvent timeOffEvent, final Locale locale) {
         assertThatExceptionOfType(IllegalArgumentException.class)
             .isThrownBy(() -> TimeOffTaskUtils.createTimeOffTask(inboxTask, timeOffEvent, locale));
     }
 
-    @Test public void canCreateTimeOffTask() {
+    @Test void canCreateTimeOffTask() {
         final TimeOffTask actualTimeOffTask = TimeOffTaskUtils.createTimeOffTask(INBOX_TASK, TIME_OFF_EVENT, LOCALE);
         final TimeOffTask expectedTimeOffTask = convertFromJsonFile("time_off_task_1.json", TimeOffTask.class);
 

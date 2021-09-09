@@ -47,6 +47,7 @@ import static com.vmware.ws1connectors.workday.utils.CardConstants.TIMEOFF_DECLI
 import static org.springframework.http.HttpMethod.GET;
 
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class BaseCardBuilder {
 
     @Autowired protected ConnectorTextAccessor cardTextAccessor;

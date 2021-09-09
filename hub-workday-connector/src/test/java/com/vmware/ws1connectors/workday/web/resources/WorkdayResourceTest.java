@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings
-public class WorkdayResourceTest {
+class WorkdayResourceTest {
     private static final String USER_INFO = FileUtils.readFileAsString("user_info.json");
     private static final String NO_USER_INFO = FileUtils.readFileAsString("no_data_total_zero.json");
     private static final String NO_USER_INFO_TOTAL_NON_ZERO = FileUtils.readFileAsString("no_data_total_non_zero.json");
@@ -42,27 +42,32 @@ public class WorkdayResourceTest {
 
     private WorkdayResource<WorkdayUser> workdayResource;
 
-    @BeforeEach public void setup() {
+    @BeforeEach
+    void setup() {
         workdayResource = convertToWorkdayResourceFromJson(USER_INFO, WorkdayUser.class);
     }
 
-    @Nested public class GetTotal {
-        @Test public void returnsTotal() {
+    @Nested
+    class GetTotal {
+        @Test
+        void returnsTotal() {
             assertThat(workdayResource.getTotal()).isEqualTo(TOTAL);
         }
     }
 
-    @Nested public class GetData {
-        @Test public void returnsData() {
+    @Nested
+    class GetData {
+        @Test
+        void returnsData() {
             final WorkdayUser workdayUser = WorkdayUser.builder()
-                .userName(USER_NAME)
-                .workdayID(WORDAY_ID)
-                .workerID(WORKER_ID)
-                .email(EMAIL)
-                .fullName(FULL_NAME)
-                .instanceID(INSTANCE_ID)
-                .locale(LOCALE)
-                .build();
+                    .userName(USER_NAME)
+                    .workdayID(WORDAY_ID)
+                    .workerID(WORKER_ID)
+                    .email(EMAIL)
+                    .fullName(FULL_NAME)
+                    .instanceID(INSTANCE_ID)
+                    .locale(LOCALE)
+                    .build();
             assertThat(workdayResource.getData()).hasSize(1);
             assertThat(workdayResource.getData()).containsExactlyElementsOf(Lists.newArrayList(workdayUser));
         }
@@ -70,15 +75,16 @@ public class WorkdayResourceTest {
 
     @Nested
     @DisplayName("Tests hasData() method")
-    public class HasDataSet {
+    class HasDataSet {
 
-        @Test public void hasData() {
+        @Test
+        void hasData() {
             assertThat(workdayResource.hasData()).isTrue();
         }
 
         @ParameterizedTest
         @MethodSource("com.vmware.ws1connectors.workday.web.resources.WorkdayResourceTest#workdayResourceHasNoDataInputs")
-        public void hasNoData(final String workdayResource) {
+        void hasNoData(final String workdayResource) {
             final WorkdayResource<WorkdayUser> emptyWorkDayResource = convertToWorkdayResourceFromJson(workdayResource, WorkdayUser.class);
             assertThat(emptyWorkDayResource.hasData()).isFalse();
         }

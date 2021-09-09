@@ -31,7 +31,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest;
 
-public class CardsControllerTest extends ControllerTestUtils {
+class CardsControllerTest extends ControllerTestUtils {
     private static final String UNAUTHORIZED_WORKDAY_AUTH_TOKEN = BEARER + "unauthorized-auth-token";
     private static final String NO_WORKDAY_AUTH_TOKEN = null;
     private static final String TIME_OFF_REQUEST_ID_1_API = TIME_OFF_REQUEST_API_PATH + "fc844b7a8f6f01580738a5ffd6115105";
@@ -46,59 +46,65 @@ public class CardsControllerTest extends ControllerTestUtils {
     private static final String BUSINESS_PROCESS_URL_PRE_HIRE_1 = "/common/v1/businessProcesses/318af1942cc001af54978e493e14fa0a";
     private static final String BUSINESS_PROCESS_URL_PRE_HIRE_2 = "/common/v1/businessProcesses/318af1942cc001af76543e493e14fa0a";
 
-    @Test public void testCardRequestsApiIsProtected() throws Exception {
+    @Test
+    void testCardRequestsApiIsProtected() throws Exception {
         testProtectedResource(POST, CARDS_REQUESTS_API);
     }
 
-    @Test public void testConnectorDiscoveryMetadata() throws IOException {
+    @Test
+    void testConnectorDiscoveryMetadata() throws IOException {
         testConnectorDiscovery();
     }
 
-    @Test public void cardRequestFailsWhenUnauthorizedWorkdayAuthTokenIsProvided() throws IOException {
+    @Test
+    void cardRequestFailsWhenUnauthorizedWorkdayAuthTokenIsProvided() throws IOException {
         mockBackend.expect(requestTo(any(String.class)))
-            .andRespond(withUnauthorizedRequest());
+                .andRespond(withUnauthorizedRequest());
 
         requestCards(UNAUTHORIZED_WORKDAY_AUTH_TOKEN, CARDS_REQUESTS_API, REQUEST_BODY_FILE_NAME, false)
-            .expectStatus().isBadRequest()
-            .expectBody().jsonPath(ERROR_JSON_PATH, INVALID_CONNECTOR_TOKEN);
+                .expectStatus().isBadRequest()
+                .expectBody().jsonPath(ERROR_JSON_PATH, INVALID_CONNECTOR_TOKEN);
     }
 
-    @Test public void cardRequestFailsWhenWorkdayAuthTokenIsMissing() throws IOException {
+    @Test
+    void cardRequestFailsWhenWorkdayAuthTokenIsMissing() throws IOException {
         requestCards(NO_WORKDAY_AUTH_TOKEN, CARDS_REQUESTS_API, REQUEST_BODY_FILE_NAME, false)
-            .expectStatus().isBadRequest();
+                .expectStatus().isBadRequest();
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"no_results.json", "inbox_task_without_status.json",
             "inbox_task_without_overall_process.json"})
-    public void canGetEmptyCardsWhenNoTimeOffTasksFound(String inboxTaskFile) throws Exception {
+    void canGetEmptyCardsWhenNoTimeOffTasksFound(String inboxTaskFile) throws Exception {
         mockWorkdayApiResponse(getInboxTasksUri(), inboxTaskFile);
 
         requestCards(WORKDAY_AUTH_TOKEN, CARDS_REQUESTS_API, REQUEST_BODY_FILE_NAME, false)
-            .expectStatus().isOk()
-            .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-            .expectBody().json(fromFile("cards/no_cards.json"));
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .expectBody().json(fromFile("cards/no_cards.json"));
     }
 
-    @Test public void canGetCards() throws Exception {
+    @Test
+    void canGetCards() throws Exception {
         mockWorkdayApiResponse(getInboxTasksUri(), "mixed_inbox_tasks.json");
         mockWorkdayApiResponse(TIME_OFF_REQUEST_ID_1_API, "time_off_request_1.json");
         mockWorkdayApiResponse(TIME_OFF_REQUEST_ID_2_API, "time_off_request_2.json");
 
         final String actualResponseBody = requestCards(WORKDAY_AUTH_TOKEN, CARDS_REQUESTS_API,
                 REQUEST_BODY_FILE_NAME, false)
-            .expectStatus().isOk()
-            .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-            .returnResult(String.class)
-            .getResponseBody()
-            .collect(Collectors.joining())
-            .block();
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                .returnResult(String.class)
+                .getResponseBody()
+                .collect(Collectors.joining())
+                .block();
 
         assertThatJson(actualResponseBody).when(IGNORING_EXTRA_FIELDS, IGNORING_ARRAY_ORDER)
-            .isEqualTo(fromFile("cards/cards.json"));
+                .isEqualTo(fromFile("cards/cards.json"));
     }
 
-    @Test public void canGetCardsWhenTimeOffDetailsResponseMissingTimeOffDescriptor() throws Exception {
+    @Test
+    void canGetCardsWhenTimeOffDetailsResponseMissingTimeOffDescriptor() throws Exception {
         mockWorkdayApiResponse(getInboxTasksUri(), "inbox_task_timeOff.json");
         mockWorkdayApiResponse(TIME_OFF_REQUEST_ID_1_API, "time_off_response_missing_timeoff_descriptor.json");
 
@@ -115,7 +121,8 @@ public class CardsControllerTest extends ControllerTestUtils {
                 .isEqualTo(fromFile("cards/cards_without_type_attribute.json"));
     }
 
-    @Test public void canGetCardsWithBusinessTitleChange() throws Exception {
+    @Test
+    void canGetCardsWithBusinessTitleChange() throws Exception {
         mockWorkdayApiResponse(getInboxTasksUri(), "mixed_inbox_tasks_with_businessTitleChange.json");
         mockWorkdayApiResponse(TIME_OFF_REQUEST_ID_1_API, "time_off_request_1.json");
         mockWorkdayApiResponse(TIME_OFF_REQUEST_ID_2_API, "time_off_request_2.json");
@@ -141,7 +148,8 @@ public class CardsControllerTest extends ControllerTestUtils {
                 .andRespond(withSuccess(fromFile("business_title_change.json"), APPLICATION_JSON));
     }
 
-    @Test public void canGetCardsWithBusinessProcess() throws Exception {
+    @Test
+    void canGetCardsWithBusinessProcess() throws Exception {
         mockWorkdayApiResponse(getInboxTasksUri(), "mixed_inbox_tasks_with_business_process.json");
         mockWorkdayApiResponse(TIME_OFF_REQUEST_ID_1_API, "time_off_request_1.json");
         mockWorkdayApiResponse(TIME_OFF_REQUEST_ID_2_API, "time_off_request_2.json");
@@ -163,7 +171,8 @@ public class CardsControllerTest extends ControllerTestUtils {
                 .isEqualTo(fromFile("cards/cards_with_business_process.json"));
     }
 
-    @Test public void canGetCardsWithBusinessProcessForPreHire() throws Exception {
+    @Test
+    void canGetCardsWithBusinessProcessForPreHire() throws Exception {
         mockWorkdayApiResponse(getInboxTasksUri(), "inbox_task_pre_hire.json");
         mockWorkdayApiResponse(BUSINESS_PROCESS_URL_PRE_HIRE_1, "Business_Process_Details_Pre_Hire_1.json");
         mockWorkdayApiResponse(BUSINESS_PROCESS_URL_PRE_HIRE_2, "Business_Process_Details_Pre_Hire_2.json");
@@ -180,7 +189,8 @@ public class CardsControllerTest extends ControllerTestUtils {
                 .isEqualTo(fromFile("cards/cards_with_business_process_pre_hire.json"));
     }
 
-    @Test public void testMissingRequestHeaders() throws IOException {
+    @Test
+    void testMissingRequestHeaders() throws IOException {
         String uri = "/cards/requests";
         webClient.post()
                 .uri(uri)
@@ -194,7 +204,8 @@ public class CardsControllerTest extends ControllerTestUtils {
                 .expectBody().jsonPath("$.message").isEqualTo("Missing request header 'X-Connector-Base-Url' for method parameter of type String");
     }
 
-    @Test public void canGetCardsWhenInboxTaskHasDifferentDescriptor() throws Exception {
+    @Test
+    void canGetCardsWhenInboxTaskHasDifferentDescriptor() throws Exception {
         mockWorkdayApiResponse(getInboxTasksUri(), "mixed_inbox_tasks_1.json");
         mockWorkdayApiResponse(TIME_OFF_REQUEST_ID_1_API, "time_off_request_diff_desc_1.json");
         mockWorkdayApiResponse(TIME_OFF_REQUEST_ID_2_API, "time_off_request_diff_desc_2.json");

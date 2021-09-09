@@ -21,6 +21,7 @@ import static com.vmware.ws1connectors.workday.utils.WorkdayConnectorConstants.L
 
 @Service
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class Day0CardService {
     @Autowired InboxService inboxService;
     @Autowired Day0CardBuilder cardBuilder;

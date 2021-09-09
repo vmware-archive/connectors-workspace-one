@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import static com.vmware.ws1connectors.servicenow.utils.JsonUtils.convertFromJsonFile;
 
-public class CategoryItemTest {
+class CategoryItemTest {
 
-    @Test public void getsDescriptionInPlainTextForDescriptionInHtml() {
+    @Test void getsDescriptionInPlainTextForDescriptionInHtml() {
         final String plainTextDesc = "Asus G Series Notebook\nIntel Core i7-2630QM 2.0GHz\n"
             + "8GB Memory 500GB HDD\nNVIDIA GeForce GTX 460M\nDVD Super Multi";
         final CategoryItem categoryItem = convertFromJsonFile("botflows/servicenow/response/laptop_item.json", CategoryItem.class);

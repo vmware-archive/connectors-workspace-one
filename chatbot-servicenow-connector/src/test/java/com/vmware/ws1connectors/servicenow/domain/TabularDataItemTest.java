@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TabularDataItemTest {
+class TabularDataItemTest {
 
     private static final String TITLE = "title";
     private static final String ID = "00909613db113300ea92eb41ca961949";
@@ -25,7 +25,7 @@ public class TabularDataItemTest {
     private static final String URL = "http://localhost:52614/";
     private static final String IMAGE_URL = "http://localhost:52614/ab4537ctr.jpg";
 
-    @Test public void testEqualsAndHashCodeWhenObjectsAreEqual() {
+    @Test void testEqualsAndHashCodeWhenObjectsAreEqual() {
         TabularDataItem tabularDataItemObj1 = TabularDataItem.builder()
                 .title(TITLE)
                 .description(DESCRIPTION)
@@ -42,7 +42,7 @@ public class TabularDataItemTest {
         assertThat(tabularDataItemObj1).isEqualTo(tabularDataItemObj2);
     }
 
-    @Test public void testEqualsAndHashCodeWhenObjectsAreNotEqual() {
+    @Test void testEqualsAndHashCodeWhenObjectsAreNotEqual() {
         TabularDataItem tabularDataItemObj1 = TabularDataItem.builder()
                 .title(TITLE)
                 .description(DESCRIPTION)
@@ -59,7 +59,7 @@ public class TabularDataItemTest {
         assertThat(tabularDataItemObj1).isNotEqualTo(tabularDataItemObj2);
     }
 
-    @Test public void testTabularDataItemObjectBuilder() {
+    @Test void testTabularDataItemObjectBuilder() {
         TabularDataItem tabularDataItem = TabularDataItem.builder()
                 .title(TITLE)
                 .shortDescription(SHORT_DESCRIPTION)

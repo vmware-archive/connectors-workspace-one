@@ -10,22 +10,25 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ApproveFormTest {
+class ApproveFormTest {
 
     private static final String COMMENT = "comment";
     private static final String TENANT_NAME = "vmware_gms";
 
     private ApproveForm approveForm;
 
-    @BeforeEach public void setup() {
+    @BeforeEach
+    void setup() {
         approveForm = new ApproveForm(COMMENT, TENANT_NAME);
     }
 
-    @Test public void returnsComment() {
+    @Test
+    void returnsComment() {
         assertThat(approveForm.getComment()).isEqualTo(COMMENT);
     }
 
-    @Test public void returnsTenantName() {
+    @Test
+    void returnsTenantName() {
         assertThat(approveForm.getTenantName()).isEqualTo(TENANT_NAME);
     }
 }

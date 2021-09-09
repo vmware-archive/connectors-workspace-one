@@ -13,16 +13,16 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.3</version>
+        <version>2.5.4</version>
     </parent>
 
     <properties>
-        <com.vmware.card-connectors.version>2.9.5</com.vmware.card-connectors.version>
+        <com.vmware.card-connectors.version>2.9.6</com.vmware.card-connectors.version>
         <connector.name>hub-salesforce</connector.name>
         <docker.javaImage>openjdk:11-jre</docker.javaImage>
         <nexus.staging.skip>false</nexus.staging.skip>
         <okhttp.version>4.9.1</okhttp.version>
-        <pmd.version>6.13.0</pmd.version>
+        <pmd.version>6.37.0</pmd.version>
         <guava.version>30.1.1-jre</guava.version>
         <projectreactor.version>3.4.4</projectreactor.version>
         <jayway.validator.version>2.9.0</jayway.validator.version>
@@ -33,7 +33,7 @@
         <xmlunit.version>1.6</xmlunit.version>
         <spring-plugin.version>2.0.0.RELEASE</spring-plugin.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <jaxb-core.version>3.0.2-b01</jaxb-core.version>
+        <jaxb-core.version>3.0.2</jaxb-core.version>
         <logback-jackson.version>0.1.5</logback-jackson.version>
         <spring-security-jwt.version>1.1.1.RELEASE</spring-security-jwt.version>
         <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>

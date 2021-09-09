@@ -29,6 +29,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class Day0CardsController {
 
     @Autowired private Day0CardService cardService;

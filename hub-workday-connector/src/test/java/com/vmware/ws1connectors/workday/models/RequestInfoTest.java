@@ -11,7 +11,7 @@ import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RequestInfoTest {
+class RequestInfoTest {
     private static final String TENANT_NAME = "vmware_gms";
     private static final String TENANT_URL = "https://impl.workday.com";
     private static final String ROUTING_PREFIX = "https://dev.hero.example.com/connectors/id/";
@@ -19,7 +19,8 @@ public class RequestInfoTest {
     private static final String BASE_URL = "http://workday.com";
     private static final String CONNECTOR_AUTH = "connectorAuth";
 
-    @Test public void testCardsConfigGetters() {
+    @Test
+    void testCardsConfigGetters() {
         RequestInfo requestInfo = RequestInfo.builder().tenantName(TENANT_NAME)
                 .tenantUrl(TENANT_URL)
                 .baseUrl(BASE_URL)
@@ -31,7 +32,8 @@ public class RequestInfoTest {
         assertForGetters(requestInfo);
     }
 
-    @Test public void testCardsConfigSetters() {
+    @Test
+    void testCardsConfigSetters() {
         RequestInfo requestInfo = RequestInfo.builder().build();
         requestInfo.setBaseUrl(BASE_URL);
         requestInfo.setConnectorAuth(CONNECTOR_AUTH);

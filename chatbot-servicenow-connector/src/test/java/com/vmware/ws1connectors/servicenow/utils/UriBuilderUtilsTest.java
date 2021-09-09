@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class UriBuilderUtilsTest {
+class UriBuilderUtilsTest {
 
     private static final URI NO_BASE_URL = null;
     private static final URI BASE_URL = UriComponentsBuilder.fromUriString("http://localhost:54819/").build().toUri();
@@ -60,7 +60,7 @@ public class UriBuilderUtilsTest {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForUriBuilder")
-    public void whenUriBuilderProvidedWithInvalidInputs(final URI baseUri, final String path) {
+    void whenUriBuilderProvidedWithInvalidInputs(final URI baseUri, final String path) {
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(() -> UriBuilderUtils.buildUri(baseUri, path));
         verify(mockExchangeFunc, never()).exchange(any(ClientRequest.class));
@@ -74,21 +74,21 @@ public class UriBuilderUtilsTest {
                 .build();
     }
 
-    @Test public void whenUriBuilderProvidedWithNoBuildArgs() {
+    @Test void whenUriBuilderProvidedWithNoBuildArgs() {
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(() -> UriBuilderUtils.buildUri(BASE_URL, PATH, null));
     }
 
-    @Test public void testUriBuilder() {
+    @Test void testUriBuilder() {
         assertThat(UriBuilderUtils.buildUri(BASE_URL, PATH)).isEqualTo(EXPECTED_BASE_URL);
     }
 
-    @Test public void testUriBuilderWithArgs() {
+    @Test void testUriBuilderWithArgs() {
         assertThat(UriBuilderUtils.buildUri(BASE_URL, BASE_URL_WITH_PARAMS, Map
                 .of(ServiceNowConstants.ITEM_ID_STR, ITEM_ID))).isEqualTo(EXPECTED_BASE_URL_WITH_PARAMS);
     }
 
-    @Test public void testGetTaskUrl() {
+    @Test void testGetTaskUrl() {
         Task task = getTaskData();
         final Link taskUrl = UriBuilderUtils.getTaskUrl(BASE_URL_SNOW, task);
         assertThat(taskUrl.getHref()).isEqualTo(EXPECTED_TASK_URL);
@@ -106,7 +106,7 @@ public class UriBuilderUtilsTest {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForGetTaskUrl")
-    public void testGetTaskUrlWithInvalidInputs(final Task task, final String baseUrl) {
+    void testGetTaskUrlWithInvalidInputs(final Task task, final String baseUrl) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> UriBuilderUtils.getTaskUrl(baseUrl, task));
         verify(mockExchangeFunc, never()).exchange(any(ClientRequest.class));

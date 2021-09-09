@@ -34,6 +34,7 @@ import static com.vmware.ws1connectors.workday.utils.WorkdayConnectorConstants.L
 
 @Component
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class Day0CardBuilder extends BaseCardBuilder {
 
     private static final String INBOX_TASK = "inboxTask";

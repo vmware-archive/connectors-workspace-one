@@ -43,7 +43,7 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class TabularDataBuilderUtilsTest {
+class TabularDataBuilderUtilsTest {
 
     private static final String BASE_URL_SNOW = "http://localhost:52614/";
     private static final String TASK_IMPACT = "3-low";
@@ -56,7 +56,7 @@ public class TabularDataBuilderUtilsTest {
 
     @Mock private ExchangeFunction mockExchangeFunc;
 
-    @Test public void testBuildTabularDataForTask() {
+    @Test void testBuildTabularDataForTask() {
         Task task = getTaskData();
         TabularData expectedTabularData = getExpectedTabularDataObj(task);
         final TabularData tabularData = TabularDataBuilderUtils.buildTabularDataForTask(task, BASE_URL_SNOW);
@@ -95,7 +95,7 @@ public class TabularDataBuilderUtilsTest {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForBuildTabularDataForTask")
-    public void testBuildTabularDataForTaskWithInvalidInputs(final Task task, final String baseUrl) {
+    void testBuildTabularDataForTaskWithInvalidInputs(final Task task, final String baseUrl) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> TabularDataBuilderUtils.buildTabularDataForTask(task, baseUrl));
         verify(mockExchangeFunc, never()).exchange(any(ClientRequest.class));

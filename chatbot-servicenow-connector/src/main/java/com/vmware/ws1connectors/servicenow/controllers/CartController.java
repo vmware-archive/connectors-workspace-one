@@ -104,7 +104,9 @@ public class CartController extends BaseController {
             @RequestHeader(BASE_URL_HEADER) String baseUrl,
             @RequestHeader(ServiceNowConstants.ROUTING_PREFIX_TEMPLATE) String routingPrefixTemplate,
             Locale locale) {
-        LOGGER.trace("confirm checkout cart for user={}, baseUrl={}", AuthUtil.extractUserEmail(mfToken), baseUrl);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("confirm checkout cart for user={}, baseUrl={}", AuthUtil.extractUserEmail(mfToken), baseUrl);
+        }
 
         String routingPrefix = routingPrefixTemplate.replace(ServiceNowConstants.INSERT_OBJECT_TYPE, ServiceNowConstants.OBJECT_TYPE_BOT_DISCOVERY);
         BotAction confirmAction = botActionBuilder.confirmCartCheckout(routingPrefix, locale, CHECKOUT_URL);

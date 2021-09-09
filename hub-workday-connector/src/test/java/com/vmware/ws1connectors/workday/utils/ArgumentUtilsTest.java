@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings
-public class ArgumentUtilsTest {
+class ArgumentUtilsTest {
     private static final String NO_BASE_URL = null;
     private static final String NO_WORKDAY_TOKEN = null;
     private static final String NO_TENANT_NAME = null;
@@ -40,30 +40,33 @@ public class ArgumentUtilsTest {
 
     private static Stream<Arguments> invalidBasicConnectorArguments() {
         return new ArgumentsStreamBuilder()
-            .add(NO_BASE_URL, WORKDAY_TOKEN, TENANT_NAME)
-            .add(BASE_URL, NO_WORKDAY_TOKEN, TENANT_NAME)
-            .add(BASE_URL, WORKDAY_TOKEN, NO_TENANT_NAME)
-            .build();
+                .add(NO_BASE_URL, WORKDAY_TOKEN, TENANT_NAME)
+                .add(BASE_URL, NO_WORKDAY_TOKEN, TENANT_NAME)
+                .add(BASE_URL, WORKDAY_TOKEN, NO_TENANT_NAME)
+                .build();
     }
 
     @ParameterizedTest
     @MethodSource("invalidBasicConnectorArguments")
-    public void whenInvalidBasicConnectorInputsProvided(final String baseUrl, final String workdayAuth, final String tenantName) {
+    void whenInvalidBasicConnectorInputsProvided(final String baseUrl, final String workdayAuth, final String tenantName) {
         assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> ArgumentUtils.checkBasicConnectorArgumentsNotBlank(baseUrl, workdayAuth, tenantName));
+                .isThrownBy(() -> ArgumentUtils.checkBasicConnectorArgumentsNotBlank(baseUrl, workdayAuth, tenantName));
     }
 
-    @Test public void exceptionNotThrownWhenValidBasicConnectorInputsProvided() {
+    @Test
+    void exceptionNotThrownWhenValidBasicConnectorInputsProvided() {
         assertThatCode(() -> ArgumentUtils.checkBasicConnectorArgumentsNotBlank(BASE_URL, WORKDAY_TOKEN, TENANT_NAME)).doesNotThrowAnyException();
     }
 
-    @Test public void exceptionThrownWhenInputIsNullForCheckArgumentNotNull() {
+    @Test
+    void exceptionThrownWhenInputIsNullForCheckArgumentNotNull() {
         assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> ArgumentUtils.checkArgumentNotNull(NO_USER, USER_LABEL));
+                .isThrownBy(() -> ArgumentUtils.checkArgumentNotNull(NO_USER, USER_LABEL));
 
     }
 
-    @Test public void exceptionNotThrownWhenInputIsNotNullForCheckArgumentNotNull() {
+    @Test
+    void exceptionNotThrownWhenInputIsNotNullForCheckArgumentNotNull() {
         assertThatCode(() -> ArgumentUtils.checkArgumentNotNull(USER, USER_LABEL)).doesNotThrowAnyException();
 
     }
@@ -74,12 +77,13 @@ public class ArgumentUtilsTest {
 
     @ParameterizedTest
     @MethodSource("blankInputArguments")
-    public void exceptionThrownWhenStringInputIsBlankForCheckArgumentNotBlank(final String stringInput) {
+    void exceptionThrownWhenStringInputIsBlankForCheckArgumentNotBlank(final String stringInput) {
         assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> ArgumentUtils.checkArgumentNotBlank(stringInput, TENANT_LABEL));
+                .isThrownBy(() -> ArgumentUtils.checkArgumentNotBlank(stringInput, TENANT_LABEL));
     }
 
-    @Test public void exceptionNotThrownWhenStringInputIsNotBlankForCheckArgumentNotBlank() {
+    @Test
+    void exceptionNotThrownWhenStringInputIsNotBlankForCheckArgumentNotBlank() {
         assertThatCode(() -> ArgumentUtils.checkArgumentNotBlank(TENANT_NAME, TENANT_LABEL)).doesNotThrowAnyException();
     }
 }

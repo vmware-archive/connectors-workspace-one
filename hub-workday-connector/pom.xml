@@ -20,20 +20,17 @@
         <spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
         <maven.complier.plugin.version>3.8.1</maven.complier.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <checkstyle.version>8.30</checkstyle.version>
-        <checkstyle.plugin.version>3.1.1</checkstyle.plugin.version>
-        <checkstyle.sevntu.version>1.37.0</checkstyle.sevntu.version>
-        <pmd.plugin.version>3.13.0</pmd.plugin.version>
-        <pmd.version>6.22.0</pmd.version>
-        <spotbugs.version>3.1.12.2</spotbugs.version>
-        <mobileflows.connector.version>2.9.5</mobileflows.connector.version>
+        <pmd.plugin.version>3.14.0</pmd.plugin.version>
+        <pmd.version>6.37.0</pmd.version>
+        <spotbugs.version>4.3.0</spotbugs.version>
+        <mobileflows.connector.version>2.9.6</mobileflows.connector.version>
         <jackson.version>2.12.4</jackson.version>
         <jackson.databind.version>2.12.4</jackson.databind.version>
         <lombok.version>1.18.20</lombok.version>
-        <reactor.test.version>3.4.8</reactor.test.version>
-        <docker.plugin.version>0.36.1</docker.plugin.version>
-        <spotbugs.annotations.version>4.3.0</spotbugs.annotations.version>
-        <json.junit.version>2.27.0</json.junit.version>
+        <reactor.test.version>3.4.9</reactor.test.version>
+        <docker.plugin.version>0.37.0</docker.plugin.version>
+        <spotbugs.annotations.version>4.4.0</spotbugs.annotations.version>
+        <json.junit.version>2.28.0</json.junit.version>
         <commons.text.version>1.9</commons.text.version>
         <osstp.plugin.version>1.1.1</osstp.plugin.version>
         <sonar.plugin.version>3.9.0.2155</sonar.plugin.version>
@@ -215,41 +212,6 @@
                     <execution>
                         <goals>
                             <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${checkstyle.plugin.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>${checkstyle.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.github.sevntu-checkstyle</groupId>
-                        <artifactId>sevntu-checks</artifactId>
-                        <version>${checkstyle.sevntu.version}</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>checkstyle-check</id>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <configLocation>checkstyle.xml</configLocation>
-                            <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
-                            <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        </configuration>
-                        <goals>
-                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>

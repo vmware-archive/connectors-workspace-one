@@ -29,6 +29,7 @@ import static com.vmware.ws1connectors.workday.utils.ArgumentUtils.checkArgument
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public final class TimeOffTaskUtils {
     private static final char HYPHEN = '-';
     private static final String LOCALE = "Locale";

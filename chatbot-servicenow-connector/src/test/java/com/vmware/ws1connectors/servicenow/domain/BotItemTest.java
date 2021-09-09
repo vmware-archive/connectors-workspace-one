@@ -11,13 +11,13 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class BotItemTest {
+class BotItemTest {
 
     private static final String TITLE = "title";
     private static final String DESCRIPTION = "description";
     private static final TabularData TABULAR_DATA_NULL = null;
 
-    @Test public void testAddTabularData() {
+    @Test void testAddTabularData() {
         final TabularData expectedTabularData = TabularData.builder()
                 .title(TITLE)
                 .description(DESCRIPTION)
@@ -31,7 +31,7 @@ public class BotItemTest {
         assertThat(botItem.getTabularDataList()).containsExactly(expectedTabularData);
     }
 
-    @Test public void addTabularDataWhenTabularDataIsNull() {
+    @Test void addTabularDataWhenTabularDataIsNull() {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> new BotItem.Builder().addTabularData(TABULAR_DATA_NULL).build());
     }

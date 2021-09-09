@@ -30,20 +30,21 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings
-public class ServiceTestsBase {
+class ServiceTestsBase {
     static final String NO_BASE_URL = null;
     static final String NO_WORKDAY_TOKEN = null;
     static final String BASE_URL = "http://workday.com";
     static final String WORKDAY_TOKEN = "workdayToken";
     static final Duration DURATION_2_SECONDS = Duration.ofSeconds(2);
 
-    @Mock protected ExchangeFunction mockExchangeFunc;
+    @Mock
+    protected ExchangeFunction mockExchangeFunc;
     protected WebClient restClient;
 
     protected void setupRestClient(final Object service, final String restClientFieldName) {
         restClient = WebClient.builder()
-            .exchangeFunction(mockExchangeFunc)
-            .build();
+                .exchangeFunction(mockExchangeFunc)
+                .build();
         setField(service, restClientFieldName, restClient);
     }
 
@@ -63,9 +64,9 @@ public class ServiceTestsBase {
 
     protected ClientResponse buildClientResponse(final String responseBody) {
         return ClientResponse.create(HttpStatus.OK)
-            .body(responseBody)
-            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .build();
+                .body(responseBody)
+                .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
     }
 
     private void mockExchangeFunctionWithResponse(ClientResponse response) {
@@ -78,9 +79,9 @@ public class ServiceTestsBase {
 
     protected boolean isEquals(final Object actualObject, final Object expectedObject) {
         return new EqualsBuilder()
-            .setTestRecursive(true)
-            .reflectionAppend(actualObject, expectedObject)
-            .isEquals();
+                .setTestRecursive(true)
+                .reflectionAppend(actualObject, expectedObject)
+                .isEquals();
     }
 
 }

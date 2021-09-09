@@ -7,6 +7,10 @@ package com.vmware.connectors.boxNotes
 
 import com.backflipt.commons.readAsString
 import com.backflipt.commons.serialize
+import com.jayway.jsonpath.Configuration
+import com.jayway.jsonpath.JsonPath
+import com.jayway.jsonpath.Option
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider
 import com.vmware.connectors.boxNotes.config.Endpoints
 import com.vmware.connectors.boxNotes.config.ROUTING_PREFIX
 import com.vmware.connectors.test.ControllerTestsBase
@@ -96,7 +100,7 @@ class CardsControllerTests : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
         Assert.assertThat(actualData, SameJSONAs.sameJSONAs(expectedResponse))
@@ -150,7 +154,7 @@ class CardsControllerTests : ControllerTestsBase() {
                 .returnResult<String>()
                 .responseBody
                 .collect(Collectors.joining())
-                .map(JsonNormalizer::forCards)
+                .map(this::normalizeCards)
                 .block()
                 ?.replace(Regex("http://localhost:\\d+/"), "/")
         Assert.assertThat<String>(data, SameJSONAs.sameJSONAs(expectedResponse))
@@ -503,5 +507,18 @@ class CardsControllerTests : ControllerTestsBase() {
                 .exchange()
                 .expectStatus().isBadRequest
                 .expectHeader().valueEquals("x-backend-status", "401")
+    }
+
+    fun normalizeCards(body: String?): String? {
+        val configuration = Configuration.builder()
+                .options(Option.SUPPRESS_EXCEPTIONS)
+                .jsonProvider(JacksonJsonNodeJsonProvider())
+                .build()
+        val context = JsonPath.using(configuration).parse(body)
+        context.set("$.objects[*].id", "00000000-0000-0000-0000-000000000000")
+        context.set("$.objects[*].creation_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].expiration_date", "1970-01-01T00:00:00Z")
+        context.set("$.objects[*].actions[*].id", "00000000-0000-0000-0000-000000000000")
+        return context.jsonString()
     }
 }

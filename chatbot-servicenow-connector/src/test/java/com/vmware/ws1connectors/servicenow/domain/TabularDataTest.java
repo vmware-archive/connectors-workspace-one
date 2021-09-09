@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TabularDataTest {
+class TabularDataTest {
     private static final String TITLE = "title";
     private static final String ID = "00909613db113300ea92eb41ca961949";
     private static final String TYPE_TEXT = "text";
@@ -27,7 +27,7 @@ public class TabularDataTest {
     private static final String IMAGE_URL = "http://localhost:52614/ab4537ctr.jpg";
     private static final int TABULAR_DATA_ITEM_LIST_SIZE = 1;
 
-    @Test public void testEqualsAndHashCodeWhenObjectsAreEqual() {
+    @Test void testEqualsAndHashCodeWhenObjectsAreEqual() {
         final TabularDataItem tabularDataItem = getTabularDataItem();
         TabularData tabularDataObj1 = TabularData.builder()
                 .title(TITLE)
@@ -57,7 +57,7 @@ public class TabularDataTest {
                 .build();
     }
 
-    @Test public void testEqualsAndHashCodeWhenObjectsAreNotEqual() {
+    @Test void testEqualsAndHashCodeWhenObjectsAreNotEqual() {
         TabularData tabularDataObj1 = TabularData.builder()
                 .title(TITLE)
                 .description(DESCRIPTION)
@@ -72,7 +72,7 @@ public class TabularDataTest {
         assertThat(tabularDataObj1).isNotEqualTo(tabularDataObj2);
     }
 
-    @Test public void testTabularDataObjectBuilder() {
+    @Test void testTabularDataObjectBuilder() {
         final TabularDataItem tabularDataItem = getTabularDataItem();
         TabularData tabularData = TabularData.builder()
                 .title(TITLE)

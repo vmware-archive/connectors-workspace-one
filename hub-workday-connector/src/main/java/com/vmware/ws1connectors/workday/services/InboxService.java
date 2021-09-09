@@ -30,6 +30,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Service
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class InboxService {
     private static final ParameterizedTypeReference<WorkdayResource<InboxTask>> WORKDAY_RESOURCE_TYPE_REFERENCE = new ParameterizedTypeReference<>() {
     };

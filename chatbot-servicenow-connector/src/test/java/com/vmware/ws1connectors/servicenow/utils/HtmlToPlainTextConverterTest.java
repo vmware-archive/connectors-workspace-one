@@ -18,22 +18,22 @@ import static org.apache.commons.lang3.StringUtils.LF;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HtmlToPlainTextConverterTest {
+class HtmlToPlainTextConverterTest {
     private static final String NO_HTML_CONTENT = null;
 
-    @Test public void formatsNullHtmlContent() {
+    @Test void formatsNullHtmlContent() {
         formatsEmptyHtmlContent(NO_HTML_CONTENT);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {SPACE, LF, EMPTY})
-    public void formatsEmptyHtmlContent(final String htmlContent) {
+    void formatsEmptyHtmlContent(final String htmlContent) {
         assertThat(HtmlToPlainTextConverter.toPlainText(htmlContent)).isEqualTo(htmlContent);
     }
 
     @ParameterizedTest
     @MethodSource("getInputsForFormatHtmlContent")
-    public void formatsHtmlContent(final String html, final String text) {
+    void formatsHtmlContent(final String html, final String text) {
         final String actualPlainText = HtmlToPlainTextConverter.toPlainText(FileUtils.readFileAsString(html));
         assertThat(actualPlainText).isEqualTo(FileUtils.readFileAsString(text));
     }

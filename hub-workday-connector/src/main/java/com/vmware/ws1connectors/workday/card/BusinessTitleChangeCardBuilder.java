@@ -36,6 +36,7 @@ import static com.vmware.ws1connectors.workday.utils.WorkdayConnectorConstants.T
 
 @Component
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class BusinessTitleChangeCardBuilder extends BaseCardBuilder
         implements NotificationCardBuilder<BusinessTitleChangeTask> {
 

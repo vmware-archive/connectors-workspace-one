@@ -34,7 +34,7 @@ import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings
-public class Day0TimeOffCardBuilderTest {
+class Day0TimeOffCardBuilderTest {
 
     private static final String NO_BASE_URL = null;
     private static final Locale NO_LOCALE = null;
@@ -50,9 +50,11 @@ public class Day0TimeOffCardBuilderTest {
     private static final String CONNECTOR_IMAGE_DEFAULT_URL = "https://vmw-mf-assets.s3.amazonaws.com/connector-images/hub-workday.png";
 
     private ConnectorTextAccessor cardTextAccessor;
-    @InjectMocks private Day0CardBuilder cardBuilder;
+    @InjectMocks
+    private Day0CardBuilder cardBuilder;
 
-    @BeforeEach public void setup() {
+    @BeforeEach
+    void setup() {
         final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasename(TEXT_PROPERTIES);
         cardTextAccessor = new ConnectorTextAccessor(messageSource);
@@ -60,7 +62,8 @@ public class Day0TimeOffCardBuilderTest {
         setField(cardBuilder, "connectorDefaultImageUrl", CONNECTOR_IMAGE_DEFAULT_URL);
     }
 
-    @Test public void canBuildCard() {
+    @Test
+    void canBuildCard() {
         final Card actualCard = cardBuilder.createCard(BASE_URL, LOCALE, NO_TIME_OFF_INBOX_TASKS);
         final Card expectedCard = JsonUtils.convertFromJsonFile(EXPECTED_DAY0_CARD, Card.class);
         assertThat(actualCard.getBody()).usingRecursiveComparison().isEqualTo(expectedCard.getBody());
@@ -72,8 +75,8 @@ public class Day0TimeOffCardBuilderTest {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForCreateDay0Card")
-    public void whenCreateCardProvidedWithInvalidInputs(final String baseUrl, final Locale locale,
-                                                        final List<InboxTask> inboxTasks) {
+    void whenCreateCardProvidedWithInvalidInputs(final String baseUrl, final Locale locale,
+                                                 final List<InboxTask> inboxTasks) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> cardBuilder.createCard(baseUrl, locale, inboxTasks));
     }

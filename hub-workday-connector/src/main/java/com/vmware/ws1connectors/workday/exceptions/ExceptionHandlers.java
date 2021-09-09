@@ -30,6 +30,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @RestControllerAdvice
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class ExceptionHandlers {
     static final String GENERIC_ERROR_MESSAGE = "An unexpected error occurred while processing request";
     static final String ERROR = "error";

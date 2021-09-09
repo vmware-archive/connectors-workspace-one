@@ -66,7 +66,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest;
 
-public class TimeOffTaskActionControllerTest extends ControllerTestsBase {
+class TimeOffTaskActionControllerTest extends ControllerTestsBase {
     private static final String BEARER = "Bearer ";
     private static final String UNAUTHORIZED_WORKDAY_AUTH_TOKEN = BEARER + "unauthorized-auth-token";
     private static final String WORKDAY_AUTH_TOKEN = BEARER + "valid-auth-token";
@@ -80,50 +80,53 @@ public class TimeOffTaskActionControllerTest extends ControllerTestsBase {
 
     @ParameterizedTest
     @ValueSource(strings = {TIMEOFF_TASK_APPROVE_ACTION_API_PATH, TIMEOFF_TASK_DECLINE_ACTION_API_PATH})
-    public void testTimeOffTaskActionApiAreProtected(final String actionPath) throws Exception {
+    void testTimeOffTaskActionApiAreProtected(final String actionPath) throws Exception {
         testProtectedResource(POST, getActionUrl(actionPath, INBOX_TASK_ID));
     }
 
     @DisplayName("Time off Task approval integration tests")
     @Nested
-    public class ApprovalActionTest {
+    class ApprovalActionTest {
 
-        @Test public void approveActionFailsWhenUnauthorizedWorkdayAuthTokenIsProvided() {
+        @Test
+        void approveActionFailsWhenUnauthorizedWorkdayAuthTokenIsProvided() {
             mockBackend.expect(requestTo(any(String.class)))
-                .andRespond(withUnauthorizedRequest());
+                    .andRespond(withUnauthorizedRequest());
 
             executeApproveAction(UNAUTHORIZED_WORKDAY_AUTH_TOKEN, buildFormData(COMMENT_KEY, COMMENT_VALUE, TENANT_NAME), INBOX_TASK_ID)
-                .expectStatus().isBadRequest();
+                    .expectStatus().isBadRequest();
         }
 
-        @Test public void approveActionFailsWhenWorkdayAuthTokenIsMissing() {
+        @Test
+        void approveActionFailsWhenWorkdayAuthTokenIsMissing() {
             executeApproveAction(NO_WORKDAY_AUTH_TOKEN, buildFormData(COMMENT_KEY, COMMENT_VALUE, TENANT_NAME), INBOX_TASK_ID)
-                .expectStatus().isBadRequest();
+                    .expectStatus().isBadRequest();
         }
 
-        @Test public void approveActionFailsWheTimeOffTaskNotFound() {
+        @Test
+        void approveActionFailsWheTimeOffTaskNotFound() {
             mockWorkdayApiResponse(GET, getWorkdayInboxTasksUri(), "no_results.json");
             executeApproveAction(WORKDAY_AUTH_TOKEN, buildFormData(COMMENT_KEY, COMMENT_VALUE, TENANT_NAME), INBOX_TASK_ID)
-                .expectStatus().isNotFound()
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON);
+                    .expectStatus().isNotFound()
+                    .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON);
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = "yep")
-        public void canApproveTask(final String comment) {
+        void canApproveTask(final String comment) {
             mockWorkdayApiResponse(GET, getWorkdayInboxTasksUri(), "mixed_inbox_tasks.json");
             mockWorkdayApiResponse(PUT, getWorkdayInboxTasksApprovalUri(), "task_action_success.json");
 
             executeApproveAction(WORKDAY_AUTH_TOKEN, buildFormData(COMMENT_KEY, comment, TENANT_NAME), INBOX_TASK_ID)
-                .expectStatus().isNoContent()
-                .expectBody().isEmpty();
+                    .expectStatus().isNoContent()
+                    .expectBody().isEmpty();
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = "yep")
-        public void canApproveBusinessProcessTask(final String comment) {
+        void canApproveBusinessProcessTask(final String comment) {
             mockWorkdayApiResponse(GET, getWorkdayInboxTasksUri(), "mixed_inbox_tasks_with_business_process.json");
             mockWorkdayApiResponse(POST, getBusinessProcessTaskApprovalUrl(), "task_action_success.json");
             executeApproveAction(WORKDAY_AUTH_TOKEN, buildFormData(COMMENT_KEY, comment, TENANT_NAME), BUSINESS_PROCESS_INBOX_ID)
@@ -131,7 +134,8 @@ public class TimeOffTaskActionControllerTest extends ControllerTestsBase {
                     .expectBody().isEmpty();
         }
 
-        @Test public void canDeclineBusinessProcessTask() {
+        @Test
+        void canDeclineBusinessProcessTask() {
             mockWorkdayApiResponse(GET, getWorkdayInboxTasksUri(), "mixed_inbox_tasks_with_business_process.json");
             mockWorkdayApiResponse(POST, getBusinessProcessTaskDeclineUrl(), "task_action_success.json");
             executeDeclineAction(WORKDAY_AUTH_TOKEN, buildFormData(REASON_KEY, REASON_VALUE, TENANT_NAME), BUSINESS_PROCESS_INBOX_ID)
@@ -141,64 +145,68 @@ public class TimeOffTaskActionControllerTest extends ControllerTestsBase {
 
         @ParameterizedTest
         @EnumSource(value = HttpStatus.class, names = {"INTERNAL_SERVER_ERROR", "BAD_REQUEST"})
-        public void whenApproveTaskFails(final HttpStatus status) {
+        void whenApproveTaskFails(final HttpStatus status) {
             mockWorkdayApiResponse(GET, getWorkdayInboxTasksUri(), "mixed_inbox_tasks.json");
             mockWorkdayApiErrorResponse(PUT, getWorkdayInboxTasksApprovalUri(), status);
 
             executeApproveAction(WORKDAY_AUTH_TOKEN, buildFormData(COMMENT_KEY, COMMENT_VALUE, TENANT_NAME), INBOX_TASK_ID)
-                .expectStatus().isEqualTo(HttpStatus.FAILED_DEPENDENCY)
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON);
+                    .expectStatus().isEqualTo(HttpStatus.FAILED_DEPENDENCY)
+                    .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON);
         }
     }
 
     @DisplayName("Time off Task decline integration tests")
     @Nested
-    public class DeclineActionTest {
+    class DeclineActionTest {
 
-        @Test public void declineActionFailsWhenUnauthorizedWorkdayAuthTokenIsProvided() {
+        @Test
+        void declineActionFailsWhenUnauthorizedWorkdayAuthTokenIsProvided() {
             mockBackend.expect(requestTo(any(String.class)))
-                .andRespond(withUnauthorizedRequest());
+                    .andRespond(withUnauthorizedRequest());
 
             executeDeclineAction(UNAUTHORIZED_WORKDAY_AUTH_TOKEN, buildFormData(REASON_KEY, REASON_VALUE, TENANT_NAME), INBOX_TASK_ID)
-                .expectStatus().isBadRequest();
+                    .expectStatus().isBadRequest();
         }
 
-        @Test public void declineActionFailsWhenWorkdayAuthTokenIsMissing() {
+        @Test
+        void declineActionFailsWhenWorkdayAuthTokenIsMissing() {
             executeDeclineAction(NO_WORKDAY_AUTH_TOKEN, buildFormData(REASON_KEY, REASON_VALUE, TENANT_NAME), INBOX_TASK_ID)
-                .expectStatus().isBadRequest();
+                    .expectStatus().isBadRequest();
         }
 
-        @Test public void declineActionFailsWheTimeOffTaskNotFound() {
+        @Test
+        void declineActionFailsWheTimeOffTaskNotFound() {
             mockWorkdayApiResponse(GET, getWorkdayInboxTasksUri(), "no_results.json");
 
             executeDeclineAction(WORKDAY_AUTH_TOKEN, buildFormData(REASON_KEY, REASON_VALUE, TENANT_NAME), INBOX_TASK_ID)
-                .expectStatus().isNotFound()
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON);
+                    .expectStatus().isNotFound()
+                    .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON);
         }
 
-        @Test public void canDeclineTask() {
+        @Test
+        void canDeclineTask() {
             mockWorkdayApiResponse(GET, getWorkdayInboxTasksUri(), "mixed_inbox_tasks.json");
             mockWorkdayApiResponse(PUT, getWorkdayInboxTasksDenialUri(), "task_action_success.json");
 
             executeDeclineAction(WORKDAY_AUTH_TOKEN, buildFormData(REASON_KEY, REASON_VALUE, TENANT_NAME), INBOX_TASK_ID)
-                .expectStatus().isNoContent()
-                .expectBody().isEmpty();
+                    .expectStatus().isNoContent()
+                    .expectBody().isEmpty();
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {SPACE, LF, CR})
-        public void canNotDeclineTaskWithEmptyReason(final String reason) {
+        void canNotDeclineTaskWithEmptyReason(final String reason) {
             executeDeclineAction(WORKDAY_AUTH_TOKEN, buildFormData(REASON_KEY, reason, TENANT_NAME), INBOX_TASK_ID)
-                .expectStatus().isBadRequest()
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
-                .expectBody().json(FileUtils.readFileAsString("decline_action_validation_error_response.json"));
+                    .expectStatus().isBadRequest()
+                    .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+                    .expectBody().json(FileUtils.readFileAsString("decline_action_validation_error_response.json"));
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {SPACE, LF, CR})
-        public void canNotDeclineTaskWithEmptyTenantName(final String tenantName) {
+        void canNotDeclineTaskWithEmptyTenantName(final String tenantName) {
             executeDeclineAction(WORKDAY_AUTH_TOKEN, buildFormData(REASON_KEY, REASON_VALUE, tenantName), INBOX_TASK_ID)
                     .expectStatus().isBadRequest()
                     .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
@@ -208,7 +216,7 @@ public class TimeOffTaskActionControllerTest extends ControllerTestsBase {
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {SPACE, LF, CR})
-        public void canNotApproveTaskWithEmptyTenantName(final String tenantName) {
+        void canNotApproveTaskWithEmptyTenantName(final String tenantName) {
             executeApproveAction(WORKDAY_AUTH_TOKEN, buildFormData(COMMENT_KEY, COMMENT_VALUE, tenantName), INBOX_TASK_ID)
                     .expectStatus().isBadRequest()
                     .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
@@ -217,13 +225,13 @@ public class TimeOffTaskActionControllerTest extends ControllerTestsBase {
 
         @ParameterizedTest
         @EnumSource(value = HttpStatus.class, names = {"INTERNAL_SERVER_ERROR", "BAD_REQUEST"})
-        public void whenDeclineTaskFails(final HttpStatus status) {
+        void whenDeclineTaskFails(final HttpStatus status) {
             mockWorkdayApiResponse(GET, getWorkdayInboxTasksUri(), "mixed_inbox_tasks.json");
             mockWorkdayApiErrorResponse(PUT, getWorkdayInboxTasksDenialUri(), status);
 
             executeDeclineAction(WORKDAY_AUTH_TOKEN, buildFormData(REASON_KEY, REASON_VALUE, TENANT_NAME), INBOX_TASK_ID)
-                .expectStatus().isEqualTo(HttpStatus.FAILED_DEPENDENCY)
-                .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON);
+                    .expectStatus().isEqualTo(HttpStatus.FAILED_DEPENDENCY)
+                    .expectHeader().contentTypeCompatibleWith(APPLICATION_JSON);
         }
     }
 
@@ -233,7 +241,7 @@ public class TimeOffTaskActionControllerTest extends ControllerTestsBase {
 
     private String getBusinessProcessTaskApprovalUrl() {
         return UriComponentsBuilder.fromPath(BUSINESS_PROCESS_API_V1 + TENANT_NAME + APPROVE_EVENT_STEP_PATH)
-                    .build(Map.of("ID", BUSINESS_PROCESS_INBOX_ID)).toString();
+                .build(Map.of("ID", BUSINESS_PROCESS_INBOX_ID)).toString();
     }
 
     private String getBusinessProcessTaskDeclineUrl() {
@@ -247,22 +255,22 @@ public class TimeOffTaskActionControllerTest extends ControllerTestsBase {
 
     private String getWorkdayInboxTasksActionUri(final String action) {
         return UriComponentsBuilder.fromPath(INBOX_TASKS_API_PATH)
-            .path(URL_PATH_SEPARATOR)
-            .path(INBOX_TASK_ID)
-            .queryParam(ACTION_TYPE_QUERY_PARAM, singletonList(action))
-            .build()
-            .toUriString();
+                .path(URL_PATH_SEPARATOR)
+                .path(INBOX_TASK_ID)
+                .queryParam(ACTION_TYPE_QUERY_PARAM, singletonList(action))
+                .build()
+                .toUriString();
     }
 
     private WebTestClient.ResponseSpec doPost(final String path, final String authToken, final MultiValueMap<String, String> formData) {
         WebTestClient.RequestHeadersSpec<?> spec = webClient.post()
-            .uri(path)
-            .contentType(APPLICATION_FORM_URLENCODED)
-            .body(BodyInserters.fromFormData(formData))
-            .accept(APPLICATION_JSON)
-            .header(X_BASE_URL_HEADER, mockBackend.url(EMPTY))
-            .header(ROUTING_PREFIX_HEADER, ROUTING_PREFIX)
-            .headers(headers -> headers(headers, path));
+                .uri(path)
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData(formData))
+                .accept(APPLICATION_JSON)
+                .header(X_BASE_URL_HEADER, mockBackend.url(EMPTY))
+                .header(ROUTING_PREFIX_HEADER, ROUTING_PREFIX)
+                .headers(headers -> headers(headers, path));
         if (StringUtils.isNotBlank(authToken)) {
             spec = spec.header(X_AUTH_HEADER, authToken);
         }
@@ -271,23 +279,23 @@ public class TimeOffTaskActionControllerTest extends ControllerTestsBase {
 
     private String getWorkdayInboxTasksUri() {
         return UriComponentsBuilder.fromPath(COMMUNITY_COMMON_API_V1 + TENANT_NAME + WORKERS_INBOX_TASKS_API)
-            .queryParam(INBOX_TASKS_VIEW_QUERY_PARAM_NAME, INBOX_TASKS_SUMMARY)
-            .build()
-            .toUriString();
+                .queryParam(INBOX_TASKS_VIEW_QUERY_PARAM_NAME, INBOX_TASKS_SUMMARY)
+                .build()
+                .toUriString();
     }
 
     private void mockWorkdayApiResponse(final HttpMethod method, final String workdayApi, final String responseFile) {
         mockBackend.expect(requestTo(workdayApi))
-            .andExpect(header(AUTHORIZATION, WORKDAY_AUTH_TOKEN))
-            .andExpect(method(method))
-            .andRespond(withSuccess(readFileAsString(responseFile).replace("{MOCK_BACKEND}/", mockBackend.url("/")), APPLICATION_JSON));
+                .andExpect(header(AUTHORIZATION, WORKDAY_AUTH_TOKEN))
+                .andExpect(method(method))
+                .andRespond(withSuccess(readFileAsString(responseFile).replace("{MOCK_BACKEND}/", mockBackend.url("/")), APPLICATION_JSON));
     }
 
     private void mockWorkdayApiErrorResponse(final HttpMethod method, final String workdayApi, final HttpStatus status) {
         mockBackend.expect(requestTo(workdayApi))
-            .andExpect(header(AUTHORIZATION, WORKDAY_AUTH_TOKEN))
-            .andExpect(method(method))
-            .andRespond(withStatus(status));
+                .andExpect(header(AUTHORIZATION, WORKDAY_AUTH_TOKEN))
+                .andExpect(method(method))
+                .andRespond(withStatus(status));
     }
 
     private WebTestClient.ResponseSpec executeApproveAction(final String authToken, final MultiValueMap<String, String> formdata, String inboxTaskId) {
@@ -300,9 +308,9 @@ public class TimeOffTaskActionControllerTest extends ControllerTestsBase {
 
     private String getActionUrl(final String actionPath, String inboxTaskId) {
         return UriComponentsBuilder.fromPath(URL_PATH_SEPARATOR)
-            .path(actionPath)
-            .build(singletonMap(INBOX_TASK_ID_PATH_VARIABLE, inboxTaskId))
-            .toString();
+                .path(actionPath)
+                .build(singletonMap(INBOX_TASK_ID_PATH_VARIABLE, inboxTaskId))
+                .toString();
     }
 
     private String getDeclineActionUrl(String inboxTaskId) {

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset xmlns="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" comparisonMethod="maven"
+         xsi:schemaLocation="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0 http://mojo.codehaus.org/versions-maven-plugin/xsd/rule-2.0.0.xsd">
+    <ignoreVersions>
+        <ignoreVersion type="regex">(?i).*alpha[0-9.-]*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*a[0-9.-]*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*atlassian-hosted[0-9.-]*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*beta[0-9.-]*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*b[0-9.-]*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*milestone[0-9.-]*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*m[0-9.-]*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*rc[0-9.-]*</ignoreVersion>
+    </ignoreVersions>
+    <rules>
+    </rules>
+</ruleset>

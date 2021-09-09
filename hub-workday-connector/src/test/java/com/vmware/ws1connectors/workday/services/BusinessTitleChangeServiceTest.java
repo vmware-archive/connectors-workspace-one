@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-public class BusinessTitleChangeServiceTest extends ServiceTestsBase {
+class BusinessTitleChangeServiceTest extends ServiceTestsBase {
 
     private static final InboxTask INBOX_TASK =
             JsonUtils.convertFromJsonFile("Inbox_Task_Business_Title_Change.json", InboxTask.class);
@@ -37,13 +37,16 @@ public class BusinessTitleChangeServiceTest extends ServiceTestsBase {
     private static final Locale NO_LOCALE = null;
     private static final Locale LOCALE = Locale.ENGLISH;
 
-    @InjectMocks private BusinessTitleChangeService businessTitleChangeService;
+    @InjectMocks
+    private BusinessTitleChangeService businessTitleChangeService;
 
-    @BeforeEach public void initialize() {
+    @BeforeEach
+    void initialize() {
         setupRestClient(businessTitleChangeService, "restClient");
     }
 
-    @Test public void testGetBusinessTitleChangesDetails() {
+    @Test
+    void testGetBusinessTitleChangesDetails() {
         when(mockExchangeFunc.exchange(any()))
                 .thenReturn(Mono.just(buildClientResponse(BUSINESS_TITLE_CHANGE)));
         final Mono<BusinessTitleChangeTask> approvalTaskDetails =
@@ -53,7 +56,8 @@ public class BusinessTitleChangeServiceTest extends ServiceTestsBase {
                 .verifyComplete();
     }
 
-    @Test public void whenWorkdayApiResultsInErrorThrowsException() {
+    @Test
+    void whenWorkdayApiResultsInErrorThrowsException() {
         when(mockExchangeFunc.exchange(any()))
                 .thenThrow(RuntimeException.class);
         final Mono<BusinessTitleChangeTask> approvalTaskDetails =
@@ -65,7 +69,7 @@ public class BusinessTitleChangeServiceTest extends ServiceTestsBase {
 
     @ParameterizedTest
     @MethodSource("inputsWithHttpErrors")
-    public void whenWorkdayApiHttpStatusIsErrorThrowsException(HttpStatus status) {
+    void whenWorkdayApiHttpStatusIsErrorThrowsException(HttpStatus status) {
         mockWorkdayApiErrorResponse(status);
         final Mono<BusinessTitleChangeTask> approvalTaskDetails =
                 businessTitleChangeService.getApprovalTaskDetails(BASE_URL, WORKDAY_TOKEN, INBOX_TASK, LOCALE);
@@ -84,8 +88,8 @@ public class BusinessTitleChangeServiceTest extends ServiceTestsBase {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForGetApprovalTaskDetails")
-    public void whenGetTimeOffTasksProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth,
-                                                             final InboxTask inboxTask, final Locale locale) {
+    void whenGetTimeOffTasksProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth,
+                                                      final InboxTask inboxTask, final Locale locale) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> businessTitleChangeService.getApprovalTaskDetails(baseUrl, workdayAuth, inboxTask, locale));
         verifyWorkdayApiNeverInvoked();

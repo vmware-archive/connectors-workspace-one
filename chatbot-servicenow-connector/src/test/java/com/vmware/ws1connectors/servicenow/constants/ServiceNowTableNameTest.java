@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ServiceNowTableNameTest {
+class ServiceNowTableNameTest {
 
     public static final String CREATE_TICKET_TABLE_NAME = "createTicketTableName";
     public static final String VIEW_TICKET_TABLE_NAME = "viewTicketTableName";
@@ -37,13 +37,13 @@ public class ServiceNowTableNameTest {
 
     @ParameterizedTest
     @MethodSource("withValidInputs")
-    public void testServiceNowTableNameWithValidInputs(String tableName) {
+    void testServiceNowTableNameWithValidInputs(String tableName) {
         assertThat(tableName.equals(ServiceNowTableName.fromServiceNowTableName(tableName).get().getServiceNowTableName()));
     }
 
     @ParameterizedTest
     @MethodSource("withInvalidInputs")
-    public void testServiceNowTableNameWithInvalidInputs(String tableName) {
+    void testServiceNowTableNameWithInvalidInputs(String tableName) {
         assertThat(Optional.empty().equals(ServiceNowTableName.fromServiceNowTableName(tableName)));
     }
 }
