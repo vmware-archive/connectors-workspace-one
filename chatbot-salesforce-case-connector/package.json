@@ -22,7 +22,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@vmw/mobile-flows-connector-commons": "^1.4.4",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "nyc": "^15.1.0",
