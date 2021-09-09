@@ -19,6 +19,7 @@ import static com.vmware.ws1connectors.workday.utils.CardConstants.BUSINESS_TITL
 
 @Component
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class ApprovalTaskServiceFactory {
     private static final String INBOX_TASK = "Inbox Task";
     @Autowired private TimeOffTaskService timeOffTaskService;

@@ -69,6 +69,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Service
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class TimeOffTaskService implements ApprovalTaskService {
 
     private static final String STATUS_AWAITING_ACTION = "Awaiting Action";

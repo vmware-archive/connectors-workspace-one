@@ -33,15 +33,15 @@ public interface BotCapability {
     }
 
     default String buildActionUrl(ServiceNowCategory categoryEnum) {
-        return new StringBuilder()
-                .append(ServiceNowConstants.DEVICE_LIST_URL)
-                .append("?")
-                .append(ServiceNowConstants.DEVICE_CATEGORY)
-                .append("=")
-                .append(categoryEnum.getCategoryName())
-                .append("&limit=")
-                .append(ServiceNowConstants.ITEM_BY_CATEGORY_LIMIT)
-                .append("&offset=").append(ServiceNowConstants.ITEM_BY_CATEGORY_OFFSET).toString();
+        return ServiceNowConstants.DEVICE_LIST_URL
+                + "?"
+                + ServiceNowConstants.DEVICE_CATEGORY
+                + "="
+                + categoryEnum.getCategoryName()
+                + "&limit="
+                + ServiceNowConstants.ITEM_BY_CATEGORY_LIMIT
+                + "&offset="
+                + ServiceNowConstants.ITEM_BY_CATEGORY_OFFSET;
     }
 
     BotItem describe(String routingPrefix, Locale locale);

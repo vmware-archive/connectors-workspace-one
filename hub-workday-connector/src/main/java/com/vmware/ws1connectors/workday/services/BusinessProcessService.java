@@ -27,6 +27,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Service
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class BusinessProcessService implements ApprovalTaskService {
     private static final String INBOX_TASK = "Inbox Task";
     @Autowired private WebClient restClient;

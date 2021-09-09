@@ -9,6 +9,7 @@ package com.vmware.ws1connectors.servicenow;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.vmware.connectors.test.ControllerTestsBase;
 import com.vmware.ws1connectors.servicenow.utils.ArgumentsStreamBuilder;
@@ -32,7 +33,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.vmware.connectors.utils.IgnoredFieldsReplacer.DUMMY_UUID;
-import static com.vmware.connectors.utils.IgnoredFieldsReplacer.UUID_PATTERN;
 import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.URL_PATH_SEPERATOR;
 import static com.vmware.ws1connectors.servicenow.constants.ServiceNowConstants.VIEW_TASK_TYPE;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
@@ -56,6 +56,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 
+@SuppressWarnings({"checkstyle:indentation", "PMD.JUnit5TestShouldBePackagePrivate"})
 public class BotFlowTest extends ControllerTestsBase {
 
     private static final String SNOW_AUTH_TOKEN = "test-GOOD-auth-token";
@@ -515,15 +516,18 @@ public class BotFlowTest extends ControllerTestsBase {
 
     public static String normalizeBotObjects(String body) {
         Configuration configuration = Configuration.builder()
+                .options(Option.SUPPRESS_EXCEPTIONS)
                 .jsonProvider(new JacksonJsonNodeJsonProvider())
                 .build();
 
+        String uuidPattern = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";
+
         DocumentContext context = JsonPath.using(configuration).parse(body);
-        context.set("$.objects[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
+        context.set("$.objects[?(@.id =~ /" + uuidPattern + "/)].id", DUMMY_UUID);
         // Above line can be removed, when all the bot flows move to the latest schema.
-        context.set("$.objects[*].itemDetails[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
-        context.set("$.objects[*].children[*].itemDetails[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
-        context.set("$.objects[*].itemDetails.children[*].itemDetails[?(@.id =~ /" + UUID_PATTERN + "/)].id", DUMMY_UUID);
+        context.set("$.objects[*].itemDetails[?(@.id =~ /" + uuidPattern + "/)].id", DUMMY_UUID);
+        context.set("$.objects[*].children[*].itemDetails[?(@.id =~ /" + uuidPattern + "/)].id", DUMMY_UUID);
+        context.set("$.objects[*].itemDetails.children[*].itemDetails[?(@.id =~ /" + uuidPattern + "/)].id", DUMMY_UUID);
         return context.jsonString();
     }
 

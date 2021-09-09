@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class ArgumentValidatorTest {
+class ArgumentValidatorTest {
 
     private static final String NULL_VALUE = null;
     private static final String VALUE = "value";
@@ -25,26 +25,26 @@ public class ArgumentValidatorTest {
     private static final String FIELD_NAME_NULL_VALUE = "NULL_VALUE";
     private static final String FIELD_NAME_VALUE = "VALUE";
 
-    @Test public void throwsIllegalArgumentExceptionForNullArgumentValues() {
+    @Test void throwsIllegalArgumentExceptionForNullArgumentValues() {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> ArgumentUtils.checkArgumentNotBlank(NULL_VALUE, "NULL_VALUE"));
     }
 
-    @Test public void throwsIllegalArgumentExceptionForEmptyArgumentValues() {
+    @Test void throwsIllegalArgumentExceptionForEmptyArgumentValues() {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> ArgumentUtils.checkArgumentNotBlank(EMPTY_VALUE, "EMPTY_VALUE"));
     }
 
-    @Test public void noExceptionThrownForNonNullValue() {
+    @Test void noExceptionThrownForNonNullValue() {
         assertThatCode(() -> ArgumentUtils.checkArgumentNotBlank(VALUE, "VALUE")).doesNotThrowAnyException();
     }
 
-    @Test public void throwsIllegalArgumentExceptionForNullObject() {
+    @Test void throwsIllegalArgumentExceptionForNullObject() {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> ArgumentUtils.checkArgumentNotNull(NULL_VALUE, FIELD_NAME_NULL_VALUE));
     }
 
-    @Test public void noExceptionThrownForNonNullObject() {
+    @Test void noExceptionThrownForNonNullObject() {
         assertThatCode(() -> ArgumentUtils.checkArgumentNotNull(VALUE, FIELD_NAME_VALUE)).doesNotThrowAnyException();
     }
 }

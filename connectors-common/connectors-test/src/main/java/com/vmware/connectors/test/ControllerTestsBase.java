@@ -45,6 +45,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -212,7 +213,7 @@ public class ControllerTestsBase {
     }
 
     protected void testRegex(String tokenProperty, String emailInput, List<String> expected) throws Exception {
-        String body = new String(getConnectorMetaData());
+        String body = new String(getConnectorMetaData(), UTF_8);
 
         DocumentContext ctx = JsonPath.parse(body);
         Integer captureGroup = ctx.read("$.object_types.card.fields." + tokenProperty + ".capture_group");

@@ -24,6 +24,7 @@ import static com.vmware.ws1connectors.workday.utils.WorkdayConnectorConstants.R
 
 @Service
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class CardService {
 
     @Autowired TimeOffTaskService timeOffTaskService;

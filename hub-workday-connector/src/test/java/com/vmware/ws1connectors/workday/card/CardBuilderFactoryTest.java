@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @ExtendWith(MockitoExtension.class)
-public class CardBuilderFactoryTest {
+class CardBuilderFactoryTest {
 
     private static final TimeOffTask TIME_OFF_TASK =
             JsonUtils.convertFromJsonFile("time_off_task_1.json", TimeOffTask.class);
@@ -32,34 +32,43 @@ public class CardBuilderFactoryTest {
     private static final BusinessProcessTask BUSINESS_PROCESS_TASK =
             JsonUtils.convertFromJsonFile("Business_Process_Details.json", BusinessProcessTask.class);
 
-    @Mock private TimeOffCardBuilder timeOffCardBuilder;
-    @Mock private BusinessTitleChangeCardBuilder businessTitleChangeCardBuilder;
-    @Mock private BusinessProcessCardBuilder businessProcessCardBuilder;
-    @InjectMocks private CardBuilderFactory cardBuilderFactory;
+    @Mock
+    private TimeOffCardBuilder timeOffCardBuilder;
+    @Mock
+    private BusinessTitleChangeCardBuilder businessTitleChangeCardBuilder;
+    @Mock
+    private BusinessProcessCardBuilder businessProcessCardBuilder;
+    @InjectMocks
+    private CardBuilderFactory cardBuilderFactory;
 
-    @Test public void testGetApprovalTaskWithTimeOffTaskService() {
+    @Test
+    void testGetApprovalTaskWithTimeOffTaskService() {
         assertThat(cardBuilderFactory.getCardBuilder(TIME_OFF_TASK)).isEqualTo(timeOffCardBuilder);
     }
 
-    @Test public void testGetApprovalTaskWithBusinessTitleChangeTaskService() {
+    @Test
+    void testGetApprovalTaskWithBusinessTitleChangeTaskService() {
         assertThat(cardBuilderFactory.getCardBuilder(BUSINESS_TITLE_CHANGE_TASK)).isEqualTo(businessTitleChangeCardBuilder);
     }
 
-    @Test public void testGetApprovalTaskWithBusinessProcessTaskService() {
+    @Test
+    void testGetApprovalTaskWithBusinessProcessTaskService() {
         assertThat(cardBuilderFactory.getCardBuilder(BUSINESS_PROCESS_TASK)).isEqualTo(businessProcessCardBuilder);
     }
 
-    @Test public void testGetApprovalTaskWithHireTaskService() {
+    @Test
+    void testGetApprovalTaskWithHireTaskService() {
         assertThatExceptionOfType(InvalidApprovalTaskException.class)
                 .isThrownBy(() -> cardBuilderFactory.getCardBuilder(new ApprovalTaskImplTest()));
     }
 
     @ParameterizedTest
     @NullSource
-    public void testGetApprovalTaskWithInBoxTaskNull(ApprovalTask approvalTask) {
+    void testGetApprovalTaskWithInBoxTaskNull(ApprovalTask approvalTask) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> cardBuilderFactory.getCardBuilder(approvalTask));
     }
 
-    class ApprovalTaskImplTest implements ApprovalTask { }
+    class ApprovalTaskImplTest implements ApprovalTask {
+    }
 }

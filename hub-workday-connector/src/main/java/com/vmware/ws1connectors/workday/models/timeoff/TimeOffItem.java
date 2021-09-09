@@ -22,6 +22,7 @@ import java.time.LocalDate;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class TimeOffItem {
     private LocalDate date;
     private String dayOfWeek;

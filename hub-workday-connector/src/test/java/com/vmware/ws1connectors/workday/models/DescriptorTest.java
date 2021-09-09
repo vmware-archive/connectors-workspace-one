@@ -16,35 +16,42 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings
-public class DescriptorTest {
+class DescriptorTest {
     private static final String DESCRIPTOR = "Absence Request: Ashton Burns";
     private static final String ID = "fc844b7a8f6f01580738a5ffd6115105";
     private static final String HREF = "https://workday.com/ccx/api/v1/tenant/timeOffRequest/" + ID;
 
     private Descriptor descriptor;
 
-    @BeforeEach public void setup() {
+    @BeforeEach
+    void setup() {
         descriptor = Descriptor.builder()
-            .descriptor(DESCRIPTOR)
-            .href(HREF)
-            .id(ID)
-            .build();
+                .descriptor(DESCRIPTOR)
+                .href(HREF)
+                .id(ID)
+                .build();
     }
 
-    @Nested public class GetDescriptor {
-        @Test public void returnsDescriptor() {
+    @Nested
+    class GetDescriptor {
+        @Test
+        void returnsDescriptor() {
             assertThat(descriptor.getDescriptor()).isEqualTo(DESCRIPTOR);
         }
     }
 
-    @Nested public class GetId {
-        @Test public void returnsFullName() {
+    @Nested
+    class GetId {
+        @Test
+        void returnsFullName() {
             assertThat(descriptor.getId()).isEqualTo(ID);
         }
     }
 
-    @Nested public class GetHref {
-        @Test public void returnsWorkerID() {
+    @Nested
+    class GetHref {
+        @Test
+        void returnsWorkerID() {
             assertThat(descriptor.getHref()).isEqualTo(HREF);
         }
     }

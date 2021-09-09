@@ -6,7 +6,7 @@
 
     <groupId>com.vmware.card-connectors</groupId>
     <artifactId>common</artifactId>
-    <version>2.9.6</version>
+    <version>2.9.7</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -29,12 +29,12 @@
         <commons-codec.version>1.15</commons-codec.version>
         <logback-jackson.version>0.1.5</logback-jackson.version>
         <spring-security-jwt.version>1.1.1.RELEASE</spring-security-jwt.version>
-        <spring.boot.version>2.5.3</spring.boot.version>
+        <spring.boot.version>2.5.4</spring.boot.version>
         <commons-io.version>2.11.0</commons-io.version>
         <guava.version>30.1.1-jre</guava.version>
         <hamcrest-json.version>0.2</hamcrest-json.version>
         <json-schema-validator.version>2.9.0</json-schema-validator.version>
-        <reactor-test.version>3.4.8</reactor-test.version>
+        <reactor-test.version>3.4.9</reactor-test.version>
     </properties>
 
     <!-- Need to correct the SCM url's after pushing code to github-->

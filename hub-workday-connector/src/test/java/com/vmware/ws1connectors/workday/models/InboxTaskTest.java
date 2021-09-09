@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings
-public class InboxTaskTest {
+class InboxTaskTest {
 
     private static final String DESCRIPTOR = "Approval by Manager";
     private static final LocalDateTime ASSIGNED = LocalDateTime.parse("2019-11-25T05:32:49.001Z", DateTimeFormatter.ISO_DATE_TIME);
@@ -32,38 +32,50 @@ public class InboxTaskTest {
 
     private InboxTask inboxTask = JsonUtils.convertFromJsonFile("inbox_task.json", InboxTask.class);
 
-    @Nested public class GetDescriptor {
-        @Test public void returnsDescriptor() {
+    @Nested
+    class GetDescriptor {
+        @Test
+        void returnsDescriptor() {
             assertThat(inboxTask.getDescriptor()).isEqualTo(DESCRIPTOR);
         }
     }
 
-    @Nested public class GetId {
-        @Test public void returnsId() {
+    @Nested
+    class GetId {
+        @Test
+        void returnsId() {
             assertThat(inboxTask.getId()).isEqualTo(ID);
         }
     }
 
-    @Nested public class GetHref {
-        @Test public void returnsHref() {
+    @Nested
+    class GetHref {
+        @Test
+        void returnsHref() {
             assertThat(inboxTask.getHref()).isEqualTo(HREF);
         }
     }
 
-    @Nested public class GetDue {
-        @Test public void returnsDue() {
+    @Nested
+    class GetDue {
+        @Test
+        void returnsDue() {
             assertThat(inboxTask.getDue()).isEqualTo(DUE);
         }
     }
 
-    @Nested public class GetAssigned {
-        @Test public void returnsAssigned() {
+    @Nested
+    class GetAssigned {
+        @Test
+        void returnsAssigned() {
             assertThat(inboxTask.getAssigned()).isEqualTo(ASSIGNED);
         }
     }
 
-    @Nested public class GetStepType {
-        @Test public void returnsStepType() {
+    @Nested
+    class GetStepType {
+        @Test
+        void returnsStepType() {
             final String descriptor = "Approval";
             final String id = "d8c8920e446c11de98360015c5e6daf6";
             final Descriptor stepType = inboxTask.getStepType();
@@ -71,8 +83,10 @@ public class InboxTaskTest {
         }
     }
 
-    @Nested public class GetOverallProcess {
-        @Test public void returnsOverallProcess() {
+    @Nested
+    class GetOverallProcess {
+        @Test
+        void returnsOverallProcess() {
             final String id = "fc844b7a8f6f01580738a5ffd6115105";
             final String href = WORKDAY_API_URL + "/timeOffRequest/" + id;
             final String descriptor = "Absence Request: Ashton Burns";
@@ -87,8 +101,10 @@ public class InboxTaskTest {
         assertThat(descriptorObj.getHref()).isEqualTo(href);
     }
 
-    @Nested public class GetStatus {
-        @Test public void returnsStatus() {
+    @Nested
+    class GetStatus {
+        @Test
+        void returnsStatus() {
             final String descriptor = "Awaiting Action";
             final String id = "d9e4108c446c11de98360015c5e6daf6";
             final Descriptor status = inboxTask.getStatus();
@@ -96,8 +112,10 @@ public class InboxTaskTest {
         }
     }
 
-    @Nested public class GetSubject {
-        @Test public void returnsSubject() {
+    @Nested
+    class GetSubject {
+        @Test
+        void returnsSubject() {
             final String id = "1a6228638d1401a7e91052d2b14af008";
             final String href = WORKDAY_API_URL + "/workers/" + id;
             final String descriptor = "Ashton Burns";

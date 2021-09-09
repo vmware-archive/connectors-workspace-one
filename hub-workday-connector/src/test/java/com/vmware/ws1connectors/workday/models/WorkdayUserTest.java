@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings
-public class WorkdayUserTest {
+class WorkdayUserTest {
     private static final String USER_NAME = "user1";
     private static final String EMAIL = "user1@example.com";
     private static final String WORKER_ID = "247$137";
@@ -31,62 +31,78 @@ public class WorkdayUserTest {
 
     private WorkdayUser workdayUser;
 
-    @BeforeEach public void setup() {
+    @BeforeEach
+    void setup() {
         workdayUser = new WorkdayUser.Builder()
-            .userName(USER_NAME)
-            .workdayID(WORDAY_ID)
-            .workerID(WORKER_ID)
-            .email(EMAIL)
-            .fullName(FULL_NAME)
-            .instanceID(INSTANCE_ID)
-            .locale(LOCALE)
-            .build();
+                .userName(USER_NAME)
+                .workdayID(WORDAY_ID)
+                .workerID(WORKER_ID)
+                .email(EMAIL)
+                .fullName(FULL_NAME)
+                .instanceID(INSTANCE_ID)
+                .locale(LOCALE)
+                .build();
     }
 
-    @Nested public class GetUserName {
-        @Test public void returnsUserName() {
+    @Nested
+    class GetUserName {
+        @Test
+        void returnsUserName() {
             assertThat(workdayUser.getUserName()).isEqualTo(USER_NAME);
         }
     }
 
-    @Nested public class GetFullName {
-        @Test public void returnsFullName() {
+    @Nested
+    class GetFullName {
+        @Test
+        void returnsFullName() {
             assertThat(workdayUser.getFullName()).isEqualTo(FULL_NAME);
         }
     }
 
-    @Nested public class GetWorkerID {
-        @Test public void returnsWorkerID() {
+    @Nested
+    class GetWorkerID {
+        @Test
+        void returnsWorkerID() {
             assertThat(workdayUser.getWorkdayID()).isEqualTo(WORDAY_ID);
         }
     }
 
-    @Nested public class GetWorkdayID {
-        @Test public void returnsWorkdayID() {
+    @Nested
+    class GetWorkdayID {
+        @Test
+        void returnsWorkdayID() {
             assertThat(workdayUser.getWorkdayID()).isEqualTo(WORDAY_ID);
         }
     }
 
-    @Nested public class GetInstanceID {
-        @Test public void returnsInstanceID() {
+    @Nested
+    class GetInstanceID {
+        @Test
+        void returnsInstanceID() {
             assertThat(workdayUser.getInstanceID()).isEqualTo(INSTANCE_ID);
         }
     }
 
-    @Nested public class GetLocale {
-        @Test public void returnsLocale() {
+    @Nested
+    class GetLocale {
+        @Test
+        void returnsLocale() {
             assertThat(workdayUser.getLocale()).isEqualTo(LOCALE);
         }
     }
 
-    @Nested public class EqualsAndHashCode {
+    @Nested
+    class EqualsAndHashCode {
         private WorkdayUser otherWorkdayUser = convertToWorkdayResourceFromJson(USER_INFO, WorkdayUser.class).getData().get(0);
 
-        @Test public void equalsToOtherWorkDay() {
+        @Test
+        void equalsToOtherWorkDay() {
             assertThat(workdayUser).isEqualTo(otherWorkdayUser);
         }
 
-        @Test public void hashCodeIsSameAsOtherWorkdayUser() {
+        @Test
+        void hashCodeIsSameAsOtherWorkdayUser() {
             assertThat(workdayUser.hashCode()).isEqualTo(otherWorkdayUser.hashCode());
         }
     }

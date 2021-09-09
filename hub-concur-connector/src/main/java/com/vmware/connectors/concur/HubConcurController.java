@@ -381,7 +381,9 @@ public class HubConcurController {
             Locale locale
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        logger.debug("approveRequest called: baseUrl={}, id={}, email={} comment={}", baseUrl, id, userEmail, form.getComment());
+        if (logger.isDebugEnabled()) {
+            logger.debug("approveRequest called: baseUrl={}, id={}, email={} comment={}", baseUrl, id, userEmail, form.getComment());
+        }
 
         return doWorkFlowAction(form.getComment(), baseUrl, APPROVE, id, userEmail, connectorAuth, locale)
                         .map(ResponseEntity::ok);
@@ -419,7 +421,9 @@ public class HubConcurController {
 
     private void validateWorkflowResponseStatus(JsonDocument response, String userEmail, String baseUrl, Locale locale) {
         if (WORKFLOW_ACTION_FAILURE_STATUS.equals(response.read("$.Status"))) {
-            logger.debug("Action failure response from Concur: {}, for user: {}", response.toString(), userEmail);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Action failure response from Concur: {}, for user: {}", response.toString(), userEmail);
+            }
 
             String expensePrefUrl = UriComponentsBuilder
                     .fromUriString(baseUrl)
@@ -512,7 +516,9 @@ public class HubConcurController {
             Locale locale
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        logger.debug("declineRequest called: baseUrl={}, id={}, email={}, reason={}", baseUrl, id, userEmail, form.getReason());
+        if (logger.isDebugEnabled()) {
+            logger.debug("declineRequest called: baseUrl={}, id={}, email={}, reason={}", baseUrl, id, userEmail, form.getReason());
+        }
         return doWorkFlowAction(form.getReason(), baseUrl, REJECT, id, userEmail, connectorAuth, locale)
                 .map(ResponseEntity::ok);
     }
@@ -567,7 +573,9 @@ public class HubConcurController {
         final HttpStatus status = response.statusCode();
         final String backendStatus = Integer.toString(response.rawStatusCode());
 
-        logger.error("Concur backend returned the status code [{}] and reason phrase [{}] ", status, status.getReasonPhrase());
+        if (logger.isErrorEnabled()) {
+            logger.error("Concur backend returned the status code [{}] and reason phrase [{}] ", status, status.getReasonPhrase());
+        }
 
         if (status == UNAUTHORIZED) {
             String body = "{\"error\" : \"invalid_connector_token\"}";
@@ -601,7 +609,9 @@ public class HubConcurController {
     @ResponseStatus(NOT_FOUND)
     @ResponseBody
     public ActionFailureResponse handleExpenseReportNotFoundException(ExpenseReportNotFoundException e) {
-        logger.debug(e.getMessage());
+        if (logger.isDebugEnabled()) {
+            logger.debug(e.getMessage());
+        }
         return e.getActionFailureResponse();
     }
 
@@ -609,7 +619,9 @@ public class HubConcurController {
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public ActionFailureResponse handleWorkFlowActionFailureException(WorkFlowActionFailureException e) {
-        logger.debug(e.getMessage());
+        if (logger.isDebugEnabled()) {
+            logger.debug(e.getMessage());
+        }
         return e.getActionFailureResponse();
     }
 

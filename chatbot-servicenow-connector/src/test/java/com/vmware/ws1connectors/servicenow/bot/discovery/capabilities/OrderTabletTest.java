@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class OrderTabletTest {
+class OrderTabletTest {
 
     private static final String ROUTING_PREFIX = "https://mf/connectors/abc123/botDiscovery/";
     private static final String BOT_ACTION_TITLE = "View List Of Tablets";
@@ -33,7 +33,7 @@ public class OrderTabletTest {
 
     @Mock private ConnectorTextAccessor connectorTextAccessor;
 
-    @Test public void testGetListOfTabletsAction() {
+    @Test void testGetListOfTabletsAction() {
         Locale noLocale = null;
         setMocks(noLocale);
         OrderTablet orderTablet = new OrderTablet(connectorTextAccessor);
@@ -48,7 +48,7 @@ public class OrderTabletTest {
         when(connectorTextAccessor.getDescription(ORDER_TABLET_ACTION, locale)).thenReturn(BOT_ACTION_DESC);
     }
 
-    @Test public void testGetListOfTabletsActionWithRoutingPrefixNull() {
+    @Test void testGetListOfTabletsActionWithRoutingPrefixNull() {
         Locale noLocale = null;
         setMocks(noLocale);
         OrderTablet orderTablet = new OrderTablet(connectorTextAccessor);

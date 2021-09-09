@@ -50,7 +50,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SuppressFBWarnings(value = "WOC_WRITE_ONLY_COLLECTION_FIELD", justification = "Collections read by parameterized tests")
-public class TimeOffTaskServiceTest extends ServiceTestsBase {
+class TimeOffTaskServiceTest extends ServiceTestsBase {
     private static final String NO_TENANT_NAME = null;
     private static final Locale NO_LOCALE = null;
     private static final Locale NO_INBOX_TASK_ID = null;
@@ -71,80 +71,87 @@ public class TimeOffTaskServiceTest extends ServiceTestsBase {
     private static final String REASON = "reason";
     private static final String WORKDAY_URL = "https://workday.com/ccx/api/api/v1/tenant/";
 
-    @Mock private InboxService mockInboxService;
-    @Mock private Resource mockTimeOffTaskActionTemplate;
-    @Mock private ApprovalTaskServiceFactory mockApprovalTaskServiceFactory;
-    @InjectMocks private TimeOffTaskService timeOffTaskService;
+    @Mock
+    private InboxService mockInboxService;
+    @Mock
+    private Resource mockTimeOffTaskActionTemplate;
+    @Mock
+    private ApprovalTaskServiceFactory mockApprovalTaskServiceFactory;
+    @InjectMocks
+    private TimeOffTaskService timeOffTaskService;
 
-    @BeforeEach public void initialize() {
+    @BeforeEach
+    void initialize() {
         setupRestClient(timeOffTaskService, "restClient");
     }
 
     @DisplayName("Get time off tasks tests")
     @Nested
-    public class GetTimeOffTasks {
+    class GetTimeOffTasks {
 
         @ParameterizedTest
         @MethodSource("com.vmware.ws1connectors.workday.services.TimeOffTaskServiceTest#invalidInputsForGetTimeOffTasks")
-        public void whenGetTimeOffTasksProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth,
-                                                                 final String email, final Locale locale) {
+        void whenGetTimeOffTasksProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth,
+                                                          final String email, final Locale locale) {
             assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> timeOffTaskService.getApprovalTasks(baseUrl, workdayAuth, email, locale));
+                    .isThrownBy(() -> timeOffTaskService.getApprovalTasks(baseUrl, workdayAuth, email, locale));
             verifyWorkdayApiNeverInvoked();
             verifyGetTasksApiNeverInvoked(baseUrl, workdayAuth);
         }
 
-        @Test public void timeOffTasksFound() {
+        @Test
+        void timeOffTasksFound() {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME))
-                .thenReturn(Flux.fromIterable(INBOX_TASKS));
+                    .thenReturn(Flux.fromIterable(INBOX_TASKS));
             when(mockApprovalTaskServiceFactory.getApprovalTaskService(any(InboxTask.class)))
                     .thenReturn(Optional.of(timeOffTaskService));
             when(mockExchangeFunc.exchange(any()))
-                .thenReturn(Mono.just(buildClientResponse(TIME_OFF_TASK)))
-                .thenReturn(Mono.just(buildClientResponse(TIME_OFF_TASK_2)));
+                    .thenReturn(Mono.just(buildClientResponse(TIME_OFF_TASK)))
+                    .thenReturn(Mono.just(buildClientResponse(TIME_OFF_TASK_2)));
 
             final Flux<ApprovalTask> timeOffTasks = timeOffTaskService.getApprovalTasks(BASE_URL, WORKDAY_TOKEN,
                     TENANT_NAME, LOCALE);
 
             StepVerifier.create(timeOffTasks)
-                .expectNextMatches(timeOffTask -> isEquals(timeOffTask, "time_off_task_1.json"))
-                .expectNextMatches(timeOffTask -> isEquals(timeOffTask, "time_off_task_2.json"))
-                .verifyComplete();
+                    .expectNextMatches(timeOffTask -> isEquals(timeOffTask, "time_off_task_1.json"))
+                    .expectNextMatches(timeOffTask -> isEquals(timeOffTask, "time_off_task_2.json"))
+                    .verifyComplete();
             verify(mockInboxService).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verify(mockExchangeFunc, times(TIME_OFF_DETAILS_API_INVOCATION_COUNT)).exchange(any(ClientRequest.class));
         }
 
         @ParameterizedTest
         @MethodSource("com.vmware.ws1connectors.workday.services.TimeOffTaskServiceTest#getParamsForNoTimeOffTasksFound")
-        public void noTimeOffTasksFound(final List<InboxTask> inboxTasks, final int inboxApiInvocationCount) {
+        void noTimeOffTasksFound(final List<InboxTask> inboxTasks, final int inboxApiInvocationCount) {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME)).thenReturn(Flux.fromIterable(inboxTasks));
             final Flux<ApprovalTask> timeOffTasks = timeOffTaskService.getApprovalTasks(BASE_URL, WORKDAY_TOKEN,
                     TENANT_NAME, LOCALE);
             StepVerifier.create(timeOffTasks)
-                .verifyComplete();
+                    .verifyComplete();
             verify(mockInboxService, times(inboxApiInvocationCount)).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verifyWorkdayApiNeverInvoked();
         }
 
-        @Test public void inboxTasksErrorOccursWhenGettingTimeOffTasks() {
+        @Test
+        void inboxTasksErrorOccursWhenGettingTimeOffTasks() {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME))
-                .thenReturn(Flux.error(() -> new InboxTaskException(HttpStatus.INTERNAL_SERVER_ERROR)));
+                    .thenReturn(Flux.error(() -> new InboxTaskException(HttpStatus.INTERNAL_SERVER_ERROR)));
 
             final Flux<ApprovalTask> timeOffTasks = timeOffTaskService.getApprovalTasks(BASE_URL, WORKDAY_TOKEN,
                     TENANT_NAME, LOCALE);
 
             StepVerifier.create(timeOffTasks)
-                .expectError(InboxTaskException.class)
-                .verify(DURATION_2_SECONDS);
+                    .expectError(InboxTaskException.class)
+                    .verify(DURATION_2_SECONDS);
             verify(mockInboxService).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verifyWorkdayApiNeverInvoked();
         }
 
         @ParameterizedTest
         @EnumSource(value = HttpStatus.class, names = {"INTERNAL_SERVER_ERROR", "BAD_REQUEST"})
-        public void workdayApiErrorOccursWhenGettingTimeOffTasks(HttpStatus httpStatus) {
+        void workdayApiErrorOccursWhenGettingTimeOffTasks(HttpStatus httpStatus) {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME))
-                .thenReturn(Flux.fromIterable(INBOX_TASKS));
+                    .thenReturn(Flux.fromIterable(INBOX_TASKS));
             when(mockApprovalTaskServiceFactory.getApprovalTaskService(any(InboxTask.class)))
                     .thenReturn(Optional.of(timeOffTaskService));
             mockWorkdayApiErrorResponse(httpStatus);
@@ -153,7 +160,7 @@ public class TimeOffTaskServiceTest extends ServiceTestsBase {
                     TENANT_NAME, LOCALE);
 
             StepVerifier.create(timeOffTasks)
-                .verifyComplete();
+                    .verifyComplete();
             verify(mockInboxService).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verify(mockExchangeFunc, times(TIME_OFF_DETAILS_API_INVOCATION_COUNT)).exchange(any(ClientRequest.class));
 
@@ -162,81 +169,82 @@ public class TimeOffTaskServiceTest extends ServiceTestsBase {
 
     @DisplayName("Tests for approval Action")
     @Nested
-    public class ApprovalActionTest {
+    class ApprovalActionTest {
 
         @ParameterizedTest
         @MethodSource("com.vmware.ws1connectors.workday.services.TimeOffTaskServiceTest#invalidInputsForExecuteTimeOffTaskAction")
-        public void whenTimeOffTaskActionProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth,
-                                                                   final String email, final String inboxTaskId) {
+        void whenTimeOffTaskActionProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth,
+                                                            final String email, final String inboxTaskId) {
             assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> timeOffTaskService.approveTimeOffTask(baseUrl, workdayAuth, email, inboxTaskId, COMMENT));
+                    .isThrownBy(() -> timeOffTaskService.approveTimeOffTask(baseUrl, workdayAuth, email, inboxTaskId, COMMENT));
             verifyWorkdayApiNeverInvoked();
             verifyGetTasksApiNeverInvoked(baseUrl, workdayAuth);
         }
 
         @ParameterizedTest
         @MethodSource("com.vmware.ws1connectors.workday.services.TimeOffTaskServiceTest#getParamsForNoTimeOffTasksFound")
-        public void noTimeOffTaskFoundToApprove(final List<InboxTask> inboxTasks, final int inboxApiInvocationCount) {
+        void noTimeOffTaskFoundToApprove(final List<InboxTask> inboxTasks, final int inboxApiInvocationCount) {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME))
                     .thenReturn(Flux.fromIterable(inboxTasks));
             final Mono<Descriptor> timeOffTasks = timeOffTaskService.approveTimeOffTask(BASE_URL, WORKDAY_TOKEN,
                     TENANT_NAME, INBOX_TASK_ID, COMMENT);
             StepVerifier.create(timeOffTasks)
-                .verifyError(TimeOffTaskNotFoundException.class);
+                    .verifyError(TimeOffTaskNotFoundException.class);
             verify(mockInboxService, times(inboxApiInvocationCount)).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verifyWorkdayApiNeverInvoked();
         }
 
-        @Test public void inboxTasksErrorOccursWhenApprovingTimeOffTasks() {
+        @Test
+        void inboxTasksErrorOccursWhenApprovingTimeOffTasks() {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME))
-                .thenReturn(Flux.error(() -> new InboxTaskException(HttpStatus.INTERNAL_SERVER_ERROR)));
+                    .thenReturn(Flux.error(() -> new InboxTaskException(HttpStatus.INTERNAL_SERVER_ERROR)));
             final Mono<Descriptor> timeOffTasks = timeOffTaskService.approveTimeOffTask(BASE_URL, WORKDAY_TOKEN,
                     TENANT_NAME, INBOX_TASK_ID, COMMENT);
             StepVerifier.create(timeOffTasks)
-                .expectError(InboxTaskException.class)
-                .verify(DURATION_2_SECONDS);
+                    .expectError(InboxTaskException.class)
+                    .verify(DURATION_2_SECONDS);
             verify(mockInboxService).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verifyWorkdayApiNeverInvoked();
         }
 
         @ParameterizedTest
         @EnumSource(value = HttpStatus.class, names = {"INTERNAL_SERVER_ERROR", "BAD_REQUEST"})
-        public void workdayApiErrorOccursWhenApprovingTimeOffTask(HttpStatus httpStatus) throws IOException {
+        void workdayApiErrorOccursWhenApprovingTimeOffTask(HttpStatus httpStatus) throws IOException {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME))
-                .thenReturn(Flux.fromIterable(INBOX_TASKS));
+                    .thenReturn(Flux.fromIterable(INBOX_TASKS));
             when(mockTimeOffTaskActionTemplate.getInputStream())
-                .thenReturn(TIMEOFF_TASK_ACTION_BODY_RESOURCE.getInputStream());
+                    .thenReturn(TIMEOFF_TASK_ACTION_BODY_RESOURCE.getInputStream());
             mockWorkdayApiErrorResponse(httpStatus);
             final Mono<Descriptor> timeOffTasks = timeOffTaskService.approveTimeOffTask(BASE_URL, WORKDAY_TOKEN,
                     TENANT_NAME, INBOX_TASK_ID, COMMENT);
 
             StepVerifier.create(timeOffTasks)
-                .expectError(TimeOffTaskActionException.class)
-                .verify(DURATION_2_SECONDS);
+                    .expectError(TimeOffTaskActionException.class)
+                    .verify(DURATION_2_SECONDS);
             verify(mockInboxService).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verify(mockExchangeFunc).exchange(any(ClientRequest.class));
         }
 
         @ParameterizedTest
         @MethodSource("com.vmware.ws1connectors.workday.services.TimeOffTaskServiceTest#getCommentInputs")
-        public void canApproveTimeOffTask(final String comment) throws IOException {
+        void canApproveTimeOffTask(final String comment) throws IOException {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME))
-                .thenReturn(Flux.fromIterable(INBOX_TASKS));
+                    .thenReturn(Flux.fromIterable(INBOX_TASKS));
             when(mockTimeOffTaskActionTemplate.getInputStream())
-                .thenReturn(TIMEOFF_TASK_ACTION_BODY_RESOURCE.getInputStream());
+                    .thenReturn(TIMEOFF_TASK_ACTION_BODY_RESOURCE.getInputStream());
             final Descriptor expectedResponseDesc = Descriptor.builder().id(INBOX_TASK_ID)
-                .id(HREF)
-                .descriptor(DESCRIPTOR)
-                .build();
+                    .id(HREF)
+                    .descriptor(DESCRIPTOR)
+                    .build();
             when(mockExchangeFunc.exchange(any()))
-                .thenReturn(Mono.just(buildClientResponse(JsonUtils.convertToJson(expectedResponseDesc))));
+                    .thenReturn(Mono.just(buildClientResponse(JsonUtils.convertToJson(expectedResponseDesc))));
 
             final Mono<Descriptor> timeOffTasks = timeOffTaskService.approveTimeOffTask(BASE_URL, WORKDAY_TOKEN,
                     TENANT_NAME, INBOX_TASK_ID, comment);
 
             StepVerifier.create(timeOffTasks)
-                .expectNextMatches(actualDesc -> isEquals(actualDesc, expectedResponseDesc))
-                .verifyComplete();
+                    .expectNextMatches(actualDesc -> isEquals(actualDesc, expectedResponseDesc))
+                    .verifyComplete();
             verify(mockInboxService).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verify(mockExchangeFunc).exchange(any(ClientRequest.class));
         }
@@ -244,82 +252,84 @@ public class TimeOffTaskServiceTest extends ServiceTestsBase {
 
     @DisplayName("Tests for decline Action")
     @Nested
-    public class DeclineActionTest {
+    class DeclineActionTest {
 
         @ParameterizedTest
         @MethodSource("com.vmware.ws1connectors.workday.services.TimeOffTaskServiceTest#invalidInputsForExecuteTimeOffTaskAction")
-        public void whenTimeOffTaskDeclineActionProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth,
-                                                                          final String email, final String inboxTaskId) {
+        void whenTimeOffTaskDeclineActionProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth,
+                                                                   final String email, final String inboxTaskId) {
             assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> timeOffTaskService.declineTimeOffTask(baseUrl, workdayAuth, email, inboxTaskId, COMMENT));
+                    .isThrownBy(() -> timeOffTaskService.declineTimeOffTask(baseUrl, workdayAuth, email, inboxTaskId, COMMENT));
             verifyWorkdayApiNeverInvoked();
             verifyGetTasksApiNeverInvoked(baseUrl, workdayAuth);
         }
 
         @ParameterizedTest
         @MethodSource("com.vmware.ws1connectors.workday.services.TimeOffTaskServiceTest#getParamsForNoTimeOffTasksFound")
-        public void noTimeOffTaskFoundToDecline(final List<InboxTask> inboxTasks, final int inboxApiInvocationCount) {
+        void noTimeOffTaskFoundToDecline(final List<InboxTask> inboxTasks, final int inboxApiInvocationCount) {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME))
                     .thenReturn(Flux.fromIterable(inboxTasks));
             final Mono<Descriptor> timeOffTasks = timeOffTaskService.declineTimeOffTask(BASE_URL, WORKDAY_TOKEN,
                     TENANT_NAME, INBOX_TASK_ID, COMMENT);
             StepVerifier.create(timeOffTasks)
-                .verifyError(TimeOffTaskNotFoundException.class);
+                    .verifyError(TimeOffTaskNotFoundException.class);
             verify(mockInboxService, times(inboxApiInvocationCount)).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verifyWorkdayApiNeverInvoked();
         }
 
-        @Test public void inboxTasksErrorOccursWhenDecliningTimeOffTasks() {
+        @Test
+        void inboxTasksErrorOccursWhenDecliningTimeOffTasks() {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME))
-                .thenReturn(Flux.error(() -> new InboxTaskException(HttpStatus.BAD_REQUEST)));
+                    .thenReturn(Flux.error(() -> new InboxTaskException(HttpStatus.BAD_REQUEST)));
 
             final Mono<Descriptor> timeOffTasks = timeOffTaskService.declineTimeOffTask(BASE_URL, WORKDAY_TOKEN,
                     TENANT_NAME, INBOX_TASK_ID, COMMENT);
 
             StepVerifier.create(timeOffTasks)
-                .expectError(InboxTaskException.class)
-                .verify(DURATION_2_SECONDS);
+                    .expectError(InboxTaskException.class)
+                    .verify(DURATION_2_SECONDS);
             verify(mockInboxService).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verifyWorkdayApiNeverInvoked();
         }
 
         @ParameterizedTest
         @EnumSource(value = HttpStatus.class, names = {"INTERNAL_SERVER_ERROR", "BAD_REQUEST"})
-        public void workdayApiErrorOccursWhenDecliningTimeOffTask(HttpStatus httpStatus) throws IOException {
+        void workdayApiErrorOccursWhenDecliningTimeOffTask(HttpStatus httpStatus) throws IOException {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME))
-                .thenReturn(Flux.fromIterable(INBOX_TASKS));
+                    .thenReturn(Flux.fromIterable(INBOX_TASKS));
             when(mockTimeOffTaskActionTemplate.getInputStream())
-                .thenReturn(TIMEOFF_TASK_ACTION_BODY_RESOURCE.getInputStream());
+                    .thenReturn(TIMEOFF_TASK_ACTION_BODY_RESOURCE.getInputStream());
             mockWorkdayApiErrorResponse(httpStatus);
 
             final Mono<Descriptor> timeOffTasks = timeOffTaskService.declineTimeOffTask(BASE_URL, WORKDAY_TOKEN,
                     TENANT_NAME, INBOX_TASK_ID, COMMENT);
 
             StepVerifier.create(timeOffTasks)
-                .expectError(TimeOffTaskActionException.class)
-                .verify(DURATION_2_SECONDS);
+                    .expectError(TimeOffTaskActionException.class)
+                    .verify(DURATION_2_SECONDS);
             verify(mockInboxService).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verify(mockExchangeFunc).exchange(any(ClientRequest.class));
         }
 
-        @Test public void canDeclineTimeOffTask() throws IOException {
+        @Test
+        void canDeclineTimeOffTask() throws IOException {
             when(mockInboxService.getTasks(BASE_URL, WORKDAY_TOKEN, TENANT_NAME))
-                .thenReturn(Flux.fromIterable(INBOX_TASKS));
+                    .thenReturn(Flux.fromIterable(INBOX_TASKS));
             when(mockTimeOffTaskActionTemplate.getInputStream())
-                .thenReturn(TIMEOFF_TASK_ACTION_BODY_RESOURCE.getInputStream());
+                    .thenReturn(TIMEOFF_TASK_ACTION_BODY_RESOURCE.getInputStream());
             final Descriptor expectedResponseDesc = Descriptor.builder().id(INBOX_TASK_ID)
-                .id(HREF)
-                .descriptor(DENIAL_DESCRIPTOR)
-                .build();
+                    .id(HREF)
+                    .descriptor(DENIAL_DESCRIPTOR)
+                    .build();
             when(mockExchangeFunc.exchange(any()))
-                .thenReturn(Mono.just(buildClientResponse(JsonUtils.convertToJson(expectedResponseDesc))));
+                    .thenReturn(Mono.just(buildClientResponse(JsonUtils.convertToJson(expectedResponseDesc))));
 
             final Mono<Descriptor> timeOffTasks = timeOffTaskService.declineTimeOffTask(BASE_URL, WORKDAY_TOKEN,
                     TENANT_NAME, INBOX_TASK_ID, REASON);
 
             StepVerifier.create(timeOffTasks)
-                .expectNextMatches(actualDesc -> isEquals(actualDesc, expectedResponseDesc))
-                .verifyComplete();
+                    .expectNextMatches(actualDesc -> isEquals(actualDesc, expectedResponseDesc))
+                    .verifyComplete();
             verify(mockInboxService).getTasks(eq(BASE_URL), eq(WORKDAY_TOKEN), any(String.class));
             verify(mockExchangeFunc).exchange(any(ClientRequest.class));
         }
@@ -327,34 +337,34 @@ public class TimeOffTaskServiceTest extends ServiceTestsBase {
 
     private static Stream<Arguments> invalidInputsForGetTimeOffTasks() {
         return new ArgumentsStreamBuilder()
-            .add(NO_BASE_URL, WORKDAY_TOKEN, TENANT_NAME, LOCALE)
-            .add(BASE_URL, NO_WORKDAY_TOKEN, TENANT_NAME, LOCALE)
-            .add(BASE_URL, WORKDAY_TOKEN, NO_TENANT_NAME, LOCALE)
-            .add(BASE_URL, WORKDAY_TOKEN, TENANT_NAME, NO_LOCALE)
-            .build();
+                .add(NO_BASE_URL, WORKDAY_TOKEN, TENANT_NAME, LOCALE)
+                .add(BASE_URL, NO_WORKDAY_TOKEN, TENANT_NAME, LOCALE)
+                .add(BASE_URL, WORKDAY_TOKEN, NO_TENANT_NAME, LOCALE)
+                .add(BASE_URL, WORKDAY_TOKEN, TENANT_NAME, NO_LOCALE)
+                .build();
     }
 
     private static Stream<Arguments> invalidInputsForExecuteTimeOffTaskAction() {
         return new ArgumentsStreamBuilder()
-            .add(NO_BASE_URL, WORKDAY_TOKEN, TENANT_NAME, INBOX_TASK_ID)
-            .add(BASE_URL, NO_WORKDAY_TOKEN, TENANT_NAME, INBOX_TASK_ID)
-            .add(BASE_URL, WORKDAY_TOKEN, NO_TENANT_NAME, INBOX_TASK_ID)
-            .add(BASE_URL, WORKDAY_TOKEN, TENANT_NAME, NO_INBOX_TASK_ID)
-            .build();
+                .add(NO_BASE_URL, WORKDAY_TOKEN, TENANT_NAME, INBOX_TASK_ID)
+                .add(BASE_URL, NO_WORKDAY_TOKEN, TENANT_NAME, INBOX_TASK_ID)
+                .add(BASE_URL, WORKDAY_TOKEN, NO_TENANT_NAME, INBOX_TASK_ID)
+                .add(BASE_URL, WORKDAY_TOKEN, TENANT_NAME, NO_INBOX_TASK_ID)
+                .build();
     }
 
     private static Stream<Arguments> getParamsForNoTimeOffTasksFound() {
         return new ArgumentsStreamBuilder()
-            .add(Collections.emptyList(), 1)
-            .add(NO_TIME_OFF_INBOX_TASKS, 1)
-            .build();
+                .add(Collections.emptyList(), 1)
+                .add(NO_TIME_OFF_INBOX_TASKS, 1)
+                .build();
     }
 
     private static Stream<Arguments> getCommentInputs() {
         return new ArgumentsStreamBuilder()
-            .add(COMMENT)
-            .add(NO_COMMENT)
-            .build();
+                .add(COMMENT)
+                .add(NO_COMMENT)
+                .build();
     }
 
     private static List<InboxTask> getInboxTasks(final String inboxTasksFile) {

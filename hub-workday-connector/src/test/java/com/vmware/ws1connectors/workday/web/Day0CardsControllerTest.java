@@ -21,7 +21,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest;
 
-public class Day0CardsControllerTest extends ControllerTestUtils {
+class Day0CardsControllerTest extends ControllerTestUtils {
 
     private static final String UNAUTHORIZED_WORKDAY_AUTH_TOKEN = BEARER + "unauthorized-auth-token";
     private static final String NO_WORKDAY_AUTH_TOKEN = null;
@@ -33,11 +33,13 @@ public class Day0CardsControllerTest extends ControllerTestUtils {
     private static final String EXPECTED_DAY0_CARDS_JSON = "cards/day0_cards.json";
     private static final String REQUEST_BODY_FILE_NAME = "get_cards_request_body.json";
 
-    @Test public void testCardRequestsApiIsProtected() throws Exception {
+    @Test
+    void testCardRequestsApiIsProtected() throws Exception {
         testProtectedResource(POST, DAY0_CARDS_URI);
     }
 
-    @Test public void whenWorkdayAuthTokenIsUnauthorizedThenCardRequestFails() throws IOException {
+    @Test
+    void whenWorkdayAuthTokenIsUnauthorizedThenCardRequestFails() throws IOException {
         mockBackend.expect(requestTo(any(String.class)))
                 .andRespond(withUnauthorizedRequest());
 
@@ -46,12 +48,14 @@ public class Day0CardsControllerTest extends ControllerTestUtils {
                 .expectBody().jsonPath(ERROR_JSON_PATH, INVALID_CONNECTOR_TOKEN);
     }
 
-    @Test public void whenWorkdayAuthTokenIsMissingThenCardRequestFails() throws IOException {
+    @Test
+    void whenWorkdayAuthTokenIsMissingThenCardRequestFails() throws IOException {
         requestCards(NO_WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI, REQUEST_BODY_FILE_NAME, true)
                 .expectStatus().isBadRequest();
     }
 
-    @Test public void whenNoTimeOffTasksFoundThenReturnsEmptyCards() throws Exception {
+    @Test
+    void whenNoTimeOffTasksFoundThenReturnsEmptyCards() throws Exception {
         mockWorkdayApiResponse(getInboxTasksUri(), NO_INBOX_TASKS_JSON);
         requestCards(WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI, REQUEST_BODY_FILE_NAME, true)
                 .expectStatus().isOk()
@@ -59,7 +63,8 @@ public class Day0CardsControllerTest extends ControllerTestUtils {
                 .expectBody().json(fromFile(NO_CARDS_JSON));
     }
 
-    @Test public void createDay0CardsReturnsExpectedCards() throws Exception {
+    @Test
+    void createDay0CardsReturnsExpectedCards() throws Exception {
         mockWorkdayApiResponse(getInboxTasksUri(), INBOX_TASKS_JSON);
         final String actualResponseBody = requestCards(WORKDAY_AUTH_TOKEN, DAY0_CARDS_URI, REQUEST_BODY_FILE_NAME, true)
                 .expectStatus().isOk()

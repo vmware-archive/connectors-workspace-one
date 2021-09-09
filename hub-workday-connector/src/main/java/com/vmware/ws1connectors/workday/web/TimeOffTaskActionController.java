@@ -32,6 +32,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class TimeOffTaskActionController {
     @Autowired private TimeOffTaskService timeOffTaskService;
 

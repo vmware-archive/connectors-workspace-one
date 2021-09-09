@@ -25,65 +25,68 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class InboxServiceTest extends ServiceTestsBase {
+class InboxServiceTest extends ServiceTestsBase {
     private static final String EMAIL = "user1@example.com";
 
     private static final String INBOX_TASKS = FileUtils.readFileAsString("inbox_tasks.json");
 
-    @InjectMocks private InboxService inboxService;
+    @InjectMocks
+    private InboxService inboxService;
 
-    @BeforeEach public void initialize() {
+    @BeforeEach
+    void initialize() {
         setupRestClient(inboxService, "restClient");
     }
 
     private static Stream<Arguments> invalidInputsForGetTasks() {
         return new ArgumentsStreamBuilder()
-            .add(NO_BASE_URL, WORKDAY_TOKEN)
-            .add(BASE_URL, NO_WORKDAY_TOKEN)
-            .build();
+                .add(NO_BASE_URL, WORKDAY_TOKEN)
+                .add(BASE_URL, NO_WORKDAY_TOKEN)
+                .build();
     }
 
     @ParameterizedTest
     @MethodSource("invalidInputsForGetTasks")
-    public void whenGetTasksProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth) {
+    void whenGetTasksProvidedWithInvalidInputs(final String baseUrl, final String workdayAuth) {
         assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> inboxService.getTasks(baseUrl, workdayAuth, EMAIL));
+                .isThrownBy(() -> inboxService.getTasks(baseUrl, workdayAuth, EMAIL));
         verifyWorkdayApiNeverInvoked();
     }
 
-    @Test public void tasksFoundInTheInbox() {
+    @Test
+    void tasksFoundInTheInbox() {
         mockWorkdayApiResponse(INBOX_TASKS);
 
         final Flux<InboxTask> inboxTasks = inboxService.getTasks(BASE_URL, WORKDAY_TOKEN, EMAIL);
 
         StepVerifier.create(inboxTasks)
-            .expectNextMatches(inboxTask -> isEquals(inboxTask, "inbox_task.json"))
-            .expectNextMatches(inboxTask -> isEquals(inboxTask, "inbox_task_2.json"))
-            .verifyComplete();
+                .expectNextMatches(inboxTask -> isEquals(inboxTask, "inbox_task.json"))
+                .expectNextMatches(inboxTask -> isEquals(inboxTask, "inbox_task_2.json"))
+                .verifyComplete();
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"no_data_total_zero.json", "no_data_total_non_zero.json", "inbox_tasks_total_zero.json"})
-    public void noInboxTasksFound(final String inboxTasksResponseFile) {
+    void noInboxTasksFound(final String inboxTasksResponseFile) {
         final String inboxTasksResponse = FileUtils.readFileAsString(inboxTasksResponseFile);
         mockWorkdayApiResponse(inboxTasksResponse);
 
         final Flux<InboxTask> inboxTasks = inboxService.getTasks(BASE_URL, WORKDAY_TOKEN, EMAIL);
 
         StepVerifier.create(inboxTasks)
-            .verifyComplete();
+                .verifyComplete();
     }
 
     @ParameterizedTest
     @EnumSource(value = HttpStatus.class, names = {"INTERNAL_SERVER_ERROR", "BAD_REQUEST"})
-    public void errorOccursWhenGettingTheUser(HttpStatus httpStatus) {
+    void errorOccursWhenGettingTheUser(HttpStatus httpStatus) {
         mockWorkdayApiErrorResponse(httpStatus);
 
         final Flux<InboxTask> inboxTasks = inboxService.getTasks(BASE_URL, WORKDAY_TOKEN, EMAIL);
 
         StepVerifier.create(inboxTasks)
-            .expectError(InboxTaskException.class)
-            .verify(DURATION_2_SECONDS);
+                .expectError(InboxTaskException.class)
+                .verify(DURATION_2_SECONDS);
     }
 
 }

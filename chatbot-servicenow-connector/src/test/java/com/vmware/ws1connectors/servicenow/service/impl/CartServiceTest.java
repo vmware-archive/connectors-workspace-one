@@ -62,7 +62,7 @@ import static uk.co.datumedge.hamcrest.json.SameJSONAs.sameJSONAs;
 @Slf4j
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class CartServiceTest {
+class CartServiceTest {
     private static final String NO_BASE_URL = null;
     private static final String NO_ITEM_ID = null;
     private static final Integer NO_ITEM_QUANTITY = null;
@@ -115,10 +115,10 @@ public class CartServiceTest {
 
     @InjectMocks CartService cartService;
 
-    @Test public void testAddToCartWhenItemsAreAlreadyThereInCart() {
+    @Test void testAddToCartWhenItemsAreAlreadyThereInCart() {
         Locale locale = null;
         mockBotAccessor();
-        JsonDocument jsonDocument = null;
+        JsonDocument jsonDocument;
         URI baseUri = UriComponentsBuilder.fromUriString(BASE_URL_ADD_TO_CART).build().toUri();
         jsonDocument = new JsonDocument(Configuration.defaultConfiguration().jsonProvider().parse(FileUtils.readFileAsString(
                 LOOKUP_CART_RESP)));
@@ -170,7 +170,7 @@ public class CartServiceTest {
         when(responseMock.bodyToMono(JsonDocument.class)).thenReturn(Mono.just(jd));
     }
 
-    @Test public void testAddToCartWhenNoItemInCart() {
+    @Test void testAddToCartWhenNoItemInCart() {
         Locale locale = null;
         JsonDocument jsonDocument;
         URI baseUri = UriComponentsBuilder.fromUriString(BASE_URL_ADD_TO_CART).build().toUri();
@@ -215,7 +215,7 @@ public class CartServiceTest {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForAddToCart")
-    public void whenAddToCartProvidedWithInvalidInputs(final String itemId, final Integer itemQuantity, final String auth, final URI baseUri, final String routingPrefix) {
+    void whenAddToCartProvidedWithInvalidInputs(final String itemId, final Integer itemQuantity, final String auth, final URI baseUri, final String routingPrefix) {
         Locale locale = null;
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(() -> cartService.addToCart(itemId, itemQuantity, auth, baseUri, routingPrefix, locale));
@@ -224,7 +224,7 @@ public class CartServiceTest {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForLookupCart")
-    public void whenLookupCartProvidedWithInvalidInputs(final String auth, final String baseUrl, final String routingPrefix, CardRequest cardRequest) {
+    void whenLookupCartProvidedWithInvalidInputs(final String auth, final String baseUrl, final String routingPrefix, CardRequest cardRequest) {
         Locale locale = null;
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(() -> cartService.lookupCart(auth, baseUrl, routingPrefix, locale, cardRequest, Optional.empty()));
@@ -241,7 +241,7 @@ public class CartServiceTest {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForClearCart")
-    public void whenClearCartProvidedWithInvalidInputs(final String auth, final String baseUri) {
+    void whenClearCartProvidedWithInvalidInputs(final String auth, final String baseUri) {
         Locale locale = null;
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> cartService.emptyCart(auth, baseUri, locale));
@@ -255,7 +255,7 @@ public class CartServiceTest {
         when(requestHeadersMock.exchange()).thenReturn(Mono.just(clientResponse));
     }
 
-    @Test public void testClearCart() throws Exception {
+    @Test void testClearCart() throws Exception {
         Locale locale = null;
         setupClearCartMock(locale);
         final Mono<ResponseEntity<BotObjects>> responseEntityMono =

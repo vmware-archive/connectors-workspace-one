@@ -13,7 +13,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TimeOffItemTest {
+class TimeOffItemTest {
     private static final LocalDate DATE = LocalDate.now();
     private static final String REQUESTED_TIME_OFF_QUANTITY = "8";
     private static final String UNIT_OF_TIME = "Hours";
@@ -22,42 +22,53 @@ public class TimeOffItemTest {
 
     private TimeOffItem timeOffItem;
 
-    @BeforeEach public void setupTimeOffItem() {
+    @BeforeEach
+    void setupTimeOffItem() {
         timeOffItem = TimeOffItem.builder()
-            .requestedTimeOffQuantity(REQUESTED_TIME_OFF_QUANTITY)
-            .unitOfTime(UNIT_OF_TIME)
-            .date(DATE)
-            .dayOfWeek(DAY_OF_WEEK)
-            .type(TIME_OFF_TYPE)
-            .build();
+                .requestedTimeOffQuantity(REQUESTED_TIME_OFF_QUANTITY)
+                .unitOfTime(UNIT_OF_TIME)
+                .date(DATE)
+                .dayOfWeek(DAY_OF_WEEK)
+                .type(TIME_OFF_TYPE)
+                .build();
     }
 
-    @Nested public class GetRequestedTimeOffQuantity {
-        @Test public void returnsRequestedTimeOffQuantity() {
+    @Nested
+    class GetRequestedTimeOffQuantity {
+        @Test
+        void returnsRequestedTimeOffQuantity() {
             assertThat(timeOffItem.getRequestedTimeOffQuantity()).isEqualTo(REQUESTED_TIME_OFF_QUANTITY);
         }
     }
 
-    @Nested public class GetUnitOfTime {
-        @Test public void returnsUnitOfTime() {
+    @Nested
+    class GetUnitOfTime {
+        @Test
+        void returnsUnitOfTime() {
             assertThat(timeOffItem.getUnitOfTime()).isEqualTo(UNIT_OF_TIME);
         }
     }
 
-    @Nested public class GetDate {
-        @Test public void returnsDate() {
+    @Nested
+    class GetDate {
+        @Test
+        void returnsDate() {
             assertThat(timeOffItem.getDate()).isEqualTo(DATE);
         }
     }
 
-    @Nested public class GetDayOfWeek {
-        @Test public void returnsDayOfWeek() {
+    @Nested
+    class GetDayOfWeek {
+        @Test
+        void returnsDayOfWeek() {
             assertThat(timeOffItem.getDayOfWeek()).isEqualTo(DAY_OF_WEEK);
         }
     }
 
-    @Nested public class GetTimeOffType {
-        @Test public void returnsTimeOffType() {
+    @Nested
+    class GetTimeOffType {
+        @Test
+        void returnsTimeOffType() {
             assertThat(timeOffItem.getDayOfWeek()).isEqualTo(DAY_OF_WEEK);
         }
     }

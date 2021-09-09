@@ -37,7 +37,7 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class BotActionBuilderTest {
+class BotActionBuilderTest {
 
     private static final String ROUTING_PREFIX = "https://mf/connectors/abc123/botDiscovery/";
     private static final String BOT_ACTION_TITLE = "Add Another";
@@ -67,7 +67,7 @@ public class BotActionBuilderTest {
     @Mock private ConnectorTextAccessor connectorTextAccessor;
     @Mock private ExchangeFunction mockExchangeFunc;
 
-    @Test public void testGetAddAnotherItemCartAction() {
+    @Test void testGetAddAnotherItemCartAction() {
         setMocks();
         BotAction botAction = botActionBuilder.getAddAnotherItemCartAction(ROUTING_PREFIX, null);
         assertThat(botAction.getTitle()).isEqualTo(BOT_ACTION_TITLE);
@@ -80,13 +80,13 @@ public class BotActionBuilderTest {
         when(connectorTextAccessor.getDescription(ADD_ANOTHER, null)).thenReturn(BOT_ACTION_DESC);
     }
 
-    @Test public void testGetAddAnotherItemCartActionThrowsExceptionWhenTitleIsNull() {
+    @Test void testGetAddAnotherItemCartActionThrowsExceptionWhenTitleIsNull() {
         setMocksWithTitleAsNull();
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(() -> botActionBuilder.getAddAnotherItemCartAction(ROUTING_PREFIX, null));
     }
 
-    @Test public void testGetAddAnotherItemCartActionThrowsExceptionWhenDescriptionIsNull() {
+    @Test void testGetAddAnotherItemCartActionThrowsExceptionWhenDescriptionIsNull() {
         setMocksWithDescriptionAsNull();
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(() -> botActionBuilder.getAddAnotherItemCartAction(ROUTING_PREFIX, null));
@@ -103,14 +103,14 @@ public class BotActionBuilderTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    public void testGetAddAnotherItemCartActionThrowsExceptionWithInvalidInputs(final String routingPrefix) {
+    void testGetAddAnotherItemCartActionThrowsExceptionWithInvalidInputs(final String routingPrefix) {
         setMocks();
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> botActionBuilder.getAddAnotherItemCartAction(routingPrefix, null));
         verify(mockExchangeFunc, never()).exchange(any(ClientRequest.class));
     }
 
-    @Test public void testBuildBotActionForDeviceCategory() {
+    @Test void testBuildBotActionForDeviceCategory() {
         setMocksForDeviceCategory();
         BotAction botAction = botActionBuilder.buildBotActionForDeviceCategory(ServiceNowCategory.DESKTOP, ROUTING_PREFIX, null);
         assertThat(botAction.getTitle()).isEqualTo(ORDER_DESKTOP_TITLE);
@@ -125,7 +125,7 @@ public class BotActionBuilderTest {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForBuildBotActionForDeviceCategory")
-    public void testBuildBotActionForDeviceCategoryWithInvalidInputs(final ServiceNowCategory category, final String routingPrefix) {
+    void testBuildBotActionForDeviceCategoryWithInvalidInputs(final ServiceNowCategory category, final String routingPrefix) {
         setMocksForDeviceCategory();
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> botActionBuilder.buildBotActionForDeviceCategory(category, routingPrefix, null));
@@ -140,7 +140,7 @@ public class BotActionBuilderTest {
                 .build();
     }
 
-    @Test public void testConfirmTaskCreate() {
+    @Test void testConfirmTaskCreate() {
         when(connectorTextAccessor.getTitle(OPTION_YES_TITLE, null)).thenReturn(OPTION_YES);
         when(connectorTextAccessor.getDescription(OPTION_YES_DESC, null)).thenReturn(OPTION_YES);
 
@@ -156,7 +156,7 @@ public class BotActionBuilderTest {
         assertThat(botAction.getPayload().get(SHORT_DESCRIPTION)).isEqualTo(shortDescription);
     }
 
-    @Test public void testConfirmCartCheckout() {
+    @Test void testConfirmCartCheckout() {
         when(connectorTextAccessor.getTitle(OPTION_YES_TITLE, null)).thenReturn(OPTION_YES);
         when(connectorTextAccessor.getDescription(OPTION_YES_DESC, null)).thenReturn(OPTION_YES);
 
@@ -166,7 +166,7 @@ public class BotActionBuilderTest {
         assertThat(botAction.getUrl().getHref()).isEqualTo(CHECK_OUT_CONFIRMATION_URL);
     }
 
-    @Test public void testDeclineWorkflow() {
+    @Test void testDeclineWorkflow() {
         when(connectorTextAccessor.getTitle(OPTION_NO_TITLE, null)).thenReturn(OPTION_NO);
         when(connectorTextAccessor.getDescription(OPTION_NO_DESC, null)).thenReturn(OPTION_NO);
 

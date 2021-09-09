@@ -51,6 +51,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class TimeOffCardBuilder extends BaseCardBuilder implements NotificationCardBuilder<TimeOffTask> {
 
     private static final int ONE_DAY_PTO = 1;

@@ -10,11 +10,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SubjectTest {
+class SubjectTest {
     private Subject subject =
             JsonUtils.convertFromJsonFile("Business_Title_Change_Subject.json", Subject.class);
 
-    @Test public void returnsSubjectDescriptor() {
+    @Test
+    void returnsSubjectDescriptor() {
         String subjectDescription = "Programmer/Analyst - Professional - Abhishek Anand (356404)";
         assertThat(subject.getDescriptor()).isEqualTo(subjectDescription);
     }

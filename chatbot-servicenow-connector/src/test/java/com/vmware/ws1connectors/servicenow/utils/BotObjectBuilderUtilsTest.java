@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class BotObjectBuilderUtilsTest {
+class BotObjectBuilderUtilsTest {
 
     private static final String ROUTING_PREFIX = "https://mf/connectors/abc123/botDiscovery/";
     private static final String TITLE = "BotItem Title";
@@ -56,7 +56,7 @@ public class BotObjectBuilderUtilsTest {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForBotBuilder")
-    public void whenBotItemBuilderProvidedWithInvalidInputs(final String title, final String description, final String type) {
+    void whenBotItemBuilderProvidedWithInvalidInputs(final String title, final String description, final String type) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> BotObjectBuilderUtils.botObjectBuilder(title, description, WorkflowStep.COMPLETE, type));
         verify(mockExchangeFunc, never()).exchange(any(ClientRequest.class));
@@ -74,12 +74,12 @@ public class BotObjectBuilderUtilsTest {
                 .build();
     }
 
-    @Test public void whenBotItemBuilderProvidedWithWorkflowStepNull() {
+    @Test void whenBotItemBuilderProvidedWithWorkflowStepNull() {
         assertThatExceptionOfType(NullPointerException.class)
                 .isThrownBy(() -> BotObjectBuilderUtils.botObjectBuilder(TITLE, DESCRIPTION, null, TYPE));
     }
 
-    @Test public void testBotBuilderUtils() {
+    @Test void testBotBuilderUtils() {
         final BotObjects botObjects = BotObjectBuilderUtils.botObjectBuilder(TITLE, DESCRIPTION, WorkflowStep.COMPLETE, TYPE);
         assertThat(botObjects.getObjects()).hasSize(BOT_OBJECT_WITH_SINGLE_ITEM);
         BotItem botItem = botObjects.getObjects().get(0).get(ITEM_DETAILS);
@@ -89,7 +89,7 @@ public class BotObjectBuilderUtilsTest {
         assertThat(botItem.getWorkflowStep()).isEqualTo(WorkflowStep.COMPLETE);
     }
 
-    @Test public void testConfirmationObject() {
+    @Test void testConfirmationObject() {
         final String descriptor = "descriptor.string";
 
         when(connectorTextAccessor.getTitle(descriptor, null)).thenReturn(TITLE);
@@ -131,7 +131,7 @@ public class BotObjectBuilderUtilsTest {
         assertThat(declineAction.getUrl().getHref()).isEqualTo("https://www.evilcorp.com");
     }
 
-    @Test public void testConfirmationObjectNullTextAccessor() {
+    @Test void testConfirmationObjectNullTextAccessor() {
         final String descriptor = "placeholder";
 
         BotAction testConfirmAction = new BotAction.Builder()
@@ -149,7 +149,7 @@ public class BotObjectBuilderUtilsTest {
                         testConfirmAction));
     }
 
-    @Test public void testConfirmationObjectNullActionBuilderAccessor() {
+    @Test void testConfirmationObjectNullActionBuilderAccessor() {
         final String descriptor = "placeholder";
 
         BotAction testConfirmAction = new BotAction.Builder()
@@ -167,7 +167,7 @@ public class BotObjectBuilderUtilsTest {
                         testConfirmAction));
     }
 
-    @Test public void testCancelObject() {
+    @Test void testCancelObject() {
         when(connectorTextAccessor.getTitle(OPERATION_CANCEL, null)).thenReturn(TITLE);
         when(connectorTextAccessor.getDescription(OPERATION_CANCEL, null)).thenReturn(DESCRIPTION);
 
@@ -183,7 +183,7 @@ public class BotObjectBuilderUtilsTest {
         assertThat(botItem.getWorkflowStep()).isEqualTo(WorkflowStep.COMPLETE);
     }
 
-    @Test public void testCancelObjectNullTextAccessor() {
+    @Test void testCancelObjectNullTextAccessor() {
         assertThatExceptionOfType(NullPointerException.class).isThrownBy(() -> BotObjectBuilderUtils.cancelObject(null, null));
     }
 }

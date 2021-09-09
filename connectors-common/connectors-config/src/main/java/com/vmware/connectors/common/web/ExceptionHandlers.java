@@ -7,6 +7,7 @@ package com.vmware.connectors.common.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.validation.FieldError;
@@ -68,8 +69,9 @@ public class ExceptionHandlers {
 					.contentType(APPLICATION_JSON).body(body);
 		} else {
 			BodyBuilder builder = ResponseEntity.status(INTERNAL_SERVER_ERROR).header(BACKEND_STATUS, backendStatus);
-			if (e.getHeaders().getContentType() != null) {
-				builder.contentType(e.getHeaders().getContentType());
+			MediaType contentType = e.getHeaders().getContentType();
+			if (contentType != null) {
+				builder.contentType(contentType);
 			}
 			return builder.body(e.getResponseBodyAsString());
 		}

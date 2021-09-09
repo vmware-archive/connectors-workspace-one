@@ -297,7 +297,9 @@ public class HubCoupaController {
                                   final String userId,
                                   final Locale locale) {
         if (CollectionUtils.isEmpty(requisitionDetails.getAttachments())) {
-            logger.debug("No attachments found for coupa report with request ID: {}", requisitionDetails.getId());
+            if (logger.isDebugEnabled()) {
+                logger.debug("No attachments found for coupa report with request ID: {}", requisitionDetails.getId());
+            }
             return;
         }
 
@@ -327,7 +329,7 @@ public class HubCoupaController {
                                                   final Locale locale) {
         final String fileName = StringUtils.substringAfterLast(attachment.getFile(), "/");
 
-        if (fileName == null) {
+        if (fileName == null && logger.isErrorEnabled()) {
             logger.error("No fileName found for attachment: file={}, reportId={}, userId={}, approvableId={} ", attachment.getFile(), reportId, userId, approvableId);
         }
 
@@ -491,7 +493,9 @@ public class HubCoupaController {
             @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, form.getComment());
+        if (logger.isDebugEnabled()) {
+            logger.debug("approveRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, form.getComment());
+        }
 
         validateEmailAddress(userEmail);
 
@@ -567,7 +571,9 @@ public class HubCoupaController {
     }
 
     private Throwable handleClientError(WebClientResponseException e) {
-        logger.error("Exception caught : : {} ", e.getMessage());
+        if (logger.isErrorEnabled()) {
+            logger.error("Exception caught : : {} ", e.getMessage());
+        }
 
         if (HttpStatus.BAD_REQUEST.equals(e.getStatusCode())) {
             return new UserException("Bad Request", e.getStatusCode());
@@ -589,7 +595,9 @@ public class HubCoupaController {
             @PathVariable("id") String id
     ) {
         String userEmail = AuthUtil.extractUserEmail(authorization);
-        logger.debug("declineRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, form.getComment());
+        if (logger.isDebugEnabled()) {
+            logger.debug("declineRequest called: baseUrl={},  id={}, comment={}", baseUrl, id, form.getComment());
+        }
 
         validateEmailAddress(userEmail);
 
@@ -654,7 +662,9 @@ public class HubCoupaController {
         final HttpStatus status = response.statusCode();
         final String backendStatus = Integer.toString(response.rawStatusCode());
 
-        logger.error("Coupa backend returned the status code [{}] and reason phrase [{}] ", status, status.getReasonPhrase());
+        if (logger.isErrorEnabled()) {
+            logger.error("Coupa backend returned the status code [{}] and reason phrase [{}] ", status, status.getReasonPhrase());
+        }
 
         if (status == UNAUTHORIZED) {
             String body = "{\"error\" : \"invalid_connector_token\"}";

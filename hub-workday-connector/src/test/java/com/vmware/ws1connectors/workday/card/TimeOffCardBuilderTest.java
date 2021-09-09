@@ -24,7 +24,7 @@ import static com.vmware.ws1connectors.workday.test.JsonUtils.convertFromJsonFil
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class TimeOffCardBuilderTest extends ControllerTestsBase {
+class TimeOffCardBuilderTest extends ControllerTestsBase {
     private static final TimeOffTask TIME_OFF_TASK = convertFromJsonFile("time_off_task_1.json", TimeOffTask.class);
     private static final TimeOffTask MULTI_DAY_TIME_OFF_TASK = convertFromJsonFile("multi_day_time_off_task.json", TimeOffTask.class);
     private static final String ROUTING_PREFIX = "https://dev.hero.example.com/connectors/id/";
@@ -45,7 +45,8 @@ public class TimeOffCardBuilderTest extends ControllerTestsBase {
             .locale(Locale.ENGLISH)
             .build();
 
-    @Autowired private TimeOffCardBuilder timeOffCardBuilder;
+    @Autowired
+    private TimeOffCardBuilder timeOffCardBuilder;
 
     private static Stream<Arguments> invalidInputsForCreateCard() {
         return new ArgumentsStreamBuilder()
@@ -58,9 +59,9 @@ public class TimeOffCardBuilderTest extends ControllerTestsBase {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForCreateCard")
-    public void whenCreateCardProvidedWithInvalidInputs(final TimeOffTask timeOffTask, final RequestInfo requestInfo) {
+    void whenCreateCardProvidedWithInvalidInputs(final TimeOffTask timeOffTask, final RequestInfo requestInfo) {
         assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> timeOffCardBuilder.createCard(timeOffTask, requestInfo));
+                .isThrownBy(() -> timeOffCardBuilder.createCard(timeOffTask, requestInfo));
     }
 
     private static Stream<Arguments> nullInputsForCreateCard() {
@@ -72,21 +73,21 @@ public class TimeOffCardBuilderTest extends ControllerTestsBase {
 
     @ParameterizedTest
     @MethodSource("nullInputsForCreateCard")
-    public void whenCreateCardProvidedWithNullInputs(final TimeOffTask timeOffTask, final RequestInfo requestInfo) {
+    void whenCreateCardProvidedWithNullInputs(final TimeOffTask timeOffTask, final RequestInfo requestInfo) {
         assertThatExceptionOfType(ConstraintViolationException.class)
                 .isThrownBy(() -> timeOffCardBuilder.createCard(timeOffTask, requestInfo));
     }
 
     private static Stream<Arguments> getTimeOffTaskArguments() {
         return new ArgumentsStreamBuilder()
-            .add(TIME_OFF_TASK, "card.json")
-            .add(MULTI_DAY_TIME_OFF_TASK, "cards/multi_day_pto_card.json")
-            .build();
+                .add(TIME_OFF_TASK, "card.json")
+                .add(MULTI_DAY_TIME_OFF_TASK, "cards/multi_day_pto_card.json")
+                .build();
     }
 
     @ParameterizedTest
     @MethodSource("getTimeOffTaskArguments")
-    public void canBuildCard(final TimeOffTask timeOffTask, final String expectedCardJson) {
+    void canBuildCard(final TimeOffTask timeOffTask, final String expectedCardJson) {
         final Card actualCard = timeOffCardBuilder.createCard(timeOffTask, REQUEST_INFO);
         final Card expectedCard = JsonUtils.convertFromJsonFile(expectedCardJson, Card.class);
         assertThat(actualCard.getBackendId()).isEqualTo(expectedCard.getBackendId());
@@ -99,13 +100,13 @@ public class TimeOffCardBuilderTest extends ControllerTestsBase {
 
     private void verifyAction(final Card actualCard, final Card expectedCard, final String actionLabel) {
         assertThat(actualCard.getActions()).filteredOn(cardAction -> actionLabel.equals(cardAction.getLabel()))
-            .first()
-            .usingRecursiveComparison()
-            .ignoringFields("id")
-            .isEqualTo(expectedCard.getActions()
-                .stream()
-                .filter(cardAction -> actionLabel.equals(cardAction.getLabel()))
-                .findFirst()
-                .get());
+                .first()
+                .usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(expectedCard.getActions()
+                        .stream()
+                        .filter(cardAction -> actionLabel.equals(cardAction.getLabel()))
+                        .findFirst()
+                        .get());
     }
 }

@@ -20,6 +20,7 @@ import static com.vmware.ws1connectors.workday.utils.ArgumentUtils.checkArgument
 @Component
 @SuppressFBWarnings("ITC_INHERITANCE_TYPE_CHECKING")
 @Slf4j
+@SuppressWarnings({"PMD.GuardLogStatement"})
 public class CardBuilderFactory {
     private static final String APPROVAL_TASK = "Approval task";
     @Autowired private TimeOffCardBuilder timeOffCardBuilder;

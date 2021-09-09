@@ -12,10 +12,10 @@ import com.vmware.connectors.test.ControllerTestsBase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class WorkdayConnectorApplicationTest extends ControllerTestsBase {
+class WorkdayConnectorApplicationTest extends ControllerTestsBase {
     @Autowired private ApplicationContext applicationContext;
 
-    @Test public void contextLoadsForWorkdayConnectorApp() {
+    @Test void contextLoadsForWorkdayConnectorApp() {
         assertThat(applicationContext.getId()).isNotBlank();
     }
 }

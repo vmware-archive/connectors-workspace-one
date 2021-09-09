@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class BusinessTitleChangeCardBuilderTest extends ControllerTestsBase {
+class BusinessTitleChangeCardBuilderTest extends ControllerTestsBase {
 
     private static final String ROUTING_PREFIX = "https://dev.hero.example.com/connectors/id/";
     private static final BusinessTitleChangeTask BUSINESS_TITLE_CHANGE_TASK =
@@ -47,9 +47,11 @@ public class BusinessTitleChangeCardBuilderTest extends ControllerTestsBase {
             .locale(Locale.ENGLISH)
             .build();
 
-    @Autowired private BusinessTitleChangeCardBuilder businessTitleChangeCardBuilder;
+    @Autowired
+    private BusinessTitleChangeCardBuilder businessTitleChangeCardBuilder;
 
-    @Test public void canBuildCard() {
+    @Test
+    void canBuildCard() {
         final Card actualCard = businessTitleChangeCardBuilder.createCard(BUSINESS_TITLE_CHANGE_TASK, REQUEST_INFO);
         final Card expectedCard = JsonUtils.convertFromJsonFile("business_title_change_card.json", Card.class);
         assertThat(actualCard.getBackendId()).isEqualTo(expectedCard.getBackendId());
@@ -70,8 +72,8 @@ public class BusinessTitleChangeCardBuilderTest extends ControllerTestsBase {
 
     @ParameterizedTest
     @MethodSource("nullInputsForCreateCard")
-    public void whenCreateCardProvidedWithNullInputs(final BusinessTitleChangeTask businessTitleChangeTask,
-                                                     final RequestInfo requestInfo) {
+    void whenCreateCardProvidedWithNullInputs(final BusinessTitleChangeTask businessTitleChangeTask,
+                                              final RequestInfo requestInfo) {
         assertThatExceptionOfType(ConstraintViolationException.class)
                 .isThrownBy(() -> businessTitleChangeCardBuilder.createCard(businessTitleChangeTask, requestInfo));
     }
@@ -87,8 +89,8 @@ public class BusinessTitleChangeCardBuilderTest extends ControllerTestsBase {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForCreateCard")
-    public void whenCreateCardProvidedWithInvalidInputs(final BusinessTitleChangeTask businessTitleChangeTask,
-                                                        final RequestInfo requestInfo) {
+    void whenCreateCardProvidedWithInvalidInputs(final BusinessTitleChangeTask businessTitleChangeTask,
+                                                 final RequestInfo requestInfo) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> businessTitleChangeCardBuilder.createCard(businessTitleChangeTask, requestInfo));
     }

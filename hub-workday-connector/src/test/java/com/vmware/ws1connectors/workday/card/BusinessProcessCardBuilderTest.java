@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class BusinessProcessCardBuilderTest extends ControllerTestsBase {
+class BusinessProcessCardBuilderTest extends ControllerTestsBase {
     private static final String ROUTING_PREFIX = "https://dev.hero.example.com/connectors/id/";
     private static final BusinessProcessTask BUSINESS_PROCESS_TASK_1 =
             JsonUtils.convertFromJsonFile("Business_Process_Details.json", BusinessProcessTask.class);
@@ -52,7 +52,8 @@ public class BusinessProcessCardBuilderTest extends ControllerTestsBase {
             .locale(Locale.ENGLISH)
             .build();
 
-    @Autowired private BusinessProcessCardBuilder businessProcessCardBuilder;
+    @Autowired
+    private BusinessProcessCardBuilder businessProcessCardBuilder;
 
     private static Stream<Arguments> getBusinessProcessTaskArguments() {
         return new ArgumentsStreamBuilder()
@@ -63,7 +64,7 @@ public class BusinessProcessCardBuilderTest extends ControllerTestsBase {
 
     @ParameterizedTest
     @MethodSource("getBusinessProcessTaskArguments")
-    public void canBuildCard(final BusinessProcessTask businessProcessTask, final String expectedCardJson) {
+    void canBuildCard(final BusinessProcessTask businessProcessTask, final String expectedCardJson) {
         final Card actualCard = businessProcessCardBuilder.createCard(businessProcessTask, REQUEST_INFO);
         //CPD-OFF
         final Card expectedCard = JsonUtils.convertFromJsonFile(expectedCardJson, Card.class);
@@ -76,7 +77,8 @@ public class BusinessProcessCardBuilderTest extends ControllerTestsBase {
         verifyAction(actualCard, expectedCard, DECLINE);
     }
 
-    @Test public void canBuildCardWithInboxTaskWhenStepTypeIsAction() {
+    @Test
+    void canBuildCardWithInboxTaskWhenStepTypeIsAction() {
         final Card actualCard = businessProcessCardBuilder.createCard(BUSINESS_PROCESS_TASK_WITH_STEP_TYPE_ACTION, REQUEST_INFO);
         //CPD-OFF
         final Card expectedCard = JsonUtils.convertFromJsonFile("Business_Process_Card_Step_Type_Action.json", Card.class);
@@ -88,7 +90,8 @@ public class BusinessProcessCardBuilderTest extends ControllerTestsBase {
         verifyAction(actualCard, expectedCard, VIEW_IN_WORKDAY);
     }
 
-    @Test public void canBuildCardWithInboxTaskForPreHire() {
+    @Test
+    void canBuildCardWithInboxTaskForPreHire() {
         final RequestInfo requestInfoPreHire = RequestInfo.builder().tenantName(TENANT_NAME)
                 .routingPrefix(ROUTING_PREFIX)
                 .tenantUrl(TENANT_URL)
@@ -115,8 +118,8 @@ public class BusinessProcessCardBuilderTest extends ControllerTestsBase {
 
     @ParameterizedTest
     @MethodSource("nullInputsForCreateCard")
-    public void whenCreateCardProvidedWithNullInputs(final BusinessProcessTask businessProcessTask,
-                                                        final RequestInfo requestInfo) {
+    void whenCreateCardProvidedWithNullInputs(final BusinessProcessTask businessProcessTask,
+                                              final RequestInfo requestInfo) {
         assertThatExceptionOfType(ConstraintViolationException.class)
                 .isThrownBy(() -> businessProcessCardBuilder.createCard(businessProcessTask, requestInfo));
     }
@@ -132,8 +135,8 @@ public class BusinessProcessCardBuilderTest extends ControllerTestsBase {
 
     @ParameterizedTest
     @MethodSource("invalidInputsForCreateCard")
-    public void whenCreateCardProvidedWithInvalidInputs(final BusinessProcessTask businessProcessTask,
-                                                        final RequestInfo requestInfo) {
+    void whenCreateCardProvidedWithInvalidInputs(final BusinessProcessTask businessProcessTask,
+                                                 final RequestInfo requestInfo) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> businessProcessCardBuilder.createCard(businessProcessTask, requestInfo));
     }
