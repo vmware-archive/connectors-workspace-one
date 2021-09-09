@@ -31,7 +31,7 @@
   "dependencies": {
     "@vmw/mobile-flows-connector-commons": "^1.4.7",
     "atob": "^2.1.2",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "body-parser": "^1.19.0",
     "btoa": "^1.2.1",
     "chai": "^4.3.4",
